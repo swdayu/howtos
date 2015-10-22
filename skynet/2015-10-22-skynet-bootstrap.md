@@ -5,7 +5,7 @@
 
 # Run Skynet
 ```
-./skynet ./your/config
+./skynet your_config_file
 ```
 
 # skynet_main.c
@@ -17,7 +17,7 @@ int main(int argc, char* argv[] {
   skynet_globalinit(); // in skynet_server.c: init G_NODE and set thread-specific data of handle_key to THREAD_MAIN
     //G_NODE.total = 0;
     //G_NODE.monitor_exit = 0;
-	  //G_NODE.init = 1;
+    //G_NODE.init = 1;
 	  //if (pthread_key_create(&G_NODE.handle_key, NULL)) { exit(1); }
 	  //skynet_initthread(THREAD_MAIN); // set mainthread's key
 	     //G_NODE(in skynet_server.c)//
