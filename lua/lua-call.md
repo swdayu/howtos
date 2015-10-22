@@ -15,9 +15,9 @@ int lua_pcallk(lua_State* L, int nargs, int nresults, int errfunc, lua_KContext 
 void lua_call(lua_State* L, int nargs, int nresults);
 ```
 To call a function you must use the following protocol: 
-- first, the function to be called is pushed onto the stack; 
-- then, the arguments to the function are pushed in direct order; that is, the first argument is pushed first. 
-- Finally you call lua_call; nargs is the number of arguments that you pushed onto the stack. 
+- first, the function to be called is pushed onto the stack
+- then, the arguments to the function are pushed in direct order; that is, the first argument is pushed first
+- finally you call lua_call; nargs is the number of arguments that you pushed onto the stack 
 
 All arguments and the function value are popped from the stack when the function is called. 
 The function results are pushed onto the stack when the function returns. 
