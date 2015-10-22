@@ -20,11 +20,11 @@ int main(int argc, char* argv[] {
       //G_NODE.init = 1;
       //if (pthread_key_create(&G_NODE.handle_key, NULL)) { exit(1); }
       //skynet_initthread(THREAD_MAIN); // set mainthread's key
-	 //G_NODE(in skynet_server.c)//
-	 //struct skynet_node {
-	 //  int total; int init;
-	 //  uint32_t monitor_exit;
-	 //  pthread_key_t handle_key; };
+         //G_NODE(in skynet_server.c)//
+         //struct skynet_node {
+         //  int total; int init;
+         //  uint32_t monitor_exit;
+         //  pthread_key_t handle_key; };
          //static struct skynet_node G_NODE;
       //pthread_key_create(in pthread.h)//
          //int (pthread_key_t* key, void (*dtor)(void*)):
