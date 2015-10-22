@@ -1,3 +1,3 @@
 # howtos
 
-Collect guides and tutorials from daily work.
+Write down guides and tutorials of things.
