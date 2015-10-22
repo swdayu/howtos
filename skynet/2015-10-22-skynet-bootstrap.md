@@ -14,7 +14,7 @@ int main(int argc, char* argv[] {
   const char* config_file = get config file name from argv[1];
   luaS_initshr(); // in luashrtbl.h: current empty 
   
-  skynet_globalinit(); // in skynet_server.c: init G_NODE and set thread-specific data of handle_key to THREAD_MAIN
+  skynet_globalinit(); // in skynet_server.c: init G_NODE and set a thread-specific data THREAD_MAIN
       //G_NODE.total = 0;
       //G_NODE.monitor_exit = 0;
       //G_NODE.init = 1;
@@ -35,7 +35,8 @@ int main(int argc, char* argv[] {
              //  use `void* pthread_getspecific(pthread_key_t key)` to get specific data
          //skynet_initthread(in skynet_server.c)//
              //THREAD_MAIN(in skynet_imp.h): 1
-             //void(int m): uintptr_t v = (uint32_t)(-m); pthread_setspecific(G_NODE.handle_key, (void*)&v);
+             //void skynet_initthread(int m): 
+             //  uintptr_t v = (uint32_t)(-m); pthread_setspecific(G_NODE.handle_key, (void*)&v);
          
   skynet_env_init(); // in skynet_env.c: alloc env and init env
       //E = skynet_malloc(sizeof(*E));
