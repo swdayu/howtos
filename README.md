@@ -1,3 +1,3 @@
 # howtos
 
-Write down notes and guides of things.
+Write down notes or guides of things.
