@@ -76,7 +76,7 @@ int main(int argc, char* argv[] {
   lua_pushstring(L, config_file); // push the string of config file name get from command line onto the stack
   err = lua_pcall(L, 1, 1, 0); // run lua code with 1-arg and 1-result and no-errfunc, see `lua/lua-call.md`
   if (err) { lua_close(L); return 1; }
-  _init_env(L); // save config to env
+  _init_env(L); // save config to skynet's env
   
   // store config (if not exist in env use specified arg) to skynet config struct
   config.thread = optint("thread",8);
