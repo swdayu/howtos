@@ -2,6 +2,7 @@
 - https://github.com/cloudwu/skynet/blob/master/skynet-src/skynet_main.c
 - http://www.lua.org/manual/5.3/manual.html#4.8
 - http://linux.die.net/man/3/pthread_key_create
+- https://git.oschina.net/jackiesun8/skynet/
 
 # Run Skynet
 ```
@@ -66,15 +67,18 @@ int main(int argc, char* argv[] {
   //static const char* load_config(in skynet_main.c) = "
       //local config_name = ...; local f = assert(io.open(config_name)); local code = assert(f:read \'*a\');
       //local function getenv(name) return assert(os.getenv(name), \'os.getenv() failed: \' .. name) end
-      //code = string.gsub(code, \'%$([%w_%d]+)\', getenv); f:close();
-      //local result = {}; assert(load(code, \'=(load)\', \'t\', result))(); return result"
+      //code = string.gsub(code, \'%$([%w_%d]+)\', getenv); => replace env variables like $PATH in config code
+      //f:close(); local result = {}; 
+      //assert(load(code, \'=(load)\', \'t\', result))(); => load lua string chunk as text mode and call it
+      //return result"
   int err = luaL_loadstring(L, load_config); // loads a string as a lua chunk, only load not run
   assert(err == LUA_OK);
   lua_pushstring(L, config_file); // push the string of config file name get from command line onto the stack
   err = lua_pcall(L, 1, 1, 0); // run lua code with 1-arg and 1-result and no-errfunc, see `lua/lua-call.md`
   if (err) { lua_close(L); return 1; }
-  _init_env(L);
+  _init_env(L); // save config to env
   
+  // store config (if not exist in env use specified arg) to skynet config struct
   config.thread = optint("thread",8);
   config.module_path = optstring("cpath","./cservice/?.so");
   config.harbor = optint("harbor", 1);
@@ -83,15 +87,49 @@ int main(int argc, char* argv[] {
   config.logger = optstring("logger", NULL);
   config.logservice = optstring("logservice", "logger");
 
-  lua_close(L);
+  lua_close(L); // destroys all objects in the given lua state and frees all dynamic memory used 
   skynet_start(&config);
-  skynet_globalexit();
-  luaS_exitshr();
+  skynet_globalexit(); // in skynet_server.c: { pthread_key_delete(G_NODE_handle_key); }
+  luaS_exitshr(); // in luashrtbl.h: current empty
   return 0;
+}
+```
+
+# skynet_start.c
+```
+void skynet_start(struct skynet_config* config) {
+  if (config->daemon) {
+		if (daemon_init(config->daemon)) {
+			exit(1);
+		}
+	}
+	skynet_harbor_init(config->harbor);
+	skynet_handle_init(config->harbor);
+	skynet_mq_init();
+	skynet_module_init(config->module_path);
+	skynet_timer_init();
+	skynet_socket_init();
+
+	struct skynet_context *ctx = skynet_context_new(config->logservice, config->logger);
+	if (ctx == NULL) {
+		fprintf(stderr, "Can't launch %s service\n", config->logservice);
+		exit(1);
+	}
+
+	bootstrap(ctx, config->bootstrap);
+
+	start(config->thread);
+
+	// harbor_exit may call socket send, so it should exit before socket_free
+	skynet_harbor_exit();
+	skynet_socket_free();
+	if (config->daemon) {
+		daemon_exit(config->daemon);
+	}
 }
 ```
 
 # Todo
 - skynet_malloc, skynet_lalloc
-- 
+- lua_next
 
