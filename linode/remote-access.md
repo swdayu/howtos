@@ -45,8 +45,8 @@ There are SSH clients available for every operating system.
   If you should receive this warning again from a system you already have the host key cached on, 
   you should not trust the connection and investigate matters further.
   
-  确认后，在PuTTY的警告窗口中单击Yes，此时PuTTY会把公钥保存起来后面访问就不会再收到警告了。
-  除非服务器重装了系统，否则后续警告都应该认为是被窃听了的非法连接，应该断开。
+  确认后，在PuTTY的警告窗口中单击Yes，此时PuTTY会把公钥保存起来，后面访问就不会收到警告了。
+  除非服务器重装了系统，否则后续警告都应认为被窃听了，不应该信任这个连接。
   
 [PuTTY]: http://www.chiark.greenend.org.uk/~sgtatham/putty/
 
