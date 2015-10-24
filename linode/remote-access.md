@@ -6,7 +6,7 @@ SSH encrypts all of the data transferred between the SSH client application on y
 including passwords and other sensitive information.
 There are SSH clients available for every operating system.
 
-与Linode远程通信通常使用SSH协议，这样你电脑上SSH客户端与Linode服务器之间传输的所有数据都会被加密，包括密码及其他敏感信息。
+与Linode远程通信通常使用SSH协议，这样你本地SSH客户端与Linode服务器之间传输的所有数据都会被加密，包括密码及其他敏感信息。
 
 - **Windows:** There is no native SSH client but you can use a free, open source application called PuTTY.
   PuTTY provides easy connectivity to any server running an SSH daemon (usually provided by OpenSSH).
