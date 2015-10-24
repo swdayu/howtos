@@ -12,7 +12,7 @@ There are SSH clients available for every operating system.
   PuTTY provides easy connectivity to any server running an SSH daemon (usually provided by OpenSSH).
   With this software, you can work as if you were logged into a console session on the remote system.
   
-  Windows上没有原生的SSH客户端，但你可以使用一个免费开源的软件[PuTTY][].
+  Windows上没有原生的SSH客户端，但你可以使用免费开源软件[PuTTY][].
   它可以与任何启动了SSH后台程序的服务器进行通信。
   使用这个软件，你就像登录到了远端系统的命令行窗口一样。
   
