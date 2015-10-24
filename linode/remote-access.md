@@ -45,7 +45,7 @@ There are SSH clients available for every operating system.
   If you should receive this warning again from a system you already have the host key cached on, 
   you should not trust the connection and investigate matters further.
   
-  确认后，在PuTTY的警告窗口中单击Yes，此时PuTTY会把公钥保存起来，后面访问就不会收到警告了。
+  确认后，在PuTTY的警告窗口中单击Yes，此时PuTTY会把公钥保存起来，后面访问不会再有警告。
   除非服务器重装了系统，否则后续警告都应认为被窃听了，不应该信任这个连接。
   
 [PuTTY]: http://www.chiark.greenend.org.uk/~sgtatham/putty/
@@ -72,7 +72,7 @@ There are SSH clients available for every operating system.
   root@li123-456:~#
   ```
   
-  接下来输入密码后，SSH建立连接然后登录成功。此时SSH会将服务器的公钥保存起来，后面连接就不会再有警告了。
+  接下来输入密码后，SSH建立连接然后登录成功。此时SSH会将服务器的公钥保存起来，后面连接不会再有警告。
   如果你重建了Linode，服务器上的公钥发生了变化，可能你会想把本地存储的无效公钥删除掉，可以用下面的方法：
   对于Linux和Mac执行`ssh-keygen -R your.ip.address.here`；
   对于Windows上的PuTTY你可以手动移除这个注册项的内容`HKEY_CURRENT_USER\Software\SimonTatham\PuTTY\SshHostKeys`。
