@@ -12,7 +12,8 @@ There are SSH clients available for every operating system.
   PuTTY provides easy connectivity to any server running an SSH daemon (usually provided by OpenSSH).
   With this software, you can work as if you were logged into a console session on the remote system.
   
-  Windows上没有原生的SSH客户端，但你可以使用一个免费开源的软件[PuTTY][]. 它可以与任何启动了SSH后台程序的服务器进行通信。
+  Windows上没有原生的SSH客户端，但你可以使用一个免费开源的软件[PuTTY][].
+  它可以与任何启动了SSH后台程序的服务器进行通信。
   使用这个软件，你就像登录到了远端系统的命令行窗口一样。
   
   To use PuTTY, simply download and save the program to your desktop and double-click it.
@@ -47,7 +48,7 @@ There are SSH clients available for every operating system.
   确认后，在PuTTY的警告窗口中单击Yes，此时PuTTY会把公钥保存起来后面访问就不会再收到警告了。
   除非服务器重装了系统，否则后续警告都应该认为是被窃听了的非法连接，应该断开。
   
-[PuTTY](http://www.chiark.greenend.org.uk/~sgtatham/putty/)
+[PuTTY]: http://www.chiark.greenend.org.uk/~sgtatham/putty/
 
 - **Linux:** For Linux and Mac OS X, you can use terminal window or application to log in.
   For logging in the first time, follow below instructions:
