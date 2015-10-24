@@ -1,3 +1,3 @@
 
-# Git Website
-- <http://git-scm.com/>
+# Git
+- Offical website: <http://git-scm.com/>
