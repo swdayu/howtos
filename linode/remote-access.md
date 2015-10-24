@@ -12,18 +12,22 @@ There are SSH clients available for every operating system.
   PuTTY provides easy connectivity to any server running an SSH daemon (usually provided by OpenSSH).
   With this software, you can work as if you were logged into a console session on the remote system.
   
-  Windows上没有原生的SSH客户端，但你可以使用免费开源软件[PuTTY][].
+  Windows上没有原生的SSH客户端，但你可以使用免费开源软件[PuTTY][1].
   它可以与任何启动了SSH后台程序的服务器进行通信。
   使用这个软件，就像是登录到了远程系统的控制台程序上一样。
   
   To use PuTTY, simply download and save the program to your desktop and double-click it.
   Enter the hostname or IP address of the system you'd like to log into and click "Open" to start an SSH session.
   The default port for SSH is 22. If the SSH daemon is running on a different port, 
-  you'll need to specify it after the hostname on the "Session" screen.
+  you'll need to specify it after the hostname on the "Session" screen. See the picture below: 
+  ![Putty Session Image][2]
   
   使用PuTTY，只要下载好可执行程序然后双击启动它，然后输入你想登录的主机名或IP地址，点击Open就可以开始一个SSH会话。
   SSH的默认端口是22，如果服务器上的SSH后台程序运行在不同的端口，你需要在PuTTY中特别指定这个端口。
-  
+
+[1]: http://www.chiark.greenend.org.uk/~sgtatham/putty/
+[2]: ./assets/putty-session.png
+
   If you haven't logged into this system with PuTTY before, you will receive a warning.
   In this case, PuTTY is asking you to verify that the server you're logging into is who it says it is.
   This is due to the possibility that someone could be eavesdroppong on your connection, posing as the server you are trying to log into.
@@ -48,8 +52,6 @@ There are SSH clients available for every operating system.
   确认后，在PuTTY的警告窗口中单击Yes，此时PuTTY会把公钥保存起来，后面访问不会再有警告。
   除非服务器重装了系统，否则后续警告都应认为被窃听了，不应该信任这个连接。
   
-[PuTTY]: http://www.chiark.greenend.org.uk/~sgtatham/putty/
-
 - **Linux:** For Linux and Mac OS X, you can use terminal window or application to log in.
   For logging in the first time, follow below instructions:
   
