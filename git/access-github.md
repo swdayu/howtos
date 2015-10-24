@@ -3,9 +3,33 @@
 - https://help.github.com/articles/which-remote-url-should-i-use/
 - http://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes
 
-# Clone Repo From GitHub
+# Pull down
+
+Clone a repo into a new directory, or if there is a same name in this directory, it will be fatal.
 ```
+$ cd github-repo
 $ git clone https://github.com/xijkn/howtos.git
+Cloning into 'howtos' ...
+$ git clone https://github.com/xijkn/howtos.git   
+fatal: destination path 'howtos' already exists and is not an empty directory.
+```
+
+Adds a name for the repository at remote url.
+```
+$ cd howtos
+$ git remote add https-howtos https://github.com/xijkn/howtos.git
+$ git remote add ssh-howtos git@github.com:xijkn/howtos.git
+```
+
+Check current short names in the repo. 
+```
+$ git remote -v
+https-howtos    https://github.com/xijkn/howtos.git (fetch)
+https-howtos    https://github.com/xijkn/howtos.git (push)
+origin  https://github.com/xijkn/howtos.git (fetch)
+origin  https://github.com/xijkn/howtos.git (push)
+ssh-howtos      git@github.com:xijkn/howtos.git (fetch)
+ssh-howtos      git@github.com:xijkn/howtos.git (push)
 ```
 
 [[draft]]
