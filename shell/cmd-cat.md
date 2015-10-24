@@ -16,3 +16,8 @@ cat >> a_file << END
 > append last line of text
 > END
 ```
+
+Dispaly file content.
+```
+cat a_file
+```
