@@ -14,7 +14,7 @@ There are SSH clients available for every operating system.
   
   Windows上没有原生的SSH客户端，但你可以使用免费开源软件[PuTTY][].
   它可以与任何启动了SSH后台程序的服务器进行通信。
-  使用这个软件，你就像登录到了远端系统的命令行窗口一样。
+  使用这个软件，就像是登录到了远程系统的控制台程序上一样。
   
   To use PuTTY, simply download and save the program to your desktop and double-click it.
   Enter the hostname or IP address of the system you'd like to log into and click "Open" to start an SSH session.
