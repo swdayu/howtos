@@ -30,7 +30,7 @@ Lua is free software, and is provided as usual with no guarantees, as stated in 
 The implementation described in this manual is available at Lua's official web site, [www.lua.org](www.lua.org).
 
 Lua是免费软件，如使用许可陈述，其使用过程不提供任何担保。
-这份手册中描述的实现也可以在Lua官方网站（[www.lua.org](www.lua.org))上找到。
+这份手册中描述的实现也可以在Lua官方网站（[www.lua.org](www.lua.org)）上找到。
 
 Like any other reference manual, this document is dry in places. 
 For a discussion of the decisions behind the design of Lua, see the technical papers available at Lua's web site. 
