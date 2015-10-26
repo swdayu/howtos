@@ -23,7 +23,7 @@ standalone Lua interpreter, for interactive or batch use.
 
 作为一种扩展语言，Lua没有main程序概念：它仅在宿主程序中工作。
 宿主程序可以调用函数执行Lua代码、读写Lua变量、也可以注册C函数让其在Lua中调用。
-通过使用C函数，Lua可以共享相同的语法框架来定制编程语言，使其扩展到广泛的不同领域中。
+通过使用C函数，Lua可以共享相同的语法框架来定制编程语言，使其扩展应用到不同领域中。
 Lua发布版中包含了一个叫lua的宿主程序，它用Lua库实现了一个完整独立的Lua解释器，可用于交互式应用或批处理。
 
 Lua is free software, and is provided as usual with no guarantees, as stated in its license. 
