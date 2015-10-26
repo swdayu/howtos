@@ -31,4 +31,4 @@ Like any other reference manual, this document is dry in places.
 For a discussion of the decisions behind the design of Lua, see the technical papers available at Lua's web site. 
 For a detailed introduction to programming in Lua, see Roberto's book, Programming in Lua. 
 
-=> [2. Basic Concepts](../2-basic-concepts/2.1-values-and-types.md)
+[2. Basic Concepts](../2-basic-concepts/2.1-values-and-types.md)
