@@ -1,9 +1,5 @@
 
-# References
-- http://www.lua.org/manual/5.3/manual.html
-- http://www.lua.org/cgi-bin/demo
-
-# Introduction
+# 1. Introduction
 
 Lua is an extension programming language designed to support 
 general procedural programming with data description facilities. 
@@ -25,7 +21,7 @@ standalone Lua interpreter, for interactive or batch use.
 
 作为一种扩展语言，Lua没有main程序概念：它仅在宿主程序中工作。
 宿主程序可以调用函数执行一块Lua代码，读写Lua变量，也可以注册C函数让它可以在Lua代码中调用。
-［Through ... framework. => TODO]
+[Through ... framework. => TODO] 
 Lua发布中包含了一个叫lua的宿主程序，它用Lua库实现了一个完整独立的Lua解释器，可用于交互式编程和批处理。
 
 Lua is free software, and is provided as usual with no guarantees, as stated in its license. 
@@ -34,3 +30,5 @@ The implementation described in this manual is available at Lua's official web s
 Like any other reference manual, this document is dry in places. 
 For a discussion of the decisions behind the design of Lua, see the technical papers available at Lua's web site. 
 For a detailed introduction to programming in Lua, see Roberto's book, Programming in Lua. 
+
+Next: [2. Basic Concepts](../2-basic-concepts/2.1-values-and-types.md)
