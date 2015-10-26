@@ -1,6 +1,13 @@
 
-# wine
+# References
+- https://en.wikipedia.org/wiki/Wine_%28software%29
 
+# Wine
+
+Wine (Wine Is Not an Emulator) is a free and open source compatibility layer software application
+that aims to allow applications designed for Microsoft Windows to run on Unix-like operating systems.
+
+Install and run on Ubuntu:
 ```
 $ sudo apt-get install wine
 $ wine --version
