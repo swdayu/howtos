@@ -9,7 +9,7 @@ Lua is implemented as a library, written in clean C, the common subset of Standa
 
 Lua是一种扩展性的拥有数据描述功能的通用过程式编程语言。
 它对面向对象编程、函数式编程、数据驱动式编程也有很好的支持。
-Lua通常作为一种强大、轻量、可嵌入的脚本语言用在其他程序中。
+Lua通常作为强大、轻量、可嵌入的脚本语言用在其他程序中。
 Lua是用clean C（标准C和C++的通用子集）实现的程序库。
 
 As an extension language, Lua has no notion of a "main" program: 
