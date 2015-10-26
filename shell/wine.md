@@ -5,6 +5,7 @@
 $ sudo apt-get install wine
 $ wine --version
 wine-1.4
+
 $ sudo add-apt-repository ppa:ubuntu-wine/ppa
 $ sudo apt-get update
 $ sudo apt-get upgrade
