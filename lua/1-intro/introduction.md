@@ -1,5 +1,5 @@
 
-# Refrence
+# Reference
 - [Lua 5.3 Reference Manual](http://www.lua.org/manual/5.3/manual.html)
 
 # 1. Introduction
