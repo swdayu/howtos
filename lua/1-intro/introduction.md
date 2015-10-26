@@ -25,10 +25,10 @@ standalone Lua interpreter, for interactive or batch use.
 Lua发布中包含了一个叫lua的宿主程序，它用Lua库实现了一个完整独立的Lua解释器，可用于交互式编程和批处理。
 
 Lua is free software, and is provided as usual with no guarantees, as stated in its license. 
-The implementation described in this manual is available at Lua's official web site, <www.lua.org>.
+The implementation described in this manual is available at Lua's official web site, [www.lua.org](www.lua.org).
 
 Like any other reference manual, this document is dry in places. 
 For a discussion of the decisions behind the design of Lua, see the technical papers available at Lua's web site. 
 For a detailed introduction to programming in Lua, see Roberto's book, Programming in Lua. 
 
-Next: [2. Basic Concepts](../2-basic-concepts/2.1-values-and-types.md)
+=> [2. Basic Concepts](../2-basic-concepts/2.1-values-and-types.md)
