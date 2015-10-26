@@ -42,4 +42,4 @@ For a detailed introduction to programming in Lua, see Roberto's book, Programmi
 像其他参考手册一样，这份文档是枯燥的。关于Lua背后为什么这样设计的讨论，可以查看Lua官方网站上的技术论文。
 关于Lua编程的详细介绍，可以参考Reberto的书《Programming in Lua》。
 
-[2. Basic Concepts](../2-basic-concepts/2.1-values-and-types.md)
+[2. Basic Concepts](./2-basic-concepts/2.1-values-and-types.md)
