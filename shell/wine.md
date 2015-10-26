@@ -25,3 +25,10 @@ $ winecfg # config wine
 $ cd folder
 $ wine ./program.exe
 ```
+
+C drive disk location: ~/.wine/drive_c
+- /Program Files
+- /Program Files(x86)
+- /users
+- /windows
+
