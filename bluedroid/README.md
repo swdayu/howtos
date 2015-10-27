@@ -43,13 +43,19 @@ hci (Communicate with BT Controller)
 --------------------------------------
 ```
 
+Bluetooth related folders on Android:
+- android/frameworks/base/core/java/android/bluetooth/
+- android/frameworks/opt/bluetooth/
+- android/hardware/libhardware/include/hardware/
+- android/packages/apps/bluetooth/
+- android/packages/apps/settings/src/com/android/settings/bluetooth/
+- android/kernel/net/bluetooth/
+- android/kernel/include/net/bluetooth/
+- android/kernel/drivers/bluetooth/
+
 ## Tasks
 
 Bluedroid run in the process of `com.android.bluetooth`.
 There are 4 tasks: BTIF_TASK, BTU_TASK, A2DP_MEDIA_TASK, GKI_TIMER_TASK. 
 There is a RX thread of `bt_hc_workder_thread` used to read data from lower layer such as uart.
-
-
-
-
 
