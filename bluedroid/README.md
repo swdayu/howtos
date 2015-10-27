@@ -1,12 +1,8 @@
 # Bluedroid
-
-References:
 - http://androidxref.com/
 
-[[draft]]
-
 Bluedroid folder tree:
-- external/bluetooth/bluedroid/
+- android/external/bluetooth/bluedroid/
   - audio_a2dp_hw
   - bta: bluetooth application profile layer
   - btif: bluetooth interface between java and c
@@ -28,7 +24,7 @@ Bluedroid folder tree:
   - Android.mk: an android makefile for building bluedroid
   - CleanSpec.mk: an android makefile for cleaning
 
-Bluedroid layers:
+Bluedroid core modules:
 ```
 --------------------------------------
 java wrold
