@@ -32,7 +32,7 @@ Bluedroid core modules
 - **stack** (BT Protocols)
 - **hci** (Communicate with BT Controller)
 
-Bluetooth related folders on Android:
+Bluetooth related folders on Android
 - android/frameworks/base/core/java/android/bluetooth/
 - android/frameworks/opt/bluetooth/
 - android/hardware/libhardware/include/hardware/
