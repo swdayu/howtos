@@ -25,20 +25,12 @@ Bluedroid folders
   - **wipowerif**
   - Android.mk: an android makefile for building bluedroid
   - CleanSpec.mk: an android makefile for cleaning
-  
-```
---------------------------------------
-java wrold
---------------------------------------
-btif (Communicate with Java using JNI)
---------------------------------------
-bta (BT Profiles)
---------------------------------------
-stack (BT Protocols)
---------------------------------------
-hci (Communicate with BT Controller)
---------------------------------------
-```
+
+Bluedroid core modules
+- **btif** (Communicate with Java using JNI)
+- **bta** (BT Profiles)
+- **stack** (BT Protocols)
+- **hci** (Communicate with BT Controller)
 
 Bluetooth related folders on Android:
 - android/frameworks/base/core/java/android/bluetooth/
