@@ -3,6 +3,8 @@
 References:
 - http://androidxref.com/
 
+[[draft]]
+
 Bluedroid folder tree:
 - external/bluetooth/bluedroid/
   - audio_a2dp_hw
