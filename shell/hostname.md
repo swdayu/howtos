@@ -1,7 +1,9 @@
 
 # Ubuntu host name
 
-Change "System Settings | Details | Overview | **Device name**" and "username@**hostname**:~$" displayed in Terminal.
+Change device name display in "System Settings | Details | Overview | **Device name**",
+or the hostname display in Terminal "username@**hostname**:~$":
+
 1. check current hostname with command `$ sudo hostname`
 2. modify the hostname to you wanted using `$ sudo gedit /etc/hostname`
 3. modify hostname in hosts file `$ sudo gedit /etc/hosts`, for example:
