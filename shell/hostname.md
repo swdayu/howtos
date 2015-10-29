@@ -2,9 +2,10 @@
 # Ubuntu host name
 
 Change "System Settings | Details | Overview | **Device name**" and "username@**hostname**:~$" displayed in Terminal.
-
-1. sudo hostname # display current hostname
-2. sudo gedit /etc/hostname # modify the hostname
-3. sudo gedit /etc/hosts # modify hostname in host list
+1. check current hostname with command `$ sudo hostname`
+2. modify the hostname to you wanted using `$ sudo gedit /etc/hostname`
+3. modify hostname in hosts file `$ sudo gedit /etc/hosts`, for example:
+    127.0.0.1 localhost
+    127.0.1.1 **ubuntu**
 4. physically reboot your device
-5. sudo hostname # check your updated hostname
+5. open Terminal you will see the updated hostname, for example: `username@ubuntu:~$`
