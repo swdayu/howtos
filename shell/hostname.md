@@ -1,14 +1,11 @@
 
-# Ubuntu host name
+Using following commands to change the hostname on Ubuntu:
+```
+$ sudo hostname # display current hostname
+$ sudo gedit /etc/hostname
+$ sudo gedit /etc/hosts
+```
 
-Change device name display in "System Settings | Details | Overview | **Device name**",
-or the hostname display in Terminal "username@**hostname**:~$":
-
-1. check current hostname with command `$ sudo hostname`
-2. modify the hostname to you wanted using `$ sudo gedit /etc/hostname`
-3. modify hostname in hosts file `$ sudo gedit /etc/hosts`, for example:
-    
-    127.0.0.1 localhost
-    127.0.1.1 **ubuntu**
-    
-4. physically reboot your device
+After physically reboot your device, the hostname will be updated permanently.
+Check the name display in "System Settings | Details | Overview | **Device name**",
+and the name display in the Terminal "username@**hostname**:~$".
