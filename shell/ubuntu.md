@@ -46,6 +46,11 @@ apt-get --help
 - clean - Erase downloaded archive files
 - autoclean - Erase old download archive files
 
+Search package
+```
+sudo apt-cache search pkgname
+```
+
 ## Wine
 
 Wine (Wine Is Not an Emulator) is a free and open source compatibility layer software application
@@ -74,3 +79,11 @@ System disk
   - /users
   - /windows
 
+## Notepadqq
+
+For Ubuntu 14.10, Ubuntu 14.04 and derivatives, Notepadqq 0.46.0 is available via PPA, so installing it is easy. All you have to do is add the ppa to your system, update the local repository index and install the notepadqq package. Like this:
+```
+$ sudo add-apt-repository ppa:notepadqq-team/notepadqq
+$ sudo apt-get update
+$ sudo apt-get install notepadqq
+```
