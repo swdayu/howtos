@@ -150,37 +150,77 @@ Therefore, integer keys must not be used for other purposes.
 When you create a new Lua state, its registry comes with some predefined values. 
 These predefined values are indexed with integer keys defined as constants in lua.h. 
 The following constants are defined:
+
 - **LUA_RIDX_MAINTHREAD**: At this index the registry has the main thread of the state. 
   (The main thread is the one created together with the state.)
+
 - **LUA_RIDX_GLOBALS**: At this index the registry has the global environment.
 
 当创建一个新的Lua状态时，它的注册表就有了一些预定义的值。
 这些预定义的值通过`lua.h`头文件中定义的数值键来访问。
-下面的常量有被定义：
-- **LUA_RIDX_MAINTHREAD**: 在注册表中这个位置的是Lua状态的主线程（主线程是与Lua状态一起同时创建的线程）。
-- **LUA_RIDX_GLOBALS**: 在注册表这个位置的是Lua的全局环境。
+`LUA_RIDX_MAINTHREAD`对应位置时Lua状态的主线程（主线程是与Lua状态一起同时创建的线程）。
+`LUA_RIDX_GLOBALS`对应这个位置是Lua的全局环境。
 
 ## 4.6 Error Handling in C
 
-Internally, Lua uses the C longjmp facility to handle errors. (Lua will use exceptions if you compile it as C++; search for LUAI_THROW in the source code for details.) When Lua faces any error (such as a memory allocation error, type errors, syntax errors, and runtime errors) it raises an error; that is, it does a long jump. A protected environment uses setjmp to set a recovery point; any error jumps to the most recent active recovery point.
+Internally, Lua uses the C `longjmp` facility to handle errors. 
+(Lua will use exceptions if you compile it as C++; search for LUAI_THROW in the source code for details.) 
+When Lua faces any error (such as a memory allocation error, type errors, syntax errors, and runtime errors) 
+it raises an error; that is, it does a long jump. A protected environment uses `setjmp` to set a recovery point; 
+any error jumps to the most recent active recovery point.
 
-If an error happens outside any protected environment, Lua calls a panic function (see lua_atpanic) and then calls abort, thus exiting the host application. Your panic function can avoid this exit by never returning (e.g., doing a long jump to your own recovery point outside Lua).
+在内部，Lua使用C中的`longjmp`处理错误（Lua会使用一场如果当作C++编译它；参看代码中`LUAI_THROW`）。
+当Lua遇到任何错误（入内存分配错误、类型错误、语法错误、运行时错误），它都会触发一次错误，也即执行`longjmp`。
+受保护的环境使用`setjmp`设置恢复点，当遇到任何错误时会跳转到最近的活动恢复点。
 
-The panic function runs as if it were a message handler (see §2.3); in particular, the error message is at the top of the stack. However, there is no guarantee about stack space. To push anything on the stack, the panic function must first check the available space (see §4.2).
+If an error happens outside any protected environment, 
+Lua calls a `panic` function (see `lua_atpanic`) and then calls `abort`, thus exiting the host application. 
+Your panic function can avoid this exit by never returning 
+(e.g., doing a long jump to your own recovery point outside Lua).
 
-Most functions in the API can raise an error, for instance due to a memory allocation error. The documentation for each function indicates whether it can raise errors.
+如果错误发生在受保护的环境外，Lua会调用`panic`函数（见`lua_atpanic`）并调用`abort`函数退出宿主程序。
+你自己设置自己的`panic`函数来避免这种异常退出（使用`longjmp`跳转到Lua外面你自己的恢复点）。
 
-Inside a C function you can raise an error by calling lua_error.
+The panic function runs as if it were a message handler (see §2.3); 
+in particular, the error message is at the top of the stack. However, there is no guarantee about stack space. 
+To push anything on the stack, the panic function must first check the available space (see §4.2).
+
+`panic`函数当作一个错误消息处理函数来执行；特别的，这个错误消息位于栈顶部。
+然而，不保证栈还有额外的空间，因此压入数据之前，`panic`函数应该先检查栈的状态。
+
+Most functions in the API can raise an error, for instance due to a memory allocation error. 
+The documentation for each function indicates whether it can raise errors.
+
+Inside a C function you can raise an error by calling `lua_error`.
+
+大多数C API函数会触发异常，例如由于内存分配引发的错误异常。
+每个API的文档中都指明了是否会触发异常。
+在C函数中，你也可以自己调用`lua_error`触发一个异常。
 
 ## 4.7 Handling Yields in C
 
-Internally, Lua uses the C longjmp facility to yield a coroutine. Therefore, if a C function foo calls an API function and this API function yields (directly or indirectly by calling another function that yields), Lua cannot return to foo any more, because the longjmp removes its frame from the C stack.
+Internally, Lua uses the C `longjmp` facility to yield a coroutine. 
+Therefore, if a C function foo calls an API function and this API function yields 
+(directly or indirectly by calling another function that yields), 
+Lua cannot return to foo any more, because the longjmp removes its frame from the C stack.
 
-To avoid this kind of problem, Lua raises an error whenever it tries to yield across an API call, except for three functions: lua_yieldk, lua_callk, and lua_pcallk. All those functions receive a continuation function (as a parameter named k) to continue execution after a yield.
+To avoid this kind of problem, Lua raises an error whenever it tries to yield across an API call, 
+except for three functions: `lua_yieldk`, `lua_callk`, and `lua_pcallk`. 
+All those functions receive a continuation function (as a parameter named `k`) to continue execution after a yield.
 
-We need to set some terminology to explain continuations. We have a C function called from Lua which we will call the original function. This original function then calls one of those three functions in the C API, which we will call the callee function, that then yields the current thread. (This can happen when the callee function is lua_yieldk, or when the callee function is either lua_callk or lua_pcallk and the function called by them yields.)
+We need to set some terminology to explain continuations. 
+We have a C function called from Lua which we will call the original function. 
+This original function then calls one of those three functions in the C API, 
+which we will call the callee function, that then yields the current thread. 
+(This can happen when the callee function is `lua_yieldk`, 
+or when the callee function is either `lua_callk` or `lua_pcallk` and the function called by them yields.)
 
-Suppose the running thread yields while executing the callee function. After the thread resumes, it eventually will finish running the callee function. However, the callee function cannot return to the original function, because its frame in the C stack was destroyed by the yield. Instead, Lua calls a continuation function, which was given as an argument to the callee function. As the name implies, the continuation function should continue the task of the original function.
+Suppose the running thread yields while executing the callee function. 
+After the thread resumes, it eventually will finish running the callee function. 
+However, the callee function cannot return to the original function, 
+because its frame in the C stack was destroyed by the yield. 
+Instead, Lua calls a continuation function, which was given as an argument to the callee function. 
+As the name implies, the continuation function should continue the task of the original function.
 
 As an illustration, consider the following function:
 
@@ -189,7 +229,8 @@ As an illustration, consider the following function:
        status = lua_pcall(L, n, m, h);  /* calls Lua */
        ...     /* code 2 */
      }
-Now we want to allow the Lua code being run by lua_pcall to yield. First, we can rewrite our function like here:
+Now we want to allow the Lua code being run by lua_pcall to yield. 
+First, we can rewrite our function like here:
 
      int k (lua_State *L, int status, lua_KContext ctx) {
        ...  /* code 2 */
@@ -199,17 +240,40 @@ Now we want to allow the Lua code being run by lua_pcall to yield. First, we can
        ...     /* code 1 */
        return k(L, lua_pcall(L, n, m, h), ctx);
      }
-In the above code, the new function k is a continuation function (with type lua_KFunction), which should do all the work that the original function was doing after calling lua_pcall. Now, we must inform Lua that it must call k if the Lua code being executed by lua_pcall gets interrupted in some way (errors or yielding), so we rewrite the code as here, replacing lua_pcall by lua_pcallk:
+In the above code, the new function k is a continuation function (with type `lua_KFunction`), 
+which should do all the work that the original function was doing after calling `lua_pcall`. 
+Now, we must inform Lua that it must call `k` if the Lua code being executed by `lua_pcall` gets interrupted 
+in some way (errors or yielding), so we rewrite the code as here, replacing `lua_pcall` by `lua_pcallk`:
 
      int original_function (lua_State *L) {
        ...     /* code 1 */
        return k(L, lua_pcallk(L, n, m, h, ctx2, k), ctx1);
      }
-Note the external, explicit call to the continuation: Lua will call the continuation only if needed, that is, in case of errors or resuming after a yield. If the called function returns normally without ever yielding, lua_pcallk (and lua_callk) will also return normally. (Of course, instead of calling the continuation in that case, you can do the equivalent work directly inside the original function.)
+Note the external, explicit call to the continuation: Lua will call the continuation only if needed, 
+that is, in case of errors or resuming after a yield. 
+If the called function returns normally without ever yielding, 
+`lua_pcallk` (and `lua_callk`) will also return normally. 
+(Of course, instead of calling the continuation in that case, 
+you can do the equivalent work directly inside the original function.)
 
-Besides the Lua state, the continuation function has two other parameters: the final status of the call plus the context value (ctx) that was passed originally to lua_pcallk. (Lua does not use this context value; it only passes this value from the original function to the continuation function.) For lua_pcallk, the status is the same value that would be returned by lua_pcallk, except that it is LUA_YIELD when being executed after a yield (instead of LUA_OK). For lua_yieldk and lua_callk, the status is always LUA_YIELD when Lua calls the continuation. (For these two functions, Lua will not call the continuation in case of errors, because they do not handle errors.) Similarly, when using lua_callk, you should call the continuation function with LUA_OK as the status. (For lua_yieldk, there is not much point in calling directly the continuation function, because lua_yieldk usually does not return.)
+Besides the Lua state, the continuation function has two other parameters: 
+the final status of the call plus the context value (`ctx`) that was passed originally to `lua_pcallk`. 
+(Lua does not use this context value; it only passes this value from the original function to 
+the continuation function.) 
+For `lua_pcallk`, the status is the same value that would be returned by `lua_pcallk`, 
+except that it is `LUA_YIELD` when being executed after a yield (instead of `LUA_OK`). 
+For `lua_yieldk` and `lua_callk`, the status is always `LUA_YIELD` when Lua calls the continuation. 
+(For these two functions, Lua will not call the continuation in case of errors, because they do not handle errors.)
+Similarly, when using `lua_callk`, you should call the continuation function with `LUA_OK` as the status. 
+(For `lua_yieldk`, there is not much point in calling directly the continuation function, 
+because `lua_yieldk` usually does not return.)
 
-Lua treats the continuation function as if it were the original function. The continuation function receives the same Lua stack from the original function, in the same state it would be if the callee function had returned. (For instance, after a lua_callk the function and its arguments are removed from the stack and replaced by the results from the call.) It also has the same upvalues. Whatever it returns is handled by Lua as if it were the return of the original function.
+Lua treats the continuation function as if it were the original function. 
+The continuation function receives the same Lua stack from the original function, 
+in the same state it would be if the callee function had returned. 
+(For instance, after a lua_callk the function and its arguments are removed from the stack and 
+replaced by the results from the call.) It also has the same upvalues. 
+Whatever it returns is handled by Lua as if it were the return of the original function.
 
 ## 4.8 Functions and Types
 
