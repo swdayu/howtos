@@ -1,56 +1,164 @@
 
 # 4. The Application Program Interface
 
-This section describes the C API for Lua, that is, the set of C functions available to the host program to communicate with Lua. All API functions and related types and constants are declared in the header file lua.h.
+This section describes the C API for Lua, that is, 
+the set of C functions available to the host program to communicate with Lua. 
+All API functions and related types and constants are declared in the header file lua.h.
 
-Even when we use the term "function", any facility in the API may be provided as a macro instead. Except where stated otherwise, all such macros use each of their arguments exactly once (except for the first argument, which is always a Lua state), and so do not generate any hidden side-effects.
+Even when we use the term "function", any facility in the API may be provided as a macro instead. 
+Except where stated otherwise, all such macros use each of their arguments exactly once 
+(except for the first argument, which is always a Lua state), and so do not generate any hidden side-effects.
 
-As in most C libraries, the Lua API functions do not check their arguments for validity or consistency. However, you can change this behavior by compiling Lua with the macro LUA_USE_APICHECK defined.
+As in most C libraries, the Lua API functions do not check their arguments for validity or consistency. 
+However, you can change this behavior by compiling Lua with the macro `LUA_USE_APICHECK` defined.
+
+这部分介绍Lua的C API，即宿主语言中可以使用的与Lua交互的C函数。
+所有函数和相关类型和常量都声明在`lua.h`头文件中。
+虽然说的是函数，但有些API可能以宏的形式提供。
+除非特别说明，否在宏都只使用参数一次（第一个参数除外，这个参数总是Lua state），因而不会参数隐藏的宏副作用。
+像大多数的C函数库一样，Lua的这些不会检查传入参数的有效性和一致性。
+可以使用宏`LUA_USE_APICHECK`重新编译Lua改变这个行为。
 
 ## 4.1 The Stack
 
-Lua uses a virtual stack to pass values to and from C. Each element in this stack represents a Lua value (nil, number, string, etc.).
+Lua uses a virtual stack to pass values to and from C. 
+Each element in this stack represents a Lua value (nil, number, string, etc.).
 
-Whenever Lua calls C, the called function gets a new stack, which is independent of previous stacks and of stacks of C functions that are still active. This stack initially contains any arguments to the C function and it is where the C function pushes its results to be returned to the caller (see lua_CFunction).
+Whenever Lua calls C, the called function gets a new stack, 
+which is independent of previous stacks and of stacks of C functions that are still active. 
+This stack initially contains any arguments to the C function and it is where the C function pushes its results 
+to be returned to the caller (see `lua_CFunction`).
 
-For convenience, most query operations in the API do not follow a strict stack discipline. Instead, they can refer to any element in the stack by using an index: A positive index represents an absolute stack position (starting at 1); a negative index represents an offset relative to the top of the stack. More specifically, if the stack has n elements, then index 1 represents the first element (that is, the element that was pushed onto the stack first) and index n represents the last element; index -1 also represents the last element (that is, the element at the top) and index -n represents the first element.
+Lua使用虚拟栈将参数传递给C或从C接收参数。栈的元素代表Lua值（如`nil`、数值、字符串、等等）。
+当Lua调用C函数时，被调用的函数都获得一个新栈，这个栈独立于任何之前的栈以及当前活动的C函数对应的栈。
+栈初始情况下包含传递给C的所有参数，它也是C函数存放结果放回给调用者的地方（见`lua_CFunction`）。
+
+For convenience, most query operations in the API do not follow a strict stack discipline. 
+Instead, they can refer to any element in the stack by using an index: 
+A positive index represents an absolute stack position (starting at 1); 
+a negative index represents an offset relative to the top of the stack. 
+More specifically, if the stack has n elements, then index 1 represents the first element 
+(that is, the element that was pushed onto the stack first) and index n represents the last element; 
+index -1 also represents the last element (that is, the element at the top) and index -n represents the first element.
+
+为了方便，大多数的查询操作都没有严格遵循栈规则。而是索引值来直接访问栈中的变量。
+正索引代表一个绝对的栈位置（计数从1开始），负索引代表从栈顶算起的相对偏移。
+更准确地，如果栈有n个元素，则索引1表示第一个元素（即压入栈中的第一个元素），索引n表示最后一个元素；
+索引-1也表示最后一个元素（即栈顶元素），索引-n表示第一个元素。
 
 ## 4.2 Stack Size
 
-When you interact with the Lua API, you are responsible for ensuring consistency. In particular, you are responsible for controlling stack overflow. You can use the function lua_checkstack to ensure that the stack has enough space for pushing new elements.
+When you interact with the Lua API, you are responsible for ensuring consistency. 
+In particular, you are responsible for controlling stack overflow. 
+You can use the function `lua_checkstack` to ensure that the stack has enough space for pushing new elements.
 
-Whenever Lua calls C, it ensures that the stack has space for at least LUA_MINSTACK extra slots. LUA_MINSTACK is defined as 20, so that usually you do not have to worry about stack space unless your code has loops pushing elements onto the stack.
+使用这个应用接口时，你必须自己负责程序的一致性。特别的，你应对栈的溢出情况负责。
+可以使用`lua_checkstack`函数保证栈有做够的空间压入新元素。
 
-When you call a Lua function without a fixed number of results (see lua_call), Lua ensures that the stack has enough space for all results, but it does not ensure any extra space. So, before pushing anything in the stack after such a call you should use lua_checkstack.
+Whenever Lua calls C, it ensures that the stack has space for at least `LUA_MINSTACK` extra slots. 
+`LUA_MINSTACK` is defined as 20, so that usually you do not have to worry about stack space 
+unless your code has loops pushing elements onto the stack.
+
+当Lua调用C函数时会保证栈的大小最少有`LUA_MINSTACK`个额外元素的空间可以使用。
+这个值定义为20，因此你通常不需要去担心栈的空间除非你的代码使用循环压入来很多元素到栈中。
+
+When you call a Lua function without a fixed number of results (see `lua_call`), 
+Lua ensures that the stack has enough space for all results, but it does not ensure any extra space. 
+So, before pushing anything in the stack after such a call you should use `lua_checkstack`.
+
+当调用一个没有固定值的Lua函数时（见`lua_call`），Lua保证有做够的空间来存储所有的参数，但是不保证还有其他额外的空间。
+因此，在调用来这样的函数后，在继续压入数据之前应该先调用一次`lua_checkstack`。
 
 ## 4.3 Valid and Acceptable Indices
 
 Any function in the API that receives stack indices works only with valid indices or acceptable indices.
 
-A valid index is an index that refers to a position that stores a modifiable Lua value. It comprises stack indices between 1 and the stack top (1 ≤ abs(index) ≤ top) plus pseudo-indices, which represent some positions that are accessible to C code but that are not in the stack. Pseudo-indices are used to access the registry (see §4.5) and the upvalues of a C function (see §4.4).
+A valid index is an index that refers to a position that stores a modifiable Lua value. 
+It comprises stack indices between 1 and the stack top (1 ≤ abs(index) ≤ top) plus pseudo-indices,
+which represent some positions that are accessible to C code but that are not in the stack. 
+Pseudo-indices are used to access the registry (see §4.5) and the upvalues of a C function (see §4.4).
 
-Functions that do not need a specific mutable position, but only a value (e.g., query functions), can be called with acceptable indices. An acceptable index can be any valid index, but it also can be any positive index after the stack top within the space allocated for the stack, that is, indices up to the stack size. (Note that 0 is never an acceptable index.) Except when noted otherwise, functions in the API work with acceptable indices.
+接收stack index的函数只有当是有效的index或可接受的index时才正常工作。
+有效的index是指它引用的位置存储了可被修改的Lua值，
+它的范围从1到stack顶部（即`1 ≤ abs(index) ≤ top`）再加上pseudo-indices，这是C代码可以访问但不再stack中的一些位置。
+Pseudo-indices用于访问C注册表以及C函数的upvalue。
 
-Acceptable indices serve to avoid extra tests against the stack top when querying the stack. For instance, a C function can query its third argument without the need to first check whether there is a third argument, that is, without the need to check whether 3 is a valid index.
+Functions that do not need a specific mutable position, 
+but only a value (e.g., query functions), can be called with acceptable indices. 
+An acceptable index can be any valid index, but it also can be any positive index after the stack top 
+within the space allocated for the stack, that is, indices up to the stack size. 
+(Note that 0 is never an acceptable index.) 
+Except when noted otherwise, functions in the API work with acceptable indices.
 
-For functions that can be called with acceptable indices, any non-valid index is treated as if it contains a value of a virtual type LUA_TNONE, which behaves like a nil value.
+如果函数不需要可修改的index位置，只需要读取值（如查询函数），则这些函数可以用acceptable index调用。
+一个acceptable index可以时任何valid index，但它还可以是在以分配stack内部但是超过stack top的index，即小于栈实际大小的index（注意0不是acceptable index）。
+除非特别说明，C API的函数都使用acceptable index。
+
+Acceptable indices serve to avoid extra tests against the stack top when querying the stack. 
+For instance, a C function can query its third argument without the need to first check 
+whether there is a third argument, that is, without the need to check whether 3 is a valid index.
+
+For functions that can be called with acceptable indices, any non-valid index is treated as if 
+it contains a value of a virtual type `LUA_TNONE`, which behaves like a `nil` value.
+
+Acceptable index用于避免在查询栈时进行额外的栈顶测试。
+例如，C函数可以查询它的第3个参数而不用首先知道是否有第3个参数，即不需要去检查3是否是一个valid index。
+可以用acceptable index调用的函数，任何non-valid index都被当作存储了虚拟值`LUA_TNONE`，这个值的用途跟`nil`类似。
 
 ## 4.4 C Closures
 
-When a C function is created, it is possible to associate some values with it, thus creating a C closure (see lua_pushcclosure); these values are called upvalues and are accessible to the function whenever it is called.
+When a C function is created, it is possible to associate some values with it, 
+thus creating a C closure (see `lua_pushcclosure`); 
+these values are called upvalues and are accessible to the function whenever it is called.
 
-Whenever a C function is called, its upvalues are located at specific pseudo-indices. These pseudo-indices are produced by the macro lua_upvalueindex. The first upvalue associated with a function is at index lua_upvalueindex(1), and so on. Any access to lua_upvalueindex(n), where n is greater than the number of upvalues of the current function (but not greater than 256), produces an acceptable but invalid index.
+Whenever a C function is called, its upvalues are located at specific pseudo-indices. 
+These pseudo-indices are produced by the macro `lua_upvalueindex`. 
+The first upvalue associated with a function is at index `lua_upvalueindex(1)`, and so on. 
+Any access to `lua_upvalueindex(n)`, where `n` is greater than the number of upvalues of the current function 
+(but not greater than 256), produces an acceptable but invalid index.
+
+创建C函数后，可以将一些值关联在函数上，这样的函数称为C closure（见`lua_pushcclosure`)；
+这些关联的值被称为upvalue，可以被关联的函数访问。
+
+当C函数被调用时，它的upvalue分配在特定的pseudo-index上。这些pseudo-index通过宏`lua_upvalueindex`产生。
+函数关联的第一个upvalue在`lua_upvalueindex(1)`位置上，依次类推。
+任何访问的位置对应值超过当前函数upvalue的个数但是不大于256，将产生一个acceptable但invalid的index。
 
 ## 4.5 Registry
 
-Lua provides a registry, a predefined table that can be used by any C code to store whatever Lua values it needs to store. The registry table is always located at pseudo-index LUA_REGISTRYINDEX. Any C library can store data into this table, but it must take care to choose keys that are different from those used by other libraries, to avoid collisions. Typically, you should use as key a string containing your library name, or a light userdata with the address of a C object in your code, or any Lua object created by your code. As with variable names, string keys starting with an underscore followed by uppercase letters are reserved for Lua.
+Lua provides a registry, a predefined table that can be used by any C code 
+to store whatever Lua values it needs to store. 
+The registry table is always located at pseudo-index `LUA_REGISTRYINDEX`. 
+Any C library can store data into this table, but it must take care to choose keys 
+that are different from those used by other libraries, to avoid collisions. 
+Typically, you should use as key a string containing your library name, 
+or a light userdata with the address of a C object in your code, or any Lua object created by your code. 
+As with variable names, string keys starting with an underscore followed by uppercase letters are reserved for Lua.
 
-The integer keys in the registry are used by the reference mechanism (see luaL_ref) and by some predefined values. Therefore, integer keys must not be used for other purposes.
+Lua有一个预定义的注册表，任何C代码可以用它来存储需要的Lua值。
+这个注册表总是分配在`LUA_REGISTRYINDEX`这个pseudo-index位置上。
+C代码可以存储数据到这个表中，但是必须选择合适的不同的键避免冲突。
+原则上应该使用如下值作为键：包含了你自己库名称的字符串，或保存了你代码中的C对象地址的轻量用户数据，
+或你代码中创建的任何Lua对象。像变量名称一样，以下划线开始后跟大写字母的字符串键仅保留给Lua使用。
 
-When you create a new Lua state, its registry comes with some predefined values. These predefined values are indexed with integer keys defined as constants in lua.h. The following constants are defined:
+The integer keys in the registry are used by the reference mechanism (see `luaL_ref`) and by some predefined values. 
+Therefore, integer keys must not be used for other purposes.
 
-LUA_RIDX_MAINTHREAD: At this index the registry has the main thread of the state. (The main thread is the one created together with the state.)
-LUA_RIDX_GLOBALS: At this index the registry has the global environment.
+注册表中的数值键用于引用机制（见`luaL_ref`）和被一些预定义的值使用。
+因此，数值键必须不去用于其他目的。
+
+When you create a new Lua state, its registry comes with some predefined values. 
+These predefined values are indexed with integer keys defined as constants in lua.h. 
+The following constants are defined:
+- **LUA_RIDX_MAINTHREAD**: At this index the registry has the main thread of the state. 
+  (The main thread is the one created together with the state.)
+- **LUA_RIDX_GLOBALS**: At this index the registry has the global environment.
+
+当创建一个新的Lua状态时，它的注册表就有了一些预定义的值。
+这些预定义的值通过`lua.h`头文件中定义的数值键来访问。
+下面的常量有被定义：
+- **LUA_RIDX_MAINTHREAD**: 在注册表中这个位置的是Lua状态的主线程（主线程是与Lua状态一起同时创建的线程）。
+- **LUA_RIDX_GLOBALS**: 在注册表这个位置的是Lua的全局环境。
 
 ## 4.6 Error Handling in C
 
