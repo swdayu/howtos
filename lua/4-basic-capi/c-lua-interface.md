@@ -200,13 +200,21 @@ Inside a C function you can raise an error by calling `lua_error`.
 ## 4.7 Handling Yields in C
 
 Internally, Lua uses the C `longjmp` facility to yield a coroutine. 
-Therefore, if a C function foo calls an API function and this API function yields 
+Therefore, if a C function `foo` calls an API function and this API function yields 
 (directly or indirectly by calling another function that yields), 
-Lua cannot return to foo any more, because the longjmp removes its frame from the C stack.
+Lua cannot return to `foo` any more, because the `longjmp` removes its frame from the C stack.
+
+在内部，Lua使用C语言的`longjmp`暂停一个协程。
+因此，如果C函数`foo`调用一个C API函数，并且这个C API函数会yield（直接的或间接的调用其他函数yield），
+Lua就不能再回到`foo`函数中，因为`longjmp`移除了C栈这个函数的frame。
 
 To avoid this kind of problem, Lua raises an error whenever it tries to yield across an API call, 
 except for three functions: `lua_yieldk`, `lua_callk`, and `lua_pcallk`. 
 All those functions receive a continuation function (as a parameter named `k`) to continue execution after a yield.
+
+为了避免这样的问题，Lua都会抛出异常当在API调用之间yield的时候，
+除这3个函数之外：`lua_yieldk`、`lua_callk`、以及`lua_pcallk`。
+这3个函数接收一个继续执行的函数为参数（名为`k`的参数），当yield之后后继续这个函数。
 
 We need to set some terminology to explain continuations. 
 We have a C function called from Lua which we will call the original function. 
