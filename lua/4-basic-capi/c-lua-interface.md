@@ -214,7 +214,7 @@ All those functions receive a continuation function (as a parameter named `k`) t
 
 为了避免这样的问题，Lua都会抛出异常当在API调用之间yield的时候，
 除这3个函数之外：`lua_yieldk`、`lua_callk`、以及`lua_pcallk`。
-这3个函数接收一个继续执行的函数为参数（名为`k`的参数），当yield之后后继续这个函数。
+这3个函数接收一个继续执行的函数为参数（名为`k`的参数），当yield之后继续这个函数。
 
 We need to set some terminology to explain continuations. 
 We have a C function called from Lua which we will call the original function. 
@@ -223,12 +223,22 @@ which we will call the callee function, that then yields the current thread.
 (This can happen when the callee function is `lua_yieldk`, 
 or when the callee function is either `lua_callk` or `lua_pcallk` and the function called by them yields.)
 
+为了解释continuation function，我们需要引入一些术语。
+Lua中调用的C函数我们称为原始函数。原始函数然后调用上面3个C API函数，它们称为被调函数，
+然后被调函数暂定当前的线程（只要被调函数是`lua_yieldk`，
+或被调函数是`lua_callk`和`lua_pcallk`并且它们调用的函数有yield）。
+
 Suppose the running thread yields while executing the callee function. 
 After the thread resumes, it eventually will finish running the callee function. 
 However, the callee function cannot return to the original function, 
 because its frame in the C stack was destroyed by the yield. 
 Instead, Lua calls a continuation function, which was given as an argument to the callee function. 
 As the name implies, the continuation function should continue the task of the original function.
+
+假设执行被调函数时当前正在运行的线程被yield，当线程resume时，被调函数最终会执行完毕。
+然而，被调函数不会再返回到原始函数中，因为它在C stack中的frame已经被yield破坏掉。
+取而代之的是，Lua会调用一个continuation函数，这个给定的传入被调函数中的参数。
+如其名字暗示一样，continuation函数应该继续继续original函数中的工作。
 
 As an illustration, consider the following function:
 
@@ -237,7 +247,7 @@ As an illustration, consider the following function:
        status = lua_pcall(L, n, m, h);  /* calls Lua */
        ...     /* code 2 */
      }
-Now we want to allow the Lua code being run by lua_pcall to yield. 
+Now we want to allow the Lua code being run by `lua_pcall` to yield. 
 First, we can rewrite our function like here:
 
      int k (lua_State *L, int status, lua_KContext ctx) {
@@ -248,7 +258,7 @@ First, we can rewrite our function like here:
        ...     /* code 1 */
        return k(L, lua_pcall(L, n, m, h), ctx);
      }
-In the above code, the new function k is a continuation function (with type `lua_KFunction`), 
+In the above code, the new function `k` is a continuation function (with type `lua_KFunction`), 
 which should do all the work that the original function was doing after calling `lua_pcall`. 
 Now, we must inform Lua that it must call `k` if the Lua code being executed by `lua_pcall` gets interrupted 
 in some way (errors or yielding), so we rewrite the code as here, replacing `lua_pcall` by `lua_pcallk`:
@@ -276,6 +286,8 @@ Similarly, when using `lua_callk`, you should call the continuation function wit
 (For `lua_yieldk`, there is not much point in calling directly the continuation function, 
 because `lua_yieldk` usually does not return.)
 
+[[TODO？？？]]
+
 Lua treats the continuation function as if it were the original function. 
 The continuation function receives the same Lua stack from the original function, 
 in the same state it would be if the callee function had returned. 
@@ -283,8 +295,24 @@ in the same state it would be if the callee function had returned.
 replaced by the results from the call.) It also has the same upvalues. 
 Whatever it returns is handled by Lua as if it were the return of the original function.
 
+[[TODO？？？]]
+
 ## 4.8 Functions and Types
 
-Here we list all functions and types from the C API in alphabetical order. Each function has an indicator like this: [-o, +p, x]
+Here we list all functions and types from the C API in alphabetical order. 
+Each function has an indicator like this: [-o, +p, x]
 
-The first field, o, is how many elements the function pops from the stack. The second field, p, is how many elements the function pushes onto the stack. (Any function always pushes its results after popping its arguments.) A field in the form x|y means the function can push (or pop) x or y elements, depending on the situation; an interrogation mark '?' means that we cannot know how many elements the function pops/pushes by looking only at its arguments (e.g., they may depend on what is on the stack). The third field, x, tells whether the function may raise errors: '-' means the function never raises any error; 'e' means the function may raise errors; 'v' means the function may raise an error on purpose.
+The first field, `o`, is how many elements the function pops from the stack. 
+The second field, `p`, is how many elements the function pushes onto the stack. 
+(Any function always pushes its results after popping its arguments.) 
+A field in the form `x|y` means the function can push (or pop) `x` or `y` elements, depending on the situation; 
+an interrogation mark `?` means that we cannot know how many elements the function pops/pushes 
+by looking only at its arguments (e.g., they may depend on what is on the stack). 
+The third field, `x`, tells whether the function may raise errors: `-` means the function never raises any error; 
+`e` means the function may raise errors; `v` means the function may raise an error on purpose.
+
+下面会以字母顺序列出所有C API函数和类型。每个函数都有像这样的一项说明`[-0, +p, x]`。
+其中`o`表示多少个元素会从stack中移除，`p`表示多少个元素会压入stack中（任何函数总是在移除它所有参数后压入它们的结果）。
+`x|y`代表根据情况可能压入或移除`x`或`y`个元素；`?`表示根据函数参数不确定会压入或移除多少个元素
+（也即，可能跟当前stack中存在的元素有关）。
+第3项`x`表示这个函数是否会抛出异常：`-`表示不会抛出任何异常；`e`表示可能会抛出异常；`v`表示为特定的目的会抛出异常。
