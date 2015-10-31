@@ -1,5 +1,5 @@
 
-# lua_absindex
+# lua_absindex [-0, +0, -]
 
 ```c
 int lua_absindex(lua_State* L, int idx) {
