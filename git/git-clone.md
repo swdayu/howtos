@@ -24,7 +24,7 @@ $ git clone --bare repo repo-bare/.git
 
 Mirror clone is much like bare clone, but can sync easily with original repo
 ```
-$ mkdire -p repo-mirror/.git
+$ mkdir -p repo-mirror/.git
 $ git clone --mirror repo repo-mirror/.git
 ```
 `--mirror` set up a mirror of the source repository. This implies `--bare`. 
