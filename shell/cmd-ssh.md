@@ -25,6 +25,13 @@ ssh [-12346AaCfGgKkMNnqsTtVvXxYy]
     [command]
 ```
 
+Logging into a remote machine
+```
+$ ssh [user@]remote.com [-p port] 
+# logging into remote.com with a optional user name and port
+# if the port is not given then use the default ssh server port 22
+```
+
 **ssh** (SSH client) is a program for logging into a remote machine 
 and for executing commands on a remote machine.
 It is intended to replace rlogin and rsh, and provide secure encrypted communications 
