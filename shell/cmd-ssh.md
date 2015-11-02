@@ -28,7 +28,7 @@ ssh [-12346AaCfGgKkMNnqsTtVvXxYy]
 Logging into a remote machine
 ```
 $ ssh [user@]remote.com [-p port] 
-# logging into remote.com with a optional user name and port
+# logging into remote.com with an optional user name and port
 # if the port is not given then use the default ssh server port 22
 ```
 
