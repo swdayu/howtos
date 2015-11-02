@@ -2,9 +2,9 @@
 # References
 - http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man1/slogin.1?query=ssh&sec=1
 
-# ssh
+# ssh - OpenSSH SSH client (remote login program)
 
-ssh - OpenSSH SSH client (remote login program)
+Synopsis
 ```
 ssh [-12346AaCfGgKkMNnqsTtVvXxYy]
     [-b bind_address]
