@@ -3,7 +3,7 @@
 
 Clone a remote repo to local directory
 ```
-$ cd github-repo
+$ cd repo-directory
 $ git clone https://github.com/xijkn/howtos.git
 Cloning into 'howtos' ...
 $ git clone https://github.com/xijkn/howtos.git   
