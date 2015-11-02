@@ -3,35 +3,6 @@
 - https://help.github.com/articles/which-remote-url-should-i-use/
 - http://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes
 
-# git clone
-Clone a repo into a new directory, or if there is a same name in this directory, it will be fatal.
-```
-$ cd github-repo
-$ git clone https://github.com/xijkn/howtos.git
-Cloning into 'howtos' ...
-$ git clone https://github.com/xijkn/howtos.git   
-fatal: destination path 'howtos' already exists and is not an empty directory.
-```
-
-# git remote
-Adds a name for the repository at remote url.
-```
-$ cd howtos
-$ git remote add https-howtos https://github.com/xijkn/howtos.git
-$ git remote add ssh-howtos git@github.com:xijkn/howtos.git
-```
-
-Check current short names in the repo. 
-```
-$ git remote -v
-https-howtos    https://github.com/xijkn/howtos.git (fetch)
-https-howtos    https://github.com/xijkn/howtos.git (push)
-origin  https://github.com/xijkn/howtos.git (fetch)
-origin  https://github.com/xijkn/howtos.git (push)
-ssh-howtos      git@github.com:xijkn/howtos.git (fetch)
-ssh-howtos      git@github.com:xijkn/howtos.git (push)
-```
-
 # Clone using HTTPS (recommended)
 The `https://` clone URLs are available on all repositories, public and private.
 They are smart, so they will provide you with either read-only or read/write access,
