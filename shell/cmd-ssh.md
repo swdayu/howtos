@@ -205,4 +205,28 @@ Generate SSH keypair for GitHub
 - **-C** comment: provide new comment
 ```
 $ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/[user]/.ssh/id_rsa): 
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /home/[user]/.ssh/id_rsa.
+Your public key has been saved in /home/[user]/.ssh/id_rsa.pub.
+The key fingerprint is:
+25:27:f0:1a:4c:22:69:15:35:7c:83:93:a1:21:63:99 your_email@example.com
 ```
+
+# 3. ssh-add
+
+Add a SSH key to ssh-agent
+```
+$ ssh-add ~/.ssh/id_rsa
+Enter passphrase for /home/[user]/.ssh/id_rsa: 
+Identity added: /home/[user]/.ssh/id_rsa (/home/[user]/.ssh/id_rsa)
+```
+
+After add the key, you can list fingerprints of all keys in the ssh-agent
+```
+$ ssh-add -l
+4096 25:27:f0:1a:4c:22:69:15:35:7c:83:93:a1:21:63:99 /home/[user]/.ssh/id_rsa (RSA)
+```
+
