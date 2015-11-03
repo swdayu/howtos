@@ -3,7 +3,7 @@
 - https://help.github.com/articles/which-remote-url-should-i-use/
 - http://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes
 
-# Access GitHub via SSH
+# 1. Access GitHub via SSH
 
 These URLs provide access to a Git repository via SSH, which is a secure protocol. 
 To use these URLs, you must have [an SSH keypair][] generated on your computer, and attached to your GitHub account.
@@ -86,7 +86,7 @@ Tip: if you receive an error that `~/.ssh` doesn't exist, don't worry! We'll cre
    Tip: We strongly recommend a very good, secure passphrase. 
    For more information, see "[Working with SSH key passphrases][]".
 
-   然后会提示输入一个密码短语。建议使用好的安全密码短语，详细的说明见上面的链接。
+   然后会提示输入一个passphrase。建议使用好的安全passphrase，详细的说明见上面的链接。
 
 4. After you enter a passphrase, you'll be given the fingerprint, or id, of your SSH key. 
    It will look something like this:
@@ -160,7 +160,7 @@ When you do this, you will be asked to authenticate this action using your passw
 which is the SSH key passphrase you created earlier.
 
 为了确保能连接，尝试一下SSH是否能连接到GitHub。
-连接时，首先会要求用原来创建的密码短语进行验证。
+连接时，首先会要求用原来创建的passphrase进行验证。
 
 1. Open the command line and enter:
 
@@ -195,10 +195,12 @@ which is the SSH key passphrase you created earlier.
 [read these instructions for diagnosing the issue]: https://help.github.com/articles/error-permission-denied-publickey
 [Changing a remote's URL]: https://help.github.com/articles/changing-a-remote-s-url
 
-# SSH key passphrases
+# 2. SSH key passphrases
 
 This section will walk you through the process of securing your SSH keys and configuring 
 an authentication agent so that you won't have to re-enter your passphrase every time you use your keys.
+
+这部分介绍如何保证SSH密钥的安全以及如何配置认证agent以避免每次使用密钥时都要重新输一次passphrase。
 
 ## Why do I need a passphrase?
 
@@ -207,17 +209,29 @@ it's also easier to guess or brute-force (try many options until one works).
 If you use one that's random, it's hard to remember, and thus you're more inclined to write it down. 
 Both of these are Very Bad Things.
 
+密码的使用是不安全的。如果使用容易记忆的密码，也意味着容易被人猜出或暴力突破。
+如果使用很随机的密码，也就比较难记忆，因而倾向于把它记下来。这都是非常不好的。
+
 This is why you're using SSH keys. Of course, using a key without a passphrase is basically 
 the same as writing down a random password: anyone who gains access to your computer 
 has gained access to every system you use that key with. This is also a Very Bad Thing. 
 The solution is to add a passphrase to the SSH key for an extra layer of security.
 
+这是为什么使用SSH密钥。然而，使用密钥而不关联passphrase相当于使用一个记下的随机密码：
+任何可以访问你计算机的人都可以访问任何用这个密钥关联的系统。
+这也是非常不好的事情。解决方法是为SSH密钥增加一个passphrase来增加额外的保护。
+
 **But I don't want to enter a long passphrase every time I use the key!**
 
-Neither do I! Thankfully, there's a nifty little tool called ssh-agent that can securely save your passphrase, 
+Neither do I! Thankfully, there's a nifty little tool called `ssh-agent` that can securely save your passphrase, 
 so you don't have to re-enter it. If you're on OS X Leopard or later your keys can be saved 
 in the system's keychain to make your life even easier. 
-Most Linux installations will automatically start ssh-agent for you when you log in.
+Most Linux installations will automatically start `ssh-agent` for you when you log in.
+
+问题是，谁都不想每次使用密钥的时候都要输入长长的passphrase。
+幸运的是，有个`ssh-agent`工具可以用来安全的保存passphrase，因此你不要重复输入它。
+如果你使用OS X Leopard或更新的系统，系统会帮你保存在系统keychain里，这样使用起来很方便。
+另外大多数Linux系统在登录之后会自动启动`ssh-agent`。
 
 ## Adding or changing a passphrase
 
@@ -236,7 +250,11 @@ Your identification has been saved with the new passphrase.
 If your key already has a passphrase, 
 you will be prompted to enter it before you can change to a new passphrase.
 
-# Using SSH over HTTPS port
+上面的方法可以修改现有私钥的passphrase，而不需要重新产生密钥对。
+如果你的密钥已经有了passphrase，在修改之前需要输入旧的passphrase。
+
+# 3. Using SSH over HTTPS port
+
 Sometimes, firewalls refuse to allow SSH connections entirely.
 If using HTTPS cloning with credential caching is not an option,
 you can attempt to clone using an SSH connection made over the HTTPS port.
