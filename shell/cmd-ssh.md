@@ -2,7 +2,7 @@
 # References
 - http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man1/slogin.1?query=ssh&sec=1
 
-# SSH
+# 1. SSH
 
 Synopsis
 ```
@@ -197,3 +197,12 @@ The methods available for authentication are: GSSAPI-based authentication, host-
 
 Host-based authentication works as follows: If the machine the user logs in from is listed in /etc/hosts.equiv or /etc/shosts.equiv on the remote machine, and the user names are the same on both sides, or if the files ~/.rhosts or ~/.shosts exist in the user's home directory on the remote machine and contain a line containing the name of the client machine and the name of the user on that machine, the user is considered for login. Additionally, the server must be able to verify the client's host key (see the description of /etc/ssh/ssh_known_hosts and ~/.ssh/known_hosts, below) for login to be permitted. This authentication method closes security holes due to IP spoofing, DNS spoofing, and routing spoofing. [Note to the administrator: /etc/hosts.equiv, ~/.rhosts, and the rlogin/rsh protocol in general, are inherently insecure and should be disabled if security is desired.]
 
+# 2. ssh-keygen
+
+Generate SSH keypair for GitHub
+- **-t** type: specify type of key to create
+- **-b** bits: number of bits in the key to create
+- **-C** comment: provide new comment
+```
+$ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+```
