@@ -40,12 +40,12 @@ You can also use [SSH agent forwarding][] with your deploy script to avoid manag
 [an SSH keypair]: https://help.github.com/articles/generating-ssh-keys/
 [SSH agent forwarding]: https://developer.github.com/guides/using-ssh-agent-forwarding/
 
-SSH URLs提供一种通过SSH访问git库的方法，SSH是一种安全协议。
-使用这种URLs，必须在本地机器上产生SSH密钥，并将它设置到GitHub账户中。
-GitHub桌面客户端能自动设置好SSH密钥，如果你不想鼓捣命令行的话。
+SSH URLs提供一种用SSH访问Git库的方法，SSH是一种安全协议。
+使用这种URLs，需要在本地配置SSH密钥，并将它设置到GitHub账户中。
+GitHub桌面客户端能自动配置好SSH密钥，如果你不想去鼓捣命令行。
 
-提示：SSH URLs可以在本地使用，或作为一种安全方式将你的代码发布到产品服务器。
-你还可以在发布脚本中使用SSH的代理转发功能避免在服务器上维护密钥。
+提示：SSH URLs可以用在本地，或作为一种安全方式将代码发布到产品服务器。
+还可以在发布脚本中使用SSH代理转发功能避免在服务器上维护密钥。
 
 ## Generating SSH keys
 
@@ -55,9 +55,9 @@ We recommend that you regularly [review your SSH keys list][] and revoke any tha
 
 [review your SSH keys list]: https://help.github.com/articles/keeping-your-ssh-keys-and-application-access-tokens-safe/
 
-SSH密钥用来鉴别信任的机器，而不需要使用密码。
-下面的步骤教你如何产生SSH密钥并将公钥添加到你的GitHub账户中。
-推荐定期检查SSH密钥列表，将一段时间没用的密钥删除掉。
+SSH密钥用来识别信任的机器，而不需要使用密码。
+下面的步骤介绍如何产生SSH密钥并将其添加到GitHub账户中。
+建议定期检查SSH密钥列表，将一段时间没用的密钥删除掉。
 
 ### Step 1: Check for SSH keys
 
@@ -73,16 +73,16 @@ By default, the filenames of the public keys are one of the following:
 - id_ed25519.pub
 - id_rsa.pub
 
-使用上面的名利查看你的机器上是否已经存在SSH密钥。
-其中SSH公钥的默认文件名是上面列表中的一个。
+使用上面的命令查看机器上是否已经存在SSH密钥。
+其中SSH公钥文件的默认名称是上面所列名称中的一个。
 
 If you see an existing public and private key pair listed (for example `id_rsa.pub` and `id_rsa`) 
 that you would like to use to connect to GitHub, you can skip **Step2** and go straight to **Step 3**.
 
 Tip: if you receive an error that `~/.ssh` doesn't exist, don't worry! We'll create it in **Step 2**.
 
-如果已经有公钥和私钥对存在（例如`id_rsa.pub`和`id_rsa`）并且想用它们来连接GitHub，可以直接跳转到步骤3。
-注意：如果收到`~/.ssh`不存在的错误，不要担心。我们会在步骤2创建它。
+如果公钥和私钥对已经存在（例如`id_rsa.pub`和`id_rsa`）并用它们来连接GitHub，可以直接跳转见步骤3。
+注意：如果提示错误`~/.ssh`不存在，不要担心，步骤2会创建它。
 
 ### Step 2: Generate a new SSH key
 
@@ -93,14 +93,14 @@ Tip: if you receive an error that `~/.ssh` doesn't exist, don't worry! We'll cre
         # Creates a new ssh key, using the provided email as a label
         Generating public/private rsa key pair.
 
-   用上面的命令创建rsa密钥对，注意使用你的GitHub邮箱地址。
+   上面的命令创建rsa密钥对，注意使用你的GitHub邮箱地址。
 
 2. We strongly suggest keeping the default settings as they are, 
    so when you're prompted to "Enter a file in which to save the key", just press `Enter` to continue.
 
         Enter file in which to save the key (/Users/you/.ssh/id_rsa): [Press enter]
 
-   建议使用默认设置，当显示“输入保存密钥的文件”时，直接压`Enter`继续。
+   建议保持默认设置，当显示“输入保存密钥的文件”时，直接输入`Enter`继续。
    
 3. You'll be asked to enter a passphrase.
 
@@ -110,7 +110,7 @@ Tip: if you receive an error that `~/.ssh` doesn't exist, don't worry! We'll cre
    Tip: We strongly recommend a very good, secure passphrase. 
    For more information, see "[Working with SSH key passphrases][]".
 
-   然后会提示输入一个密码短语。建议使用一个好的安全密码短语，详细的说明见上面的链接。
+   然后会提示输入一个密码短语。建议使用好的安全密码短语，详细的说明见上面的链接。
 
 4. After you enter a passphrase, you'll be given the fingerprint, or id, of your SSH key. 
    It will look something like this:
@@ -140,13 +140,12 @@ To configure the [ssh-agent][] program to use your SSH key:
 
         $ ssh-add ~/.ssh/id_rsa
 
-   用上面的命令将你的SSH密钥添加到`ssh-agent`。
+   然后将SSH密钥添加到`ssh-agent`。
 
 Tip: If you didn't generate a new SSH key in Step 2, and used an existing SSH key instead, 
 you will need to replace `id_rsa` in the above command with the name of your existing private key file.
 
-如果你没有产生新的SSH密钥，而是使用已存在的SSH密钥，
-你要用对应存在的私钥文件名称代替上面命令行中路径。
+如果不是新产生的SSH密钥，而是已经存在的，请使用实际的私钥文件名称。
 
 [ssh-agent]: https://en.wikipedia.org/wiki/Ssh-agent
 
@@ -159,7 +158,7 @@ To configure your GitHub account to use your SSH key:
 
 Warning: It's important to copy the key exactly without adding newlines or whitespace.
 
-要设置GitHub账户使用你的SSH密钥，首先将`～/.ssh/id_rsa.pub`文件中内容拷贝到粘贴板。
+要把SSH密钥设置到GitHub账户中，首先将`～/.ssh/id_rsa.pub`文件内容拷贝到粘贴板。
 重要的是在拷贝过程中，不要添加任何换行和空白。
 
 Add the copied key to GitHub:
@@ -174,7 +173,7 @@ Add the copied key to GitHub:
 6. Click **Add key**.
 7. Confirm the action by entering your GitHub password.
 
-然后按下面的步骤将密钥添加到GitHub：Settings | SSH keys | Add SSH key。
+然后按步骤将密钥添加到GitHub：Settings | SSH keys | Add SSH key。
 添加密钥时，会添加新密钥的描述信息，例如你使用的是私人Mac电脑，可以将描述信息写成“Personal MacBook Air”。
 最后，点击`Add key`，然后输入GitHub密码进行确认。
 
@@ -184,8 +183,8 @@ To make sure everything is working, you'll now try to SSH into GitHub.
 When you do this, you will be asked to authenticate this action using your password, 
 which is the SSH key passphrase you created earlier.
 
-为了确保能连接，尝试一下SSH是否能连到GitHub。
-这样做的时候，首先会要求用原来创建的密码短语进行验证。
+为了确保能连接，尝试一下SSH是否能连接到GitHub。
+连接时，首先会要求用原来创建的密码短语进行验证。
 
 1. Open the command line and enter:
 
@@ -214,8 +213,8 @@ which is the SSH key passphrase you created earlier.
    For more information, see [Changing a remote's URL][].
 
    最后，如果显示出了你的`username`，则表明SSH密钥已经添加成功。
-   如果收到“访问拒绝”的信息，详细信息查询上面的链接。
-   如果你是从HTTPs切换到使用SSH，你要把你的GitHub库的URL改成SSH形式的URL，更多的信息见上面的链接。
+   如果收到“访问拒绝”的信息，参考上面的链接诊断问题。
+   如果是从HTTPs切换到使用SSH，需要首先把GitHub库的URL改成SSH形式的URL，更多的信息见上面的链接。
 
 [read these instructions for diagnosing the issue]: https://help.github.com/articles/error-permission-denied-publickey
 [Changing a remote's URL]: https://help.github.com/articles/changing-a-remote-s-url
