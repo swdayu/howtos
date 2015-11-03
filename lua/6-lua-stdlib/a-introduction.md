@@ -7,10 +7,10 @@ others provide access to "outside" services (e.g., I/O); and others could be imp
 but are quite useful or have critical performance requirements that deserve an implementation in C 
 (e.g., `table.sort`).
 
-标准Lua库提供了一些有用的函数，它们直接通过C API函数实现。
-这些函数其中一些提供了语言核心服务（如`type`和`getmetatable`），另外一些提供了对外部服务的访问（如I/O），
-还有一些本可以使用Lua来实现，但由于它们的重要性或关键性能需求使得需要用C来实现（如`table.sort`）。
-所有库都通过正式C API实现，并以独立C模块形式提供。当前Lua拥有的标准库如下：
+标准Lua库提供了一些用C API实现的有用的函数。
+这些函数一些提供了语言核心服务（如`type`和`getmetatable`），另外一些提供对外部服务的访问（如I/O），
+还有一些本可以使用Lua来实现，但由于重要性或性能需求都用C实现（如`table.sort`）。
+所有库通过正式C API实现，并以独立C模块形式提供。当前Lua拥有如下标准库：
 
 All libraries are implemented through the official C API and are provided as separate C modules. 
 Currently, Lua has the following standard libraries:
@@ -28,7 +28,7 @@ Currently, Lua has the following standard libraries:
 Except for the basic and the package libraries, 
 each library provides all its functions as fields of a global table or as methods of its objects.
 
-除了基本库和包管理库，其他库的所有函数都作为全局表的元素或对象的方法供使用。
+除了基本库和包管理库，其他库的所有函数都作为全局表元素或对象方法供使用。
 
 To have access to these libraries, the C host program should call the `luaL_openlibs` function, 
 which opens all standard libraries. 
@@ -40,8 +40,8 @@ Alternatively, the host program can open them individually by using `luaL_requir
 `luaopen_os` (for the operating system library), and `luaopen_debug` (for the debug library). 
 These functions are declared in `lualib.h`.
 
-访问这些库，C宿主程序可以调用`luaL_openlibs`访问所有库。
-另一方面，可以单独的打开使用某个库，如上。这些函数定义在`lualib.h`头文件中。
+访问这些库，C宿主程序可以调用`luaL_openlibs`打开所有库的访问。
+或调用上面的函数单独打开某个库来使用。这些函数定义在`lualib.h`头文件中。
 
 ## 6.1 Basic Functions
 
@@ -49,15 +49,15 @@ The basic library provides core functions to Lua.
 If you do not include this library in your application, 
 you should check carefully whether you need to provide implementations for some of its facilities.
 
-基本库提供了Lua的核心函数。如果不在你的应用中包含这个库，应该检查是否自行实现其中一些功能。
+基本库是Lua中的一些核心函数。如果不包含这个库，应该考虑是否实现其中的一些功能。
 
 ## 6.2 Coroutine Manipulation
 
 This library comprises the operations to manipulate coroutines, which come inside the table `coroutine`. 
 See §2.6 for a general description of coroutines.
 
-这个库包含协程的操作，这些函数都导出在`coroutine`表中。
-见2.6部分对协程的一般描述。
+协程库定义协程相关的操作，函数都导出在`coroutine`全局表中供使用。
+参考2.6部分对协程的描述。
 
 ## 6.3 Modules
 
@@ -65,9 +65,8 @@ The package library provides basic facilities for loading modules in Lua.
 It exports one function directly in the global environment: `require`. 
 Everything else is exported in a table `package`.
 
-这个库提供基本功能用于在Lua中加载模块。
-这个库在全局变量中导出了一个函数`require`。
-其他的函数导出在`package`表中。
+这个库提供Lua中模块加载功能，其中一个函数`require`以全局变量形式导出，
+其他函数都导出在`package`表中供使用。
 
 ## 6.4 String Manipulation
 
@@ -80,12 +79,13 @@ For instance, `string.byte(s,i)` can be written as `s:byte(i)`.
 
 The string library assumes one-byte character encodings.
 
-字符串库提供对字符串的一般操作，例如查找和提取子串，以及模式匹配。
-当索引字符串时，第一个字符在位置1（不像C言语是0）。
+字符串库实现字符串操作相关函数，如查找和提取子串，以及模式匹配。
+索引字符串时，第一个字符是位置1（不像C言语是0）。
 索引值可以是负数，从字符串结尾开始往回计数，因此最后一个字符在位置-1，依次类推。
 
-字符串库的函数都在`string`表中，另外字符串也设置了一个元表，元表的`__index`元素指向这个`string`表。
+字符串库函数都导出在`string`表中供使用。
+另外，字符串都设置了元表，元表的`__index`元素指向`string`全局表。
 因此，可以用面向对象的方式使用字符串函数，例如`string.byte(s,i)`可以写成`s:byte(i)`。
 
-字符串库假设的是单字节的字符编码。
+字符串库假设使用单字节的字符编码。
 
