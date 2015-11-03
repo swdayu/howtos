@@ -4,7 +4,8 @@ References
 - http://androidxref.com/
 
 Bluedroid folders
-- **android/external/bluetooth/bluedroid/**
+- **android/external/bluetooth/bluedroid/** (L)
+- **android/system/bt/** (M)
   - **audio_a2dp_hw**
   - **bta**: bluetooth application profile layer
   - **btif**: bluetooth interface between java and c
@@ -34,13 +35,14 @@ Bluedroid core modules
 
 Bluetooth related folders on Android
 - android/frameworks/base/core/java/android/bluetooth/
-- android/frameworks/opt/bluetooth/
-- android/hardware/libhardware/include/hardware/
+- android/frameworks/**opt**/bluetooth/
 - android/packages/apps/bluetooth/
-- android/packages/apps/settings/src/com/android/settings/bluetooth/
-- android/kernel/net/bluetooth/
-- android/kernel/include/net/bluetooth/
-- android/kernel/drivers/bluetooth/
+- android/packages/apps/**settings**/src/com/android/settings/bluetooth/
+- android/kernel/**net**/bluetooth/
+- android/kernel/include/**net**/bluetooth/
+- android/kernel/**drivers**/bluetooth/
+- android/hardware/**libhardware**/include/hardware/
+- android/vendor/[name]/(bluetooth_app)
 
 Bluedroid run in the process of `com.android.bluetooth`.
 There are 4 tasks: BTIF_TASK, BTU_TASK, A2DP_MEDIA_TASK, GKI_TIMER_TASK. 
