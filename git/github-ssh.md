@@ -3,7 +3,7 @@
 - https://help.github.com/articles/which-remote-url-should-i-use/
 - http://git-scm.com/book/en/v2/Git-Basics-Working-with-Remotes
 
-# Clone using SSH
+# Access GitHub via SSH
 
 These URLs provide access to a Git repository via SSH, which is a secure protocol. 
 To use these URLs, you must have [an SSH keypair][] generated on your computer, and attached to your GitHub account.
@@ -195,7 +195,48 @@ which is the SSH key passphrase you created earlier.
 [read these instructions for diagnosing the issue]: https://help.github.com/articles/error-permission-denied-publickey
 [Changing a remote's URL]: https://help.github.com/articles/changing-a-remote-s-url
 
-## Using SSH over HTTPS port
+# SSH key passphrases
+
+This section will walk you through the process of securing your SSH keys and configuring 
+an authentication agent so that you won't have to re-enter your passphrase every time you use your keys.
+
+## Why do I need a passphrase?
+
+Passwords aren't very secure. If you use one that's easy to remember, 
+it's also easier to guess or brute-force (try many options until one works). 
+If you use one that's random, it's hard to remember, and thus you're more inclined to write it down. 
+Both of these are Very Bad Things.
+
+This is why you're using SSH keys. Of course, using a key without a passphrase is basically 
+the same as writing down a random password: anyone who gains access to your computer 
+has gained access to every system you use that key with. This is also a Very Bad Thing. 
+The solution is to add a passphrase to the SSH key for an extra layer of security.
+
+**But I don't want to enter a long passphrase every time I use the key!**
+
+Neither do I! Thankfully, there's a nifty little tool called ssh-agent that can securely save your passphrase, 
+so you don't have to re-enter it. If you're on OS X Leopard or later your keys can be saved 
+in the system's keychain to make your life even easier. 
+Most Linux installations will automatically start ssh-agent for you when you log in.
+
+## Adding or changing a passphrase
+
+You can change the passphrase for an existing private key without regenerating the keypair. 
+Just type the following command:
+```
+$ ssh-keygen -p
+# Start the SSH key creation process
+Enter file in which the key is (/Users/you/.ssh/id_rsa): [Hit enter]
+Key has comment '/Users/you/.ssh/id_rsa'
+Enter new passphrase (empty for no passphrase): [Type new passphrase]
+Enter same passphrase again: [One more time for luck]
+Your identification has been saved with the new passphrase.
+```
+
+If your key already has a passphrase, 
+you will be prompted to enter it before you can change to a new passphrase.
+
+# Using SSH over HTTPS port
 Sometimes, firewalls refuse to allow SSH connections entirely.
 If using HTTPS cloning with credential caching is not an option,
 you can attempt to clone using an SSH connection made over the HTTPS port.
