@@ -11,7 +11,7 @@ To check if you have JDK installed (and which version), open a terminal and type
 If the JDK is not available or the version is lower than version 6, 
 download the [Java SE Development Kit 7][].
 
-[Java SE Development Kit 7]: http://www.oracle.com/technetwork/java/javase/downloads/
+[Java SE Development Kit 7]: http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html
 
 **To set up Android Studio on Windows:**
 
