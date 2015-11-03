@@ -197,11 +197,6 @@ which is the SSH key passphrase you created earlier.
 
 # 2. SSH key passphrases
 
-This section will walk you through the process of securing your SSH keys and configuring 
-an authentication agent so that you won't have to re-enter your passphrase every time you use your keys.
-
-这部分介绍如何保证SSH密钥的安全以及如何配置认证agent以避免每次使用密钥时都要重新输一次passphrase。
-
 ## Why do I need a passphrase?
 
 Passwords aren't very secure. If you use one that's easy to remember, 
