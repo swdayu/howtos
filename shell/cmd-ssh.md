@@ -2,7 +2,44 @@
 # References
 - http://www.openbsd.org/cgi-bin/man.cgi/OpenBSD-current/man1/slogin.1?query=ssh&sec=1
 
-# 1. SSH
+# 1. SSH Key
+
+Generate SSH keypair for GitHub
+- **-t** type: specify type of key to create
+- **-b** bits: number of bits in the key to create
+- **-C** comment: provide new comment
+```
+$ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/[user]/.ssh/id_rsa): 
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /home/[user]/.ssh/id_rsa.
+Your public key has been saved in /home/[user]/.ssh/id_rsa.pub.
+The key fingerprint is:
+25:27:f0:1a:4c:22:69:15:35:7c:83:93:a1:21:63:99 your_email@example.com
+```
+
+Add a SSH key to ssh-agent
+```
+$ ssh-add ~/.ssh/id_rsa
+Enter passphrase for /home/[user]/.ssh/id_rsa: 
+Identity added: /home/[user]/.ssh/id_rsa (/home/[user]/.ssh/id_rsa)
+```
+
+After add the key, you can list fingerprints of all keys in the ssh-agent
+```
+$ ssh-add -l
+4096 25:27:f0:1a:4c:22:69:15:35:7c:83:93:a1:21:63:99 /home/[user]/.ssh/id_rsa (RSA)
+```
+
+After add SSH public key to GitHub account, you can test
+```
+$ ssh -T git@github.com
+Hi [user]! You've successfully authenticated, but GitHub does not provide shell access.
+```
+
+# 2. SSH
 
 Synopsis
 ```
@@ -196,37 +233,4 @@ Protocol 1 lacks a strong mechanism for ensuring the integrity of the connection
 The methods available for authentication are: GSSAPI-based authentication, host-based authentication, public key authentication, challenge-response authentication, and password authentication. Authentication methods are tried in the order specified above, though protocol 2 has a configuration option to change the default order: **PreferredAuthentications**.
 
 Host-based authentication works as follows: If the machine the user logs in from is listed in /etc/hosts.equiv or /etc/shosts.equiv on the remote machine, and the user names are the same on both sides, or if the files ~/.rhosts or ~/.shosts exist in the user's home directory on the remote machine and contain a line containing the name of the client machine and the name of the user on that machine, the user is considered for login. Additionally, the server must be able to verify the client's host key (see the description of /etc/ssh/ssh_known_hosts and ~/.ssh/known_hosts, below) for login to be permitted. This authentication method closes security holes due to IP spoofing, DNS spoofing, and routing spoofing. [Note to the administrator: /etc/hosts.equiv, ~/.rhosts, and the rlogin/rsh protocol in general, are inherently insecure and should be disabled if security is desired.]
-
-# 2. ssh-keygen
-
-Generate SSH keypair for GitHub
-- **-t** type: specify type of key to create
-- **-b** bits: number of bits in the key to create
-- **-C** comment: provide new comment
-```
-$ ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
-Generating public/private rsa key pair.
-Enter file in which to save the key (/home/[user]/.ssh/id_rsa): 
-Enter passphrase (empty for no passphrase): 
-Enter same passphrase again: 
-Your identification has been saved in /home/[user]/.ssh/id_rsa.
-Your public key has been saved in /home/[user]/.ssh/id_rsa.pub.
-The key fingerprint is:
-25:27:f0:1a:4c:22:69:15:35:7c:83:93:a1:21:63:99 your_email@example.com
-```
-
-# 3. ssh-add
-
-Add a SSH key to ssh-agent
-```
-$ ssh-add ~/.ssh/id_rsa
-Enter passphrase for /home/[user]/.ssh/id_rsa: 
-Identity added: /home/[user]/.ssh/id_rsa (/home/[user]/.ssh/id_rsa)
-```
-
-After add the key, you can list fingerprints of all keys in the ssh-agent
-```
-$ ssh-add -l
-4096 25:27:f0:1a:4c:22:69:15:35:7c:83:93:a1:21:63:99 /home/[user]/.ssh/id_rsa (RSA)
-```
 
