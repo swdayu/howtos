@@ -7,7 +7,7 @@ others provide access to "outside" services (e.g., I/O); and others could be imp
 but are quite useful or have critical performance requirements that deserve an implementation in C 
 (e.g., `table.sort`).
 
-标准Lua库提供了一些用C API实现的有用的函数。
+标准Lua库提供了用C API实现的一些有用的函数。
 这些函数一些提供了语言核心服务（如`type`和`getmetatable`），另外一些提供对外部服务的访问（如I/O），
 还有一些本可以使用Lua来实现，但由于重要性或性能需求都用C实现（如`table.sort`）。
 所有库通过正式C API实现，并以独立C模块形式提供。当前Lua拥有如下标准库：
@@ -41,7 +41,7 @@ Alternatively, the host program can open them individually by using `luaL_requir
 These functions are declared in `lualib.h`.
 
 访问这些库，C宿主程序可以调用`luaL_openlibs`打开所有库的访问。
-或调用上面的函数单独打开某个库来使用。这些函数定义在`lualib.h`头文件中。
+或调用上面的函数单独访问某个库。这些函数定义在`lualib.h`头文件中。
 
 ## 6.1 Basic Functions
 
@@ -49,7 +49,7 @@ The basic library provides core functions to Lua.
 If you do not include this library in your application, 
 you should check carefully whether you need to provide implementations for some of its facilities.
 
-基本库是Lua中的一些核心函数。如果不包含这个库，应该考虑是否实现其中的一些功能。
+基本库定义了Lua核心函数。如果不包含这个库，应该考虑是否实现其中的一些功能。
 
 ## 6.2 Coroutine Manipulation
 
@@ -79,7 +79,7 @@ For instance, `string.byte(s,i)` can be written as `s:byte(i)`.
 
 The string library assumes one-byte character encodings.
 
-字符串库实现字符串操作相关函数，如查找和提取子串，以及模式匹配。
+字符串库实现字符串相关操作功能，如查找和提取子串，以及模式匹配。
 索引字符串时，第一个字符是位置1（不像C言语是0）。
 索引值可以是负数，从字符串结尾开始往回计数，因此最后一个字符在位置-1，依次类推。
 
