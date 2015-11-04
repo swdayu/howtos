@@ -9,7 +9,7 @@ but are quite useful or have critical performance requirements that deserve an i
 
 标准Lua库提供了用C API实现的一些有用的函数。
 这些函数一些提供了语言核心服务（如`type`和`getmetatable`），另外一些提供对外部服务的访问（如I/O），
-还有一些本可以使用Lua来实现，但由于重要性或性能需求都用C实现（如`table.sort`）。
+还有一些可以用Lua实现，但由于重要性或性能需求都用C实现（如`table.sort`）。
 所有库通过正式C API实现，并以独立C模块形式提供。当前Lua拥有如下标准库：
 
 All libraries are implemented through the official C API and are provided as separate C modules. 
