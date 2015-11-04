@@ -79,8 +79,8 @@ For instance, `string.byte(s,i)` can be written as `s:byte(i)`.
 
 The string library assumes one-byte character encodings.
 
-字符串库实现字符串相关操作功能，如查找和提取子串，以及模式匹配。
-索引字符串时，第一个字符是位置1（不像C言语是0）。
+字符串库实现对字符串的操作，如查找和提取子串，以及模式匹配。
+索引字符串时，第一个字符在位置1上（不像C言语是0）。
 索引值可以是负数，从字符串结尾开始往回计数，因此最后一个字符在位置-1，依次类推。
 
 字符串库函数都导出在`string`表中供使用。
