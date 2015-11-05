@@ -111,3 +111,10 @@ It is highly recommended to use the package provided in the Canonical partner re
 sudo ./VMware-Workstation-6.5.0-118166.i386.bundle
 ```
 
+## Chromium
+```
+sudo add-apt-repository  ppa:chromium-daily/stable
+sudo apt-get update
+sudo apt-get install chromium-browser
+```
+
