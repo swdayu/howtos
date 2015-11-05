@@ -1,8 +1,8 @@
 
 **load (chunk [, chunkname [, mode [, env]]])**
 
-Loads a chunk. If chunk is a string, the chunk is this string. 
-If chunk is a function, load calls it repeatedly to get the chunk pieces. 
+Loads a chunk. If chunk is a string, the `chunk` is this string. 
+If `chunk` is a function, `load` calls it repeatedly to get the chunk pieces. 
 Each call to chunk must return a string that concatenates with previous results. 
 A return of an empty string, `nil`, or no value signals the end of the chunk.
 
