@@ -6,7 +6,7 @@ There are two ways to access GitHub, please refer
 - [Access GitHub via HTTPs](./github-https.md)
 - [Access GitHub via SSH](./github-ssh.md)
 
-**[Clone](./git-clone.md) a remote repo to local**
+[Clone](./git-clone.md) **a remote repo to local**
 ```
 $ cd local_repo_directory
 
@@ -44,7 +44,7 @@ $ git add .
 # 3. You can check current status
 $ git status
 
-# 4. Commit the chagnes
+# 4. Commit the changes
 $ git commit -m "Update files for some purpose"
 ```
 
