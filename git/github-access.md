@@ -6,7 +6,7 @@ There are two ways to access GitHub, please refer
 - [Access GitHub via HTTPs](./github-https.md)
 - [Access GitHub via SSH](./github-ssh.md)
 
-[Clone](./git-clone.md) **a remote repo to local**
+**[Clone](./git-clone.md) a remote repo to local**
 ```
 $ cd local_repo_directory
 
