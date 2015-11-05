@@ -3,8 +3,8 @@
 # GitHub Easy Access
 
 There are two ways to access GitHub, please refer
-- [Access GitHub via SSH](./github-ssh.md)
 - [Access GitHub via HTTPs](./github-https.md)
+- [Access GitHub via SSH](./github-ssh.md)
 
 **Clone a remote repo to local**
 ```
