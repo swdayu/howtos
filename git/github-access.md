@@ -36,12 +36,13 @@ ssh-howtos      git@github.com:xijkn/howtos.git (push)
 
 **Modify local files and commit the changes**
 ```
-# 1. Modify local files ...
+# 1. Modify local files and check the status
+$ git status
 
 # 2. Add all modified file into stage
 $ git add .
 
-# 3. You can check current status
+# 3. You can check current status again
 $ git status
 
 # 4. Commit the changes
