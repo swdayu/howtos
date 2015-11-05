@@ -1,6 +1,6 @@
 
-```
-define BTA_AV_ENABLE_EVT       0       /* AV enabled */
+```c
+#define BTA_AV_ENABLE_EVT       0       /* AV enabled */
 #define BTA_AV_REGISTER_EVT     1       /* registered to AVDT */
 #define BTA_AV_OPEN_EVT         2       /* connection opened */
 #define BTA_AV_CLOSE_EVT        3       /* connection closed */
