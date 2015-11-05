@@ -118,5 +118,6 @@ typedef enum {
     A2DP_CTRL_CMD_SUSPEND,
     A2DP_CTRL_GET_AUDIO_CONFIG
 } tA2DP_CTRL_CMD;
-int a2dp_command(struct a2dp_stream_common *common, char cmd); //INFO("A2DP COMMAND %s", dump_a2dp_ctrl_event(cmd));
+int a2dp_command(struct a2dp_stream_common *common, char cmd):
+  INFO("A2DP COMMAND %s", dump_a2dp_ctrl_event(cmd));
 ```
