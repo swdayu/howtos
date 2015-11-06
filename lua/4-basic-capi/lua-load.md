@@ -1,7 +1,7 @@
 
 # C API
 
-**lua_load** [-0, +1, –]
+## lua_load [-0, +1, –]
 ```c
 int lua_load(lua_State* L, lua_Reader reader, void* data, const char* chunkname, const char* mode);
 ```
@@ -34,6 +34,9 @@ If the resulting function has upvalues, its first upvalue is set to the value of
 stored at index `LUA_RIDX_GLOBALS` in the registry (see §4.5). 
 When loading main chunks, this upvalue will be the `_ENV` variable (see §2.2). 
 Other upvalues are initialized with `nil`.
+
+## lua_Reader
+
 ```c
 typedef const char* (*lua_Reader) (lua_State *L, void *data, size_t *size);
 ```
