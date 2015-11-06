@@ -54,7 +54,8 @@ void InputReader::processEventsLocked(const RawEvent* rawEvents, size_t count)
   int32_t deviceId = rawEvents->deviceId;
   processEventsForDeviceLocked(deviceId, rawEvent, batchSize);
   
-void InputReader::processEventsForDeviceLocked(int32_t deviceId, const RawEvent* rawEvents, size_t count)
+void InputReader::processEventsForDeviceLocked(
+  int32_t deviceId, const RawEvent* rawEvents, size_t count)
   device->process(rawEvents, count);
   
 void InputDevice::process(const RawEvent* rawEvents, size_t count)
@@ -64,7 +65,7 @@ void InputDevice::process(const RawEvent* rawEvents, size_t count)
   }
   
 InputDevice* InputReader::createDeviceLocked(int32_t deviceId, int32_t controllerNumber,
-                                             const InputDeviceIdentifier& identifier, uint32_t classes)
+  const InputDeviceIdentifier& identifier, uint32_t classes)
   device->addMapper(new SwitchInputMapper(device));
   device->addMapper(new VibratorInputMapper(device));
   device->addMapper(new KeyboardInputMapper(device, keyboardSource, keyboardType));
@@ -72,4 +73,7 @@ InputDevice* InputReader::createDeviceLocked(int32_t deviceId, int32_t controlle
   device->addMapper(new MultiTouchInputMapper(device));
   device->addMapper(new SingleTouchInputMapper(device));
   device->addMapper(new JoystickInputMapper(device));
+  
+"android/frameworks/base/data/keyboards/AVRCP.kl"
+
 ```
