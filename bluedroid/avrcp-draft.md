@@ -36,3 +36,40 @@ void btif_rc_handler(tBTA_AV_EVT event, tBTA_AV *p_data):
   handle_rc_metamsg_cmd(&(p_data->meta_msg));
   handle_rc_browsemsg_cmd(&(p_data->browse_msg));
 ```
+
+```cpp
+void InputReader::loopOnce()
+  size_t count = mEventHub->getEvents(timeoutMillis, mEventBuffer, EVENT_BUFFER_SIZE);
+  processEventsLocked(mEventBuffer, count);
+  
+struct RawEvent {
+    nsecs_t when;
+    int32_t deviceId;
+    int32_t type;
+    int32_t code;
+    int32_t value;
+};
+
+void InputReader::processEventsLocked(const RawEvent* rawEvents, size_t count)
+  int32_t deviceId = rawEvents->deviceId;
+  processEventsForDeviceLocked(deviceId, rawEvent, batchSize);
+  
+void InputReader::processEventsForDeviceLocked(int32_t deviceId, const RawEvent* rawEvents, size_t count)
+  device->process(rawEvents, count);
+  
+void InputDevice::process(const RawEvent* rawEvents, size_t count)
+  for (size_t i = 0; i < numMappers; i++) {
+    InputMapper* mapper = mMappers[i];
+    mapper->process(rawEvent);
+  }
+  
+InputDevice* InputReader::createDeviceLocked(int32_t deviceId, int32_t controllerNumber,
+                                             const InputDeviceIdentifier& identifier, uint32_t classes)
+  device->addMapper(new SwitchInputMapper(device));
+  device->addMapper(new VibratorInputMapper(device));
+  device->addMapper(new KeyboardInputMapper(device, keyboardSource, keyboardType));
+  device->addMapper(new CursorInputMapper(device));
+  device->addMapper(new MultiTouchInputMapper(device));
+  device->addMapper(new SingleTouchInputMapper(device));
+  device->addMapper(new JoystickInputMapper(device));
+```
