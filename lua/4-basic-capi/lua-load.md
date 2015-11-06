@@ -22,10 +22,13 @@ The `data` argument is an opaque value passed to the reader function.
 The chunkname argument gives a name to the chunk, 
 which is used for error messages and in debug information (see §4.9).
 
-`lua_load` automatically detects whether the chunk is text or binary and loads it accordingly (see program `luac`). The string mode works as in function `load`, 
+`lua_load` automatically detects whether the chunk is text or binary 
+and loads it accordingly (see program `luac`). 
+The string mode works as in function `load`, 
 with the addition that a `NULL` value is equivalent to the string "bt".
 
-`lua_load` uses the stack internally, so the reader function must always leave the stack unmodified when returning.
+`lua_load` uses the stack internally, 
+so the reader function must always leave the stack unmodified when returning.
 
 If the resulting function has upvalues, its first upvalue is set to the value of the global environment 
 stored at index `LUA_RIDX_GLOBALS` in the registry (see §4.5). 
@@ -36,29 +39,28 @@ typedef const char* (* **lua_Reader**) (lua_State *L, void *data, size_t *size);
 
 The reader function used by `lua_load`. 
 Every time it needs another piece of the chunk, `lua_load` calls the reader, passing along its `data` parameter.
-The reader must return a pointer to a block of memory with a new piece of the chunk and set size to the block size.
+The reader must return a pointer to a block of memory with a new piece of the chunk 
+and set size to the block size.
 The block must exist until the reader function is called again. 
 To signal the end of the chunk, the reader must return NULL or set size to zero. 
 The reader function may return pieces of any size greater than zero.
 
 **luaL_loadbuffer** [-0, +1, –]
 
-int luaL_loadbuffer (lua_State *L,
-                     const char *buff,
-                     size_t sz,
-                     const char *name);
-Equivalent to luaL_loadbufferx with mode equal to NULL.
+int **luaL_loadbuffer**(lua_State *L, const char *buff, size_t sz, const char *name);
+                     
+Equivalent to `luaL_loadbufferx` with `mode` equal to NULL.
 
 **luaL_loadbufferx** [-0, +1, –]
 
-int luaL_loadbufferx (lua_State *L,
-                      const char *buff,
-                      size_t sz,
-                      const char *name,
-                      const char *mode);
-Loads a buffer as a Lua chunk. This function uses lua_load to load the chunk in the buffer pointed to by buff with size sz.
+int **luaL_loadbufferx**(lua_State *L, const char *buff, size_t sz, const char *name, const char *mode);
 
-This function returns the same results as lua_load. name is the chunk name, used for debug information and error messages. The string mode works as in function lua_load.
+Loads a buffer as a Lua chunk. 
+This function uses `lua_load` to load the chunk in the buffer pointed to by `buff` with size `sz`.
+
+This function returns the same results as `lua_load`. 
+`name` is the chunk name, used for debug information and error messages. 
+The string mode works as in function `lua_load`.
 
 **luaL_loadfile** [-0, +1, e]
 
