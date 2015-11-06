@@ -2,9 +2,9 @@
 # C API
 
 **lua_load** [-0, +1, –]
-
-int **lua_load**(lua_State* L, lua_Reader reader, void* data, const char* chunkname, const char* mode);
-
+```c
+int lua_load(lua_State* L, lua_Reader reader, void* data, const char* chunkname, const char* mode);
+```
 Loads a Lua chunk without running it. 
 If there are no errors, `lua_load` pushes the compiled chunk as a Lua function on top of the stack. 
 Otherwise, it pushes an error message.
@@ -34,9 +34,9 @@ If the resulting function has upvalues, its first upvalue is set to the value of
 stored at index `LUA_RIDX_GLOBALS` in the registry (see §4.5). 
 When loading main chunks, this upvalue will be the `_ENV` variable (see §2.2). 
 Other upvalues are initialized with `nil`.
-
-typedef const char* (* **lua_Reader**) (lua_State *L, void *data, size_t *size);
-
+```c
+typedef const char* (*lua_Reader) (lua_State *L, void *data, size_t *size);
+```
 The reader function used by `lua_load`. 
 Every time it needs another piece of the chunk, `lua_load` calls the reader, passing along its `data` parameter.
 The reader must return a pointer to a block of memory with a new piece of the chunk 
@@ -46,15 +46,15 @@ To signal the end of the chunk, the reader must return NULL or set size to zero.
 The reader function may return pieces of any size greater than zero.
 
 **luaL_loadbuffer** [-0, +1, –]
-
-int **luaL_loadbuffer**(lua_State *L, const char *buff, size_t sz, const char *name);
-                     
+```c
+int luaL_loadbuffer(lua_State *L, const char *buff, size_t sz, const char *name);
+```                 
 Equivalent to `luaL_loadbufferx` with `mode` equal to NULL.
 
 **luaL_loadbufferx** [-0, +1, –]
-
-int **luaL_loadbufferx**(lua_State *L, const char *buff, size_t sz, const char *name, const char *mode);
-
+```c
+int luaL_loadbufferx(lua_State *L, const char *buff, size_t sz, const char *name, const char *mode);
+```
 Loads a buffer as a Lua chunk. 
 This function uses `lua_load` to load the chunk in the buffer pointed to by `buff` with size `sz`.
 
@@ -63,15 +63,15 @@ This function returns the same results as `lua_load`.
 The string mode works as in function `lua_load`.
 
 **luaL_loadfile** [-0, +1, e]
-
-int **luaL_loadfile**(lua_State *L, const char *filename);
-
+```c
+int luaL_loadfile(lua_State *L, const char *filename);
+```
 Equivalent to `luaL_loadfilex` with mode equal to NULL.
 
 **luaL_loadfilex** [-0, +1, e]
-
-int **luaL_loadfilex**(lua_State *L, const char *filename, const char *mode);
-
+```c
+int luaL_loadfilex(lua_State *L, const char *filename, const char *mode);
+```
 Loads a file as a Lua chunk. This function uses lua_load to load the chunk in the file named filename. 
 If filename is NULL, then it loads from the standard input. 
 The first line in the file is ignored if it starts with a `#`.
@@ -84,9 +84,9 @@ but it has an extra error code `LUA_ERRFILE` if it cannot open/read the file or 
 As `lua_load`, this function only loads the chunk; it does not run it.
 
 **luaL_loadstring** [-0, +1, –]
-
-int **luaL_loadstring**(lua_State *L, const char *s)
-
+```c
+int luaL_loadstring(lua_State *L, const char *s)
+```
 Loads a string as a Lua chunk. 
 This function uses lua_load to load the chunk in the zero-terminated string `s`.
 
