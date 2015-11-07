@@ -47,4 +47,4 @@ Note that the code above is *balanced*: at its end, the stack is back to its ori
 This is considered good programming practice.
 
 注意的是上面的代码是*平衡的*：即在最后，栈的状态回到与原始状态一样。
-这是一种公认的好的编程方法。
+这被认为是一种好的编程方法。
