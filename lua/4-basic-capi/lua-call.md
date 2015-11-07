@@ -16,10 +16,15 @@ Lua takes care that the returned values to fit into the stack sapce.
 The function results are pushed onto the stack in direct order (the first result is pushed first),
 so that after the call the last result is on the top of the stack.
 
-用C API调用Lua函数需要遵循如下规则：首先将要调用的函数压入栈；
-然后将要传人的函数参数，从第一个到最后依次依次压入栈。
-然后调用`lua_call`执行函数，`nargs`表示传入的参数个数。
-当函数调用完，所有传入的参数以及栈底的函数都会先出栈，当函数返回时会再将结果压入栈中。
+用C API调用Lua函数需要遵循如下规则：首先将要调用的函数入栈；
+然后将函数的参数，从第一个到最后一个依次入栈。
+最后调用`lua_call`执行函数，`nargs`表示传入的参数个数。
+函数执行时，传入的参数和栈底的函数会出栈。函数返回时，会将函数的结果入栈。
+结束的个数会调整到`nresults`个，除非`nresults`的值为LUA_MULTRET，此时函数所有的结果都会入栈。
+Lua会管理好结果的入栈操作。函数结果的入栈顺序是第一个结果先入栈，因此调用完后最后一个结果会在栈顶。
+
+调用Lua函数任何错误都会通过`longjmp`向上传递。
+如下所示的是与Lua函数等价的C API调用。
 
 Any error inside the called function is propagated upwards (with a `longjmp`). 
 The following example shows how the host program can do the equivalent to this Lua code:
@@ -41,3 +46,5 @@ lua_setglobal(L, "a");                         /* set global 'a' */
 Note that the code above is *balanced*: at its end, the stack is back to its original configuration.
 This is considered good programming practice.
 
+注意的是上面的代码是*平衡的*：即在最后，栈的状态回到与原始状态一样。
+这是一种公认的好的编程方法。
