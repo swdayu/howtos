@@ -48,3 +48,13 @@ This is considered good programming practice.
 
 注意的是上面的代码是*平衡的*：即在最后，栈的状态回到与原始状态一样。
 这被认为是一种好的编程方法。
+
+## lua_callk
+```c
+void lua_callk(lua_State* L, int nargs, int nresults, lua_LContent ctx, lua_KFunction k);
+```
+
+This function behaves exactly like `lua_call`, but allows the called function to yield (see 4.7).
+
+这个函数行为跟`lua_call`完全一样，但是允许被调用的Lua函数能够yield。
+
