@@ -1,4 +1,60 @@
 
+## 4.4 C Closures
+
+When a C function is created, it is possible to associate some values with it, 
+thus creating a C closure (see `lua_pushcclosure`); 
+these values are called upvalues and are accessible to the function whenever it is called.
+
+Whenever a C function is called, its upvalues are located at specific pseudo-indices. 
+These pseudo-indices are produced by the macro `lua_upvalueindex`. 
+The first upvalue associated with a function is at index `lua_upvalueindex(1)`, and so on. 
+Any access to `lua_upvalueindex(n)`, where `n` is greater than the number of upvalues of the current function 
+(but not greater than 256), produces an acceptable but invalid index.
+
+创建C函数后，可以将一些值关联在函数上，这样的函数称为C closure（见`lua_pushcclosure`)；
+这些关联的值被称为upvalue，可以被关联的函数访问。
+
+当C函数被调用时，它的upvalue分配在特定的pseudo-index上。这些pseudo-index通过宏`lua_upvalueindex`产生。
+函数关联的第一个upvalue在`lua_upvalueindex(1)`位置上，依次类推。
+任何访问的位置对应值超过当前函数upvalue的个数但是不大于256，将产生一个acceptable但invalid的index。
+
+## 4.5 Registry
+
+Lua provides a registry, a predefined table that can be used by any C code 
+to store whatever Lua values it needs to store. 
+The registry table is always located at pseudo-index `LUA_REGISTRYINDEX`. 
+Any C library can store data into this table, but it must take care to choose keys 
+that are different from those used by other libraries, to avoid collisions. 
+Typically, you should use as key a string containing your library name, 
+or a light userdata with the address of a C object in your code, or any Lua object created by your code. 
+As with variable names, string keys starting with an underscore followed by uppercase letters are reserved for Lua.
+
+Lua有一个预定义的注册表，任何C代码可以用它来存储需要的Lua值。
+这个注册表总是分配在`LUA_REGISTRYINDEX`这个pseudo-index位置上。
+C代码可以存储数据到这个表中，但是必须选择合适的不同的键避免冲突。
+原则上应该使用如下值作为键：包含了你自己库名称的字符串，或保存了你代码中的C对象地址的轻量用户数据，
+或你代码中创建的任何Lua对象。像变量名称一样，以下划线开始后跟大写字母的字符串键仅保留给Lua使用。
+
+The integer keys in the registry are used by the reference mechanism (see `luaL_ref`) and by some predefined values. 
+Therefore, integer keys must not be used for other purposes.
+
+注册表中的数值键用于引用机制（见`luaL_ref`）和被一些预定义的值使用。
+因此，数值键必须不去用于其他目的。
+
+When you create a new Lua state, its registry comes with some predefined values. 
+These predefined values are indexed with integer keys defined as constants in lua.h. 
+The following constants are defined:
+
+- **LUA_RIDX_MAINTHREAD**: At this index the registry has the main thread of the state. 
+  (The main thread is the one created together with the state.)
+
+- **LUA_RIDX_GLOBALS**: At this index the registry has the global environment.
+
+当创建一个新的Lua状态时，它的注册表就有了一些预定义的值。
+这些预定义的值通过`lua.h`头文件中定义的数值键来访问。
+`LUA_RIDX_MAINTHREAD`对应位置时Lua状态的主线程（主线程是与Lua状态一起同时创建的线程）。
+`LUA_RIDX_GLOBALS`对应这个位置是Lua的全局环境。
+
 # C API
 
 ## lua_call [-(nargs+1),+nresults,e]
