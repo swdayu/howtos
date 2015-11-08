@@ -1,5 +1,5 @@
 
-# lua stack
+# Lua Stack
 
 Lua uses a virtual stack to pass values to and from C. 
 Each element in this stack represents a Lua value (nil, number, string, etc.).
@@ -8,9 +8,10 @@ which is independent of previous stacks and of stacks of C functions that are st
 This stack initially contains any arguments to the C function and it is where the C function pushes its results 
 to be returned to the caller (see `lua_CFunction`).
 
-Lua使用虚拟栈将参数传递给C或从C接收参数。栈的元素代表Lua值（如`nil`、数值、字符串、等等）。
+Lua使用虚拟栈与C语言交换数据。栈中的每个元素都是Lua值（如`nil`、数值、字符串、等等）。
+每当Lua调用C时，被调函数都获得一个新栈，这个栈与原先的栈以及当前活跃的栈都不同。
 当Lua调用C函数时，被调用的函数都获得一个新栈，这个栈独立于任何之前的栈以及当前活动的C函数对应的栈。
-栈初始情况下包含传递给C的所有参数，它也是C函数存放结果放回给调用者的地方（见`lua_CFunction`）。
+出事情况下栈会包含传递给C的所有参数，C函数也把结果存放在栈中返回给调用者（见`lua_CFunction`）。
 
 For convenience, most query operations in the API do not follow a strict stack discipline. 
 Instead, they can refer to any element in the stack by using an index: 
@@ -20,9 +21,9 @@ More specifically, if the stack has n elements, then index 1 represents the firs
 (that is, the element that was pushed onto the stack first) and index n represents the last element; 
 index -1 also represents the last element (that is, the element at the top) and index -n represents the first element.
 
-为了方便，大多数的查询操作都没有严格遵循栈规则。而是索引值来直接访问栈中的变量。
-正索引代表一个绝对的栈位置（计数从1开始），负索引代表从栈顶算起的相对偏移。
-更准确地，如果栈有n个元素，则索引1表示第一个元素（即压入栈中的第一个元素），索引n表示最后一个元素；
+为便利，大多数操作都不严格遵循栈的规则。相反的，都使用索引值来直接访问栈中的变量。
+正索引代表栈的一个绝对位置（从1开始），负索引代表从栈顶算起的相对偏移。
+更准确地，如果栈有n个元素，则索引1代表第一个元素（即压入栈中的第一个元素），索引n表示最后一个元素；
 索引-1也表示最后一个元素（即栈顶元素），索引-n表示第一个元素。
 
 ## Stack Size
@@ -31,36 +32,34 @@ When you interact with the Lua API, you are responsible for ensuring consistency
 In particular, you are responsible for controlling stack overflow. 
 You can use the function `lua_checkstack` to ensure that the stack has enough space for pushing new elements.
 
-使用这个应用接口时，你必须自己负责程序的一致性。特别的，你应对栈的溢出情况负责。
-可以使用`lua_checkstack`函数保证栈有做够的空间压入新元素。
+当与Lua API交互时，程序的一致性需要你自己保证。特别的，你有责任负责控制栈溢出。
+可以使用`lua_checkstack`函数保证栈有做够的空间用来压入新元素。
 
 Whenever Lua calls C, it ensures that the stack has space for at least `LUA_MINSTACK` extra slots. 
 `LUA_MINSTACK` is defined as 20, so that usually you do not have to worry about stack space 
 unless your code has loops pushing elements onto the stack.
 
-当Lua调用C函数时会保证栈的大小最少有`LUA_MINSTACK`个额外元素的空间可以使用。
-这个值定义为20，因此你通常不需要去担心栈的空间除非你的代码使用循环压入来很多元素到栈中。
+不论何时Lua调用C，都会保证栈有至少`Lua_MINISTACK`个额外空间。
+这个值是20，因此你通常不必担心栈的空间，除非代码中有循环将元素压入栈中。
 
 When you call a Lua function without a fixed number of results (see `lua_call`), 
 Lua ensures that the stack has enough space for all results, but it does not ensure any extra space. 
 So, before pushing anything in the stack after such a call you should use `lua_checkstack`.
 
-当调用一个没有固定值的Lua函数时（见`lua_call`），Lua保证有做够的空间来存储所有的参数，但是不保证还有其他额外的空间。
-因此，在调用来这样的函数后，在继续压入数据之前应该先调用一次`lua_checkstack`。
+当调用没有固定个数结果的Lua函数时（见`lua_call`），Lua保证有足够的空间存储所有结果，但不保证还有额外空间可用。
+因此，在调用这样的函数后继续压入数据，都应先调用`lua_checkstack`。
 
 ## Valid and Acceptable Indices
 
-Any function in the API that receives stack indices works only with valid indices or acceptable indices.
-
-A valid index is an index that refers to a position that stores a modifiable Lua value. 
-It comprises stack indices between 1 and the stack top (1 ≤ abs(index) ≤ top) plus pseudo-indices,
+Any function in the API that receives stack indices works only with **valid** indices or **acceptable** indices.
+A **valid** index is an index that refers to a position that stores a modifiable Lua value. 
+It comprises stack indices between 1 and the stack top (`1 ≤ abs(index) ≤ top`) plus **pseudo**-indices,
 which represent some positions that are accessible to C code but that are not in the stack. 
-Pseudo-indices are used to access the registry (see §4.5) and the upvalues of a C function (see §4.4).
+**Pseudo**-indices are used to access the **registry** (see §4.5) and the **upvalue**s of a C function (see §4.4).
 
-接收stack index的函数只有当是有效的index或可接受的index时才正常工作。
-有效的index是指它引用的位置存储了可被修改的Lua值，
-它的范围从1到stack顶部（即`1 ≤ abs(index) ≤ top`）再加上pseudo-indices，这是C代码可以访问但不再stack中的一些位置。
-Pseudo-indices用于访问C注册表以及C函数的upvalue。
+任何接收栈索引的函数都只能在**有效索引**或**可接受索引**下正常工作。
+**有效索引**引用的位置存储的Lua值是可修改的，它的范围从1到栈顶部（即`1 ≤ abs(index) ≤ top`）再加上**伪索引**。
+**伪索引**引用的地方可以被C代码访问但不是栈中的位置，它用于访问C函数的**上值**和**注册表**。
 
 Functions that do not need a specific mutable position, 
 but only a value (e.g., query functions), can be called with acceptable indices. 
