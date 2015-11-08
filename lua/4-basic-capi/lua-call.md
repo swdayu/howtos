@@ -55,6 +55,32 @@ The following constants are defined:
 `LUA_RIDX_MAINTHREAD`对应位置时Lua状态的主线程（主线程是与Lua状态一起同时创建的线程）。
 `LUA_RIDX_GLOBALS`对应这个位置是Lua的全局环境。
 
+## lua_upvalueindex [-0, +0, –]
+```c
+int lua_upvalueindex (int i);
+```
+Returns the pseudo-index that represents the `i`-th upvalue of the running function (see §4.4).
+
+lua_pushcclosure
+
+[-n, +1, e]
+void lua_pushcclosure (lua_State *L, lua_CFunction fn, int n);
+Pushes a new C closure onto the stack.
+
+When a C function is created, it is possible to associate some values with it, thus creating a C closure (see §4.4); these values are then accessible to the function whenever it is called. To associate values with a C function, first these values must be pushed onto the stack (when there are multiple values, the first value is pushed first). Then lua_pushcclosure is called to create and push the C function onto the stack, with the argument n telling how many values will be associated with the function. lua_pushcclosure also pops these values from the stack.
+
+The maximum value for n is 255.
+
+When n is zero, this function creates a light C function, which is just a pointer to the C function. In that case, it never raises a memory error.
+
+lua_pushcfunction
+
+[-0, +1, –]
+void lua_pushcfunction (lua_State *L, lua_CFunction f);
+Pushes a C function onto the stack. This function receives a pointer to a C function and pushes onto the stack a Lua value of type function that, when called, invokes the corresponding C function.
+
+Any function to be callable by Lua must follow the correct protocol to receive its parameters and return its results (see lua_CFunction).
+
 ## lua_call [-(nargs+1),+nresults,e]
 ```c
 void lua_call(lua_State* L, int nargs, int nresults);
