@@ -99,6 +99,26 @@ Whatever it returns is handled by Lua as if it were the return of the original f
 
 [[TODO？？？]]
 
+### lua_newthread [-0, +1, e]
+```c
+lua_State *lua_newthread (lua_State *L);
+```
+Creates a new thread, pushes it on the stack, 
+and returns a pointer to a `lua_State` that represents this new thread. 
+The new thread returned by this function shares with the original thread its global environment, 
+but has an independent execution stack.
+
+There is no explicit function to close or to destroy a thread. 
+Threads are subject to garbage collection, like any Lua object.
+
+### lua_xmove [-?, +?, –]
+```c
+void lua_xmove (lua_State *from, lua_State *to, int n);
+```
+
+Exchange values between different threads of the same state.
+This function pops `n` values from the stack `from`, and pushes them onto the stack `to`.
+
 lua_yield
 
 [-?, +?, e]
