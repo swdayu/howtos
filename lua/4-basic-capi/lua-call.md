@@ -16,7 +16,7 @@ Any access to `lua_upvalueindex(n)`, where `n` is greater than the number of **u
 
 C函数调用时，它的**上值**都分配在特定的**伪索引**上。
 这些**伪索引**通过一个宏`lua_upvalueindex`来产生。第一个**上值**关联在索引`lua_upvalueindex(1)`上，依次类推。
-任何访问大于当前函数**上值**个数的索引（不能大于256），都是一个**可接受索引**，但不是**有效索引**。
+任何大于当前函数**上值**个数的索引（不能大于256），都是一个**可接受索引**，但不是**有效索引**。
 
 # Registry
 
