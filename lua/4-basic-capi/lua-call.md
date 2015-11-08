@@ -1,5 +1,5 @@
 
-## 4.4 C Closures
+# C Functions
 
 When a C function is created, it is possible to associate some values with it, 
 thus creating a C closure (see `lua_pushcclosure`); 
@@ -18,7 +18,7 @@ Any access to `lua_upvalueindex(n)`, where `n` is greater than the number of upv
 函数关联的第一个upvalue在`lua_upvalueindex(1)`位置上，依次类推。
 任何访问的位置对应值超过当前函数upvalue的个数但是不大于256，将产生一个acceptable但invalid的index。
 
-## 4.5 Registry
+# Registry
 
 Lua provides a registry, a predefined table that can be used by any C code 
 to store whatever Lua values it needs to store. 
@@ -54,8 +54,6 @@ The following constants are defined:
 这些预定义的值通过`lua.h`头文件中定义的数值键来访问。
 `LUA_RIDX_MAINTHREAD`对应位置时Lua状态的主线程（主线程是与Lua状态一起同时创建的线程）。
 `LUA_RIDX_GLOBALS`对应这个位置是Lua的全局环境。
-
-# C API
 
 ## lua_call [-(nargs+1),+nresults,e]
 ```c
