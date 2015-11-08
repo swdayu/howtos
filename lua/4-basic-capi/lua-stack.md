@@ -83,7 +83,7 @@ it contains a value of a virtual type `LUA_TNONE`, which behaves like a `nil` va
 例如，C函数可以查询它的第3个参数而不需要知道第3个参数是否存在，即无需检查3是否是**有效索引**。
 能够用**可接受索引**调用的函数，任何非**有效索引**都会被当作`LUA_TNONE`类型值，它的作用跟`nil`值类似。
 
-## Basic Operations
+## Basic
 
 ### lua_absindex[-0, +0, –]
 ```c
@@ -190,7 +190,7 @@ This function cannot be called with a pseudo-index, because a pseudo-index is no
 移动次数`n`的绝对值必须不能比移动的元素个数还要大。
 不能用伪索引调用这个函数，因为伪索引不是一个真正的栈位置。
 
-## Push Stack
+## Push
 
 ```c
 // lua_pushboolean [-0, +1, –]
@@ -288,7 +288,7 @@ const char *lua_pushvfstring (lua_State *L, const char *fmt, va_list argp);
 
 Equivalent to `lua_pushfstring`, except that it receives a `va_list` instead of a variable number of arguments.
 
-## Create New Object
+## Create
 
 ### lua_createtable [-0, +1, e]
 ```c
@@ -316,7 +316,7 @@ This function allocates a new block of memory with the given size,
 pushes onto the stack a new full userdata with the block address, and returns this address. 
 The host program can freely use this memory.
 
-## Get & Set Operation
+## Get and Set
 
 ### lua_getglobal [-0, +1, e]
 ```c
