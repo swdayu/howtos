@@ -17,7 +17,7 @@ Pops a value from the stack and sets it as the new value of global name.
 int lua_getfield (lua_State *L, int index, const char *k);
 void lua_setfield (lua_State *L, int index, const char *k);
 ```
-Pushes onto the stack the value `t[k]`, where t is the value at the given index. 
+Pushes onto the stack the value `t[k]`, where `t` is the value at the given index. 
 As in Lua, this function may trigger a metamethod for the "index" event (see §2.4).
 Returns the type of the pushed value.
 
