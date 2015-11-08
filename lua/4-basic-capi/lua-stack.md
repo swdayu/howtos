@@ -70,7 +70,7 @@ Except when noted otherwise, functions in the API work with acceptable indices.
 不需要可修改索引位置只需得到值的函数（如查询函数），可以用**可接受索引**调用。
 **可接受索引**可以是任何**有效索引**，还可以是栈顶之上但在栈空间之内的正索引，
 即索引值可以大于栈顶但不超过栈的大小（注意0永远不是一个**可接受索引**）。
-除非特别说明，API函数都能接受**可接受索引**。
+除非特别说明，API函数都接受**可接受索引**。
 
 Acceptable indices serve to avoid extra tests against the stack top when querying the stack. 
 For instance, a C function can query its third argument without the need to first check 
@@ -79,7 +79,7 @@ whether there is a third argument, that is, without the need to check whether 3 
 For functions that can be called with acceptable indices, any non-valid index is treated as if 
 it contains a value of a virtual type `LUA_TNONE`, which behaves like a `nil` value.
 
-**可接受索引**主要是为了避免在查询栈时相对栈顶做额外的检查。
+**可接受索引**主要为了避免在查询栈时相对栈顶做额外检查。
 例如，C函数可以查询它的第3个参数而不需要知道第3个参数是否存在，即无需检查3是否是**有效索引**。
 能够用**可接受索引**调用的函数，任何非**有效索引**都会被当作`LUA_TNONE`类型值，它的作用跟`nil`值类似。
 
