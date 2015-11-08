@@ -102,6 +102,20 @@ This function returns the same results as `lua_load`.
 
 Also as `lua_load`, this function only loads the chunk; it does not run it.
 
+lua_dump
+
+[-0, +0, e]
+int lua_dump (lua_State *L,
+                        lua_Writer writer,
+                        void *data,
+                        int strip);
+Dumps a function as a binary chunk. Receives a Lua function on the top of the stack and produces a binary chunk that, if loaded again, results in a function equivalent to the one dumped. As it produces parts of the chunk, lua_dump calls function writer (see lua_Writer) with the given data to write them.
+
+If strip is true, the binary representation may not include all debug information about the function, to save space.
+
+The value returned is the error code returned by the last call to the writer; 0 means no errors.
+
+This function does not pop the Lua function from the stack.
 
 # Lua Stdlib
 
