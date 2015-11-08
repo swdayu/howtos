@@ -1,39 +1,7 @@
 
 # lua stack
 
-
-## lua_next [-1, +(2|0), e]
-```c
-int lua_next (lua_State *L, int index);
-```
-
-Pops a key from the stack, and pushes a key–value pair from the table at the given index 
-(the "next" pair after the given key). If there are no more elements in the table, 
-then `lua_next` returns 0 (and pushes nothing).
-
-A typical traversal looks like this:
-```c
-/* table is in the stack at index 't' */
-lua_pushnil(L);  /* first key */
-while (lua_next(L, t) != 0) {
-  /* uses 'key' (at index -2) and 'value' (at index -1) */
-  printf("%s - %s\n",
-    lua_typename(L, lua_type(L, -2)),
-    lua_typename(L, lua_type(L, -1)));
-  /* removes 'value'; keeps 'key' for next iteration */
-  lua_pop(L, 1);
-}
-```
-While traversing a table, do not call `lua_tolstring` directly on a key, 
-unless you know that the key is actually a string. 
-Recall that `lua_tolstring` may change the value at the given index; this confuses the next call to `lua_next`.
-
-See function `next` for the caveats of modifying the table during its traversal.
-
-
-
-
-## Basic Operations
+## Basic Operation
 
 ### lua_checkstack [-0, +0, –]
 ```c
@@ -60,6 +28,14 @@ in particular, 0 means an empty stack.
 
 函数返回栈顶元素的索引值。
 因此栈索引值从1开始，因此这个值即栈中元素的个数；特别的，0表示栈中没有元素。
+
+### lua_settop [-?, +?, –]
+```c
+void lua_settop (lua_State *L, int index);
+```
+Accepts any index, or 0, and sets the stack top to this index. 
+If the new top is larger than the old one, then the new elements are filled with `nil`. 
+If index is 0, then all stack elements are removed.
 
 ### lua_pop [-n, +0, –]
 ```c
@@ -186,10 +162,17 @@ A light userdata is equal to "any" light userdata with the same C address.
 const char *lua_pushfstring (lua_State *L, const char *fmt, ...);
 ```
 
-Pushes onto the stack a formatted string and returns a pointer to this string. It is similar to the ISO C function sprintf, but has some important differences:
+Pushes onto the stack a formatted string and returns a pointer to this string. 
+It is similar to the ISO C function `sprintf`, but has some important differences:
 
-You do not have to allocate space for the result: the result is a Lua string and Lua takes care of memory allocation (and deallocation, through garbage collection).
-The conversion specifiers are quite restricted. There are no flags, widths, or precisions. The conversion specifiers can only be '%%' (inserts the character '%'), '%s' (inserts a zero-terminated string, with no size restrictions), '%f' (inserts a lua_Number), '%I' (inserts a lua_Integer), '%p' (inserts a pointer as a hexadecimal numeral), '%d' (inserts an int), '%c' (inserts an int as a one-byte character), and '%U' (inserts a long int as a UTF-8 byte sequence).
+You do not have to allocate space for the result: 
+the result is a Lua string and Lua takes care of memory allocation (and deallocation, through garbage collection).
+The conversion specifiers are quite restricted. There are no flags, widths, or precisions. 
+The conversion specifiers can only be `%%` (inserts the character `%`), 
+`%s` (inserts a zero-terminated string, with no size restrictions), 
+`%f` (inserts a `lua_Number`), `%I` (inserts a `lua_Integer`), 
+`%p` (inserts a pointer as a hexadecimal numeral), `%d` (inserts an `int`), 
+`%c` (inserts an int as a one-byte character), and `%U` (inserts a `long int` as a UTF-8 byte sequence).
 
 ### lua_pushlstring [-0, +1, e]
 
@@ -197,7 +180,10 @@ The conversion specifiers are quite restricted. There are no flags, widths, or p
 const char *lua_pushlstring (lua_State *L, const char *s, size_t len);
 ```
 
-Pushes the string pointed to by s with size len onto the stack. Lua makes (or reuses) an internal copy of the given string, so the memory at s can be freed or reused immediately after the function returns. The string can contain any binary data, including embedded zeros.
+Pushes the string pointed to by `s` with size `len` onto the stack. 
+Lua makes (or reuses) an internal copy of the given string, 
+so the memory at `s` can be freed or reused immediately after the function returns. 
+The string can contain any binary data, including embedded zeros.
 
 Returns a pointer to the internal copy of the string.
 
@@ -206,11 +192,13 @@ Returns a pointer to the internal copy of the string.
 const char *lua_pushstring (lua_State *L, const char *s);
 ```
 
-Pushes the zero-terminated string pointed to by s onto the stack. Lua makes (or reuses) an internal copy of the given string, so the memory at s can be freed or reused immediately after the function returns.
+Pushes the zero-terminated string pointed to by `s` onto the stack. 
+Lua makes (or reuses) an internal copy of the given string, 
+so the memory at s can be freed or reused immediately after the function returns.
 
 Returns a pointer to the internal copy of the string.
 
-If s is NULL, pushes nil and returns NULL.
+If `s` is NULL, pushes `nil` and returns NULL.
 
 ### lua_pushvfstring [-0, +1, e]
 
@@ -218,105 +206,334 @@ If s is NULL, pushes nil and returns NULL.
 const char *lua_pushvfstring (lua_State *L, const char *fmt, va_list argp);
 ```
 
-Equivalent to lua_pushfstring, except that it receives a va_list instead of a variable number of arguments.
+Equivalent to `lua_pushfstring`, except that it receives a `va_list` instead of a variable number of arguments.
 
 
+## Get & Set Operation
 
-
-
-
-## Get & Set Stack
-
-
-### lua_getglobal [-0, +1, e] lua_setglobal [-1, +0, e]
+### lua_getglobal [-0, +1, e]
 ```c
 int lua_getglobal (lua_State *L, const char *name);
+```
+Pushes onto the stack the value of the global name. Returns the type of that value.
+
+### lua_setglobal [-1, +0, e]
+```c
 void lua_setglobal (lua_State *L, const char *name);
 ```
-
-Pushes onto the stack the value of the global name. Returns the type of that value.
 Pops a value from the stack and sets it as the new value of global name.
 
-
-### lua_getfield [-0, +1, e] lua_setfield [-1, +0, e]
+### lua_getfield [-0, +1, e]
 ```c
 int lua_getfield (lua_State *L, int index, const char *k);
-void lua_setfield (lua_State *L, int index, const char *k);
 ```
 Pushes onto the stack the value `t[k]`, where `t` is the value at the given index. 
 As in Lua, this function may trigger a metamethod for the "index" event (see §2.4).
 Returns the type of the pushed value.
 
+### lua_setfield [-1, +0, e]
+```c
+void lua_setfield (lua_State *L, int index, const char *k);
+```
 Does the equivalent to `t[k] = v`, 
 where `t` is the value at the given index and `v` is the value at the top of the stack.
 This function pops the value from the stack. 
 As in Lua, this function may trigger a metamethod for the "newindex" event (see §2.4).
 
+### lua_geti [-0, +1, e]
+```c
+int lua_geti (lua_State *L, int index, lua_Integer i);
+```
+Pushes onto the stack the value `t[i]`, where `t` is the value at the given `index`. 
+As in Lua, this function may trigger a metamethod for the "index" event (see §2.4).
+
+Returns the type of the pushed value.
+
+### lua_rawgeti [-0, +1, –]
+```c
+int lua_rawgeti (lua_State *L, int index, lua_Integer n);
+```
+Pushes onto the stack the value `t[n]`, where `t` is the table at the given `index`. 
+The access is raw; that is, it does not invoke metamethods.
+
+Returns the type of the pushed value.
+
+### lua_seti [-1, +0, e]
+```c
+void lua_seti (lua_State *L, int index, lua_Integer n);
+```
+Does the equivalent to `t[n] = v`, 
+where `t` is the value at the given `index` and `v` is the value at the top of the stack.
+
+This function pops the value from the stack. 
+As in Lua, this function may trigger a metamethod for the "newindex" event (see §2.4).
+
+### lua_rawseti [-1, +0, e]
+```c
+void lua_rawseti (lua_State *L, int index, lua_Integer i);
+```
+Does the equivalent of `t[i] = v`, where `t` is the table at the given index 
+and `v` is the value at the top of the stack.
+
+This function pops the value from the stack. The assignment is raw; that is, it does not invoke metamethods.
+
+### lua_getmetatable [-0, +(0|1), –]
+```c
+int lua_getmetatable (lua_State *L, int index);
+```
+If the value at the given `index` has a metatable, 
+the function pushes that metatable onto the stack and returns 1. 
+Otherwise, the function returns 0 and pushes nothing on the stack.
+
+### lua_setmetatable [-1, +0, –]
+```c
+void lua_setmetatable (lua_State *L, int index);
+```
+Pops a table from the stack and sets it as the new metatable for the value at the given index.
+
+### lua_gettable [-1, +1, e]
+```c
+int lua_gettable (lua_State *L, int index);
+```
+Pushes onto the stack the value `t[k]`, 
+where `t` is the value at the given `index` and `k` is the value at the top of the stack.
+
+This function pops the key from the stack, pushing the resulting value in its place. 
+As in Lua, this function may trigger a metamethod for the "index" event (see §2.4).
+
+Returns the type of the pushed value.
+
+### lua_settable [-2, +0, e]
+```c
+void lua_settable (lua_State *L, int index);
+```
+Does the equivalent to `t[k] = v`, where `t` is the value at the given index, 
+`v` is the value at the top of the stack, and `k` is the value just below the top.
+
+This function pops both the key and the value from the stack. 
+As in Lua, this function may trigger a metamethod for the "newindex" event (see §2.4).
+
+### lua_rawset [-2, +0, e]
+```c
+void lua_rawset (lua_State *L, int index);
+```
+Similar to `lua_settable`, but does a raw assignment (i.e., without metamethods).
+
+### lua_getuservalue [-0, +1, –]
+```c
+int lua_getuservalue (lua_State *L, int index);
+```
+Pushes onto the stack the Lua value associated with the userdata at the given `index`.
+
+Returns the type of the pushed value.
+
+### lua_setuservalue [-1, +0, –]
+```c
+void lua_setuservalue (lua_State *L, int index);
+```
+Pops a value from the stack and sets it as the new value associated to the userdata at the given index.
+
+### lua_rawgetp [-0, +1, –]
+```c
+int lua_rawgetp (lua_State *L, int index, const void *p);
+```
+Pushes onto the stack the value `t[k]`, 
+where `t` is the table at the given `index` and `k` is the pointer `p` represented as a light userdata. 
+The access is raw; that is, it does not invoke metamethods.
+
+Returns the type of the pushed value.
+
+### lua_rawsetp [-1, +0, e]
+```c
+void lua_rawsetp (lua_State *L, int index, const void *p);
+```
+Does the equivalent of `t[p] = v`, where `t` is the table at the given index, 
+`p` is encoded as a light userdata, and `v` is the value at the top of the stack.
+
+This function pops the value from the stack. The assignment is raw; that is, it does not invoke metamethods.
+
+
 ## Compare and Calculate
 
-lua_arith
-
-[-(2|1), +1, e]
-void lua_arith (lua_State *L, int op);
-Performs an arithmetic or bitwise operation over the two values (or one, in the case of negations) at the top of the stack, with the value at the top being the second operand, pops these values, and pushes the result of the operation. The function follows the semantics of the corresponding Lua operator (that is, it may call metamethods).
-
-The value of op must be one of the following constants:
-
-LUA_OPADD: performs addition (+)
-LUA_OPSUB: performs subtraction (-)
-LUA_OPMUL: performs multiplication (*)
-LUA_OPDIV: performs float division (/)
-LUA_OPIDIV: performs floor division (//)
-LUA_OPMOD: performs modulo (%)
-LUA_OPPOW: performs exponentiation (^)
-LUA_OPUNM: performs mathematical negation (unary -)
-LUA_OPBNOT: performs bitwise negation (~)
-LUA_OPBAND: performs bitwise and (&)
-LUA_OPBOR: performs bitwise or (|)
-LUA_OPBXOR: performs bitwise exclusive or (~)
-LUA_OPSHL: performs left shift (<<)
-LUA_OPSHR: performs right shift (>>)
-
-lua_compare
-
-[-0, +0, e]
-int lua_compare (lua_State *L, int index1, int index2, int op);
-Compares two Lua values. Returns 1 if the value at index index1 satisfies op when compared with the value at index index2, following the semantics of the corresponding Lua operator (that is, it may call metamethods). Otherwise returns 0. Also returns 0 if any of the indices is not valid.
-
-The value of op must be one of the following constants:
-
-LUA_OPEQ: compares for equality (==)
-LUA_OPLT: compares for less than (<)
-LUA_OPLE: compares for less or equal (<=)
-lua_concat
-
-[-n, +1, e]
-void lua_concat (lua_State *L, int n);
-Concatenates the n values at the top of the stack, pops them, and leaves the result at the top. If n is 1, the result is the single value on the stack (that is, the function does nothing); if n is 0, the result is the empty string. Concatenation is performed following the usual semantics of Lua (see §3.4.6).
-
-lua_isboolean
-
-[-0, +0, –]
+```c
+// lua_isboolean [-0, +0, –]
+// Returns 1 if the value at the given index is a boolean, and 0 otherwise.
 int lua_isboolean (lua_State *L, int index);
-Returns 1 if the value at the given index is a boolean, and 0 otherwise.
 
-lua_iscfunction
-
-[-0, +0, –]
+// lua_iscfunction [-0, +0, –]
+// Returns 1 if the value at the given index is a C function, and 0 otherwise.
 int lua_iscfunction (lua_State *L, int index);
-Returns 1 if the value at the given index is a C function, and 0 otherwise.
 
-lua_isfunction
-
-[-0, +0, –]
+// lua_isfunction [-0, +0, –]
+// Returns 1 if the value at the given index is a function (either C or Lua), and 0 otherwise.
 int lua_isfunction (lua_State *L, int index);
-Returns 1 if the value at the given index is a function (either C or Lua), and 0 otherwise.
 
-lua_isinteger
-
-[-0, +0, –]
+// lua_isinteger [-0, +0, –]
+// Returns 1 if the value at the given index is an integer 
+// (that is, the value is a number and is represented as an integer), and 0 otherwise.
 int lua_isinteger (lua_State *L, int index);
-Returns 1 if the value at the given index is an integer (that is, the value is a number and is represented as an integer), and 0 otherwise.
+```
 
+### lua_arith [-(2|1), +1, e]
+```c
+void lua_arith (lua_State *L, int op);
+```
+Performs an arithmetic or bitwise operation over the two values 
+(or one, in the case of negations) at the top of the stack, with the value at the top being the second operand, 
+pops these values, and pushes the result of the operation. 
+The function follows the semantics of the corresponding Lua operator (that is, it may call metamethods).
 
+The value of `op` must be one of the following constants:
+- LUA_OPADD: performs addition (+)
+- LUA_OPSUB: performs subtraction (-)
+- LUA_OPMUL: performs multiplication (*)
+- LUA_OPDIV: performs float division (/)
+- LUA_OPIDIV: performs floor division (//)
+- LUA_OPMOD: performs modulo (%)
+- LUA_OPPOW: performs exponentiation (^)
+- LUA_OPUNM: performs mathematical negation (unary -)
+- LUA_OPBNOT: performs bitwise negation (~)
+- LUA_OPBAND: performs bitwise and (&)
+- LUA_OPBOR: performs bitwise or (|)
+- LUA_OPBXOR: performs bitwise exclusive or (~)
+- LUA_OPSHL: performs left shift (<<)
+- LUA_OPSHR: performs right shift (>>)
+
+### lua_compare [-0, +0, e]
+```c
+int lua_compare (lua_State *L, int index1, int index2, int op);
+```
+Compares two Lua values. 
+Returns 1 if the value at index `index1` satisfies `op` when compared with the value at index `index2`, 
+following the semantics of the corresponding Lua operator (that is, it may call metamethods). 
+Otherwise returns 0. Also returns 0 if any of the indices is not valid.
+
+The value of op must be one of the following constants:
+- LUA_OPEQ: compares for equality (==)
+- LUA_OPLT: compares for less than (<)
+- LUA_OPLE: compares for less or equal (<=)
+
+### lua_rawequal [-0, +0, –]
+```c
+int lua_rawequal (lua_State *L, int index1, int index2);
+```
+Returns 1 if the two values in indices `index1` and `index2` are primitively equal 
+(that is, without calling metamethods). 
+Otherwise returns 0. Also returns 0 if any of the indices are not valid.
+
+### lua_concat [-n, +1, e]
+```c
+void lua_concat (lua_State *L, int n);
+```
+Concatenates the `n` values at the top of the stack, pops them, and leaves the result at the top. 
+If `n` is 1, the result is the single value on the stack (that is, the function does nothing); 
+if `n` is 0, the result is the empty string. 
+Concatenation is performed following the usual semantics of Lua (see §3.4.6).
+
+## Convertion
+
+### lua_toboolean [-0, +0, –]
+```c
+int lua_toboolean (lua_State *L, int index);
+```
+Converts the Lua value at the given index to a C boolean value (0 or 1). 
+Like all tests in Lua, `lua_toboolean` returns true for any Lua value different from `false` and `nil`; 
+otherwise it returns `false`. 
+(If you want to accept only actual boolean values, use lua_isboolean to test the value's type.)
+
+### lua_tocfunction [-0, +0, –]
+```c
+lua_CFunction lua_tocfunction (lua_State *L, int index);
+```
+Converts a value at the given index to a C function. 
+That value must be a C function; otherwise, returns NULL.
+
+### lua_tointegerx [-0, +0, –]
+```c
+lua_Integer lua_tointegerx (lua_State *L, int index, int *isnum);
+```
+Converts the Lua value at the given index to the signed integral type `lua_Integer`. 
+The Lua value must be an integer, or a number or string convertible to an integer (see §3.4.3); 
+otherwise, `lua_tointegerx` returns 0.
+
+If `isnum` is not NULL, its referent is assigned a boolean value that indicates whether the operation succeeded.
+
+### lua_tointeger [-0, +0, –]
+```c
+lua_Integer lua_tointeger (lua_State *L, int index);
+```
+Equivalent to `lua_tointegerx` with isnum equal to NULL.
+
+### lua_tolstring [-0, +0, e]
+```c
+const char *lua_tolstring (lua_State *L, int index, size_t *len);
+```
+Converts the Lua value at the given index to a C string. 
+If len is not NULL, it also sets `*len` with the string length. 
+The Lua value must be a string or a number; otherwise, the function returns NULL. 
+If the value is a number, then `lua_tolstring` also changes the actual value in the stack to a string. 
+(This change confuses `lua_next` when `lua_tolstring` is applied to keys during a table traversal.)
+
+`lua_tolstring` returns a fully aligned pointer to a string inside the Lua state. 
+This string always has a zero ('\0') after its last character (as in C), but can contain other zeros in its body.
+
+Because Lua has garbage collection, there is no guarantee that the pointer returned by `lua_tolstring` 
+will be valid after the corresponding Lua value is removed from the stack.
+
+### lua_tostring [-0, +0, e]
+```c
+const char *lua_tostring (lua_State *L, int index);
+```
+Equivalent to `lua_tolstring` with `len` equal to NULL.
+
+### lua_tonumberx [-0, +0, –]
+```c
+lua_Number lua_tonumberx (lua_State *L, int index, int *isnum);
+```
+Converts the Lua value at the given index to the C type `lua_Number` (see `lua_Number`). 
+The Lua value must be a number or a string convertible to a number (see §3.4.3); 
+otherwise, `lua_tonumberx` returns 0.
+
+If `isnum` is not NULL, its referent is assigned a boolean value that indicates whether the operation succeeded.
+
+### lua_tonumber [-0, +0, –]
+```c
+lua_Number lua_tonumber (lua_State *L, int index);
+```
+Equivalent to `lua_tonumberx` with isnum equal to NULL.
+
+### lua_stringtonumber [-0, +1, –]
+```c
+size_t lua_stringtonumber (lua_State *L, const char *s);
+```
+Converts the zero-terminated string `s` to a number, pushes that number into the stack, 
+and returns the total size of the string, that is, its length plus one. 
+The conversion can result in an integer or a float, according to the lexical conventions of Lua (see §3.1). 
+The string may have leading and trailing spaces and a sign. 
+If the string is not a valid numeral, returns 0 and pushes nothing. 
+(Note that the result can be used as a boolean, true if the conversion succeeds.)
+
+### lua_topointer [-0, +0, –]
+```c
+const void *lua_topointer (lua_State *L, int index);
+```
+Converts the value at the given index to a generic C pointer (`void*`). 
+The value can be a userdata, a table, a thread, or a function; otherwise, `lua_topointer` returns NULL. 
+Different objects will give different pointers. There is no way to convert the pointer back to its original value.
+
+Typically this function is used only for hashing and debug information.
+
+### lua_tothread [-0, +0, –]
+```c
+lua_State *lua_tothread (lua_State *L, int index);
+```
+Converts the value at the given index to a Lua thread (represented as `lua_State*`). 
+This value must be a thread; otherwise, the function returns NULL.
+
+### lua_touserdata [-0, +0, –]
+```c
+void *lua_touserdata (lua_State *L, int index);
+```
+If the value at the given index is a full userdata, returns its block address. 
+If the value is a light userdata, returns its pointer. Otherwise, returns NULL.
 
