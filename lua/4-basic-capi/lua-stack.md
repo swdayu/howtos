@@ -67,7 +67,7 @@ within the space allocated for the stack, that is, indices up to the stack size.
 (Note that 0 is never an acceptable index.) 
 Except when noted otherwise, functions in the API work with acceptable indices.
 
-不需要可修改的索引位置只需得到值的函数（如查询函数），可以用**可接受索引**调用。
+不需要可修改索引位置只需得到值的函数（如查询函数），可以用**可接受索引**调用。
 **可接受索引**可以是任何**有效索引**，还可以是栈顶之上但在栈空间之内的正索引，
 即索引值可以大于栈顶但不超过栈的大小（注意0永远不是一个**可接受索引**）。
 除非特别说明，API函数都能接受**可接受索引**。
