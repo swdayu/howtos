@@ -19,6 +19,62 @@ However, you can change this behavior by compiling Lua with the macro `LUA_USE_A
 像大多数的C函数库一样，Lua的这些不会检查传入参数的有效性和一致性。
 可以使用宏`LUA_USE_APICHECK`重新编译Lua改变这个行为。
 
+## Error Handling
+
+Internally, Lua uses the C `longjmp` facility to handle errors. 
+(Lua will use exceptions if you compile it as C++; search for LUAI_THROW in the source code for details.) 
+When Lua faces any error (such as a memory allocation error, type errors, syntax errors, and runtime errors) 
+it raises an error; that is, it does a long jump. A protected environment uses `setjmp` to set a recovery point; 
+any error jumps to the most recent active recovery point.
+
+在内部，Lua使用C中的`longjmp`处理错误（Lua会使用一场如果当作C++编译它；参看代码中`LUAI_THROW`）。
+当Lua遇到任何错误（入内存分配错误、类型错误、语法错误、运行时错误），它都会触发一次错误，也即执行`longjmp`。
+受保护的环境使用`setjmp`设置恢复点，当遇到任何错误时会跳转到最近的活动恢复点。
+
+If an error happens outside any protected environment, 
+Lua calls a `panic` function (see `lua_atpanic`) and then calls `abort`, thus exiting the host application. 
+Your panic function can avoid this exit by never returning 
+(e.g., doing a long jump to your own recovery point outside Lua).
+
+如果错误发生在受保护的环境外，Lua会调用`panic`函数（见`lua_atpanic`）并调用`abort`函数退出宿主程序。
+你自己设置自己的`panic`函数来避免这种异常退出（使用`longjmp`跳转到Lua外面你自己的恢复点）。
+
+The panic function runs as if it were a message handler (see §2.3); 
+in particular, the error message is at the top of the stack. However, there is no guarantee about stack space. 
+To push anything on the stack, the panic function must first check the available space (see §4.2).
+
+`panic`函数当作一个错误消息处理函数来执行；特别的，这个错误消息位于栈顶部。
+然而，不保证栈还有额外的空间，因此压入数据之前，`panic`函数应该先检查栈的状态。
+
+Most functions in the API can raise an error, for instance due to a memory allocation error. 
+The documentation for each function indicates whether it can raise errors.
+
+Inside a C function you can raise an error by calling `lua_error`.
+
+大多数C API函数会触发异常，例如由于内存分配引发的错误异常。
+每个API的文档中都指明了是否会触发异常。
+在C函数中，你也可以自己调用`lua_error`触发一个异常。
+
+## Functions and Types
+
+Here we list all functions and types from the C API in alphabetical order. 
+Each function has an indicator like this: [-o, +p, x]
+
+The first field, `o`, is how many elements the function pops from the stack. 
+The second field, `p`, is how many elements the function pushes onto the stack. 
+(Any function always pushes its results after popping its arguments.) 
+A field in the form `x|y` means the function can push (or pop) `x` or `y` elements, depending on the situation; 
+an interrogation mark `?` means that we cannot know how many elements the function pops/pushes 
+by looking only at its arguments (e.g., they may depend on what is on the stack). 
+The third field, `x`, tells whether the function may raise errors: `-` means the function never raises any error; 
+`e` means the function may raise errors; `v` means the function may raise an error on purpose.
+
+下面会以字母顺序列出所有C API函数和类型。每个函数都有像这样的一项说明`[-0, +p, x]`。
+其中`o`表示多少个元素会从stack中移除，`p`表示多少个元素会压入stack中（任何函数总是在移除它所有参数后压入它们的结果）。
+`x|y`代表根据情况可能压入或移除`x`或`y`个元素；`?`表示根据函数参数不确定会压入或移除多少个元素
+（也即，可能跟当前stack中存在的元素有关）。
+第3项`x`表示这个函数是否会抛出异常：`-`表示不会抛出任何异常；`e`表示可能会抛出异常；`v`表示为特定的目的会抛出异常。
+
 ## lua_State
 
 typedef struct lua_State lua_State;
