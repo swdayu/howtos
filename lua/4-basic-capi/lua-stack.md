@@ -92,6 +92,8 @@ int lua_absindex (lua_State *L, int idx);
 Converts the acceptable index `idx` into an equivalent absolute index
 (that is, one that does not depend on the stack top).
 
+将**可接受索引**转换成绝对索引（即从1开始的不依赖于栈顶的索引）。
+
 ### lua_checkstack [-0, +0, –]
 ```c
 int lua_checkstack (lua_State *L, int n);
@@ -103,9 +105,9 @@ either because it would cause the stack to be larger than a fixed maximum size
 (typically at least several thousand elements) or because it cannot allocate memory for the extra space. 
 This function never shrinks the stack; if the stack is already larger than the new size, it is left unchanged.
 
-调用这个函数确保Lua栈有额外`n`个空间。如果请求不能满足会返回`false`，
-可以因为总大小超过`LUAI_MAXSTACK`或内存分配失败。
-函数永远不会缩减栈的大小；另外如果栈大小已经比请求的空间要大会什么也不做直接返回。
+该函数确保Lua栈至少有额外`n`个空间。
+如果请求失败它会返回`false`，原因可能是总大小超过`LUAI_MAXSTACK`或内存分配失败。
+函数永远不会缩减栈的大小；如果栈已经超过请求空间的大小，会什么也不做。
 
 ### lua_gettop [-0, +0, –]
 ```c
@@ -115,8 +117,7 @@ Returns the index of the top element in the stack.
 Because indices start at 1, this result is equal to the number of elements in the stack; 
 in particular, 0 means an empty stack.
 
-函数返回栈顶元素的索引值。
-因此栈索引值从1开始，因此这个值即栈中元素的个数；特别的，0表示栈中没有元素。
+函数返回栈顶元素的索引值。栈索引值从1开始，因此这个值等于栈中元素个数；特别的，0表示栈中没有元素。
 
 ### lua_settop [-?, +?, –]
 ```c
@@ -124,7 +125,11 @@ void lua_settop (lua_State *L, int index);
 ```
 Accepts any index, or 0, and sets the stack top to this index. 
 If the new top is larger than the old one, then the new elements are filled with `nil`. 
-If index is 0, then all stack elements are removed.
+If `index` is 0, then all stack elements are removed.
+
+该函数将栈顶位置设置到`index`对应位置。
+如果新的顶部位置比原来大，新的元素会用`nil`填充。
+如果`index`是0，栈中所有元素都会被移除。
 
 ### lua_pop [-n, +0, –]
 ```c
@@ -132,7 +137,7 @@ void lua_pop (lua_State *L, int n);
 ```
 Pops `n` elements from the stack.
 
-将`n`个栈顶元素从栈中移除。
+将`n`个栈顶元素移除。
 
 ### lua_copy [-0, +0, –]
 ```c
@@ -141,7 +146,7 @@ void lua_copy (lua_State *L, int fromidx, int toidx);
 Copies the element at index `fromidx` into the valid index `toidx`, replacing the value at that position. 
 Values at other positions are not affected.
 
-将栈中`fromidx`中的元素拷贝到`toidx`指定的元素中，目的元素的值会被覆盖。
+将栈中`fromidx`中的元素拷贝到`toidx`指定的元素中，目的元素值会被覆盖。
 其他位置的值保持不变。
 
 ### lua_insert [-1, +1, –]
@@ -151,8 +156,8 @@ void lua_insert (lua_State *L, int index);
 Moves the top element into the given valid `index`, shifting up the elements above this index to open space. 
 This function cannot be called with a pseudo-index, because a pseudo-index is not an actual stack position.
 
-将栈顶元素插入到`index`对应的位置上，插入位置之上的元素都将往上移动。
-不能用伪索引调用这个函数，因为伪索引不是一个真正的栈位置。
+将栈顶元素插入到`index`对应的位置上，插入位置之上的元素都往上移。
+不能用伪索引调用这个函数，因为伪索引不是真正的栈位置。
 
 ### lua_remove [-1, +0, –]
 ```c
@@ -162,8 +167,8 @@ void lua_remove (lua_State *L, int index);
 Removes the element at the given valid `index`, shifting down the elements above this index to fill the gap. 
 This function cannot be called with a pseudo-index, because a pseudo-index is not an actual stack position.
 
-将`index`位置上的元素移除，移除位置之上的元素都将往下移填补空位。
-不能用伪索引调用这个函数，因为伪索引不是一个真正的栈位置。
+将`index`位置上的元素移除，移除位置之上的元素都往下移填补空位。
+不能用伪索引调用这个函数，因为伪索引不是真正的栈位置。
 
 ### lua_replace [-1, +0, –]
 ```c
@@ -173,7 +178,7 @@ void lua_replace (lua_State *L, int index);
 Moves the top element into the given valid `index` without shifting any element 
 (therefore replacing the value at that given index), and then pops the top element.
 
-使用栈顶元素将位置`index`上的元素替换掉，然后将栈顶元素出栈。
+用栈顶元素将位置`index`上的元素替换掉，然后将栈顶元素出栈。
 
 ### lua_rotate [-0, +0, –]
 ```c
@@ -186,9 +191,10 @@ or `-n` positions in the direction of the bottom, for a negative `n`.
 The absolute value of `n` must not be greater than the size of the slice being rotated. 
 This function cannot be called with a pseudo-index, because a pseudo-index is not an actual stack position.
 
-在`idx`对应的位置和栈顶位置之间循环移动`n`个位置。如果`n`是正数则往栈顶方向移，否则往栈底方向移。
-移动次数`n`的绝对值必须不能比移动的元素个数还要大。
-不能用伪索引调用这个函数，因为伪索引不是一个真正的栈位置。
+该函数用于将`idx`位置和栈顶位置之间的元素整体循环移动`n`次。
+如果`n`是正数则往栈顶方向移，否则往栈底方向移。
+移动次数`n`的绝对值不能比移动元素的个数还要大。
+不能用伪索引调用这个函数，因为伪索引不是真正的栈位置。
 
 ## Push
 
