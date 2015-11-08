@@ -10,8 +10,7 @@ to be returned to the caller (see `lua_CFunction`).
 
 Lua使用虚拟栈与C语言交换数据。栈中的每个元素都是Lua值（如`nil`、数值、字符串、等等）。
 每当Lua调用C时，被调函数都获得一个新栈，这个栈与原先的栈以及当前活跃的栈都不同。
-当Lua调用C函数时，被调用的函数都获得一个新栈，这个栈独立于任何之前的栈以及当前活动的C函数对应的栈。
-出事情况下栈会包含传递给C的所有参数，C函数也把结果存放在栈中返回给调用者（见`lua_CFunction`）。
+初始情况下栈会包含任何要传递给C函数的参数，C函数也把结果存放在栈中返回给调用者（见`lua_CFunction`）。
 
 For convenience, most query operations in the API do not follow a strict stack discipline. 
 Instead, they can refer to any element in the stack by using an index: 
