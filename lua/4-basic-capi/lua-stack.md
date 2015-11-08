@@ -32,7 +32,7 @@ In particular, you are responsible for controlling stack overflow.
 You can use the function `lua_checkstack` to ensure that the stack has enough space for pushing new elements.
 
 当与Lua API交互时，程序的一致性需要你自己保证。特别的，你有责任负责控制栈溢出。
-可以使用`lua_checkstack`函数保证栈有做够的空间用来压入新元素。
+可以使用`lua_checkstack`函数保证栈有足够的空间压入新元素。
 
 Whenever Lua calls C, it ensures that the stack has space for at least `LUA_MINSTACK` extra slots. 
 `LUA_MINSTACK` is defined as 20, so that usually you do not have to worry about stack space 
