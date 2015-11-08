@@ -6,7 +6,7 @@ thus creating a C **closure** (see `lua_pushcclosure`);
 these values are called **upvalues** and are accessible to the function whenever it is called.
 
 C函数创建后，可以关联一些值形成C**闭包**（见`lua_pushcclosure`）。
-这些被关联的值称为**上值**，能够被关联的函数访问。
+关联的值称为**上值**，不论函数何时被调用，都能访问到这些值。
 
 Whenever a C function is called, its **upvalues** are located at specific **pseudo-indices**. 
 These **pseudo-indices** are produced by the macro `lua_upvalueindex`. 
@@ -14,7 +14,7 @@ The first **upvalue** associated with a function is at index `lua_upvalueindex(1
 Any access to `lua_upvalueindex(n)`, where `n` is greater than the number of **upvalues** of the current function 
 (but not greater than 256), produces an acceptable but invalid index.
 
-无论何时调用C函数，它的**上值**都分配在特定的**伪索引**上。
+C函数调用时，它的**上值**都分配在特定的**伪索引**上。
 这些**伪索引**通过一个宏`lua_upvalueindex`来产生。第一个**上值**关联在索引`lua_upvalueindex(1)`上，依次类推。
 任何访问大于当前函数**上值**个数的索引（不能大于256），都是一个**可接受索引**，但不是**有效索引**。
 
@@ -32,14 +32,13 @@ As with variable names, string keys starting with an underscore followed by uppe
 Lua提供了一个预定义的**注册表**，C代码可以用它存储任何需要的Lua值。
 **注册表**总是分配在**伪索引**`LUA_REGISTRYINDEX`上。
 任何C代码库都可以将数据存储到这个表中，但必须选择不同于其他库的名称作为键，来避免冲突。
-原则上，应该使用包含你库名称的字符串，或使用已关联了你代码中一个C对象地址的**轻量用户数据**，
-或使用你代码中创建的任何Lua对象。
+原则上，应该使用包含代码库名称的字符串，或关联了C对象地址的**轻量用户数据**，或创建的任何Lua对象。
 像变量名称一样，以下划线开始后跟大写字母的字符串键保留给了Lua使用。
 
 The integer keys in the registry are used by the reference mechanism (see `luaL_ref`) and by some predefined values. 
 Therefore, integer keys must not be used for other purposes.
 
-**注册表**中的数值键提供给引用机制（见`luaL_ref`）和预定义值使用。因而不能将数值键作为其他目的使用。
+**注册表**中的数值键提供给引用机制（见`luaL_ref`）和预定义值使用。因而不能将数值键用于其他目的。
 
 When you create a new **Lua state**, its registry comes with some predefined values. 
 These predefined values are indexed with integer keys defined as constants in lua.h. 
@@ -48,9 +47,9 @@ The following constants are defined:
   (The main thread is the one created together with the state.)
 - **LUA_RIDX_GLOBALS**: At this index the registry has the global environment.
 
-当新创建新一个**Lua状态**时，它的**注册表**就关联了一些预定义值。
-这些预定义的值通过`lua.h`头文件中定义的数值键来访问：
-`LUA_RIDX_MAINTHREAD`对应**Lua状态**主线程（主线程是与**Lua状态**一起同时创建的），
+当新创建一个**Lua状态**时，它的**注册表**就关联了一些预定义值。
+这些预定义的值用定义在`lua.h`头文件中数值键来访问：
+`LUA_RIDX_MAINTHREAD`对应**Lua状态**的主线程（它是与**Lua状态**一起被创建的），
 `LUA_RIDX_GLOBALS`对应全局环境。
 
 ----------------------------------------------------------------------------------------
