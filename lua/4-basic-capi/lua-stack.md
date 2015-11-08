@@ -136,8 +136,6 @@ This function pops `n` values from the stack `from`, and pushes them onto the st
 
 ## Push Stack
 
-### Basic Push
-
 ```c
 // lua_pushboolean [-0, +1, –]
 // Pushes a boolean value with value `b` onto the stack.
@@ -148,7 +146,7 @@ void lua_pushboolean (lua_State *L, int b);
 void lua_pushinteger (lua_State *L, lua_Integer n); 
 
 // lua_pushliteral [-0, +1, e]
-// This macro is equivalent to lua_pushstring, but should be used only when s is a literal string.
+// This macro is equivalent to lua_pushstring, but should be used only when `s` is a literal string.
 const char *lua_pushliteral (lua_State *L, const char *s);
 
 // lua_pushnil [-0, +1, –]
@@ -168,7 +166,8 @@ void lua_pushvalue (lua_State *L, int index);
 void lua_pushglobaltable (lua_State *L);
 
 // lua_pushthread [-0, +1, –]
-// Pushes the thread represented by `L` onto the stack. Returns 1 if this thread is the main thread of its state.
+// Pushes the thread represented by `L` onto the stack. 
+// Returns 1 if this thread is the main thread of its state.
 int lua_pushthread (lua_State *L);
 
 // lua_pushlightuserdata [-0, +1, –]
@@ -181,9 +180,8 @@ It is a value (like a number): you do not create it, it has no individual metata
 and it is not collected (as it was never created). 
 A light userdata is equal to "any" light userdata with the same C address.
 
-### Push String
+### lua_pushfstring [-0, +1, e]
 
-**lua_pushfstring [-0, +1, e]**
 ```c
 const char *lua_pushfstring (lua_State *L, const char *fmt, ...);
 ```
@@ -193,7 +191,8 @@ Pushes onto the stack a formatted string and returns a pointer to this string. I
 You do not have to allocate space for the result: the result is a Lua string and Lua takes care of memory allocation (and deallocation, through garbage collection).
 The conversion specifiers are quite restricted. There are no flags, widths, or precisions. The conversion specifiers can only be '%%' (inserts the character '%'), '%s' (inserts a zero-terminated string, with no size restrictions), '%f' (inserts a lua_Number), '%I' (inserts a lua_Integer), '%p' (inserts a pointer as a hexadecimal numeral), '%d' (inserts an int), '%c' (inserts an int as a one-byte character), and '%U' (inserts a long int as a UTF-8 byte sequence).
 
-**lua_pushlstring [-0, +1, e]**
+### lua_pushlstring [-0, +1, e]
+
 ```c
 const char *lua_pushlstring (lua_State *L, const char *s, size_t len);
 ```
@@ -202,7 +201,7 @@ Pushes the string pointed to by s with size len onto the stack. Lua makes (or re
 
 Returns a pointer to the internal copy of the string.
 
-**lua_pushstring [-0, +1, e]**
+### lua_pushstring [-0, +1, e]
 ```c
 const char *lua_pushstring (lua_State *L, const char *s);
 ```
@@ -213,7 +212,8 @@ Returns a pointer to the internal copy of the string.
 
 If s is NULL, pushes nil and returns NULL.
 
-**lua_pushvfstring [-0, +1, e]**
+### lua_pushvfstring [-0, +1, e]
+
 ```c
 const char *lua_pushvfstring (lua_State *L, const char *fmt, va_list argp);
 ```
@@ -225,10 +225,10 @@ Equivalent to lua_pushfstring, except that it receives a va_list instead of a va
 
 
 
-### Get & Set Stack
+## Get & Set Stack
 
 
-## lua_getglobal [-0, +1, e] lua_setglobal [-1, +0, e]
+### lua_getglobal [-0, +1, e] lua_setglobal [-1, +0, e]
 ```c
 int lua_getglobal (lua_State *L, const char *name);
 void lua_setglobal (lua_State *L, const char *name);
@@ -238,7 +238,7 @@ Pushes onto the stack the value of the global name. Returns the type of that val
 Pops a value from the stack and sets it as the new value of global name.
 
 
-## lua_getfield [-0, +1, e] lua_setfield [-1, +0, e]
+### lua_getfield [-0, +1, e] lua_setfield [-1, +0, e]
 ```c
 int lua_getfield (lua_State *L, int index, const char *k);
 void lua_setfield (lua_State *L, int index, const char *k);
@@ -252,7 +252,7 @@ where `t` is the value at the given index and `v` is the value at the top of the
 This function pops the value from the stack. 
 As in Lua, this function may trigger a metamethod for the "newindex" event (see §2.4).
 
-### Compare and Calculate
+## Compare and Calculate
 
 lua_arith
 
