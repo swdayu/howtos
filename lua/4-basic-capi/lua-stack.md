@@ -191,15 +191,6 @@ This function cannot be called with a pseudo-index, because a pseudo-index is no
 移动次数`n`的绝对值必须不能比移动的元素个数还要大。
 不能用伪索引调用这个函数，因为伪索引不是一个真正的栈位置。
 
-### lua_xmove [-?, +?, –]
-```c
-void lua_xmove (lua_State *from, lua_State *to, int n);
-```
-
-Exchange values between different threads of the same state.
-This function pops `n` values from the stack `from`, and pushes them onto the stack `to`.
-
-
 ## Push Stack
 
 ```c
@@ -298,6 +289,33 @@ const char *lua_pushvfstring (lua_State *L, const char *fmt, va_list argp);
 
 Equivalent to `lua_pushfstring`, except that it receives a `va_list` instead of a variable number of arguments.
 
+## Create New Object
+
+### lua_createtable [-0, +1, e]
+```c
+void lua_createtable (lua_State *L, int narr, int nrec);
+```
+Creates a new empty table and pushes it onto the stack. 
+Parameter `narr` is a hint for how many elements the table will have as a sequence; 
+parameter `nrec` is a hint for how many other elements the table will have. 
+Lua may use these hints to preallocate memory for the new table. 
+This pre-allocation is useful for performance when you know in advance how many elements the table will have. 
+Otherwise you can use the function `lua_newtable`.
+
+### lua_newtable [-0, +1, e]
+```c
+void lua_newtable (lua_State *L);
+```
+Creates a new empty table and pushes it onto the stack. 
+It is equivalent to `lua_createtable(L, 0, 0)`.
+
+### lua_newuserdata [-0, +1, e]
+```c
+void *lua_newuserdata (lua_State *L, size_t size);
+```
+This function allocates a new block of memory with the given size, 
+pushes onto the stack a new full userdata with the block address, and returns this address. 
+The host program can freely use this memory.
 
 ## Get & Set Operation
 
