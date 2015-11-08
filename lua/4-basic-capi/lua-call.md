@@ -172,21 +172,4 @@ static int foo (lua_State *L) {
 ```
 
 
-## lua_checkstack [-0, +0, –]
-```c
-int lua_checkstack (lua_State *L, int n);
-```
-
-Ensures that the stack has space for at least `n` extra slots. 
-It returns false if it cannot fulfill the request, 
-either because it would cause the stack to be larger than a fixed maximum size 
-(typically at least several thousand elements) or because it cannot allocate memory for the extra space. 
-This function never shrinks the stack; if the stack is already larger than the new size, it is left unchanged.
-
-调用这个函数确保Lua栈有额外`n`个空间。如果请求不能满足会返回`false`，
-可以因为总大小超过`LUAI_MAXSTACK`或内存分配失败。
-函数永远不会缩减栈的大小；另外如果栈大小已经比请求的空间要大会什么也不做直接返回。
-
-
-
 
