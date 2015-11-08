@@ -51,15 +51,15 @@ So, before pushing anything in the stack after such a call you should use `lua_c
 
 ## Valid and Acceptable Indices
 
-Any function in the API that receives stack indices works only with **valid** indices or **acceptable** indices.
-A **valid** index is an index that refers to a position that stores a modifiable Lua value. 
-It comprises stack indices between 1 and the stack top (`1 ≤ abs(index) ≤ top`) plus **pseudo**-indices,
+Any function in the API that receives stack indices works only with **valid indices** or **acceptable indices**.
+A **valid index** is an index that refers to a position that stores a modifiable Lua value. 
+It comprises stack indices between 1 and the stack top (`1 ≤ abs(index) ≤ top`) plus **pseudo-indices**,
 which represent some positions that are accessible to C code but that are not in the stack. 
-**Pseudo**-indices are used to access the **registry** (see §4.5) and the **upvalue**s of a C function (see §4.4).
+**Pseudo-indices** are used to access the **registry** (see §4.5) and the **upvalues** of a C function (see §4.4).
 
 任何接收栈索引的函数都只能在**有效索引**或**可接受索引**下正常工作。
 **有效索引**引用的位置存储的Lua值是可修改的，它的范围从1到栈顶部（即`1 ≤ abs(index) ≤ top`）再加上**伪索引**。
-**伪索引**引用的地方可以被C代码访问但不是栈中的位置，它用于访问C函数的**上值**和**注册表**。
+**伪索引**引用的地方可以被C代码访问但这些索引位置不在栈中，它用于访问C函数的**上值**和**注册表**。
 
 Functions that do not need a specific mutable position, 
 but only a value (e.g., query functions), can be called with acceptable indices. 
@@ -68,9 +68,10 @@ within the space allocated for the stack, that is, indices up to the stack size.
 (Note that 0 is never an acceptable index.) 
 Except when noted otherwise, functions in the API work with acceptable indices.
 
-如果函数不需要可修改的index位置，只需要读取值（如查询函数），则这些函数可以用acceptable index调用。
-一个acceptable index可以时任何valid index，但它还可以是在以分配stack内部但是超过stack top的index，即小于栈实际大小的index（注意0不是acceptable index）。
-除非特别说明，C API的函数都使用acceptable index。
+不需要可修改的索引位置只需得到值的函数（如查询函数），可以用**可接受索引**调用。
+**可接受索引**可以是任何**有效索引**，还可以是栈顶之上但在栈空间之内的正索引，
+即索引值可以大于栈顶但不超过栈的大小（注意0永远不是一个**可接受索引**）。
+除非特别说明，API函数都能接受**可接受索引**。
 
 Acceptable indices serve to avoid extra tests against the stack top when querying the stack. 
 For instance, a C function can query its third argument without the need to first check 
@@ -79,9 +80,9 @@ whether there is a third argument, that is, without the need to check whether 3 
 For functions that can be called with acceptable indices, any non-valid index is treated as if 
 it contains a value of a virtual type `LUA_TNONE`, which behaves like a `nil` value.
 
-Acceptable index用于避免在查询栈时进行额外的栈顶测试。
-例如，C函数可以查询它的第3个参数而不用首先知道是否有第3个参数，即不需要去检查3是否是一个valid index。
-可以用acceptable index调用的函数，任何non-valid index都被当作存储了虚拟值`LUA_TNONE`，这个值的用途跟`nil`类似。
+**可接受索引**主要是为了避免在查询栈时相对栈顶做额外的检查。
+例如，C函数可以查询它的第3个参数而不需要知道第3个参数是否存在，即无需检查3是否是**有效索引**。
+能够用**可接受索引**调用的函数，任何非**有效索引**都会被当作`LUA_TNONE`类型值，它的作用跟`nil`值类似。
 
 ## Basic Operations
 
