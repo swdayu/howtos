@@ -20,7 +20,7 @@ More specifically, if the stack has n elements, then index 1 represents the firs
 (that is, the element that was pushed onto the stack first) and index n represents the last element; 
 index -1 also represents the last element (that is, the element at the top) and index -n represents the first element.
 
-为便利，大多数操作都不严格遵循栈的规则。相反，都使用索引来直接访问栈中的变量。
+为便利，大多数操作都不严格遵循栈的规则。相反，都使用索引来直接访问栈中的元素。
 正索引代表栈的一个绝对位置（从1开始），负索引代表从栈顶算起的相对偏移。
 更准确地，如果栈有n个元素，则索引1代表第一个元素（即压入栈中的第一个元素），索引n表示最后一个元素；
 索引-1也表示最后一个元素（即栈顶元素），索引-n表示第一个元素。
