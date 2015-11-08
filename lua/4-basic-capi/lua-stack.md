@@ -117,7 +117,7 @@ Returns the index of the top element in the stack.
 Because indices start at 1, this result is equal to the number of elements in the stack; 
 in particular, 0 means an empty stack.
 
-函数返回栈顶元素的索引值。栈索引值从1开始，因此这个值等于栈中元素个数；特别的，0表示栈中没有元素。
+函数返回栈顶元素的索引值。栈索引值从1开始，因此这个值等于栈中元素个数；特别地，0表示栈中没有元素。
 
 ### lua_settop [-?, +?, –]
 ```c
@@ -127,8 +127,8 @@ Accepts any index, or 0, and sets the stack top to this index.
 If the new top is larger than the old one, then the new elements are filled with `nil`. 
 If `index` is 0, then all stack elements are removed.
 
-该函数将栈顶位置设置到`index`对应位置。
-如果新的顶部位置比原来大，新的元素会用`nil`填充。
+该函数将栈顶设置到`index`对应的位置。
+如果新顶部比原位置大，新元素会用`nil`填充。
 如果`index`是0，栈中所有元素都会被移除。
 
 ### lua_pop [-n, +0, –]
