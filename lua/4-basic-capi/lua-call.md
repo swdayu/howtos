@@ -54,13 +54,13 @@ The following constants are defined:
 
 ----------------------------------------------------------------------------------------
 
-### lua_upvalueindex [-0, +0, –]
+## lua_upvalueindex [-0, +0, –]
 ```c
 int lua_upvalueindex (int i);
 ```
 Returns the pseudo-index that represents the `i`-th upvalue of the running function (see §4.4).
 
-### lua_pushcclosure [-n, +1, e]
+## lua_pushcclosure [-n, +1, e]
 ```c
 void lua_pushcclosure (lua_State *L, lua_CFunction fn, int n);
 ```
@@ -78,7 +78,7 @@ The maximum value for `n` is 255.
 When `n` is zero, this function creates a light C function, which is just a pointer to the C function. 
 In that case, it never raises a memory error.
 
-### lua_pushcfunction [-0, +1, –]
+## lua_pushcfunction [-0, +1, –]
 ```c
 void lua_pushcfunction (lua_State *L, lua_CFunction f);
 ```
@@ -89,7 +89,7 @@ when called, invokes the corresponding C function.
 Any function to be callable by Lua must follow the correct protocol to receive its parameters 
 and return its results (see `lua_CFunction`).
 
-### lua_call [-(nargs+1),+nresults,e]
+## lua_call [-(nargs+1),+nresults,e]
 ```c
 void lua_call(lua_State* L, int nargs, int nresults);
 ```
@@ -137,7 +137,7 @@ This is considered good programming practice.
 注意的是上面的代码是*平衡的*：即在最后，栈的状态回到与原始状态一样。
 这被认为是一种好的编程方法。
 
-### lua_callk [-(nargs+1),+nresults,e]
+## lua_callk [-(nargs+1),+nresults,e]
 ```c
 void lua_callk(lua_State* L, int nargs, int nresults, lua_LContent ctx, lua_KFunction k);
 ```
@@ -147,7 +147,7 @@ This function behaves exactly like `lua_call`, but allows the called function to
 该函数跟`lua_call`一样，但允许被调用的Lua函数yield。
 
 
-### lua_KFunction
+## lua_KFunction
 ```c
 typedef int (*lua_KFunction)(lua_State* L, int status, lua_KContext ctx);
 ```
@@ -163,7 +163,7 @@ Otherwise, it is defined as `ptrdiff_t`.
 Continuation函数的类型（见4.7）。类型`lua_KContent`是Continuation函数的上下文。
 它是一个数值类型，如果`intptr_t`存在则这个类型被定义成`intptr_t`，因此可以存储指针值。否则它被定义成`ptrdiff_t`。
 
-### lua_pcall [-(nargs + 1), +(nresults|1), –]
+## lua_pcall [-(nargs + 1), +(nresults|1), –]
 ```c
 int lua_pcall (lua_State *L, int nargs, int nresults, int msgh);
 ```
@@ -205,7 +205,7 @@ The `lua_pcall` function returns one of the following constants (defined in lua.
 - LUA_ERRGCMM: error while running a `__gc` metamethod. 
   (This error typically has no relation with the function being called.)
 
-### lua_pcallk [-(nargs + 1), +(nresults|1), –]
+## lua_pcallk [-(nargs + 1), +(nresults|1), –]
 ```c
 int lua_pcallk (lua_State *L, int nargs, int nresults, int msgh, lua_KContext ctx, lua_KFunction k);
 ```
@@ -214,7 +214,7 @@ This function behaves exactly like `lua_pcall`, but allows the called function t
 
 这个函数与`lua_pcall`的行为一样，除了允许被调用的函数yield。
 
-### lua_CFunction
+## lua_CFunction
 ```c
 typedef int (*lua_CFunction)(lua_State* L);
 ```
