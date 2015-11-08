@@ -347,7 +347,7 @@ This function allocates a new block of memory with the given size,
 pushes onto the stack a new **full userdata** with the block address, and returns this address. 
 The host program can freely use this memory.
 
-该函数分配制定大小的内存块，并将一个新的与内存地址关联的**完全用户数据**压入栈中，然后返回地址值。
+该函数分配指定大小的内存块，并将一个新的与内存地址关联的**完全用户数据**压入栈中，然后返回地址值。
 宿主程序可以自由使用这块内存。
 
 ## Get and Set
