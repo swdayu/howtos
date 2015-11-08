@@ -99,13 +99,6 @@ Whatever it returns is handled by Lua as if it were the return of the original f
 
 [[TODO？？？]]
 
-lua_upvalueindex
-
-[-0, +0, –]
-int lua_upvalueindex (int i);
-Returns the pseudo-index that represents the i-th upvalue of the running function (see §4.4).
-
-
 lua_yield
 
 [-?, +?, e]
