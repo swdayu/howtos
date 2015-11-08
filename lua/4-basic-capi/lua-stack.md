@@ -56,7 +56,7 @@ It comprises stack indices between 1 and the stack top (`1 ≤ abs(index) ≤ to
 which represent some positions that are accessible to C code but that are not in the stack. 
 **Pseudo-indices** are used to access the **registry** (see §4.5) and the **upvalues** of a C function (see §4.4).
 
-任何接收栈索引的函数都只能在**有效索引**或**可接受索引**下正常工作。
+任何接受栈索引的函数都只能在**有效索引**或**可接受索引**下正常工作。
 **有效索引**引用的位置存储的Lua值是可修改的，它的范围从1到栈顶部（即`1 ≤ abs(index) ≤ top`）再加上**伪索引**。
 **伪索引**引用的地方可以被C代码访问但这些索引位置不在栈中，它用于访问C函数的**上值**和**注册表**。
 
