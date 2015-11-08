@@ -3,6 +3,13 @@
 
 ## Basic Operation
 
+### lua_absindex[-0, +0, –]
+```c
+int lua_absindex (lua_State *L, int idx);
+```
+Converts the acceptable index `idx` into an equivalent absolute index
+(that is, one that does not depend on the stack top).
+
 ### lua_checkstack [-0, +0, –]
 ```c
 int lua_checkstack (lua_State *L, int n);
@@ -429,6 +436,15 @@ Concatenates the `n` values at the top of the stack, pops them, and leaves the r
 If `n` is 1, the result is the single value on the stack (that is, the function does nothing); 
 if `n` is 0, the result is the empty string. 
 Concatenation is performed following the usual semantics of Lua (see §3.4.6).
+
+### lua_len [-0, +1, e]
+```c
+void lua_len (lua_State *L, int index);
+```
+Returns the length of the value at the given index. 
+It is equivalent to the `#` operator in Lua (see §3.4.7) and 
+may trigger a metamethod for the "length" event (see §2.4). 
+The result is pushed on the stack.
 
 ## Convertion
 
