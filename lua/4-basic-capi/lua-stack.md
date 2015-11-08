@@ -3,7 +3,6 @@
 
 Lua uses a virtual stack to pass values to and from C. 
 Each element in this stack represents a Lua value (nil, number, string, etc.).
-
 Whenever Lua calls C, the called function gets a new stack, 
 which is independent of previous stacks and of stacks of C functions that are still active. 
 This stack initially contains any arguments to the C function and it is where the C function pushes its results 
