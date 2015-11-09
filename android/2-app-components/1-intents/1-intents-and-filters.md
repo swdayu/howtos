@@ -5,16 +5,27 @@ An `Intent` is a messaging object you can use to request an action from another 
 Although intents facilitate communication between components in several ways, 
 there are three fundamental use-cases:
 
+**意图**是一个信息传递对象，可用于向其他**应用组件**请求执行相应的动作。
+尽管**意图**可以通过多种方式与其他组件沟通，但最基本的3种方式如下：
+
 - **To start an activity:**
 
   An `Activity` represents a single screen in an app. 
   You can start a new instance of an `Activity` by passing an `Intent` to `startActivity()`. 
   The `Intent` describes the activity to start and carries any necessary data.
   
+  **Activity**表示应用中的一个屏幕界面。
+  通过**Intent**调用函数`startActivity()`可以启动一个新的**Activity**。
+  **Intent**指定启动的**Activity**并携带必需的数据。
+  
   If you want to receive a result from the activity when it finishes, call `startActivityForResult()`. 
   Your activity receives the result as a separate `Intent` object 
   in your activity's `onActivityResult()` callback. 
   For more information, see the `Activities` guide.
+
+  如果要从**Activity**接收执行结果，应调用`startActivityForResult()`。
+  执行结果会以不同的**Intent**对象传递到`onActivityResult()`回调函数中。
+  更多信息参考[Activities](../2-activities/1-activities.md)。
 
 - **To start a service:**
 
@@ -23,9 +34,16 @@ there are three fundamental use-cases:
   by passing an `Intent` to `startService()`. 
   The `Intent` describes the service to start and carries any necessary data.
 
+  **Service**是没有界面在后台执行的组件。
+  通过**Indent**调用函数`startService()`可以启动一个服务执行一次操作（如下载一个文件）。
+  **Indent**指定启动的服务并携带必需的数据。
+  
   If the service is designed with a client-server interface, 
   you can bind to the service from another component by passing an `Intent` to `bindService()`. 
   For more information, see the `Services` guide.
+  
+  如果服务提供客户访问接口，其他组件可以通过**Intent**调用`bindService()`绑定服务。
+  更多信息参考[Services](../3-services/3-services.md)。
   
 - **To deliver a broadcast:**
 
@@ -34,15 +52,23 @@ there are three fundamental use-cases:
   such as when the system boots up or the device starts charging. 
   You can deliver a broadcast to other apps by passing an `Intent` to `sendBroadcast()`, 
   `sendOrderedBroadcast()`, or `sendStickyBroadcast()`.
+  
+  广播消息可以被任何应用接收。系统会发送很多系统事件的广播消息，例如当系统启动或开始充电时。
+  通过**Indent**调用`sendBroadcast()`或`sendOrderedBroadcast()`或`sendStickyBroadcast()`
+  可以发送广播消息给其他应用。
 
 ## Intent Types
 
 There are two types of intents:
+
 - **Explicit intents** specify the component to start by name (the fully-qualified class name). 
   You'll typically use an explicit intent to start a component in your own app, 
   because you know the class name of the activity or service you want to start. 
   For example, start a new activity in response to a user action or 
   start a service to download a file in the background.
+
+  
+    
 - **Implicit intents** do not name a specific component, but instead declare a general action to perform, 
   which allows a component from another app to handle it. 
   For example, if you want to show the user a location on a map, 
