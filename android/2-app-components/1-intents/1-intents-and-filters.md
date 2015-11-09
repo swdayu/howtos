@@ -413,7 +413,7 @@ if the developer determines your component names.
 If it's important that only your own app is able to start one of your components, 
 set the `exported` attribute to `"false"` for that component.
 
-如果你的组件只想在你自己的应用启动，可以将组件的`exported`属性设为`"false"`。
+如果你的组件只想在自己的应用中启动，可以将组件的`exported`属性设为`"false"`。
 
 > **Caution:** To avoid inadvertently running a different app's `Service`, 
 always use an explicit intent to start your own service and do not declare intent filters for your service.
@@ -425,7 +425,7 @@ Doing so allows your app to listen for specific broadcasts during only a specifi
 while your app is running.
 
 所有Activity的Intent Filter都必须定义在Manifest文件中。
-但是Broadcast Receiver可以调用`registerReceiver()`和`unregisterReceiver()`动态进行注册。
+但是Broadcast Receiver可以调用`registerReceiver()`和`unregisterReceiver()`进行动态注册。
 
 ## Example filters
 
@@ -470,7 +470,7 @@ opens when the user initially launches the app with the launcher icon:
 
 These two must be paired together in order for the activity to appear in the app launcher.
 
-必须定义这两项以让Activity能够显示在应用启动列表中。
+必须定义这两项使Activity能够显示在应用启动列表中。
 
 The second activity, `ShareActivity`, is intended to facilitate sharing text and media content. 
 Although users might enter this activity by navigating to it from `MainActivity`, 
