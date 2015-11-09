@@ -5,7 +5,7 @@ An `Intent` is a messaging object you can use to request an action from another 
 Although intents facilitate communication between components in several ways, 
 there are three fundamental use-cases:
 
-**意图**是一个信息传递对象，可用于向其他**应用组件**请求执行相应的动作。
+**意图**是一个信息传递对象，用于向其他**应用组件**请求执行相应动作。
 尽管**意图**可以通过多种方式与其他组件沟通，但最基本的3种方式如下：
 
 - **To start an activity:**
@@ -81,8 +81,8 @@ of other apps on the device.
 If the intent matches an intent filter, the system starts that component and delivers it the `Intent` object. 
 If multiple intent filters are compatible, the system displays a dialog so the user can pick which app to use.
 
-如果使用**implicit intent**，Android会将它与其他应用的**intent filter**进行比较。
-如果匹配唯一的一个**intent filter**，系统会启动这个组件并将**Intent**传给它。
+如果使用Implicit Intent，系统会根据它的内容与其他应用的Intent Filter进行比较。
+如果匹配唯一的Intent Filter，系统会启动这个组件并将Intent传给它。
 如果匹配多个，系统会显示一个对话框让用户选择使用哪一个。
 
 An intent filter is an expression in an app's manifest file that specifies the type of intents 
@@ -92,7 +92,7 @@ you make it possible for other apps to directly start your activity with a certa
 Likewise, if you do not declare any intent filters for an activity, 
 then it can be started only with an explicit intent.
 
-如果你的应用不定义**intent filter**，只能通过**explicit intent**启动它。
+如果你的应用不定义Intent Filter，只能通过Explicit Intent启动它。
 
 > **Caution:** To ensure your app is secure, 
 always use an explicit intent when starting a `Service` and do not declare intent filters for your services. 
@@ -101,6 +101,8 @@ because you cannot be certain what service will respond to the intent,
 and the user cannot see which service starts. 
 Beginning with Android 5.0 (API level 21), 
 the system throws an exception if you call `bindService()` with an implicit intent.
+
+为了保证应用的安全，建议只用Explicit Intent启动服务组件，并且不在服务中定义Intent Filter。
 
 ## Building an Intent
 
@@ -411,6 +413,8 @@ if the developer determines your component names.
 If it's important that only your own app is able to start one of your components, 
 set the `exported` attribute to `"false"` for that component.
 
+如果你的组件只想在你自己的应用启动，可以将组件的`exported`属性设为`"false"`。
+
 > **Caution:** To avoid inadvertently running a different app's `Service`, 
 always use an explicit intent to start your own service and do not declare intent filters for your service.
 
@@ -419,6 +423,9 @@ However, filters for broadcast receivers can be registered dynamically by callin
 You can then unregister the receiver with `unregisterReceiver()`. 
 Doing so allows your app to listen for specific broadcasts during only a specified period of time 
 while your app is running.
+
+所有Activity的Intent Filter都必须定义在Manifest文件中。
+但是Broadcast Receiver可以调用`registerReceiver()`和`unregisterReceiver()`动态进行注册。
 
 ## Example filters
 
@@ -462,6 +469,8 @@ opens when the user initially launches the app with the launcher icon:
   then the system uses the icon from the `<application>` element.
 
 These two must be paired together in order for the activity to appear in the app launcher.
+
+必须定义这两项以让Activity能够显示在应用启动列表中。
 
 The second activity, `ShareActivity`, is intended to facilitate sharing text and media content. 
 Although users might enter this activity by navigating to it from `MainActivity`, 
@@ -534,6 +543,9 @@ If the filter does not list any actions, there is nothing for an intent to match
 so all intents fail the test. However, if an `Intent` does not specify an action, 
 it will pass the test (as long as the filter contains at least one action).
 
+如果Filter不定义任何Action，所有来匹配的Intent都会失败。
+另外只要Filter至少定义了一个Action，没有指定Action的Intent都会与之匹配成功。
+
 ### Category test
 
 To specify accepted intent categories, an intent filter can declare zero or more `<category>` elements. 
@@ -553,11 +565,16 @@ than are specified in the `Intent` and the `Intent` will still pass.
 Therefore, an intent with no categories should always pass this test, 
 regardless of what categories are declared in the filter.
 
+如果Intent没有指定任何Category，会与任何Filter的Category匹配。
+
 > **Note:** Android automatically applies the the `CATEGORY_DEFAULT` category to all implicit intents 
 passed to `startActivity()` and `startActivityForResult()`. 
 So if you want your activity to receive implicit intents, 
 it must include a category for `"android.intent.category.DEFAULT"` in its intent filters, 
 as shown in the previous `<intent-filter>` example.
+
+注意，Android自动为调用`startActivity()`和`startActivityForResult()`的Intent加上了`CATEGORY_DEFAULT`。
+因此为了让你的Activity能够收到Implicit Intent，你的Filter必须定义`“android.intent.category.DEFAULT”`。
 
 ### Data test
 
@@ -600,8 +617,14 @@ For example:
 - If a filter specifies a scheme, an authority, and a path, 
   only URIs with the same scheme, authority, and path pass the filter.
 
+如果Filter指定了Scheme，Itent必须指定相同的Scheme才匹配；
+如果Filter指定了Scheme和Authority，Itent必须指定相同的Scheme和Authority才匹配，而不考虑Path。
+如果Filter指定了Scheme、Authority和Path，Itent必须都要相同才匹配。
+
 > **Note:** A `path` specification can contain a wildcard asterisk (`*`) 
 to require only a partial match of the path name.
+
+特别的是，Filter中Path可以使用通配符，Itent中的Path只要部分匹配就行。
 
 The data test compares both the URI and the MIME type in the intent 
 to a URI and MIME type specified in the filter. 
@@ -618,6 +641,9 @@ The rules are as follows:
   if it has a `content:` or `file:` URI and the filter does not specify a URI. 
   In other words, a component is presumed to support `content:` and `file:` data 
   if its filter lists only a MIME type.
+
+如Intent指定了URI和MIME，MIME必须相同，如果URI也相同则匹配成功；
+如果URI是`content:`或`file:`URI并且Filter没有指定URI，也匹配成功。
 
 This last rule reflects the expectation that components are able to get local data 
 from a file or content provider. 
