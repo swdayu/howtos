@@ -230,12 +230,23 @@ For more information about building and starting a service, see the `Services` g
 
 ## Example implicit intent
 
-An implicit intent specifies an action that can invoke any app on the device able to perform the action. Using an implicit intent is useful when your app cannot perform the action, but other apps probably can and you'd like the user to pick which app to use.
+An implicit intent specifies an action that can invoke any app on the device able to perform the action. 
+Using an implicit intent is useful when your app cannot perform the action, 
+but other apps probably can and you'd like the user to pick which app to use.
 
-For example, if you have content you want the user to share with other people, create an intent with the ACTION_SEND action and add extras that specify the content to share. When you call startActivity() with that intent, the user can pick an app through which to share the content.
+For example, if you have content you want the user to share with other people, 
+create an intent with the `ACTION_SEND` action and add extras that specify the content to share. 
+When you call `startActivity()` with that intent, 
+the user can pick an app through which to share the content.
 
-Caution: It's possible that a user won't have any apps that handle the implicit intent you send to startActivity(). If that happens, the call will fail and your app will crash. To verify that an activity will receive the intent, call resolveActivity() on your Intent object. If the result is non-null, then there is at least one app that can handle the intent and it's safe to call startActivity(). If the result is null, you should not use the intent and, if possible, you should disable the feature that issues the intent.
+> **Caution:** It's possible that a user won't have any apps that handle the implicit intent 
+you send to `startActivity()`. If that happens, the call will fail and your app will crash. 
+To verify that an activity will receive the intent, call `resolveActivity()` on your `Intent` object. 
+If the result is non-null, then there is at least one app that can handle the intent 
+and it's safe to call `startActivity()`. If the result is null, you should not use the intent and, 
+if possible, you should disable the feature that issues the intent.
 
+```java
 // Create the text message with a string
 Intent sendIntent = new Intent();
 sendIntent.setAction(Intent.ACTION_SEND);
@@ -246,6 +257,182 @@ sendIntent.setType("text/plain");
 if (sendIntent.resolveActivity(getPackageManager()) != null) {
     startActivity(sendIntent);
 }
+```
 
-Note: In this case, a URI is not used, but the intent's data type is declared to specify the content carried by the extras.
+> **Note:** In this case, a URI is not used, 
+but the intent's data type is declared to specify the content carried by the extras.
+
+When `startActivity()` is called, the system examines all of the installed apps 
+to determine which ones can handle this kind of intent 
+(an intent with the `ACTION_SEND` action and that carries "text/plain" data). 
+If there's only one app that can handle it, that app opens immediately and is given the intent. 
+If multiple activities accept the intent, the system displays a dialog so the user can pick which app to use.
+
+## Forcing an app chooser
+
+When there is more than one app that responds to your implicit intent, 
+the user can select which app to use and make that app the default choice for the action. 
+This is nice when performing an action for which the user probably wants to use the same app from now on, 
+such as when opening a web page (users often prefer just one web browser) .
+
+However, if multiple apps can respond to the intent and the user might want to use a different app each time, 
+you should explicitly show a chooser dialog. 
+The chooser dialog asks the user to select which app to use for the action every time 
+(the user cannot select a default app for the action). 
+For example, when your app performs "share" with the `ACTION_SEND` action, 
+users may want to share using a different app depending on their current situation, 
+so you should always use the chooser dialog, as shown in figure 2.
+
+To show the chooser, create an `Intent` using `createChooser()` and pass it to `startActivity()`. 
+For example:
+
+```java
+Intent sendIntent = new Intent(Intent.ACTION_SEND);
+...
+
+// Always use string resources for UI text.
+// This says something like "Share this photo with"
+String title = getResources().getString(R.string.chooser_title);
+// Create intent to show the chooser dialog
+Intent chooser = Intent.createChooser(sendIntent, title);
+
+// Verify the original intent will resolve to at least one activity
+if (sendIntent.resolveActivity(getPackageManager()) != null) {
+    startActivity(chooser);
+}
+```
+
+This displays a dialog with a list of apps that respond to the intent passed to the `createChooser()` method 
+and uses the supplied text as the dialog title.
+
+## Receiving an Implicit Intent
+
+To advertise which implicit intents your app can receive, 
+declare one or more intent filters for each of your app components with an `<intent-filter>` element 
+in your manifest file. 
+Each intent filter specifies the type of intents it accepts based on the intent's action, data, and category. 
+The system will deliver an implicit intent to your app component 
+only if the intent can pass through one of your intent filters.
+
+> **Note:** An explicit intent is always delivered to its target, 
+regardless of any intent filters the component declares.
+
+An app component should declare separate filters for each unique job it can do. 
+For example, one activity in an image gallery app may have two filters: 
+one filter to view an image, and another filter to edit an image. 
+When the activity starts, it inspects the `Intent` and decides how to behave 
+based on the information in the `Intent` (such as to show the editor controls or not).
+
+Each intent filter is defined by an `<intent-filter>` element in the app's `manifest file`, 
+nested in the corresponding app component (such as an `<activity>` element). 
+Inside the `<intent-filter>`, you can specify the type of intents to accept 
+using one or more of these three elements:
+
+- `<action>`: Declares the intent action accepted, in the `name` attribute. 
+  The value must be the literal string value of an action, not the class constant.
+- `<data>`: Declares the type of data accepted, using one or more attributes that 
+  specify various aspects of the data URI (`scheme`, `host`, `port`, `path`, etc.) and MIME type.
+- `<category>`: Declares the intent category accepted, in the `name` attribute. 
+  The value must be the literal string value of an action, not the class constant.
+  
+    > Note: In order to receive implicit intents, you **must include** the `CATEGORY_DEFAULT` category 
+    in the intent filter. The methods `startActivity()` and `startActivityForResult()` treat all intents 
+    as if they declared the `CATEGORY_DEFAULT` category. If you do not declare this category 
+    in your intent filter, no implicit intents will resolve to your activity.
+
+For example, here's an activity declaration with an intent filter to receive an `ACTION_SEND` intent 
+when the data type is text:
+
+```xml
+<activity android:name="ShareActivity">
+  <intent-filter>
+    <action android:name="android.intent.action.SEND"/>
+    <category android:name="android.intent.category.DEFAULT"/>
+    <data android:mimeType="text/plain"/>
+  </intent-filter>
+</activity>
+```
+
+It's okay to create a filter that includes more than one instance of `<action>`, `<data>`, or `<category>`. 
+If you do, you simply need to be certain that the component can handle any and all combinations 
+of those filter elements.
+
+When you want to handle multiple kinds of intents, but only in specific combinations of action, data, 
+and category type, then you need to create multiple intent filters.
+
+An implicit intent is tested against a filter by comparing the intent to each of the three elements. 
+To be delivered to the component, the intent must pass all three tests. 
+If it fails to match even one of them, the Android system won't deliver the intent to the component. 
+However, because a component may have multiple intent filters, 
+an intent that does not pass through one of a component's filters might make it through on another filter. 
+More information about how the system resolves intents is provided in the section below about `Intent Resolution`.
+
+**Restricting access to components**
+
+Using an intent filter is not a secure way to prevent other apps from starting your components. 
+Although intent filters restrict a component to respond to only certain kinds of implicit intents, 
+another app can potentially start your app component by using an explicit intent 
+if the developer determines your component names. 
+If it's important that only your own app is able to start one of your components, 
+set the exported attribute to `"false"` for that component.
+
+> **Caution:** To avoid inadvertently running a different app's `Service`, 
+always use an explicit intent to start your own service and do not declare intent filters for your service.
+
+> **Note:** For all activities, you must declare your intent filters in the manifest file. 
+However, filters for broadcast receivers can be registered dynamically by calling `registerReceiver()`. 
+You can then unregister the receiver with `unregisterReceiver()`. 
+Doing so allows your app to listen for specific broadcasts during only a specified period of time 
+while your app is running.
+
+## Example filters
+
+To better understand some of the intent filter behaviors, 
+look at the following snippet from the manifest file of a social-sharing app.
+
+```xml
+<activity android:name="MainActivity">
+  <!-- This activity is the main entry, should appear in app launcher -->
+  <intent-filter>
+    <action android:name="android.intent.action.MAIN" />
+    <category android:name="android.intent.category.LAUNCHER" />
+  </intent-filter>
+</activity>
+
+<activity android:name="ShareActivity">
+  <!-- This activity handles "SEND" actions with text data -->
+  <intent-filter>
+    <action android:name="android.intent.action.SEND"/>
+    <category android:name="android.intent.category.DEFAULT"/>
+    <data android:mimeType="text/plain"/>
+  </intent-filter>
+  <!-- This activity also handles "SEND" and "SEND_MULTIPLE" with media data -->
+  <intent-filter>
+    <action android:name="android.intent.action.SEND"/>
+    <action android:name="android.intent.action.SEND_MULTIPLE"/>
+    <category android:name="android.intent.category.DEFAULT"/>
+    <data android:mimeType="application/vnd.google.panorama360+jpg"/>
+    <data android:mimeType="image/*"/>
+    <data android:mimeType="video/*"/>
+  </intent-filter>
+</activity>
+```
+
+The first activity, `MainActivity`, is the app's main entry point - the activity that 
+opens when the user initially launches the app with the launcher icon:
+- The `ACTION_MAIN` action indicates this is the main entry point and does not expect any intent data.
+- The `CATEGORY_LAUNCHER` category indicates that this activity's icon 
+  should be placed in the system's app launcher. If the `<activity>` element does not specify an icon with icon,
+  then the system uses the icon from the `<application>` element.
+
+These two must be paired together in order for the activity to appear in the app launcher.
+
+The second activity, `ShareActivity`, is intended to facilitate sharing text and media content. 
+Although users might enter this activity by navigating to it from `MainActivity`, 
+they can also enter `ShareActivity` directly from another app that issues an implicit intent 
+matching one of the two intent filters.
+
+> **Note:** The MIME type, `application/vnd.google.panorama360+jpg`, 
+is a special data type that specifies panoramic photos, which you can handle with the Google panorama APIs.
+
 
