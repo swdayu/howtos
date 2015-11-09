@@ -18,7 +18,7 @@ Except where stated otherwise, all such macros use each of their arguments exact
 As in most C libraries, the Lua API functions do not check their arguments for validity or consistency. 
 However, you can change this behavior by compiling Lua with the macro `LUA_USE_APICHECK` defined.
 
-像大多数C库一样，这些API函数不会检查传入参数的有效性和一致性。
+像大多数C库一样，这些API函数不会检查传入参数的合法性和一致性。
 然而可以使用宏`LUA_USE_APICHECK`重新编译Lua改变这个行为。
 
 ## Error Handling
