@@ -53,8 +53,8 @@ The documentation for each function indicates whether it can raise errors.
 
 Inside a C function you can raise an error by calling `lua_error`.
 
-大多数API函数会触发异常，例如内存分配错误引发的异常。
-每个API的文档都指明了是否触发异常。C函数中，可以调用`lua_error`自行触发异常。
+大多API函数会触发异常，例如由内存分配错误触发。
+每个API文档都指明了是否触发异常。C函数中，你可以调用`lua_error`触发异常。
 
 ## Functions and Types
 
