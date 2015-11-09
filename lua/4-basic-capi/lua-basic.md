@@ -12,14 +12,14 @@ Even when we use the term "function", any facility in the API may be provided as
 Except where stated otherwise, all such macros use each of their arguments exactly once 
 (except for the first argument, which is always a Lua state), and so do not generate any hidden side-effects.
 
-虽然我们用函数这个称呼，但是这些API可能使用宏实现。
+虽然使用函数这个称呼，但是API可能用宏实现。
 除非特别说明，宏的参数都只使用一次（第一个参数Lua State除外），从而避免宏隐藏的副作用。
 
 As in most C libraries, the Lua API functions do not check their arguments for validity or consistency. 
 However, you can change this behavior by compiling Lua with the macro `LUA_USE_APICHECK` defined.
 
-像大多数C库一样，这些API函数不会检查传入参数的合法性和一致性。
-然而可以使用宏`LUA_USE_APICHECK`重新编译Lua改变这个行为。
+像大多数C库一样，API函数不检查参数的合法性和一致性。
+然而可以用宏`LUA_USE_APICHECK`重新编译改变这个行为。
 
 ## Error Handling
 
