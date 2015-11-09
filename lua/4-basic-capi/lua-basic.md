@@ -6,7 +6,7 @@ the set of C functions available to the host program to communicate with Lua.
 All API functions and related types and constants are declared in the header file `lua.h`.
 
 这里介绍Lua的C API，宿主语言可以使用这些函数与Lua交互。
-所有函数以及相关类型和常量都声明在`lua.h`头文件中。
+所有函数及相关类型和常量都声明在`lua.h`中。
 
 Even when we use the term "function", any facility in the API may be provided as a macro instead. 
 Except where stated otherwise, all such macros use each of their arguments exactly once 
