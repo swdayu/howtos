@@ -70,11 +70,10 @@ by looking only at its arguments (e.g., they may depend on what is on the stack)
 The third field, `x`, tells whether the function may raise errors: `-` means the function never raises any error; 
 `e` means the function may raise errors; `v` means the function may raise an error on purpose.
 
-下面会以字母顺序列出所有C API函数和类型。每个函数都有像这样的一项说明`[-0, +p, x]`。
-其中`o`表示多少个元素会从stack中移除，`p`表示多少个元素会压入stack中（任何函数总是在移除它所有参数后压入它们的结果）。
-`x|y`代表根据情况可能压入或移除`x`或`y`个元素；`?`表示根据函数参数不确定会压入或移除多少个元素
-（也即，可能跟当前stack中存在的元素有关）。
-第3项`x`表示这个函数是否会抛出异常：`-`表示不会抛出任何异常；`e`表示可能会抛出异常；`v`表示为特定的目的会抛出异常。
+下面会列出C API所有函数和类型。每个函数都有这样的说明`[-0, +p, x]`。
+其中`o`表示多少个元素出栈，`p`表示多少个元素入栈（任何函数总在压入结果之前先将参数出栈）。
+`x|y`代表根据情况可能入栈或出栈`x`或`y`个元素；`?`表示会入栈或出栈不定个数元素（可能与当前栈中元素有关）。
+`x`表示是否抛出异常：`-`不抛出；`e`可能抛出；`v`特定条件下抛出。
 
 ## lua_State
 
