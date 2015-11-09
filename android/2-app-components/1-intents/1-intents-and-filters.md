@@ -66,9 +66,7 @@ There are two types of intents:
   because you know the class name of the activity or service you want to start. 
   For example, start a new activity in response to a user action or 
   start a service to download a file in the background.
-
   
-    
 - **Implicit intents** do not name a specific component, but instead declare a general action to perform, 
   which allows a component from another app to handle it. 
   For example, if you want to show the user a location on a map, 
@@ -83,12 +81,18 @@ of other apps on the device.
 If the intent matches an intent filter, the system starts that component and delivers it the `Intent` object. 
 If multiple intent filters are compatible, the system displays a dialog so the user can pick which app to use.
 
+如果使用**implicit intent**，Android会将它与其他应用的**intent filter**进行比较。
+如果匹配唯一的一个**intent filter**，系统会启动这个组件并将**Intent**传给它。
+如果匹配多个，系统会显示一个对话框让用户选择使用哪一个。
+
 An intent filter is an expression in an app's manifest file that specifies the type of intents 
 that the component would like to receive. 
 For instance, by declaring an intent filter for an activity, 
 you make it possible for other apps to directly start your activity with a certain kind of intent. 
 Likewise, if you do not declare any intent filters for an activity, 
 then it can be started only with an explicit intent.
+
+如果你的应用不定义**intent filter**，只能通过**explicit intent**启动它。
 
 > **Caution:** To ensure your app is secure, 
 always use an explicit intent when starting a `Service` and do not declare intent filters for your services. 
@@ -143,11 +147,15 @@ The primary information contained in an `Intent` is the following:
     - **ACTION_VIEW**: Use this action in an intent with `startActivity()` when you have some information 
     that an activity can show to the user, such as a photo to view in a gallery app, 
     or an address to view in a map app.
-
+    
+    想呈现内容。
+    
     - **ACTION_SEND**: Also known as the "share" intent, 
     you should use this in an intent with `startActivity()` when you have some data 
     that the user can share through another app, such as an email app or social sharing app.
 
+    想发送数据。
+    
     See the `Intent` class reference for more constants that define generic actions. 
     Other actions are defined elsewhere in the Android framework, such as in `Settings` 
     for actions that open specific screens in the system's Settings app.
@@ -187,8 +195,13 @@ The primary information contained in an `Intent` is the following:
 
     - **CATEGORY_BROWSABLE**: The target activity allows itself to be started by a web browser 
     to display data referenced by a link - such as an image or an e-mail message. 
+
+    目标Activity可以被浏览器浏览。    
+
     - **CATEGORY_LAUNCHER**: The activity is the initial activity of a task 
     and is listed in the system's application launcher. 
+
+    目标Activity是一个初始Activity，可以呈现在系统应用启动列表中。
 
     See the `Intent` class description for the full list of categories.
 
@@ -199,6 +212,8 @@ the defining characteristics of an intent.
 By reading these properties, the Android system is able to resolve which app component it should start.
 
 However, an intent can carry additional information that does not affect how it is resolved to an app component. An intent can also supply:
+
+Intent还可以包含一些额外信息，这些信息不影响应用组件的匹配。
 
 - **Extras**: Key-value pairs that carry additional information required to accomplish the requested action. 
     Just as some actions use particular kinds of data URIs, some actions also use particular extras.
@@ -394,7 +409,7 @@ Although intent filters restrict a component to respond to only certain kinds of
 another app can potentially start your app component by using an explicit intent 
 if the developer determines your component names. 
 If it's important that only your own app is able to start one of your components, 
-set the exported attribute to `"false"` for that component.
+set the `exported` attribute to `"false"` for that component.
 
 > **Caution:** To avoid inadvertently running a different app's `Service`, 
 always use an explicit intent to start your own service and do not declare intent filters for your service.
