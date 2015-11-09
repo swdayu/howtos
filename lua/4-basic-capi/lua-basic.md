@@ -29,33 +29,32 @@ When Lua faces any error (such as a memory allocation error, type errors, syntax
 it raises an error; that is, it does a long jump. A protected environment uses `setjmp` to set a recovery point; 
 any error jumps to the most recent active recovery point.
 
-在内部，Lua使用C中的`longjmp`处理错误（Lua会使用一场如果当作C++编译它；参看代码中`LUAI_THROW`）。
-当Lua遇到任何错误（入内存分配错误、类型错误、语法错误、运行时错误），它都会触发一次错误，也即执行`longjmp`。
-受保护的环境使用`setjmp`设置恢复点，当遇到任何错误时会跳转到最近的活动恢复点。
+在内部，Lua使用C`longjmp`处理错误（如果是C++编译则会使用异常，见`LUAI_THROW`）。
+当Lua遇到任何错误（如内存分配、类型、语法、运行时）都会触发异常，即执行`longjmp`。
+受保护的环境使用`setjmp`设置恢复点，遇到任何错误时跳转到最近恢复点。
 
 If an error happens outside any protected environment, 
 Lua calls a `panic` function (see `lua_atpanic`) and then calls `abort`, thus exiting the host application. 
 Your panic function can avoid this exit by never returning 
 (e.g., doing a long jump to your own recovery point outside Lua).
 
-如果错误发生在受保护的环境外，Lua会调用`panic`函数（见`lua_atpanic`）并调用`abort`函数退出宿主程序。
-你自己设置自己的`panic`函数来避免这种异常退出（使用`longjmp`跳转到Lua外面你自己的恢复点）。
+如果错误发生在保护环境之外，Lua会调用`panic`函数（见`lua_atpanic`）然后执行`abort`退出程序。
+使用自己设置的`panic`函数可以避免这种异常退出（例如可以`longjmp`到你自己的恢复点）。
 
 The panic function runs as if it were a message handler (see §2.3); 
 in particular, the error message is at the top of the stack. However, there is no guarantee about stack space. 
 To push anything on the stack, the panic function must first check the available space (see §4.2).
 
-`panic`函数当作一个错误消息处理函数来执行；特别的，这个错误消息位于栈顶部。
-然而，不保证栈还有额外的空间，因此压入数据之前，`panic`函数应该先检查栈的状态。
+`panic`当作消息处理函数执行，错误消息位于栈顶。然而，不确保栈还有额外的空间。
+因此在入栈之前，`panic`函数应先检查栈空间。
 
 Most functions in the API can raise an error, for instance due to a memory allocation error. 
 The documentation for each function indicates whether it can raise errors.
 
 Inside a C function you can raise an error by calling `lua_error`.
 
-大多数C API函数会触发异常，例如由于内存分配引发的错误异常。
-每个API的文档中都指明了是否会触发异常。
-在C函数中，你也可以自己调用`lua_error`触发一个异常。
+大多数API函数会触发异常，例如内存分配错误引发的异常。
+每个API的文档都指明了是否触发异常。C函数中，可以调用`lua_error`自行触发异常。
 
 ## Functions and Types
 
