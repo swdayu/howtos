@@ -30,14 +30,7 @@ you should first read [Intents and Intent Filters](./1-intents-and-filters.md).
 To learn how to fire the intents listed on this page from your development host, 
 see [Verify Intents with the Android Debug Bridge][1].
 
-## Google Now
-
-Google Now fires some of the intents listed on this page in response to voice commands. 
-For more information, see [Intents Fired by Google Now][2].
-
 [1]: https://developer.android.com/guide/components/intents-common.html#AdbIntents.
-[2]: https://developer.android.com/guide/components/intents-common.html#Now
-
 
 ## Create an alarm
 
