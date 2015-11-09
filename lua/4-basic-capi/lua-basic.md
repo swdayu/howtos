@@ -3,17 +3,22 @@
 
 This section describes the C API for Lua, that is, 
 the set of C functions available to the host program to communicate with Lua. 
-All API functions and related types and constants are declared in the header file lua.h.
+All API functions and related types and constants are declared in the header file `lua.h`.
+
+这里介绍Lua的C API，宿主语言可以使用这些函数与Lua交互。
+所有函数以及相关类型和常量都声明在`lua.h`头文件中。
 
 Even when we use the term "function", any facility in the API may be provided as a macro instead. 
 Except where stated otherwise, all such macros use each of their arguments exactly once 
 (except for the first argument, which is always a Lua state), and so do not generate any hidden side-effects.
 
+虽然我们用函数这个称呼，但是这些API可能使用宏的形式实现。
+除非特别说明，宏的参数都只使用一次
+
 As in most C libraries, the Lua API functions do not check their arguments for validity or consistency. 
 However, you can change this behavior by compiling Lua with the macro `LUA_USE_APICHECK` defined.
 
-这部分介绍Lua的C API，即宿主语言中可以使用的与Lua交互的C函数。
-所有函数和相关类型和常量都声明在`lua.h`头文件中。
+
 虽然说的是函数，但有些API可能以宏的形式提供。
 除非特别说明，否在宏都只使用参数一次（第一个参数除外，这个参数总是Lua state），因而不会参数隐藏的宏副作用。
 像大多数的C函数库一样，Lua的这些不会检查传入参数的有效性和一致性。
