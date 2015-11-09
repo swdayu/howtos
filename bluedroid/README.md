@@ -1,7 +1,7 @@
 # Bluedroid
 
 References
-- http://developer.android.com/develop/index.html
+- https://developer.android.com/sdk/index.html
 - http://androidxref.com/
 
 Bluedroid folders
