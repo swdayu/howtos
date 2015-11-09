@@ -422,7 +422,8 @@ The first activity, `MainActivity`, is the app's main entry point - the activity
 opens when the user initially launches the app with the launcher icon:
 - The `ACTION_MAIN` action indicates this is the main entry point and does not expect any intent data.
 - The `CATEGORY_LAUNCHER` category indicates that this activity's icon 
-  should be placed in the system's app launcher. If the `<activity>` element does not specify an icon with icon,
+  should be placed in the system's app launcher. 
+  If the `<activity>` element does not specify an icon with `icon`,
   then the system uses the icon from the `<application>` element.
 
 These two must be paired together in order for the activity to appear in the app launcher.
@@ -435,4 +436,197 @@ matching one of the two intent filters.
 > **Note:** The MIME type, `application/vnd.google.panorama360+jpg`, 
 is a special data type that specifies panoramic photos, which you can handle with the Google panorama APIs.
 
+## Using a Pending Intent
 
+A `PendingIntent` object is a wrapper around an `Intent` object. 
+The primary purpose of a `PendingIntent` is to grant permission to a foreign application 
+to use the contained `Intent` as if it were executed from your app's own process.
+
+Major use cases for a pending intent include:
+- Declare an intent to be executed when the user performs an action with your `Notification`
+  (the Android system's `NotificationManager` executes the `Intent`).
+- Declare an intent to be executed when the user performs an action with your `App Widget` 
+  (the Home screen app executes the `Intent`).
+- Declare an intent to be executed at a specified time in the future 
+  (the Android system's `AlarmManager` executes the `Intent`). 
+
+Because each `Intent` object is designed to be handled by a specific type of app component 
+(either an `Activity`, a `Service`, or a `BroadcastReceiver`), 
+so too must a `PendingIntent` be created with the same consideration. 
+When using a pending intent, your app will not execute the intent with a call such as `startActivity()`. 
+You must instead declare the intended component type when you create the `PendingIntent` 
+by calling the respective creator method:
+- `PendingIntent.getActivity()` for an `Intent` that starts an `Activity`.
+- `PendingIntent.getService()` for an `Intent` that starts a `Service`.
+- `PendingIntent.getBroadcast()` for an `Intent` that starts an `BroadcastReceiver`.
+
+Unless your app is receiving pending intents from other apps, 
+the above methods to create a `PendingIntent` are the only `PendingIntent` methods you'll probably ever need.
+
+Each method takes the current app `Context`, the `Intent` you want to wrap, 
+and one or more flags that specify how the intent should be used 
+(such as whether the intent can be used more than once).
+
+More information about using pending intents is provided with the documentation 
+for each of the respective use cases, such as in the `Notifications` and `App Widgets` API guides.
+
+## Intent Resolution
+
+When the system receives an implicit intent to start an activity, it searches for the best activity 
+for the intent by comparing the intent to intent filters based on three aspects:
+- The intent action
+- The intent data (both URI and data type)
+- The intent category 
+
+The following sections describe how intents are matched to the appropriate component(s) 
+in terms of how the intent filter is declared in an app's manifest file.
+
+### Action test
+
+To specify accepted intent actions, an intent filter can declare zero or more `<action>` elements. 
+For example:
+```xml
+<intent-filter>
+  <action android:name="android.intent.action.EDIT" />
+  <action android:name="android.intent.action.VIEW" />
+  ...
+</intent-filter>
+```
+To get through this filter, the action specified in the `Intent` must match 
+one of the actions listed in the filter.
+
+If the filter does not list any actions, there is nothing for an intent to match, 
+so all intents fail the test. However, if an `Intent` does not specify an action, 
+it will pass the test (as long as the filter contains at least one action).
+
+### Category test
+
+To specify accepted intent categories, an intent filter can declare zero or more `<category>` elements. 
+For example:
+
+```xml
+<intent-filter>
+  <category android:name="android.intent.category.DEFAULT" />
+  <category android:name="android.intent.category.BROWSABLE" />
+  ...
+</intent-filter>
+```
+
+For an intent to pass the category test, every category in the `Intent` must match a category in the filter. 
+The reverse is not necessary - the intent filter may declare more categories 
+than are specified in the `Intent` and the `Intent` will still pass. 
+Therefore, an intent with no categories should always pass this test, 
+regardless of what categories are declared in the filter.
+
+> **Note:** Android automatically applies the the `CATEGORY_DEFAULT` category to all implicit intents 
+passed to `startActivity()` and `startActivityForResult()`. 
+So if you want your activity to receive implicit intents, 
+it must include a category for `"android.intent.category.DEFAULT"` in its intent filters, 
+as shown in the previous `<intent-filter>` example.
+
+### Data test
+
+To specify accepted intent data, an intent filter can declare zero or more `<data>` elements. 
+For example:
+
+```xml
+<intent-filter>
+  <data android:mimeType="video/mpeg" android:scheme="http" ... />
+  <data android:mimeType="audio/mpeg" android:scheme="http" ... />
+  ...
+</intent-filter>
+```
+
+Each `<data>` element can specify a URI structure and a data type (MIME media type). 
+There are separate attributes - `scheme`, `host`, `port`, and `path` - for each part of the URI:
+```
+<scheme>://<host>:<port>/<path>
+```
+
+For example: 
+```
+content://com.example.project:200/folder/subfolder/etc
+```
+
+In this URI, the scheme is `content`, the host is `com.example.project`, the port is `200`, 
+and the path is `folder/subfolder/etc`.
+
+Each of these attributes is optional in a `<data>` element, but there are linear dependencies:
+- If a scheme is not specified, the host is ignored.
+- If a host is not specified, the port is ignored.
+- If both the scheme and host are not specified, the path is ignored.
+
+When the URI in an intent is compared to a URI specification in a filter, 
+it's compared only to the parts of the URI included in the filter. 
+For example:
+- If a filter specifies only a scheme, all URIs with that scheme match the filter.
+- If a filter specifies a scheme and an authority but no path, 
+  all URIs with the same scheme and authority pass the filter, regardless of their paths.
+- If a filter specifies a scheme, an authority, and a path, 
+  only URIs with the same scheme, authority, and path pass the filter.
+
+> **Note:** A `path` specification can contain a wildcard asterisk (`*`) 
+to require only a partial match of the path name.
+
+The data test compares both the URI and the MIME type in the intent 
+to a URI and MIME type specified in the filter. 
+The rules are as follows:
+- An intent that contains neither a URI nor a MIME type passes the test 
+  only if the filter does not specify any URIs or MIME types.
+- An intent that contains a URI but no MIME type (neither explicit nor inferable from the URI) passes the test
+  only if its URI matches the filter's URI format and the filter likewise does not specify a MIME type.
+- An intent that contains a MIME type but not a URI passes the test 
+  only if the filter lists the same MIME type and does not specify a URI format.
+- An intent that contains both a URI and a MIME type (either explicit or inferable from the URI) 
+  passes the MIME type part of the test only if that type matches a type listed in the filter. 
+  It passes the URI part of the test either if its URI matches a URI in the filter or 
+  if it has a `content:` or `file:` URI and the filter does not specify a URI. 
+  In other words, a component is presumed to support `content:` and `file:` data 
+  if its filter lists only a MIME type.
+
+This last rule reflects the expectation that components are able to get local data 
+from a file or content provider. 
+Therefore, their filters can list just a data type and 
+do not need to explicitly name the `content:` and `file:` schemes. 
+This is a typical case. 
+A `<data>` element like the following, for example, 
+tells Android that the component can get image data from a content provider and display it:
+
+```xml
+<intent-filter>
+  <data android:mimeType="image/*" />
+  ...
+</intent-filter>
+```
+
+Because most available data is dispensed by content providers, 
+filters that specify a data type but not a URI are perhaps the most common. 
+
+Another common configuration is filters with a scheme and a data type. 
+For example, a `<data>` element like the following tells Android that 
+the component can retrieve video data from the network in order to perform the action:
+
+```xml
+<intent-filter>
+  <data android:scheme="http" android:type="video/*" />
+  ...
+</intent-filter>
+```
+
+## Intent matching
+
+Intents are matched against intent filters not only to discover a target component to activate, 
+but also to discover something about the set of components on the device. 
+For example, the Home app populates the app launcher by finding all the activities 
+with intent filters that specify the `ACTION_MAIN` action and `CATEGORY_LAUNCHER` category.
+
+Your application can use intent matching in a similar way. 
+The `PackageManager` has a set of `query...()` methods 
+that return all components that can accept a particular intent, 
+and a similar series of `resolve...()` methods 
+that determine the best component to respond to an intent. 
+For example, `queryIntentActivities()` returns a list of all activities 
+that can perform the intent passed as an argument, 
+and `queryIntentServices()` returns a similar list of services. 
+Neither method activates the components; they just list the ones that can respond. 
+There's a similar method, `queryBroadcastReceivers()`, for broadcast receivers. 
