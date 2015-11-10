@@ -238,7 +238,8 @@ void lua_pushboolean (lua_State *L, int b);
 void lua_pushinteger (lua_State *L, lua_Integer n); 
 
 // lua_pushliteral [-0, +1, e]
-// This macro is equivalent to `lua_pushstring`, but should be used only when `s` is a literal string.
+// This macro is equivalent to `lua_pushstring`, 
+// but should be used only when `s` is a literal string.
 const char *lua_pushliteral (lua_State *L, const char *s);
 
 // lua_pushnil [-0, +1, –]
