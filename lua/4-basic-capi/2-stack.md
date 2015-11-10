@@ -226,7 +226,7 @@ Recall that `lua_tolstring` may change the value at the given index; this confus
 
 See function `next` for the caveats of modifying the table during its traversal.
 
-## lua_type [-0, +0, –]
+### lua_type [-0, +0, –]
 ```c
 int lua_type (lua_State *L, int index);
 ```
