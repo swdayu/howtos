@@ -84,12 +84,19 @@ By default this type is `long long`, (usually a 64-bit two-complement integer),
 but that can be changed to `long` or `int` (usually a 32-bit two-complement integer). 
 (See `LUA_INT_TYPE` in `luaconf.h`.)
 
+Lua中整数类型，默认是`long long`（通常是64位补码整数），但可以改成`long`或`int`（32位补码整数）。
+（见`luaconf.h`中的`LUA_INT_TYPE`）。
+
 Lua also defines the constants `LUA_MININTEGER` and `LUA_MAXINTEGER`, 
 with the minimum and the maximum values that fit in this type.
 
+Lua还定义了`LUA_MININTEGER`和`LUA_MAXINTEGER`表示这个类型能表示的最小最大值。
+
 ## lua_Unsigned
 
-The unsigned version of lua_Integer.
+The unsigned version of `lua_Integer`.
+
+`lua_Integer`的无符号版本。
 
 ## lua_Number
 
@@ -98,16 +105,7 @@ The type of floats in Lua.
 By default this type is `double`, but that can be changed to a single `float` or a `long double`. 
 (See `LUA_FLOAT_TYPE` in `luaconf.h`.)
 
-## lua_type [-0, +0, –]
-```c
-int lua_type (lua_State *L, int index);
-```
-
-Returns the type of the value in the given valid index, 
-or `LUA_TNONE` for a non-valid (but acceptable) index. 
-The types returned by `lua_type` are coded by the following constants defined in `lua.h`: 
-`LUA_TNIL` (0), `LUA_TNUMBER`, `LUA_TBOOLEAN`, `LUA_TSTRING`, `LUA_TTABLE`, 
-`LUA_TFUNCTION`, `LUA_TUSERDATA`, `LUA_TTHREAD`, and `LUA_TLIGHTUSERDATA`.
+Lua中的浮点类型，默认是`double`类型，但可以改成`float或者`long double`（见`luaconf.h`中的`LUA_FLOAT_TYPE`）。
 
 ## lua_typename [-0, +0, –]
 ```c
@@ -115,6 +113,10 @@ const char *lua_typename (lua_State *L, int tp);
 ```
 
 Returns the name of the type encoded by the value `tp`, which must be one the values returned by `lua_type`.
+
+返回类型`tp`的字符串表示，类型必须是`lua_type`的返回值之一。包括`LUA_TNIL`、`LUA_TNUMBER`、`LUA_TBOOLEAN`、
+`LUA_TSTRING`、 `LUA_TTABLE`、 `LUA_TFUNCTION`、`LUA_TUSERDATA`、`LUA_TTHREAD`、`LUA_TLIGHTUSERDATA`。
+这些常量定义在`lua.h`中。
 
 ## lua_version [-0, +0, v]
 ```c
@@ -125,12 +127,17 @@ Returns the address of the version number stored in the Lua core.
 When called with a valid `lua_State`, returns the address of the version used to create that state. 
 When called with NULL, returns the address of the version running the call.
 
+返回Lua版本值的地址。如果用有效的Lua State调用，返回创建这个State的版本地址。
+如果是NULL，返回运行这个函数的Lua版本地址。
+
 ## lua_atpanic [-0, +0, –]
 ```c
 lua_CFunction lua_atpanic (lua_State *L, lua_CFunction panicf);
 ```
 
 Sets a new panic function and returns the old one (see §4.6).
+
+设置一个新的Panic函数，并返回原来的Panic函数。
 
 ## lua_error [-1, +0, v]
 ```c
@@ -139,6 +146,8 @@ int lua_error (lua_State *L);
 
 Generates a Lua error, using the value at the top of the stack as the error object. 
 This function does a long jump, and therefore never returns (see `luaL_error`).
+
+使用栈顶的错误对象产生一个Lua异常。这个函数使用`longjmp`，因此永远不会返回（见`luaL_error`）。
 
 ## lua_Alloc
 ```c
