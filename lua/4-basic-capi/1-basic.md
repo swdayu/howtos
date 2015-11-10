@@ -159,7 +159,7 @@ Its arguments are `ud`, an opaque pointer passed to `lua_newstate`;
 `osize`, the original size of the block or some code about what is being allocated; 
 and `nsize`, the new size of the block.
 
-Lua State使用的内存分配函数的类型。分配函数应提供`realloc`相似的功能，但并不是完全一样。
+Lua State使用的内存分配函数的类型。分配函数应提供`realloc`相似的功能，但并不完全一样。
 参数`ud`是`lua_newstate`中传人的抽象指针；`ptr`指向要操作的内存块；`osize`表示旧大小；`nsize`表示新大小。
 
 When `ptr` is not NULL, `osize` is the size of the block pointed by `ptr`, 
