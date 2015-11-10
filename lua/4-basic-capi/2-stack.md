@@ -226,6 +226,20 @@ Recall that `lua_tolstring` may change the value at the given index; this confus
 
 See function `next` for the caveats of modifying the table during its traversal.
 
+## lua_type [-0, +0, –]
+```c
+int lua_type (lua_State *L, int index);
+```
+
+Returns the type of the value in the given valid index, 
+or `LUA_TNONE` for a non-valid (but acceptable) index. 
+The types returned by `lua_type` are coded by the following constants defined in `lua.h`: 
+`LUA_TNIL` (0), `LUA_TNUMBER`, `LUA_TBOOLEAN`, `LUA_TSTRING`, `LUA_TTABLE`, 
+`LUA_TFUNCTION`, `LUA_TUSERDATA`, `LUA_TTHREAD`, and `LUA_TLIGHTUSERDATA`.
+
+返回**有效索引**处的值的类型，是**可接受索引**但不是**有效索引**时会返回`LUA_TNONE`。
+这个函数返回的值是定义在`lua.h`中的常量，如上。
+
 ## Push
 
 ```c
