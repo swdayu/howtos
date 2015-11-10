@@ -1,11 +1,11 @@
 
-# 4. The Application Program Interface
+# The Application Program Interface
 
 This section describes the C API for Lua, that is, 
 the set of C functions available to the host program to communicate with Lua. 
 All API functions and related types and constants are declared in the header file `lua.h`.
 
-这里介绍Lua的C API，宿主语言可以使用这些函数与Lua交互。
+这里介绍Lua中的C API，宿主语言可以使用这些函数与Lua交互。
 所有函数及相关类型和常量都声明在`lua.h`中。
 
 Even when we use the term "function", any facility in the API may be provided as a macro instead. 
@@ -54,7 +54,7 @@ The documentation for each function indicates whether it can raise errors.
 Inside a C function you can raise an error by calling `lua_error`.
 
 大多API函数会触发异常，例如由内存分配错误触发。
-每个API文档都指明了是否触发异常。C函数中，你可以调用`lua_error`触发异常。
+每个API文档都指明了是否触发异常。C函数中可以调用`lua_error`触发异常。
 
 ## Functions and Types
 
