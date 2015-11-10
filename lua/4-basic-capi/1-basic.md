@@ -160,6 +160,9 @@ Its arguments are `ud`, an opaque pointer passed to `lua_newstate`;
 `osize`, the original size of the block or some code about what is being allocated; 
 and `nsize`, the new size of the block.
 
+Lua State使用的内存分配函数的类型。分配函数应提供`realloc`相似的功能，但并不是完全一样。
+参数`ud`是`lua_newstate`中传人的抽象指针；`ptr`指向要操作的内存块；`osize`表示旧大小；`nsize`表示新大小。
+
 When `ptr` is not NULL, `osize` is the size of the block pointed by `ptr`, 
 that is, the size given when it was allocated or reallocated.
 
@@ -168,11 +171,22 @@ When `ptr` is NULL, `osize` encodes the kind of object that Lua is allocating.
 when (and only when) Lua is creating a new object of that type. 
 When `osize` is some other value, Lua is allocating memory for something else.
 
+如果`ptr`不为空，`osize`表示`ptr`指向的内存块的大小，及这个内存块分配或重新分配时的大小。
+如果`ptr`为空，`osize`表示Lua对象类型。
+只有当Lua正在创建相应类型时，`osize`才会是这些值`LUA_TSTRING`、
+`LUA_TTABLE`、`LUA_TFUNCTION`、`LUA_TUSERDATA`或`LUA_TTHREAD`。
+如果`osize`是其他值表示Lua在分配其他内存。
+
 Lua assumes the following behavior from the allocator function:
 - When `nsize` is zero, the allocator must behave like free and return NULL.
 - When `nsize` is not zero, the allocator must behave like `realloc`. 
   The allocator returns NULL if and only if it cannot fulfill the request. 
   Lua assumes that the allocator never fails when `osize >= nsize`.
+
+Lua假设分配函数有如下行为：如果`nsize`是0分配其必须释放内存并返回NULL；
+如果`nsize`不是0则必须实现与`realloc`相同；
+分配函数只有在不能满足分配请求时才返回NULL，
+Lua假设当`osize>=nsize`时，分配函数不会失败。
 
 Here is a simple implementation for the allocator function. 
 It is used in the auxiliary library by `luaL_newstate`.
@@ -193,6 +207,10 @@ and that `realloc(NULL,size)` is equivalent to `malloc(size)`.
 This code assumes that `realloc` does not fail when shrinking a block. 
 (Although Standard C does not ensure this behavior, it seems to be a safe assumption.)
 
+上面是分配函数的一个简单实现，它用在辅助函数`luaL_newstate`中。
+注意标准C保证`free(NULL)`没有任何效果， `realloc(NULL,size)`相当于`malloc(size)`。
+上面的代码假设`realloc`当缩减大小时不会失败（尽管标准C没有明确保证这个行为，但这应该是一个安全的假设）。
+
 ## lua_getallocf [-0, +0, –]
 ```c
 lua_Alloc lua_getallocf (lua_State *L, void **ud);
@@ -200,6 +218,8 @@ lua_Alloc lua_getallocf (lua_State *L, void **ud);
 
 Returns the memory-allocation function of a given state. 
 If `ud` is not NULL, Lua stores in `*ud` the opaque pointer given when the memory-allocator function was set.
+
+返回给定Lua State的分配函数。如果`ud`不为空，Lua将原来设置分配函数时指定的抽象指针保存到`*ud`中。
 
 ## lua_gc [-0, +0, e]
 ```c
@@ -222,6 +242,9 @@ This function performs several tasks, according to the value of the parameter `w
 
 For more details about these options, see `collectgarbage`.
 
+该函数用于控制垃圾收集器。根据传人的`what`值函数可以执行不同的操作，这些值如上所示。
+更多的细节请参考`collectgarbage`。
+
 ## lua_State
 ```c
 typedef struct lua_State lua_State;
@@ -231,8 +254,13 @@ and indirectly (through the thread) to the whole state of a Lua interpreter.
 The Lua library is fully reentrant: it has no global variables. 
 All information about a state is accessible through this structure.
 
+表示线程或间接表示（通过线程）Lua解析器状态的抽象结构体。
+Lua函数都是可重入的：它们没有全局变量。所以的状态信息都通过这个结构体访问。
+
 A pointer to this structure must be passed as the first argument to every function in the library, 
 except to `lua_newstate`, which creates a Lua state from scratch.
+
+指向这个结构体的指针必须作为所以库函数的第一个参数传入，除了`lua_newstate`，它用于创建Lua State。
 
 ## lua_newstate [-0, +0, –]
 ```c
@@ -243,6 +271,10 @@ Creates a new thread running in a new, independent state.
 Returns NULL if it cannot create the thread or the state (due to lack of memory). 
 The argument `f` is the allocator function; Lua does all memory allocation for this state through this function.
 The second argument, `ud`, is an opaque pointer that Lua passes to the allocator in every call.
+
+创建一个在新的独立State中执行的线程。返回NULL表示不能创建这个线程或State（由于内存不足）。
+参数`f`是内存分配函数；Lua用这个函数为State分配所有内存。
+第二个参数`ud`是一个抽象指针，Lua每次调用分配函数时都传人这个指针。
 
 ## lua_close [-0, +0, –]
 ```c
@@ -255,6 +287,10 @@ On several platforms, you may not need to call this function,
 because all resources are naturally released when the host program ends. 
 On the other hand, long-running programs that create multiple states, such as daemons or web servers, 
 will probably need to close states as soon as they are not needed.
+
+销毁给定Lua State中的所有对象（通过调用相应垃圾回收云方法，如果存在）并且释放State使用的所有动态内存。
+在一些平台上，你可能不必调用这个函数，因为宿主程序结束时会释放所有的资源。
+另一方面，长时间运行的创建多个State的程序，如后台程序或服务器程序，应该尽快关掉不再使用的State。
 
 ## lua_status [-0, +0, –]
 ```c
@@ -269,6 +305,13 @@ or `LUA_YIELD` if the thread is suspended.
 You can only call functions in threads with status `LUA_OK`. 
 You can resume threads with status `LUA_OK` (to start a new coroutine) or `LUA_YIELD` (to resume a coroutine).
 
+返回指定线程的状态。
+状态可以是0（`LUA_OK`）对于正常线程；一个错误代码对于已执行完毕的`lua_resume`线程；
+或是`LUA_YIELD`对于暂停的线程。
+
+只有状态是`LUA_OK`时才能去调用函数。
+可以`lua_resume`一个线程当状态是`LUA_OK`时（开启新线程）或是`LUA_YIELD`时（重新启动线程）。
+
 ## lua_getextraspace [-0, +0, –]
 ```c
 void* lua_getextraspace(lua_State* L);
@@ -278,5 +321,10 @@ The application can use this area for any purpose; Lua does not use it for anyth
 
 Each new thread has this area initialized with a copy of the area of the main thread.
 
-By default, this area has the size of a pointer to void, 
+By default, this area has the size of a pointer to `void`, 
 but you can recompile Lua with a different size for this area. (See `LUA_EXTRASPACE` in `luaconf.h`.)
+
+返回与Lua State关联的原始内存指针。
+应用可以任意使用这个过内存区域，Lua不会用它做其他事。
+每个新线程都会从主线程重新拷贝一份这个区域的内容。
+默认这个区域的大小是`void`指针的大小，但可以重新编译Lua改变这个值（见`luaconf.h`中的`LUA_EXTRASPACE`）。
