@@ -59,8 +59,7 @@ API文档指明了每个函数是否会产生异常。C函数中可以调用`lua
 ## Functions and Types
 
 Here we list all functions and types from the C API in alphabetical order. 
-Each function has an indicator like this: [-o, +p, x]
-
+Each function has an indicator like this: `[-o, +p, x]`.
 The first field, `o`, is how many elements the function pops from the stack. 
 The second field, `p`, is how many elements the function pushes onto the stack. 
 (Any function always pushes its results after popping its arguments.) 
