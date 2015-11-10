@@ -83,7 +83,7 @@ By default this type is `long long`, (usually a 64-bit two-complement integer),
 but that can be changed to `long` or `int` (usually a 32-bit two-complement integer). 
 (See `LUA_INT_TYPE` in `luaconf.h`.)
 
-Lua中整数类型，默认是`long long`（通常是64位补码整数），但可以改成`long`或`int`（32位补码整数）。
+Lua中的整数类型，默认是`long long`（通常是64位补码整数），但可以改成`long`或`int`（32位补码整数）。
 （见`luaconf.h`中的`LUA_INT_TYPE`）。
 
 Lua also defines the constants `LUA_MININTEGER` and `LUA_MAXINTEGER`, 
