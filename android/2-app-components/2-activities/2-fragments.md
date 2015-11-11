@@ -144,7 +144,7 @@ public static class ExampleFragment extends Fragment {
 
 **Creating a layout:**  In the sample above, `R.layout.example_fragment` is a reference to a layout resource 
 named `example_fragment.xml` saved in the application resources. 
-For information about how to create a layout in XML, see the **User Interface** documentation.
+For information about how to create a layout in XML, see the `User Interface` documentation.
 
 The container parameter passed to `onCreateView()` is the parent `ViewGroup` (from the activity's layout) 
 in which your fragment layout will be inserted. 
