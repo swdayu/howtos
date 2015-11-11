@@ -425,7 +425,7 @@ By implementing these methods, you can monitor three nested loops in the activit
           onRestart         ___________                      |
               |            |           |                     |
               v            v           |                     |
-onCreate -> onStart -> onResume -> onPause(*) -> onStop(*) -- --> onDestroy(*)
+onCreate -> onStart -> onResume -> onPause(*) -> onStop(*) -- --> onDestroy(*) -> onCreate
               |                                    ^
               |                                    |   (*) is "killable"
                ------------------------------------
@@ -549,24 +549,55 @@ because users regularly rotate the screen while using applications.
 
 ### Handling configuration changes
 
-Some device configurations can change during runtime (such as screen orientation, keyboard availability, and language). When such a change occurs, Android recreates the running activity (the system calls onDestroy(), then immediately calls onCreate()). This behavior is designed to help your application adapt to new configurations by automatically reloading your application with alternative resources that you've provided (such as different layouts for different screen orientations and sizes).
+Some device configurations can change during runtime 
+(such as screen orientation, keyboard availability, and language). 
+When such a change occurs, Android recreates the running activity 
+(the system calls onDestroy(), then immediately calls onCreate()). 
+This behavior is designed to help your application adapt to new configurations 
+by automatically reloading your application with alternative resources that you've provided 
+(such as different layouts for different screen orientations and sizes).
 
-If you properly design your activity to handle a restart due to a screen orientation change and restore the activity state as described above, your application will be more resilient to other unexpected events in the activity lifecycle.
+If you properly design your activity to handle a restart due to a screen orientation change 
+and restore the activity state as described above, 
+your application will be more resilient to other unexpected events in the activity lifecycle.
 
-The best way to handle such a restart is to save and restore the state of your activity using onSaveInstanceState() and onRestoreInstanceState() (or onCreate()), as discussed in the previous section.
+The best way to handle such a restart is to save and restore the state of your activity 
+using `onSaveInstanceState()` and `onRestoreInstanceState()` (or `onCreate()`), 
+as discussed in the previous section.
 
-For more information about configuration changes that happen at runtime and how you can handle them, read the guide to Handling Runtime Changes.
+For more information about configuration changes that happen at runtime and how you can handle them, 
+read the guide to `Handling Runtime Changes`.
+
+一些系统配置可以实时改变（如屏幕朝向、键盘的可访问性、语言设置）。
+当这些变化发生时，Android会重新创建正在运行的Activity（通过调用`onDestory()`，然后马上在调`onCreate()`）。
+
+更详细的信息参加`Handling Runtime Changes`部分。
 
 ### Coordinating activities
 
-When one activity starts another, they both experience lifecycle transitions. The first activity pauses and stops (though, it won't stop if it's still visible in the background), while the other activity is created. In case these activities share data saved to disc or elsewhere, it's important to understand that the first activity is not completely stopped before the second one is created. Rather, the process of starting the second one overlaps with the process of stopping the first one.
+When one activity starts another, they both experience lifecycle transitions. 
+The first activity pauses and stops (though, it won't stop if it's still visible in the background), 
+while the other activity is created. 
+In case these activities share data saved to disc or elsewhere, it's important to understand that 
+the first activity is not completely stopped before the second one is created. 
+Rather, the process of starting the second one overlaps with the process of stopping the first one.
 
-The order of lifecycle callbacks is well defined, particularly when the two activities are in the same process and one is starting the other. Here's the order of operations that occur when Activity A starts Acivity B:
+The order of lifecycle callbacks is well defined, 
+particularly when the two activities are in the same process and one is starting the other. 
+Here's the order of operations that occur when Activity A starts Acivity B:
 
-1. Activity A's onPause() method executes.
-2. Activity B's onCreate(), onStart(), and onResume() methods execute in sequence. 
+如果Activity A启动了Activity B，则相应的回调函数调用顺序如下：
+
+1. Activity A's `onPause()` method executes.
+2. Activity B's `onCreate()`, `onStart()`, and `onResume()` methods execute in sequence. 
    (Activity B now has user focus.)
-3. Then, if Activity A is no longer visible on screen, its onStop() method executes.
+3. Then, if Activity A is no longer visible on screen, its `onStop()` method executes.
 
-This predictable sequence of lifecycle callbacks allows you to manage the transition of information from one activity to another. For example, if you must write to a database when the first activity stops so that the following activity can read it, then you should write to the database during onPause() instead of during onStop().
+This predictable sequence of lifecycle callbacks allows you to manage 
+the transition of information from one activity to another. 
+For example, if you must write to a database when the first activity stops 
+so that the following activity can read it, then you should write to the database 
+during `onPause()` instead of during `onStop()`.
 
+这个调用顺序允许你将一个Activity中的信息保存后转换到另一个Activity中使用。
+例如，可以在`onPause()`保存A中的数据到数据库中，然后在B中就可以访问这些数据。
