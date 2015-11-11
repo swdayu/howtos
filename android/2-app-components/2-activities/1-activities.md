@@ -600,4 +600,4 @@ so that the following activity can read it, then you should write to the databas
 during `onPause()` instead of during `onStop()`.
 
 这个调用顺序允许你将一个Activity中的信息保存后转换到另一个Activity中使用。
-例如，可以在`onPause()`保存A中的数据到数据库中，然后在B中就可以访问这些数据。
+例如，可以在`onPause()`保存A中的数据到数据库中，然后在B中访问这些数据。
