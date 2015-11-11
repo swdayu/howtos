@@ -134,7 +134,7 @@ then the event is passed to the fragment's callback. This is true for the Option
 
 > 尽管Fragment会接收到每个菜单项选定事件的回调，但Activity是首先接收到这些回调的对象。
 只有Activity自己没有实现这些回调函数时，这些事件才会传递给Fragment。
-对于选项菜单和交互菜单，这个条件都是成立的。
+对于选项菜单和交互菜单，这个条件是成立的。
 
 For more information about menus, see the `Menus` developer guide and the `App Bar` training class.
 
