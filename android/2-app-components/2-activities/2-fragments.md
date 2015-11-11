@@ -136,6 +136,24 @@ Usually, you should implement at least the following lifecycle methods:
 
     在这个函数中，通常应将改变了的永久性数据保存起来（因为用户可能不再回到这个界面）。
 
+Activity在运行时Fragment的生命周期：
+```
+[Fragment is added] 
+         |
+         v
+      onAttach -> onCreate -> onCreateView -> onActivityCreated -> onStart -> onResume
+                                 ^                                                |
+                                 | (#2)                                           v
+    onDetach <- onDestroy <- onDestroyView <- onStop <- onPause <--(#1)-- [Fragment is active]
+       |
+       v
+[Fragment is destroyed]  
+
+(#1): User navigates backward or fragment is removed/replaced, 
+      or the fragment is added to the back stack, then removed/replaced
+(#2): The fragment returns to the layout from the back stack
+```
+
 Most applications should implement at least these three methods for every fragment, 
 but there are several other callback methods you should also use to handle 
 various stages of the fragment lifecycle. 
