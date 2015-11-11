@@ -160,7 +160,7 @@ various stages of the fragment lifecycle.
 All the lifecycle callback methods are discussed in more detail 
 in the section about `Handling the Fragment Lifecycle`.
 
-大多数应该都应该为Fragment实现这3个回调函数，但还有很多其他的回调函数可以用来处理Fragment生命周期的状态。
+大多数应用都应该为Fragment实现这3个回调函数，但还有很多其他的回调函数可以用来处理Fragment生命周期的状态。
 详细的介绍见`Handling the Fragment Lifecycle`部分。
 
 There are also a few subclasses that you might want to extend, instead of the base `Fragment` class:
