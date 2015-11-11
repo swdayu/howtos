@@ -457,6 +457,11 @@ In this situation, you can ensure that important information about the activity 
 is preserved by implementing an additional callback method that allows you to save information 
 about the state of your activity: `onSaveInstanceState()`.
 
+然而，如果系统将Activity销毁掉了，系统就很难将它的状态完整的还原。
+当用户回再回到这个Activity时，系统必须从头开始创建Activity。
+用户不会知道系统销毁了Activity有重新创建了它，因此期望这个Activity会回到原来的样子。
+这种情况下，可以额外实现回调函数`onSaveInstanceState()`将Activity的状态信息先保存起来。
+
 The system calls `onSaveInstanceState()` before making the activity vulnerable to destruction. 
 The system passes this method a `Bundle` in which you can save state information about the activity 
 as name - value pairs, using methods such as `putString()` and `putInt()`. 
@@ -466,10 +471,18 @@ Using either of these methods, you can extract your saved state from the `Bundle
 If there is no state information to restore, then the `Bundle` passed to you is null 
 (which is the case when the activity is created for the first time).
 
+在`onSaveInstanceState()`里可以将参数保存到`Bundle`参数中。
+当系统重新创建Activity时，会把`Bundle`传递到函数`onCreate()`和`onRestoreInstanceState()`中。
+使用这两个函数之一，你可以用`Bundle`中的信息将Activity恢复到原来的状态。
+当第一次创建Activity时，`Bundle`参数会是`null`。
+
 > **Note:** There's no guarantee that `onSaveInstanceState()` will be called before your activity is destroyed,
 because there are cases in which it won't be necessary to save the state (such as when the user leaves 
 your activity using the *Back* button, because the user is explicitly closing the activity). 
 If the system calls `onSaveInstanceState()`, it does so before `onStop()` and possibly before `onPause()`.
+
+> 然而，不能保证`onSaveInstance()`一定会在Activity销毁之前被调用。
+但是如果被调用，会在`onStop()`或`onPause()`之前调用。
 
 However, even if you do nothing and do not implement `onSaveInstanceState()`, some of the activity state 
 is restored by the `Activity` class's default implementation of `onSaveInstanceState()`. 
@@ -483,10 +496,19 @@ The only work required by you is to provide a unique ID (with the `android:id` a
 you want to save its state. 
 If a widget does not have an ID, then the system cannot save its state.
 
+然而，即使你没有实现`onSaveInstanceState()`这个函数，
+Activity的一些状态还是会被Activity默认的`onSaveInstanceState()`函数回复。
+具体的，这个函数会依次调用布局中所有View对象的`onSaveInstanceState()`函数。
+几乎所有Android控件都实现了这个回调函数。
+你唯一需要做的是为每一个想要保存其状态的控件提供一个唯一的ID（通过`android:id`属性）。
+如果一个控件没有ID，系统就不会保存它的状态。
+
 You can also explicitly stop a view in your layout from saving its state 
 by setting the `android:saveEnabled` attribute to "false" or by calling the `setSaveEnabled()` method. 
 Usually, you should not disable this, 
 but you might if you want to restore the state of the activity UI differently.
+
+也可以将`android:saveEnabled`设定成`“false”`或调用`setSaveEnabled()`函数明确的不让系统保存一个View的状态信息。
 
 Although the default implementation of `onSaveInstanceState()` saves useful information about your activity's UI,
 you still might need to override it to save additional information. 
@@ -500,11 +522,21 @@ you should always call the superclass implementation of `onSaveInstanceState()` 
 Likewise, you should also call the superclass implementation of `onRestoreInstanceState()` if you override it, 
 so the default implementation can restore view states.
 
+虽然默认实现的`onSaveInstanceState`会帮忙保存UI信息，
+但你仍然可能需要重新实现这个函数用来保存其他额外的信息。
+
+当实现自己的函数时，必须先调用父类的`onSaveInstanceState()`函数。
+同样，实现`onRestoreInstanceState()`函数时必须先调用父类的`onRestoreInstanceState()`。
+
 > **Note:** Because `onSaveInstanceState()` is not guaranteed to be called, 
 you should use it only to record the transient state of the activity (the state of the UI) - 
 you should never use it to store persistent data. 
 Instead, you should use `onPause()` to store persistent data (such as data that should be saved to a database)
 when the user leaves the activity.
+
+> 因为`onSaveInstanceState()`不保证一定会调到，只应该在这个函数中保存Activity的瞬时状态，
+而不能使用这个函数保存永久数据。
+**相反，应该在`onPuase()`函数中保存这些永久数据**（如那些要保存到数据库中的数据）。
 
 A good way to test your application's ability to restore its state is to simply rotate the device 
 so that the screen orientation changes. 
@@ -512,6 +544,8 @@ When the screen orientation changes, the system destroys and recreates the activ
 apply alternative resources that might be available for the new screen configuration. 
 For this reason alone, it's very important that your activity completely restores its state when it is recreated,
 because users regularly rotate the screen while using applications.
+
+测试你的应用是否能成功恢复状态的一种好方法是旋转设备不断切换屏幕的朝向。
 
 ### Handling configuration changes
 
