@@ -19,8 +19,8 @@ ExampleFragment fragment = (ExampleFragment)
   getFragmentManager().findFragmentById(R.id.example_fragment);
 ```
 
-Fragment可以通过`getActivity()`访问包含它的Activity。
-同样，Activity可以通过`getFragmentManager()`访问到其中的Fragment。
+Fragment可以通过`getActivity()`访问Activity。
+同样，Activity可以通过`getFragmentManager()`访问Fragment。
 
 ### Creating event callbacks to the activity
 
