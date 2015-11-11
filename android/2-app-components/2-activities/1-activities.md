@@ -288,6 +288,7 @@ As discussed in the following section about the activity lifecycle,
 the Android system manages the life of an activity for you, so you do not need to finish your own activities.
 Calling these methods could adversely affect the expected user experience and 
 should only be used when you absolutely do not want the user to return to this instance of the activity.
+
 > 注意的是，大多数情况都不需要自己关闭一个Activity，因为系统会管理Activity的生命周期。
 调用这些函数会影响用户体验，真正不想让用户再次回到你的Activity时才使用。
 
@@ -434,14 +435,104 @@ onCreate -> onStart -> onResume -> onPause(*) -> onStop(*) -- --> onDestroy(*)
 might still be killed by the system - but that would happen only in extreme circumstances 
 when there is no other recourse. 
 When an activity might be killed is discussed more in the `Processes and Threading` document.
+
 > 处在不可杀掉状态的Activity可能仍然被系统杀掉，但是这仅发生没有其他资源可用的极端情况下。
 详细情况可参考`Processes and Threading`部分。
 
 ### Saving activity state
 
-The introduction to Managing the Activity Lifecycle briefly mentions that when an activity is paused or stopped, the state of the activity is retained. This is true because the Activity object is still held in memory when it is paused or stopped—all information about its members and current state is still alive. Thus, any changes the user made within the activity are retained so that when the activity returns to the foreground (when it "resumes"), those changes are still there.
+The introduction to `Managing the Activity Lifecycle` briefly mentions that 
+when an activity is paused or stopped, the state of the activity is retained. 
+This is true because the `Activity` object is still held in memory when it is paused or stopped - 
+all information about its members and current state is still alive. 
+Thus, any changes the user made within the activity are retained 
+so that when the activity returns to the foreground (when it "resumes"), those changes are still there.
 
-However, when the system destroys an activity in order to recover memory, the Activity object is destroyed, so the system cannot simply resume it with its state intact. Instead, the system must recreate the Activity object if the user navigates back to it. Yet, the user is unaware that the system destroyed the activity and recreated it and, thus, probably expects the activity to be exactly as it was. In this situation, you can ensure that important information about the activity state is preserved by implementing an additional callback method that allows you to save information about the state of your activity: onSaveInstanceState().
+However, when the system destroys an activity in order to recover memory, the `Activity` object is destroyed, 
+so the system cannot simply resume it with its state intact. 
+Instead, the system must recreate the `Activity` object if the user navigates back to it. 
+Yet, the user is unaware that the system destroyed the activity and recreated it and, thus, 
+probably expects the activity to be exactly as it was. 
+In this situation, you can ensure that important information about the activity state 
+is preserved by implementing an additional callback method that allows you to save information 
+about the state of your activity: `onSaveInstanceState()`.
 
-The system calls onSaveInstanceState() before making the activity vulnerable to destruction. The system passes this method a Bundle in which you can save state information about the activity as name-value pairs, using methods such as putString() and putInt(). Then, if the system kills your application process and the user navigates back to your activity, the system recreates the activity and passes the Bundle to both onCreate() and onRestoreInstanceState(). Using either of these methods, you can extract your saved state from the Bundle and restore the activity state. If there is no state information to restore, then the Bundle passed to you is null (which is the case when the activity is created for the first time).
+The system calls `onSaveInstanceState()` before making the activity vulnerable to destruction. 
+The system passes this method a `Bundle` in which you can save state information about the activity 
+as name - value pairs, using methods such as `putString()` and `putInt()`. 
+Then, if the system kills your application process and the user navigates back to your activity, 
+the system recreates the activity and passes the `Bundle` to both `onCreate()` and `onRestoreInstanceState()`.
+Using either of these methods, you can extract your saved state from the `Bundle` and restore the activity state.
+If there is no state information to restore, then the `Bundle` passed to you is null 
+(which is the case when the activity is created for the first time).
+
+> **Note:** There's no guarantee that `onSaveInstanceState()` will be called before your activity is destroyed,
+because there are cases in which it won't be necessary to save the state (such as when the user leaves 
+your activity using the *Back* button, because the user is explicitly closing the activity). 
+If the system calls `onSaveInstanceState()`, it does so before `onStop()` and possibly before `onPause()`.
+
+However, even if you do nothing and do not implement `onSaveInstanceState()`, some of the activity state 
+is restored by the `Activity` class's default implementation of `onSaveInstanceState()`. 
+Specifically, the default implementation calls the corresponding `onSaveInstanceState()` method 
+for every `View` in the layout, which allows each view to provide information about itself that should be saved.
+Almost every widget in the Android framework implements this method as appropriate, 
+such that any visible changes to the UI are automatically saved and restored when your activity is recreated. 
+For example, the `EditText` widget saves any text entered by the user and the `CheckBox` widget saves 
+whether it's checked or not. 
+The only work required by you is to provide a unique ID (with the `android:id` attribute) for each widget 
+you want to save its state. 
+If a widget does not have an ID, then the system cannot save its state.
+
+You can also explicitly stop a view in your layout from saving its state 
+by setting the `android:saveEnabled` attribute to "false" or by calling the `setSaveEnabled()` method. 
+Usually, you should not disable this, 
+but you might if you want to restore the state of the activity UI differently.
+
+Although the default implementation of `onSaveInstanceState()` saves useful information about your activity's UI,
+you still might need to override it to save additional information. 
+For example, you might need to save member values that changed during the activity's life 
+(which might correlate to values restored in the UI, 
+but the members that hold those UI values are not restored, by default).
+
+Because the default implementation of `onSaveInstanceState()` helps save the state of the UI, 
+if you override the method in order to save additional state information, 
+you should always call the superclass implementation of `onSaveInstanceState()` before doing any work. 
+Likewise, you should also call the superclass implementation of `onRestoreInstanceState()` if you override it, 
+so the default implementation can restore view states.
+
+> **Note:** Because `onSaveInstanceState()` is not guaranteed to be called, 
+you should use it only to record the transient state of the activity (the state of the UI) - 
+you should never use it to store persistent data. 
+Instead, you should use `onPause()` to store persistent data (such as data that should be saved to a database)
+when the user leaves the activity.
+
+A good way to test your application's ability to restore its state is to simply rotate the device 
+so that the screen orientation changes. 
+When the screen orientation changes, the system destroys and recreates the activity in order to 
+apply alternative resources that might be available for the new screen configuration. 
+For this reason alone, it's very important that your activity completely restores its state when it is recreated,
+because users regularly rotate the screen while using applications.
+
+### Handling configuration changes
+
+Some device configurations can change during runtime (such as screen orientation, keyboard availability, and language). When such a change occurs, Android recreates the running activity (the system calls onDestroy(), then immediately calls onCreate()). This behavior is designed to help your application adapt to new configurations by automatically reloading your application with alternative resources that you've provided (such as different layouts for different screen orientations and sizes).
+
+If you properly design your activity to handle a restart due to a screen orientation change and restore the activity state as described above, your application will be more resilient to other unexpected events in the activity lifecycle.
+
+The best way to handle such a restart is to save and restore the state of your activity using onSaveInstanceState() and onRestoreInstanceState() (or onCreate()), as discussed in the previous section.
+
+For more information about configuration changes that happen at runtime and how you can handle them, read the guide to Handling Runtime Changes.
+
+### Coordinating activities
+
+When one activity starts another, they both experience lifecycle transitions. The first activity pauses and stops (though, it won't stop if it's still visible in the background), while the other activity is created. In case these activities share data saved to disc or elsewhere, it's important to understand that the first activity is not completely stopped before the second one is created. Rather, the process of starting the second one overlaps with the process of stopping the first one.
+
+The order of lifecycle callbacks is well defined, particularly when the two activities are in the same process and one is starting the other. Here's the order of operations that occur when Activity A starts Acivity B:
+
+1. Activity A's onPause() method executes.
+2. Activity B's onCreate(), onStart(), and onResume() methods execute in sequence. 
+   (Activity B now has user focus.)
+3. Then, if Activity A is no longer visible on screen, its onStop() method executes.
+
+This predictable sequence of lifecycle callbacks allows you to manage the transition of information from one activity to another. For example, if you must write to a database when the first activity stops so that the following activity can read it, then you should write to the database during onPause() instead of during onStop().
 
