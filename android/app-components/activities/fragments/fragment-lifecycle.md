@@ -54,3 +54,44 @@ When the fragment is not yet attached, or was detached during the end of its lif
 然而只有当Fragment已经与Activity进行了关联才有效。
 如果还没有关联或Fragment在其生命周期中Detach了，`getActivity()`会返回`null`。
 
+### Coordinating with the activity lifecycle
+
+The lifecycle of the activity in which the fragment lives directly affects the lifecycle of the fragment, 
+such that each lifecycle callback for the activity results in a similar callback for each fragment. 
+For example, when the activity receives `onPause()`, each fragment in the activity receives `onPause()`.
+
+Fragments have a few extra lifecycle callbacks, however, that handle unique interaction with the activity 
+in order to perform actions such as build and destroy the fragment's UI. 
+These additional callback methods are:
+- `onAttach()`: Called when the fragment has been associated with the activity (the Activity is passed in here).
+- `onCreateView()`: Called to create the view hierarchy associated with the fragment.
+- `onActivityCreated()`: Called when the activity's `onCreate()` method has returned.
+- `onDestroyView()`: Called when the view hierarchy associated with the fragment is being removed.
+- `onDetach()`: Called when the fragment is being disassociated from the activity.
+
+**Figure 3.** The effect of the activity lefecycle on the fragment lifecycle.
+```
+[Activity State]         | Created                                                   |
+[Fragment Calllbacks]    | onAttach -> onCreate -> onCreateView -> onActivityCreated | ->
+
+[Activity State]         | Started |    | Resumed  |    | Paused  |    | Stopped |
+[Fragment Calllbacks] -> | onStart | -> | onResume | -> | onPause | -> | onStop  | ->
+                      
+[Activity State]         | Destroyed                              |
+[Fragment Calllbacks] -> | onDestoryView -> onDestory -> onDetach |
+```
+
+The flow of a fragment's lifecycle, as it is affected by its host activity, is illustrated by figure 3. 
+In this figure, you can see how each successive state of the activity 
+determines which callback methods a fragment may receive. 
+For example, when the activity has received its `onCreate()` callback, 
+a fragment in the activity receives no more than the `onActivityCreated()` callback.
+
+Once the activity reaches the resumed state, you can freely add and remove fragments to the activity. 
+Thus, only while the activity is in the resumed state can the lifecycle of a fragment change independently.
+
+However, when the activity leaves the resumed state, 
+the fragment again is pushed through its lifecycle by the activity.
+
+只有当Activity在Resume状态时，Fragment才能独立的改变其生命周期状态。
+如果Activity离开了Resume状态，Fragment会被迫跟随Activity一起进入相应状态中。
