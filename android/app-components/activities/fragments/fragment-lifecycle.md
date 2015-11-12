@@ -15,9 +15,9 @@ Like an activity, a fragment can exist in three states:
 
 **暂停状态**：其他Activity运行到前台获取了用户焦点，但是Fragment所在的Activity仍然是可见的
 （前台Activity没有完全遮蔽后台Activity）。
-**停止状态**：所在的Activity进入了停止状态或Fragment从Activity移除但添加到了后备栈中。
-停止的Fragment仍然是活动的（系统还保留这它所有的状态和信息）。
-然而，因为它对用户不再可见如果Activity被杀掉了，它也会被杀掉。
+**停止状态**：所在的Activity进入了停止状态或Fragment从Activity中移除添加到了后备栈中。
+停止的Fragment仍然是活动的（系统还保留着它所有的状态和信息）。
+然而，因为它对用户不可见如果Activity被杀掉了，它也会被杀掉。
 
 Also like an activity, you can retain the state of a fragment using a Bundle, 
 in case the activity's process is killed and you need to restore the fragment state when the activity is recreated. 
@@ -38,8 +38,8 @@ However, a fragment is placed into a back stack managed by the host activity
 only when you explicitly request that the instance be saved by calling `addToBackStack()` 
 during a transaction that removes the fragment.
 
-比较重要的区别是，系统会自动将停止的Activity保存到后备栈，
-而Fragment需要受到调用`addToBackStack()`手动保存。
+比较重要的区别是，系统会自动将停止的Activity保存到后备栈中，
+而Fragment需要调用`addToBackStack()`进行手动保存。
 
 Otherwise, managing the fragment lifecycle is very similar to managing the activity lifecycle. 
 So, the same practices for managing the activity lifecycle also apply to fragments. 
