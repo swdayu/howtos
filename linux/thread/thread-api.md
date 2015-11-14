@@ -50,3 +50,16 @@ int pthread_cond_init(pthread_cond_t* cond, const pthread_condattr_t* attr);
 int pthread_cond_destroy(pthread_cond_t* cond);
 ```
 
+## Others
+
+```c
+// defined in <unistd.h>
+unsigned int sleep(unsigned int seconds);
+```
+
+**sleep** makes the calling thread sleep until *seconds* seconds have elapsed
+or a signal arrives which is not ignored.
+
+Return zero if the requested time has elapsed, or the number of seconds left to sleep,
+if the call was interrupted by a signal handler.
+
