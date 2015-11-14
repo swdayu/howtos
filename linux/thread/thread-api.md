@@ -55,6 +55,7 @@ int pthread_cond_destroy(pthread_cond_t* cond);
 ```c
 // defined in <unistd.h>
 unsigned int sleep(unsigned int seconds);
+int usleep(useconds_t usec);
 ```
 
 **sleep** makes the calling thread sleep until *seconds* seconds have elapsed
@@ -62,4 +63,12 @@ or a signal arrives which is not ignored.
 
 Return zero if the requested time has elapsed, or the number of seconds left to sleep,
 if the call was interrupted by a signal handler.
+
+-------------------------------------------------------------------------------------
+
+The **usleep** function suspends execution of the calling thread for (at least) `usec` microseconds.
+The sleep may be lengthened slightly by any system activity or by the time spent processing the call
+or by the granularity of system timers.
+
+Return 0 on success, `-1` on error.
 
