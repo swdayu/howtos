@@ -155,10 +155,6 @@ As such, it is only available on some platforms
 （Windows, Linux, Mac OS X, Solaris, BSD以及支持`dlfcn`标准的其他Unix系统）。
 
 ### package.preload
-```lua
--- [loader function]
--- usage: used to load a module
-```
 
 A table to store loaders for specific modules (see `require`).
 This variable is only a reference to the real table; 
