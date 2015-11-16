@@ -8,16 +8,28 @@ Everything else is exported in a table `package`.
 这个库提供模块加载功能，其中一个函数`require`以全局变量形式导出，
 其他函数都导出在`package`表中供使用。
 
-### require(modname)
+### require
+```lua
+require(modname)
+-- usage: load the given module `modname`
+-- return: the loaded module or raise an error
+```
 
 Loads the given module. The function starts by looking into the `package.loaded` table 
-to determine whether modname is already loaded. 
+to determine whether `modname` is already loaded. 
 If it is, then `require` returns the value stored at `package.loaded[modname]`. 
 Otherwise, it tries to find a loader for the module.
+
+用于加载指定的模块。这个函数首先查找`package.loaded`看这个模块是否已经被加载了。
+如果是直接返回存在其中的值，否则会查找模块的加载函数。
 
 To find a loader, `require` is guided by the `package.searchers` sequence. 
 By changing this sequence, we can change how `require` looks for a module. 
 The following explanation is based on the **default** configuration for `package.searchers`.
+
+`require`会根据`package.searches`**序列**中的查询函数去查找模块加载函数。
+通过改变这个**序列**，可以控制`require`怎么去查找模块。
+下面看`package.searches`默认设置下`require`如果进行查询。
 
 First `require` queries `package.preload[modname]`. 
 If it has a value, this value (which must be a function) is **the loader**. 
@@ -25,17 +37,29 @@ Otherwise `require` searches for a **Lua loader** using the path stored in `pack
 If that also fails, it searches for a **C loader** using the path stored in `package.cpath`. 
 If that also fails, it tries an **all-in-one loader** (see `package.searchers`).
 
+首先`require`查询`package.preload[modname]`，如果存在则找到这个加载函数。
+否则`require`使用`package.path`中的路径查找Lua加载函数。
+如果还失败，继续使用`package.cpath`中的路径插在C加载函数。
+如果还失败，则查询给定模块的根模块中的加载函数（见`package.searchers`）。
+
 Once a loader is found, `require` calls the loader with two arguments: 
 `modname` and an extra value dependent on how it got the loader. 
 (If the loader came from a file, this extra value is the file name.) 
 If the loader returns any non-nil value, `require` assigns the returned value to `package.loaded[modname]`. 
 If the loader does not return a non-nil value and has not assigned any value to `package.loaded[modname]`, 
 then `require` assigns `true` to this entry. 
-In any case, require returns the final value of `package.loaded[modname]`.
+In any case, `require` returns the final value of `package.loaded[modname]`.
+
+如果找到一个加载函数，`require`会使用`modname`以及一个额外值调用这个函数
+（如果加载函数来源于一个文件，这个额外值是这个文件的名称）。
+如果加载器返回非`nil`值，`require`会将这个值赋给`package.loaded[modname]`。
+如果返回`nil`并且`package.loaded[modname]`没有被赋值，则`require`会将`true`赋给它。
+最后，`require`返回`package.loaded[modname]`的值。
 
 If there is any error loading or running the module, or if it cannot find any loader for the module, 
 then `require` raises an error. 
 
+如果发生任何错误，包括模块加载或运行失败、或模块加载函数没有找到，`require`都会抛出一个异常。
 
 ### package.config
 
@@ -43,7 +67,8 @@ A string describing some compile-time configurations for packages. This string i
 - The first line is the directory separator string. Default is '\' for Windows and '/' for all other systems.
 - The second line is the character that separates templates in a path. Default is ';'.
 - The third line is the string that marks the substitution points in a template. Default is '?'.
-- The fourth line is a string that, in a path in Windows, is replaced by the executable's directory. Default is '!'.
+- The fourth line is a string that, in a path in Windows, is replaced by the executable's directory. 
+  Default is '!'.
 - The fifth line is a mark to ignore all text after it when building the `luaopen_` function name. Default is '-'.
 
 ### package.path
@@ -81,7 +106,7 @@ When you `require` a module `modname` and `package.loaded[modname]` is not false
 This variable is only a reference to the real table; 
 assignments to this variable do not change the table used by `require`.
 
-这个标使用在`require`中，用于控制哪些模块已经被加载了。
+这个表存储已经被加载的模块。
 当`require`一个模块`modname`时，如果`package.loaded[modname]`不是`false`，
 `require`会直接返回存储在其中的值。
 这个值仅仅是引用，对它赋值不会改变使用在`require`中的表。
