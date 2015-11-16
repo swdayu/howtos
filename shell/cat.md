@@ -1,6 +1,15 @@
 
 # cat
 
+```
+$ cat [OPTION]... [FILE]...
+# Concatenate FILE(s), or standard input, to standard output.
+# With no FILE, or when FILE is -, read standard input.
+
+-b, --number-nonblank     number nonempty output lines, override -n
+-n, --number              number all output lines
+```
+
 Create a new file and append content.
 ```
 cat > new_file << DELIMITER
