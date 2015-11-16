@@ -18,7 +18,7 @@ $ date "+%Y-%m-%d"
 $ mkdir $(date "+%Y-%m-%d") # same as `$ mkdir 2015-11-17`
 ```
 
-Us one command's output as another command's input
+Use one command's output as another command's input
 ```
 $ ls -al | less
 ```
