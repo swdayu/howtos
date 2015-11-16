@@ -84,4 +84,6 @@ $ tail -f c.txt
    120       8  input line for c.txt
    121 update line for c.txt
    122 update line for c.txt
+   
+$ tail -f --pid=PID # terminates after PID dies
 ```
