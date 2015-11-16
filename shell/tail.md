@@ -49,7 +49,7 @@ $ tail -n 3 c.txt
    120       8  input line for c.txt
 ```
 
-## Continue show last lines without exit
+## Continuously show last lines without exit
 ```
 # Continuously show last lines in Terminal A
 $ tail -f c.txt
