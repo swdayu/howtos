@@ -39,7 +39,7 @@ If that also fails, it tries an all-in-one loader (see `package.searchers`).
 
 首先`require`查询`package.preload[modname]`，如果存在则找到这个加载函数。
 否则`require`使用`package.path`中的路径查找Lua加载函数。
-如果还失败，继续使用`package.cpath`中的路径插在C加载函数。
+如果失败，继续使用`package.cpath`中的路径插在C加载函数。
 如果还失败，则查询给定模块的根模块中的加载函数（见`package.searchers`）。
 
 Once a loader is found, `require` calls the loader with two arguments: 
