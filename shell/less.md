@@ -4,8 +4,11 @@
 less large_file # display the file with multiple pages
 ```
 
-Moving:
-- **q**: exit 
+Less basic commands
+- **q**: exit
+- **=**: display current status
+
+Less commands for moving
 - **f**: forward one page
 - **b**: backward one page
 - **g**: go to first line of file
