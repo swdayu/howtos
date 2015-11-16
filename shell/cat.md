@@ -59,6 +59,8 @@ file b content
 ```
 
 Redirect standard output to file.
+
+(1) Standard Input => Standard Output => File
 ```
 # Truncate the file (create a new one if isn't exist) and output to the file
 $ cat << EOF > c.txt
@@ -86,15 +88,41 @@ input line one for c.txt truncate
 
 ```
 
-Append content to a file.
+(2) Files => Standard Output => File
 ```
-cat >> a_file << END
-> append the first line of text
-> append last line of text
-> END
+$ cat a.txt b.txt > c.txt
+$ cat c.txt
+file a content
+file b content
+
+$ cat a.txt b.txt >> c.txt
+$ cat c.txt
+file a content
+file b content
+file a content
+file b content
 ```
 
-Dispaly file content.
+(3) Files and Standard Input => Standard Output => File
 ```
-cat a_file
+$ cat a.txt - b.txt << EOF > c.txt
+> input line one for c.txt
+> input line two for c.txt
+> EOF
+$ cat c.txt
+file a content
+input line one for c.txt
+input line two for c.txt
+file b content
+
+$ cat - b.txt << EOF >> c.txt
+> input line three for c.txt
+> EOF
+$ cat c.txt
+file a content
+input line one for c.txt
+input line two for c.txt
+file b content
+input line three for c.txt
+file b content
 ```
