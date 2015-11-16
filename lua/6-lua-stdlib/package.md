@@ -53,7 +53,7 @@ In any case, `require` returns the final value of `package.loaded[modname]`.
 如果找到一个加载函数，`require`会使用`modname`以及一个额外值调用这个函数
 （如果加载函数来源于一个文件，这个额外值是这个文件的名称）。
 如果加载器返回非`nil`值，`require`会将这个值赋给`package.loaded[modname]`。
-如果返回`nil`并且`package.loaded[modname]`没有被赋值，则`require`会将`true`赋给它。
+如果返回`nil`并且`package.loaded[modname]`没有被赋值，则`require`会将它设为`true`。
 最后，`require`返回`package.loaded[modname]`的值。
 
 If there is any error loading or running the module, or if it cannot find any loader for the module, 
