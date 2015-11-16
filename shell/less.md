@@ -4,7 +4,7 @@
 less large_file # display the file with multiple pages
 ```
 
-Moving content:
+Moving:
 - **q**: exit 
 - **f**: forward one page
 - **b**: backward one page
