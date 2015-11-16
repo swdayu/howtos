@@ -5,11 +5,12 @@ $ less large.txt # display the file with multiple pages
 $ less -N file.txt # display with line numbered
 ```
 
-Less basic commands
+Basic commands
+- **V**: display less version
 - **q**: exit
 - **=**: display current status
 
-Less commands for moving
+Commands for moving
 - **f**: forward one page
 - **b**: backward one page
 - **g**: go to first line of file
@@ -24,3 +25,9 @@ Less commands for moving
 - **UpArrow**: backward one line
 - **LeftArrow**: left one half screen width
 - **RightArrow**: right one half screen width
+
+Commands for search
+- **/pattern**: search forward for matching line
+- **n**: next match
+- **N**: previous match
+
