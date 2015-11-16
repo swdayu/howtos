@@ -1,7 +1,9 @@
 
 # LESS
 ```
-less large_file # display the file with multiple pages
+$ less large_file # display the file with multiple pages
+
+-N   display with line numbered
 ```
 
 Less basic commands
