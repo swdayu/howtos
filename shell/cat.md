@@ -126,3 +126,45 @@ file b content
 input line three for c.txt
 file b content
 ```
+
+## Output with line numbered
+```
+$ cat << EOF > c.txt
+> input line for c.txt
+> input line for c.txt
+>
+> input line for c.txt
+> EOF
+$ cat -b c.txt
+     1  input line for c.txt
+     2  input line for c.txt
+
+     3  input line for c.txt
+$ cat -n c.txt
+     1  input line for c.txt
+     2  input line for c.txt
+     3
+     4  input line for c.txt
+
+$ cat -b c.txt c.txt > d.txt
+$ cat d.txt
+     1  input line for c.txt
+     2  input line for c.txt
+
+     3  input line for c.txt
+     4  input line for c.txt
+     5  input line for c.txt
+
+     6  input line for c.txt
+     
+$ cat -n c.txt c.txt > d.txt
+$ cat d.txt
+     1  input line for c.txt
+     2  input line for c.txt
+     3
+     4  input line for c.txt
+     5  input line for c.txt
+     6  input line for c.txt
+     7
+     8  input line for c.txt
+```
