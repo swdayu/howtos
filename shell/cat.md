@@ -13,16 +13,16 @@ $ cat [OPTION]... [FILE]...
 ## Output from input
 ```
 $ cat
+input line one # standard input
 input line one
-input line one
-input line two
+input line two # standard input
 input line two
 
 # Multiple input lines util reach "EOF"
 $ cat << EOF
-> input line one
-> input line two
-> EOF
+> input line one # standard input
+> input line two # standard input
+> EOF            # standard input
 input line one
 input line two
 ```
@@ -135,12 +135,12 @@ $ cat << EOF > c.txt
 >
 > input line for c.txt
 > EOF
-$ cat -b c.txt
+$ cat -b c.txt # only number non-empty lines
      1  input line for c.txt
      2  input line for c.txt
 
      3  input line for c.txt
-$ cat -n c.txt
+$ cat -n c.txt # number all lines
      1  input line for c.txt
      2  input line for c.txt
      3
@@ -168,3 +168,16 @@ $ cat d.txt
      7
      8  input line for c.txt
 ```
+
+## Output from last line to first line
+```
+$ tac << EOF
+> input line 1
+> input line 2
+> input line 3
+> EOF
+input line 3
+input line 2
+input line 1
+```
+
