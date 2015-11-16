@@ -1,5 +1,5 @@
 
-## 6.3 Modules
+## Modules
 
 The package library provides basic facilities for loading modules in Lua. 
 It exports one function directly in the global environment: `require`. 
