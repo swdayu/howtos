@@ -63,13 +63,21 @@ then `require` raises an error.
 
 ### package.config
 
-A string describing some compile-time configurations for packages. This string is a sequence of lines:
-- The first line is the directory separator string. Default is '\' for Windows and '/' for all other systems.
+A string describing some compile-time configurations for packages. 
+This string is a sequence of lines:
+- The first line is the directory separator string. 
+  Default is '\' for Windows and '/' for all other systems.
 - The second line is the character that separates templates in a path. Default is ';'.
 - The third line is the string that marks the substitution points in a template. Default is '?'.
-- The fourth line is a string that, in a path in Windows, is replaced by the executable's directory. 
-  Default is '!'.
-- The fifth line is a mark to ignore all text after it when building the `luaopen_` function name. Default is '-'.
+- The fourth line is a string that, in a path in Windows, 
+  is replaced by the executable's directory. Default is '!'.
+- The fifth line is a mark to ignore all text after it 
+  when building the `luaopen_` function name. Default is '-'.
+
+这个字符串包含**包**的一些配置信息。
+它由多行组成：第1行是目录分隔符（默认是`/`或`\`）；第2行是路径分隔符（默认是`;`）；
+第3行是模板路径中的替换符号（默认是`?`）；第4行是要被可执行文件目录路径替换的符号（默认为`!`）；
+第5行是确定模块加载函数`luaopen_<model_name>`时，模块名称哪个字符开始不是加载函数名称的一部分（默认是`-`）。
 
 ### package.path
 
