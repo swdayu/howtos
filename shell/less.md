@@ -11,8 +11,8 @@ Moving content:
 - **g**: go to first line of file
 - **G**: go to last line of file
 - **np**: go to `n` percent of file
-- **m<letter>**: mark the current position with <letter>
-- **'<letter>**: go to a previously marked position
+- **m\<letter\>**: mark the current position with <letter>
+- **'\<letter\>**: go to a previously marked position
 - **''**: go to the previous position
 - **'^**: go to the beginning of the file
 - **'$**: go to the end of the file
