@@ -32,10 +32,10 @@ The following explanation is based on the **default** configuration for `package
 下面看`package.searches`默认设置下`require`如果进行查询。
 
 First `require` queries `package.preload[modname]`. 
-If it has a value, this value (which must be a function) is **the loader**. 
-Otherwise `require` searches for a **Lua loader** using the path stored in `package.path`. 
-If that also fails, it searches for a **C loader** using the path stored in `package.cpath`. 
-If that also fails, it tries an **all-in-one loader** (see `package.searchers`).
+If it has a value, this value (which must be a function) is the loader. 
+Otherwise `require` searches for a Lua loader using the path stored in `package.path`. 
+If that also fails, it searches for a C loader using the path stored in `package.cpath`. 
+If that also fails, it tries an all-in-one loader (see `package.searchers`).
 
 首先`require`查询`package.preload[modname]`，如果存在则找到这个加载函数。
 否则`require`使用`package.path`中的路径查找Lua加载函数。
