@@ -1,5 +1,5 @@
 
-# cat
+# CAT
 
 ```
 $ cat [OPTION]... [FILE]...
