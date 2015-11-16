@@ -2,7 +2,7 @@
 # HEAD
 
 
-## Output first 10 lines
+## Output first 10 lines of files
 ```
 $ head c.txt
      1       1  input line for c.txt
