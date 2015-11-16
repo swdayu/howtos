@@ -133,7 +133,7 @@ making the symbols exported by the library available to other dynamically linked
 Otherwise, it looks for a function `funcname` inside the library and returns this function as a C function. 
 So, `funcname` must follow the `lua_CFunction` prototype (see `lua_CFunction`).
 
-动态加载函数。如果`funcname`是`"*"`，则导出这个库中的所以符号供其他动态链接库使用。
+动态加载函数。如果`funcname`是`"*"`，则导出这个库中的所有符号供其他动态链接库使用。
 否则，会在库中查找这个函数`funcname`并返回这个函数。
 这个函数必须是`lua_CFunction`类型的函数。
 
