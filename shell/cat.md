@@ -10,7 +10,7 @@ $ cat [OPTION]... [FILE]...
 -n, --number              number all output lines
 ```
 
-Output from input.
+## Output from input
 ```
 $ cat
 input line one
@@ -27,14 +27,14 @@ input line one
 input line two
 ```
 
-Output from files.
+## Output from files
 ```
 $ cat a.txt b.txt
 file a content
 file b content
 ```
 
-Output from files and standard input.
+## Output from files and standard input
 ```
 $ cat a.txt - b.txt << EOF
 > input line one
@@ -58,7 +58,7 @@ file a content
 file b content
 ```
 
-Redirect standard output to file.
+## Redirect standard output to file
 
 (1) Standard Input => Standard Output => File
 ```
