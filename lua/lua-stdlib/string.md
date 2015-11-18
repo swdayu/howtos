@@ -17,14 +17,7 @@ The string library assumes one-byte character encodings.
 ```lua
 byte(s [, i [, j]])
 -- return integers of characters in s[i..j]
-```
 
-Returns the internal numeric codes of the characters `s[i], s[i+1], ..., s[j]`. 
-The default value for `i` is 1; the default value for `j` is `i`. 
-These indices are corrected following the same rules of function `string.sub`.
-Numeric codes are not necessarily portable across platforms.
-
-```
 s = “0123456789”
 s:byte()    --> 48
 s:byte(1)   --> 48
@@ -33,18 +26,17 @@ s:byte(1,2) --> 48 49
 s:byte(1,3) --> 48 49 50
 ```
 
+Returns the internal numeric codes of the characters `s[i], s[i+1], ..., s[j]`. 
+The default value for `i` is 1; the default value for `j` is `i`. 
+These indices are corrected following the same rules of function `string.sub`.
+Numeric codes are not necessarily portable across platforms.
+
 ### string.char
 ```lua
 char(···)
 -- return a string with each byte from a integer argument
 -- the integer cann't be larger than 255
-```
 
-Receives zero or more integers. Returns a string with length equal to the number of arguments, 
-in which each character has the internal numeric code equal to its corresponding argument.
-Numeric codes are not necessarily portable across platforms.
-
-```
 string.char(48)       --> 0
 string.char(48,49)    --> 01
 string.char(48,49,50) --> 012
@@ -52,6 +44,11 @@ string.char(255)      --> ok
 string.char(256)      --> bad argument
 print(string.char() == "") --> true
 ```
+
+Receives zero or more integers. Returns a string with length equal to the number of arguments, 
+in which each character has the internal numeric code equal to its corresponding argument.
+Numeric codes are not necessarily portable across platforms.
+
 ### string.len 
 ```lua
 len(s)
