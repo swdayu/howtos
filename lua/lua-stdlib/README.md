@@ -1,5 +1,7 @@
 
-# 6 Standard Libraries
+# Standard Libraries
+- [Package Library](./package.md)
+- [String Manipulation](./string.md)
 
 The standard Lua libraries provide useful functions that are implemented directly through the C API. 
 Some of these functions provide essential services to the language (e.g., `type` and `getmetatable`); 
@@ -58,34 +60,3 @@ See §2.6 for a general description of coroutines.
 
 协程库定义协程相关的操作，函数都导出在`coroutine`全局表中供使用。
 参考2.6部分对协程的描述。
-
-## 6.3 Modules
-
-The package library provides basic facilities for loading modules in Lua. 
-It exports one function directly in the global environment: `require`. 
-Everything else is exported in a table `package`.
-
-这个库提供Lua中模块加载的功能，其中一个函数`require`以全局变量形式导出，
-其他函数都导出在`package`表中供使用。
-
-## 6.4 String Manipulation
-
-This library provides generic functions for string manipulation, such as finding and extracting substrings, and pattern matching. When indexing a string in Lua, the first character is at position 1 (not at 0, as in C). Indices are allowed to be negative and are interpreted as indexing backwards, from the end of the string. Thus, the last character is at position -1, and so on.
-
-The string library provides all its functions inside the table `string`. 
-It also sets a metatable for strings where the `__index` field points to the `string` table. 
-Therefore, you can use the string functions in object-oriented style. 
-For instance, `string.byte(s,i)` can be written as `s:byte(i)`.
-
-The string library assumes one-byte character encodings.
-
-字符串库实现对字符串的操作，如查找和提取子串，以及模式匹配。
-索引字符串时，第一个字符在位置1上（不像C语言是0）。
-索引值可以是负数，从字符串结尾开始往回计数，因此最后一个字符在位置-1，依次类推。
-
-字符串库函数都导出在`string`表中供使用。
-另外，字符串都设置了元表，元表的`__index`元素指向`string`全局表。
-因此，可以用面向对象的方式使用字符串函数，例如`string.byte(s,i)`可以写成`s:byte(i)`。
-
-字符串库假设使用单字节的字符编码。
-
