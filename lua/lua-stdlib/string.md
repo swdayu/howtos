@@ -37,6 +37,7 @@ s:byte(1,3) --> 48 49 50
 ```lua
 char(···)
 -- return a string with each byte from a integer argument
+-- the integer cann't be larger than 255
 ```
 
 Receives zero or more integers. Returns a string with length equal to the number of arguments, 
