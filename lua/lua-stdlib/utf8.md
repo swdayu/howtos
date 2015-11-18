@@ -6,9 +6,16 @@ It provides all its functions inside the table `utf8`.
 This library does not provide any support for Unicode other than the handling of the encoding. 
 Any operation that needs the meaning of a character, such as character classification, is outside its scope.
 
+这个库提供对UTF-8编码最基础的支持。所有函数都导出在全局表`utf8`中供使用。
+这个库不支持Unicode编码之外的任何其他功能。
+例如像字符分类等字符相关的操作都不在其支持范围内。
+
 Unless stated otherwise, all functions that expect a byte position as a parameter assume that 
 the given position is either the start of a byte sequence or one plus the length of the subject string. 
 As in the string library, negative indices count from the end of the string. 
+
+除非特别说明，所有函数的位置参数默认都是第一个字节位置或字符串长度加1。
+像字符串库一样，负的索引位置从字符串末尾算起。
 
 ### utf8.char 
 ```lua
