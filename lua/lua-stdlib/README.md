@@ -2,6 +2,7 @@
 # Standard Libraries
 - [Package Library](./package.md)
 - [String Manipulation](./string.md)
+- [UTF-8 Support](./utf8.md)
 
 The standard Lua libraries provide useful functions that are implemented directly through the C API. 
 Some of these functions provide essential services to the language (e.g., `type` and `getmetatable`); 
