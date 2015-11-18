@@ -28,7 +28,7 @@ and returns a string with the concatenation of all these sequences.
 The pattern (a string, not a function) `[\0-\x7F\xC2-\xF4][\x80-\xBF]*` (see §6.4.1), 
 which matches exactly one UTF-8 byte sequence, assuming that the subject is a valid UTF-8 string.
 
-这个匹配字符串匹配一个有效的UTF-8字节序列。
+这个是一个匹配字符串，用于匹配一个有效的UTF-8字节序列。
 
 ### utf8.codes 
 ```lua
