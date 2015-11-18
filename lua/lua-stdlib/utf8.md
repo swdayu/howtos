@@ -30,24 +30,88 @@ which matches exactly one UTF-8 byte sequence, assuming that the subject is a va
 
 这个匹配字符串匹配一个有效的UTF-8字节序列。
 
-utf8.codes (s)
+### utf8.codes 
+```lua
+codes(s)
+-- used to interate characters in utf-8 string
+```
 
-Returns values so that the construction
+Returns values so that the construction 
+```lua
+for p, c in utf8.codes(s) do body end
+```
+will iterate over all characters in string `s`, with `p` being the position (in bytes) 
+and `c` the code point of each character. 
+It raises an error if it meets any invalid byte sequence.
 
-     for p, c in utf8.codes(s) do body end
+每次迭代中`p`取得当前UTF-8字符的开始字节位置，`c`取得当前的UTF-8字符值。
+如果遇到非法的UTF-8字节序列则会抛出异常。
 
-will iterate over all characters in string s, with p being the position (in bytes) and c the code point of each character. It raises an error if it meets any invalid byte sequence.
+### utf8.codepoint 
+```lua
+codepoint(s [, i [, j]])
+-- return integers for all utf-8 characters in s[i..j]
+```
 
-utf8.codepoint (s [, i [, j]])
-Returns the codepoints (as integers) from all characters in s that start between byte position i and j (both included). The default for i is 1 and for j is i. It raises an error if it meets any invalid byte sequence.
+Returns the codepoints (as integers) from all characters in `s` that 
+start between byte position `i` and `j` (both included). 
+The default for `i` is 1 and for `j` is `i`. 
+It raises an error if it meets any invalid byte sequence.
 
-utf8.len (s [, i [, j]])
-Returns the number of UTF-8 characters in string s that start between positions i and j (both inclusive). The default for i is 1 and for j is -1. If it finds any invalid byte sequence, returns a false value plus the position of the first invalid byte.
+返回UTF-8字符子串`s[i..j]`中所有的字符整数值。默认`i`是1，`j`是`i`。
+如果遇到非法的UTF-8字节序列则会抛出异常。
 
-utf8.offset (s, n [, i])
-Returns the position (in bytes) where the encoding of the n-th character of s (counting from position i) starts. A negative n gets characters before position i. The default for i is 1 when n is non-negative and #s + 1 otherwise, so that utf8.offset(s, -n) gets the offset of the n-th character from the end of the string. If the specified character is neither in the subject nor right after its end, the function returns nil.
+### utf8.len 
+```lua
+len(s [, i [, j]])
+-- return the number of utf-8 characters in s[i..j]
+-- otherwise return false and the postion of the first invalid byte
+```
 
-As a special case, when n is 0 the function returns the start of the encoding of the character that contains the i-th byte of s.
+Returns the number of UTF-8 characters in string `s` that 
+start between positions `i` and `j` (both inclusive). 
+The default for `i` is `1` and for `j` is `-1`. 
+If it finds any invalid byte sequence, 
+returns a `false` value plus the position of the first invalid byte.
 
-This function assumes that s is a valid UTF-8 string. 
+返回字符子串`s[i..j]`中的UTF-8字符个数。默认`i`是1，`j`是`i`。
+如果找到不合法的UTF-8字节序列，则返回`false`以及非法字节序列的第一个字节位置。
 
+### utf8.offset 
+```lua
+offset(s, n [, i])
+-- return the index of n-th utf-8 character in s[i..$]
+-- or the index of |n|-th uft-8 character before s[i] if n is negative
+-- or nil if the result position is invalid
+
+utf8.offset("abcdefg", 1)     --> 1
+utf8.offset("abcdefg", -1)    --> 7
+utf8.offset("abcdefg", 3, 4)  --> 6
+utf8.offset("abcdefg", -3, 4) --> 1
+utf8.offset("abcdefg", 0, 4)  --> 4
+utf8.offset("abcdefg", 8, 4)  --> nil
+utf8.offset("abcdefg", 0, 9)  --> bad argument
+```
+
+Returns the position (in bytes) where the encoding of the `n`-th character of `s` 
+(counting from position `i`) starts. 
+A negative `n` gets characters before position `i`. 
+The default for `i` is 1 when `n` is non-negative and `#s + 1` otherwise, 
+so that `utf8.offset(s, -n)` gets the offset of the `n`-th character 
+from the end of the string. 
+If the specified character is neither in the subject nor right after its end, 
+the function returns `nil`.
+
+返回字符子串`s[i..$]`中的第`n`个UTF-8字符的位置。
+如果`n`是负数，则返回`i`之前`|n|`个UTF-8字符的位置（从`i`前一个位置开始算）。
+如果`n`是非负数，则`i`的默认值是1，否则`i`的默认值是`#s + 1`。
+因此`utf8.offset(s, -n)`表示字符串末尾之前`n`个UTF-8字符的位置。
+如果对应的字符位置不是有效位置，则返回`nil`。
+
+As a special case, when `n` is 0 the function returns the start of 
+the encoding of the character that contains the `i`-th byte of `s`.
+
+This function assumes that `s` is a valid UTF-8 string. 
+
+如果`n`是0，则返回`i`处对应的UTF-8字符的位置。
+这个函数假设`s`是一个合法的UTF-8字符串。
