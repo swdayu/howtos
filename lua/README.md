@@ -3,7 +3,7 @@
 - http://www.lua.org/cgi-bin/demo
 
 ## Install
-```bash
+```
 $ tar zxf lua-5.3.1.tar.gz
 $ cd lua-5.3.1
 $ make linux test # make macosx test
