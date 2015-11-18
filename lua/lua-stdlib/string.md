@@ -45,11 +45,12 @@ in which each character has the internal numeric code equal to its corresponding
 Numeric codes are not necessarily portable across platforms.
 
 ```
-> string.char(48)       --> 0
-> string.char(48,49)    --> 01
-> string.char(48,49,50) --> 012
-> string.char(255) -- ok
-> string.char(256) -- bad argument
+string.char(48)       --> 0
+string.char(48,49)    --> 01
+string.char(48,49,50) --> 012
+string.char(255)      --> ok
+string.char(256)      --> bad argument
+print(string.char() == "") --> true
 ```
 ### string.len 
 ```lua
