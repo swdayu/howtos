@@ -218,7 +218,8 @@ after the two indices.
 string.find("abcdefghijk", "ab(c(de)f(g)h)i")
 -- 19cdefghdeg
 ```
-string.match 
+
+### string.match 
 ```lua
 match(s, pattern [, init])
 -- look for the first match 
