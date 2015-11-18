@@ -10,11 +10,25 @@ Unless stated otherwise, all functions that expect a byte position as a paramete
 the given position is either the start of a byte sequence or one plus the length of the subject string. 
 As in the string library, negative indices count from the end of the string. 
 
-utf8.char (···)
-Receives zero or more integers, converts each one to its corresponding UTF-8 byte sequence and returns a string with the concatenation of all these sequences.
+### utf8.char 
+```lua
+char(···)
+-- return a string with each utf-8 character from a integer argument
+-- the integer can be larger than 255
+```
 
-utf8.charpattern
-The pattern (a string, not a function) "[\0-\x7F\xC2-\xF4][\x80-\xBF]*" (see §6.4.1), which matches exactly one UTF-8 byte sequence, assuming that the subject is a valid UTF-8 string.
+Receives zero or more integers, converts each one to its corresponding UTF-8 byte sequence 
+and returns a string with the concatenation of all these sequences.
+
+这个函数接收0个或多个整数，并将每个整数转换成对应的UTF-8字符的字节序列，返回所有这些序列组成的字符串。
+如果传入0个整数，则返回空字符串。
+
+### utf8.charpattern
+
+The pattern (a string, not a function) `[\0-\x7F\xC2-\xF4][\x80-\xBF]*` (see §6.4.1), 
+which matches exactly one UTF-8 byte sequence, assuming that the subject is a valid UTF-8 string.
+
+这个匹配字符串匹配一个有效的UTF-8字节序列。
 
 utf8.codes (s)
 
