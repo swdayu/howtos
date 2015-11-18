@@ -2,21 +2,14 @@
 - http://www.lua.org/manual/5.3/manual.html
 - http://www.lua.org/cgi-bin/demo
 
+## Install
+```bash
+$ tar zxf lua-5.3.1.tar.gz
+$ cd lua-5.3.1
+$ make linux test # make macosx test
+$ sudo make install
 
-Todo list
-- lua_newstate
-- luaL_openlibs
-- luaL_loadstring
-- lua_pushstring
-- lua_pcall
-- lua_tostring
-- lua_toboolean
-- lua_close
-- lua_getglobal
-- lua_setglobal
-- lua_pop
-- lua_isnil
-- lua_pushnil
-- lua_next
-- lua_type
-
+# if fatal error: readline/readline.h: No such file or directory
+# install this library first
+$ sudo apt-get install libreadline-dev 
+```
