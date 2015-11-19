@@ -478,7 +478,7 @@ For all classes represented by string letters (`%a`, `%c`, etc.),
 the corresponding uppercase letter represents the complement of the class.
 For instance, `%S` represents all non-space characters.
 
-用字母表示所以字符类别（例如`%a`、`%c`、等等），它的大写形式表示其字符集合的补集。
+用字母表示的所有字符类别（例如`%a`、`%c`、等等），它的大写形式表示其字符集合的补集。
 例如`%S`表示所有非空白字符。
 
 The definitions of letter, space, and other character groups depend on the current locale.
@@ -490,24 +490,63 @@ In particular, the class `[a-z]` may not be equivalent to `%l`.
 **Pattern Item:**
 
 A *pattern item* can be
+
 - a single character class, which matches any single character in the class
-- a single character class followed by '*', which matches 0 or more repetitions of characters in the class.
-  These repetition items will always match the longest possible sequence
-- a single character class followed by '+', which matches 1 or more repetitions of characters in the class.
-  These repetition items will always match the longest possible sequence
-- a single character class followed by '-', which also matches 0 or more repetitions of characters in the class.
-  Unlike '*', these repetition items will always match the shortest possible sequence
-- a single character class followed by '?', which matches 0 or 1 occurrence of a character in the class.
-  it always matches one occurrence if possible.
-- `%n`, for `n` between 1 and 9; such item matches a substring equal to the `n`-th captured string (see below)
-- `%bxy`, where `x` and `y` are two distint characters; such item matches strings that start with `x`, end with `y`,
-  and where the `x` and `y` are *balanced*. This means that, if one reads the string from left to right, counting
-  `+1` for an `x` and `-1` for a `y`, the ending `y` is the first `y` where the count reaches 0.
+
+    一个匹配项可以是一个字符类别，它可以匹配字符类别中的一个字符。
+
+- a single character class followed by `*`, 
+  which matches 0 or more repetitions of characters in the class.
+  These repetition items will always match the longest possible sequence.
+    
+    可以是一个字符类别跟上`*`，它可以匹配字符类别中的0个或多个字符形成的字符串。
+    匹配采用最长匹配原则。
+  
+- a single character class followed by `+`, 
+  which matches 1 or more repetitions of characters in the class.
+  These repetition items will always match the longest possible sequence.
+
+    可以是一个字符类别跟上`+`，它可以匹配字符类别中的1个或多个字符形成的字符串。
+    匹配采用最长匹配原则。
+
+- a single character class followed by `-`, 
+  which also matches 0 or more repetitions of characters in the class.
+  Unlike `*`, these repetition items will always match the shortest possible sequence.
+
+    可以是一个字符类别跟上`+`，它可以匹配字符类别中的0个或多个字符形成的字符串。
+    与`*`不同，它采用最短匹配原则。
+
+- a single character class followed by `?`, 
+  which matches 0 or 1 occurrence of a character in the class.
+  It always matches one occurrence if possible.
+
+    可以是一个字符类别跟上`?`，它可以匹配字符类别中的0个或1个字符。
+    匹配使用最长匹配原则，尽可能去匹配一个字符。
+
+- `%n`, for `n` between 1 and 9; 
+  such item matches a substring equal to the `n`-th captured string (see below).
+
+    匹配项还可以是`%n`，其中`n`表示从1到9之间的数字。
+    它可以匹配与第`n`个**捕获**子串相等的字符串。
+
+- `%bxy`, where `x` and `y` are two distint characters; 
+  such item matches strings that start with `x`, end with `y`,
+  and where the `x` and `y` are *balanced*. 
+  This means that, if one reads the string from left to right, 
+  counting `+1` for an `x` and `-1` for a `y`, 
+  the ending `y` is the first `y` where the count reaches 0.
   For instance, the item `%b()` matches expressions with balanced parentheses.
+
+    匹配项还可以是`%bxy`，其中`x`和`y`是两个不相同的字符。
+    它可以匹配以`x`开始用`y`结束，并且`x`的个数与`y`的个数相等的字符串。
+
 - `%f[set]`, a *frontier pattern*; such item matches an empty string at any position such that 
   the next character belongs to `set` and the previous character does not belong to `set`.
   The set `set` is interpreted as previously described.
   The begining and the end of the subject are handled as if they were the character `\0`.
+
+    匹配项还可以是`%f[set]`，它匹配任何位置上前一个字符不属于`set`而后一个字符属于`set`的空字符串。
+    目标字符串的开头和结尾被当作字符`\0`来处理。
 
 **Pattern:**
 
@@ -516,17 +555,32 @@ A caret `^` at the beginning of a pattern anchors the match at the beginning of 
 A `$` at the end of a pattern anchors the match at the end of the subject string.
 At other positions, `^` and `$` have no special meaning and represent themselves.
 
+匹配字符串是由多个匹配项组成的序列。
+匹配字符串开头的`^`表示匹配目标字符串的开头，匹配字符串结尾的`$`表示匹配目标字符串的结尾。
+其他位置的`^`和`$`没有特殊含义，仅代表其字符本身。
+
 **Capture:**
 
-A pattern can contain sub-patterns enclosed in parentheses; they describe *capture*.
-When a match succeeds, the substrings of the subject string that match captures are stored (*captured) for future use.
+A pattern can contain sub-patterns enclosed in parentheses; they describe **capture**.
+When a match succeeds, the substrings of the subject string 
+that match captures are stored (captured) for future use.
 Captures are numbered according to their left parentheses.
 For instance, in the pattern `(a*(.)%w(%s*))`, 
 the part of the string matching `a*(.)%w(%s*)` is stored as the first capture (and therefore has number 1);
 the character matching `.` is captured with number 2, and the part matching `%s*` has number 3.
 
+匹配字符串可以包含用括号括起的子匹配串，这些子串称为**捕获**。
+匹配到一个字符串后，字符串中与所有**捕获**对应的子串都会保存起来以供使用。
+这些**捕获**的序号依据左括号来计数。
+例如`(a*(.)%w(%s*))`，匹配`a*(.)%w(%s*)`的部分是第1个**捕获**字符串（序号是1），
+匹配`.`的部分是第2个，而匹配`%s*`的部分是第3个。
+
 As a special case, the empty capture `()` captures the current string position (a number).
 For instance, if we apply the pattern `()aa()` on the string `flaaap`, there will be two captures: 3 and 5.
+
+特别地，空**捕获**`()`捕获字符串的当前位置（一个数值）。
+例如，用`()aa()`去匹配`flaaap`，产生的两个**捕获**是3和5
+（前面的`()`匹配其后字符的位置，后面的`()`匹配其当前占据的位置）。
 
 ### Format Strings for Pack and Unpack
 
@@ -575,6 +629,4 @@ this minimum must be a power of 2.
 Options "c" and "z" are not aligned; option "s" follows the alignment of its starting integer.
 
 All padding is filled with zeros by `string.pack` (and ignored by `string.unpack`).
-
-
 
