@@ -1,5 +1,6 @@
 
 # Standard Libraries
+- [Basic Functions](./basic.md)
 - [Package Library](./package.md)
 - [String Manipulation](./string.md)
 - [UTF-8 Support](./utf8.md)
@@ -46,15 +47,7 @@ These functions are declared in `lualib.h`.
 访问这些库，C宿主程序可以调用`luaL_openlibs`打开所有库的访问。
 或调用上面的函数单独访问某个库。这些函数定义在`lualib.h`头文件中。
 
-## 6.1 Basic Functions
-
-The basic library provides core functions to Lua. 
-If you do not include this library in your application, 
-you should check carefully whether you need to provide implementations for some of its facilities.
-
-基本库定义了Lua核心函数。如果不包含这个库，应该考虑是否实现其中的一些功能。
-
-## 6.2 Coroutine Manipulation
+## Coroutine Manipulation
 
 This library comprises the operations to manipulate coroutines, which come inside the table `coroutine`. 
 See §2.6 for a general description of coroutines.
