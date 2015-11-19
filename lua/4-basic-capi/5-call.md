@@ -257,3 +257,13 @@ This function behaves exactly like `lua_pcall`, but allows the called function t
 
 这个函数与`lua_pcall`的行为一样，除了允许被调用的函数yield。
 
+---------------------------------------------------------------------------------------------------
+
+pcall (f [, arg1, ···])
+
+Calls function f with the given arguments in protected mode. This means that any error inside f is not propagated; instead, pcall catches the error and returns a status code. Its first result is the status code (a boolean), which is true if the call succeeds without errors. In such case, pcall also returns all results from the call, after this first result. In case of any error, pcall returns false plus the error message.
+
+
+xpcall (f, msgh [, arg1, ···])
+
+This function is similar to pcall, except that it sets a new message handler msgh. 
