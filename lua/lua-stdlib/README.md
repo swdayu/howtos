@@ -1,6 +1,7 @@
 
 # Standard Libraries
 - [Basic Functions](./basic.md)
+- [Coroutine Manipulation](./coroutine.md)
 - [Package Library](./package.md)
 - [String Manipulation](./string.md)
 - [UTF-8 Support](./utf8.md)
@@ -46,11 +47,3 @@ These functions are declared in `lualib.h`.
 
 访问这些库，C宿主程序可以调用`luaL_openlibs`打开所有库的访问。
 或调用上面的函数单独访问某个库。这些函数定义在`lualib.h`头文件中。
-
-## Coroutine Manipulation
-
-This library comprises the operations to manipulate coroutines, which come inside the table `coroutine`. 
-See §2.6 for a general description of coroutines.
-
-协程库定义协程相关的操作，函数都导出在`coroutine`全局表中供使用。
-参考2.6部分对协程的描述。
