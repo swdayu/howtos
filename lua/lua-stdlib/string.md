@@ -282,7 +282,7 @@ end
 For this function, a caret `^` at the start of a `pattern` does not work as an anchor, 
 as this would prevent the iteration. 
 
-???
+这个函数中的匹配字符串开头的`^`不匹配目标字符串的开头，而会阻止字符串迭代匹配。
 
 ### string.sub 
 ```lua
