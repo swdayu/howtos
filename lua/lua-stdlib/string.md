@@ -493,41 +493,41 @@ A *pattern item* can be
 
 - a single character class, which matches any single character in the class
 
-    一个匹配项可以是一个字符类别，它可以匹配字符类别中的一个字符。
+    一个匹配项可以是一个字符类别，它匹配字符类别中的一个字符。
 
 - a single character class followed by `*`, 
   which matches 0 or more repetitions of characters in the class.
   These repetition items will always match the longest possible sequence.
     
-    可以是一个字符类别跟上`*`，它可以匹配字符类别中的0个或多个字符形成的字符串。
+    可以是一个字符类别跟上`*`，它匹配字符类别中的0个或多个字符形成的字符串。
     匹配采用最长匹配原则。
   
 - a single character class followed by `+`, 
   which matches 1 or more repetitions of characters in the class.
   These repetition items will always match the longest possible sequence.
 
-    可以是一个字符类别跟上`+`，它可以匹配字符类别中的1个或多个字符形成的字符串。
+    可以是一个字符类别跟上`+`，它匹配字符类别中的1个或多个字符形成的字符串。
     匹配采用最长匹配原则。
 
 - a single character class followed by `-`, 
   which also matches 0 or more repetitions of characters in the class.
   Unlike `*`, these repetition items will always match the shortest possible sequence.
 
-    可以是一个字符类别跟上`+`，它可以匹配字符类别中的0个或多个字符形成的字符串。
+    可以是一个字符类别跟上`+`，它匹配字符类别中的0个或多个字符形成的字符串。
     与`*`不同，它采用最短匹配原则。
 
 - a single character class followed by `?`, 
   which matches 0 or 1 occurrence of a character in the class.
   It always matches one occurrence if possible.
 
-    可以是一个字符类别跟上`?`，它可以匹配字符类别中的0个或1个字符。
+    可以是一个字符类别跟上`?`，它匹配字符类别中的0个或1个字符。
     匹配使用最长匹配原则，尽可能去匹配一个字符。
 
 - `%n`, for `n` between 1 and 9; 
   such item matches a substring equal to the `n`-th captured string (see below).
 
     匹配项还可以是`%n`，其中`n`表示从1到9之间的数字。
-    它可以匹配与第`n`个**捕获**子串相等的字符串。
+    它匹配与第`n`个**捕获**子串相等的字符串。
 
 - `%bxy`, where `x` and `y` are two distint characters; 
   such item matches strings that start with `x`, end with `y`,
@@ -538,7 +538,7 @@ A *pattern item* can be
   For instance, the item `%b()` matches expressions with balanced parentheses.
 
     匹配项还可以是`%bxy`，其中`x`和`y`是两个不相同的字符。
-    它可以匹配以`x`开始用`y`结束，并且`x`的个数与`y`的个数相等的字符串。
+    它匹配以`x`开始用`y`结束，并且`x`的个数与`y`的个数相等的字符串。
 
 - `%f[set]`, a *frontier pattern*; such item matches an empty string at any position such that 
   the next character belongs to `set` and the previous character does not belong to `set`.
@@ -599,7 +599,7 @@ A format string is a sequence of conversion options. The conversion options are 
 - **l:** a signed `long` (native size)
 - **L:** an unsigned `long` (native size)
 - **j:** a `lua_Integer`
-- **J:** a `lua_unsigned`
+- **J:** a `lua_Unsigned`
 - **T:** a `size_t` (native size)
 - **i[n]:** a signed `int` with `n` bytes (default is native size)
 - **I[n]:** an unsigned `int` with `n` bytes (default is native size)
@@ -613,20 +613,43 @@ A format string is a sequence of conversion options. The conversion options are 
 - **Xop:** an empty item that aligns according to option `op` (which is otherwise ignored)
 - **' ':** (empty space) ignored
 
-(A "[n]" means an optional integral numeral.) Except for padding, spaces, and configurations (options "xX <=>!"),
+用在`string.pack`、`string.packsize`、以及`string.unpack`中的格式字符串可以使用如下的**格式选项**：
+**<**表示使用小端字节序；**>**表示使用大端字节序；**=**表示使用本地机器使用的字节序；
+**![n]**指定最大对齐字节数为`n`个字节；**b**和**B**表示有符号和无符号字节型（`char`）；
+**h**和**H**表示有符号和无符号短整型（`short`）；**l**和**L**表示有符号和无符号长整型（`long`）；
+**j**和**J**表示`lua_Integer`和`lua_Unsigned`；**T**表示`size_t`；
+**i[n]**和**I[n]**表示有符号和无符号的`n`字节整型（默认是`int`型）；
+**f**和**d**表示浮点型`float`和`double`；
+**n**表示`lua_Number`；**cn**表示长度为`n`的字符串；**z**表示0结尾的字符串；
+**s[n]**表示字符串长度存储在前`n`个字节中的字符串（默认的长度类型是`size_t`）；
+**x**表示一个填补字节；**Xop**表示忽略一个格式选项`op`对应的字节数；
+格式字符串中可以包含空格**' '**，它们没有含义。
+
+(A `[n]` means an optional integral numeral.) Except for padding, spaces, and configurations (options "xX <=>!"),
 each option corresponds to an argument (in `string.pack`) or a result (in `string.unpack`).
 
-For options "!n", "sn", "in", and "In", `n` can be any integer between 1 and 16.
+For options `!n`, `sn`, `in`, and `In`, `n` can be any integer between 1 and 16.
 All integral options check overflows; `string.pack` checks whether the given value fits in the given size;
 `string.unpack` checks whether the read value fits in a Lua integer.
 
-Any format string starts as if prefixed by "!1=", that is, 
+`[n]`表示一个可选的整数。除了这些选项（`xX <=>!`）之外的其他**格式选项**
+都对应`string.pack`中的一个参数或`string.unpack`中的一个结果。
+可选整数`n`可以是1到16中的任何一个整数。
+所有与整数相关的**格式选项**都会检查是否会发生溢出。
+`string.pack`会检查当前的值是否能够存储在指定大小的整数中；
+`string.unpack`会检查读取的值是否能够存储到Lua的整型变量中。
+
+Any format string starts as if prefixed by `!1=`, that is, 
 with maximum alignment of 1 (no alignment) and native endianness.
 
 Alignment works as follows: For each option, the format gets extra padding until the data starts at an offset
 that is a multiple of the minimum between the option size and the maximum alignment; 
 this minimum must be a power of 2.
-Options "c" and "z" are not aligned; option "s" follows the alignment of its starting integer.
+Options `c` and `z` are not aligned; option `s` follows the alignment of its starting integer.
 
 All padding is filled with zeros by `string.pack` (and ignored by `string.unpack`).
 
+任何格式字符串都相当于使用`!1=`开头，即默认不进行对齐并且使用本地机器使用的字节序。
+数据对齐会对齐到**格式选项**的字节数与最大对齐字节数的较小值，这个较小值必须是2的幂。
+格式选项`c`和`z`对应的数据不会进行对齐，格式选项`s`对应的数据根据其开始整数的对齐而对齐。
+所有填补字节都被`string.pack`写成0（并且被`string.unpack`忽略）。
