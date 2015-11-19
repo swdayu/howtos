@@ -1,15 +1,24 @@
 
 ## String Manipulation
 
-This library provides generic functions for string manipulation, such as finding and extracting substrings, and pattern matching. When indexing a string in Lua, the first character is at position 1 (not at 0, as in C). Indices are allowed to be negative and are interpreted as indexing backwards, from the end of the string. Thus, the last character is at position -1, and so on.
+This library provides generic functions for string manipulation, 
+such as finding and extracting substrings, and pattern matching. 
+When indexing a string in Lua, the first character is at position 1 (not at 0, as in C). 
+Indices are allowed to be negative and are interpreted as indexing backwards, from the end of the string. 
+Thus, the last character is at position -1, and so on.
 
-The string library provides all its functions inside the table string. It also sets a metatable for strings where the `__index` field points to the string table. Therefore, you can use the string functions in object-oriented style. For instance, `string.byte(s,i)` can be written as `s:byte(i)`.
+The string library provides all its functions inside the table string. 
+It also sets a metatable for strings where the `__index` field points to the string table. 
+Therefore, you can use the string functions in object-oriented style. 
+For instance, `string.byte(s,i)` can be written as `s:byte(i)`.
 
 The string library assumes one-byte character encodings.
 
-字符串库实现对字符串的操作，如查找和提取子串，以及模式匹配。 索引字符串时，第一个字符在位置1上（不像C语言是0）。 索引值可以是负数，从字符串结尾开始往回计数，因此最后一个字符在位置-1，依次类推。
+字符串库实现对字符串的操作，如查找和提取子串，以及模式匹配。 索引字符串时，第一个字符在位置1上（不像C语言是0）。
+索引值可以是负数，从字符串结尾开始往回计数，因此最后一个字符在位置-1，依次类推。
 
-字符串库函数都导出在string表中供使用。 另外，字符串都设置了元表，元表的`__index`元素指向string全局表。 因此，可以用面向对象的方式使用字符串函数，例如`string.byte(s,i)`可以写成`s:byte(i)`。
+字符串库函数都导出在string表中供使用。 另外，字符串都设置了元表，元表的`__index`元素指向string全局表。
+因此，可以用面向对象的方式使用字符串函数，例如`string.byte(s,i)`可以写成`s:byte(i)`。
 
 字符串库假设使用单字节的字符编码。
 
@@ -31,6 +40,9 @@ The default value for `i` is 1; the default value for `j` is `i`.
 These indices are corrected following the same rules of function `string.sub`.
 Numeric codes are not necessarily portable across platforms.
 
+返回字符子串`s[i..j]`中每个字节对应的整数值。
+默认`i`是1，`j`是`i`。对传入的索引参数的处理和调整跟`string.sub`函数相同。
+
 ### string.char
 ```lua
 char(···)
@@ -48,6 +60,9 @@ print(string.char() == "") --> true
 Receives zero or more integers. Returns a string with length equal to the number of arguments, 
 in which each character has the internal numeric code equal to its corresponding argument.
 Numeric codes are not necessarily portable across platforms.
+
+接收0个或多个整数，并将每个整数当作一个字节值，返回所有这些字节组成的字符串。
+如果传入0个整数，则返回空字符串。
 
 ### string.len 
 ```lua
@@ -296,6 +311,9 @@ If, after these corrections, `i` is greater than `j`, the function returns the e
 ### string.gsub
 ```lua
 gsub(s, pattern, rep [, n])
+-- return a copy of `s` with all matched substring replaced by `rep`, and the total number of matches
+-- @rep: can be a string, a table, or a function；if it is `false` or `nil`, no replacement
+-- @n: only replace first `n` substrings
 ```
 
 Returns a copy of `s` in which all (or the first `n`, if given) occurrences of the `pattern` (see 6.4.1)
@@ -303,19 +321,35 @@ have been replaced by a replacement string specified by `rep`, which can be a st
 `gsub` also returns, as its second value, the total number of matches that occurred.
 The name `gsub` comes from `Global SUBstitution`.
 
+将字符串`s`中的所有（或前`n`个）匹配子串都替换成`rep`，然后返回替换之后的新字符串以及匹配的子串个数。
+`rep`可以是字符串、表、或者函数。名字`gsub`来源于`Global SUBstitution`。
+
 If `rep` is a string, then its value is used for replacement.
 The character `%` works as an escape character: any sequence in `rep` of the form `%d`,
 with `d` between 1 and 9, stands for the value of the `d`-th captured substring.
 The sequence `%0` stands for the whole match. The sequence `%%` stands for a single `%`.
 
+如果`rep`是一个字符串，则使用它的值对匹配子串进行替换。
+转义字符`%`可以用在`rep`中，例如`%d`（`d`是从1到9中的一个数）表示当前匹配字符子串中的第`d`个**捕获**子串。
+`%0`表示当前匹配的整个匹配子串。`%%`表示字符`%`。
+
 If `rep` is a table, then the table is queried for every match, using **the first capture** as the key.
 If `rep` is a function, then this function is called every time a match occurs,
 with **all captured substrings** passed as arguments, in order.
+
+如果`rep`是一个表，则使用当前匹配子串中的第1个**捕获**子串查询这个表，
+然后用查询得到的字符串替换当前的匹配子串。
+如果`rep`是一个函数，则使用当前匹配子串中的所有**捕获**子串去调用这个函数，
+然后用函数返回的字符串替换当前的匹配子串。
 
 In any case, if the pattern specifies no captures, then it behaves as if the whole pattern was inside a capture.
 If the value returned by the table query or by the function call is a string or a number,
 then it is used as the replacement string; otherwise, if it is `false` or `nil`, 
 then there is no replacement (that is, the original match is kept in the string).
+
+如果模式字符串中没有设置**捕获**，那么**捕获**的子串是整个匹配的字符子串。
+如果表或函数返回的结果是字符串和数值，则使用它们对应的字符串值；
+如果返回的是`false`或`nil`，那么匹配子串不会被替换。
 
 Here are some examples:
 ```
@@ -387,26 +421,40 @@ Patterns in Lua are described by regular strings, which are interpreted as patte
 functions `string.find`, `string.gmatch`, `string.gsub`, and `string.match`.
 This section describes the syntax and the meaning (that is, what they match) of these strings.
 
+模式字符串用在`string.find`、`string.gmatch`、`string.gsub`、以及`string.match`函数中。
+这部分描述这些字符串的语法以及其含义（它们能匹配哪些字符串）。
+
 **Character Class:**
 
 A *character class* is used to represent a set of characters.
 The following combinations are allowed in describing a character class:
+
+字符类别用于表示一个字符集合。下面的这些表示都是一个字符类别：
+
 - **x:** (where `x` is not one of the *magic characters* ^$()%.[]*+-?) represents the character `x` itself
 - **.:** (a dot) represents all characters
 - **%a:** represents all letters
-- **%c:** represents all control characters
-- **%d:** represents all digits
-- **%g:** represents all printable characters except space
 - **%l:** represents all lowercase characters
-- **%p:** represents all punctuation characters
-- **%s:** represents all space characters
 - **%u:** represents all uppercase characters
+- **%d:** represents all digits
 - **%w:** represents all alphanumeric characters
+- **%p:** represents all punctuation characters
+- **%g:** represents all printable characters except space
+- **%c:** represents all control characters
+- **%s:** represents all space characters
 - **%x:** represents all hexadecimal digits
 - **%**`x`**:** (where `x` is any non-alphanumeric charatcher) represents the character `x`.
   This is the standard way to escape the magic characters.
   Any non-alphanumeric character (including all punctuation characters, even the non-magical)
   can be preceded by a `%` when used to represent itself in a pattern.
+
+    不是特殊字符`^$()%.[]*+-?`的其他字符都表示字符本身；点号`%.`代表所有字符；`%a`表示所有字母；
+    `%l`表示小写字母；`%u`表示所有大写字母；`%d`表示数字；`%w`表示所有字母数字；`%p`表示所有标点符号；
+    `%g`表示除空格之外的所有可打印字符；`%c`表示所有控制字符；`%s`表示所有空白字符；`%x`表示十六进制数字；
+    
+    `%<non-alphnum>`表示非字母数字字符本身。
+    它可用于表示特殊字符，也可以用于表示除字母数字之外的其他字符（例如所有的标点符号）。
+    
 - **[set]:** represents the class which is the union of all characters in `set`.
   A range of characters can be specified by separating the end characters of the range,
   in ascending order, with a `-`. All classes described above can also be used as components in `set`.
@@ -415,14 +463,29 @@ The following combinations are allowed in describing a character class:
   `[0-7]` represents the octal digits, and `[0-7%l%-]` represents the octal digits plus the lowercase letters 
   plus the `-` character. The interaction between ranges and classes is not defined.
   Therefore, patterns like `[%a-z]` or `[a-%%]` have no meaning.
+  
+    `[set]`表示`set`集合中的所有字符构成一个字符类别。可以使用字符`-`表示一个范围。
+    上面介绍的所有字符类别都可以用在`set`中表示一类字符，所有其他字符都代表它们本身。
+    例如`[%w_]`（或`[_%w]`）表示字母数字和下划线。`[0-7]`表示八进制数字。
+    `[0-7%l%-]`表示八进制数字，以及小写字母和字符`-`。
+    注意表示范围的`-`不能与字符类别使用在一起，例如`[%a-z]`或`[a-%%]`是没有意义的。
+
 - **[~set]:** represents the complement of `set`, where `set` is interpreted as above.
+
+    `[~set]`表示`set`的补集，`set`的解释如上。
 
 For all classes represented by string letters (`%a`, `%c`, etc.),
 the corresponding uppercase letter represents the complement of the class.
 For instance, `%S` represents all non-space characters.
 
+用字母表示所以字符类别（例如`%a`、`%c`、等等），它的大写形式表示其字符集合的补集。
+例如`%S`表示所有非空白字符。
+
 The definitions of letter, space, and other character groups depend on the current locale.
 In particular, the class `[a-z]` may not be equivalent to `%l`.
+
+字母、空格、以及其他字符的定义都依赖于当前的本地设置。
+例如`[a-z]`不一定等价于`%l`。
 
 **Pattern Item:**
 
