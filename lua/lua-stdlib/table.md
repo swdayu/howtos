@@ -41,7 +41,7 @@ shifting up the elements `list[pos], list[pos+1], ···, list[#list]`.
 The default value for `pos` is `#list+1`, 
 so that a call `table.insert(t,x)` inserts `x` at the end of list `t`.
 
-将元素插入到表的`pos`位置，其之后的元素都向后移动一位。
+将元素插入到表的`pos`位置，其后元素都向后移动一位。
 `pos`的默认值是`#list+1`，因此`table.insert(t,x)`将`x`插入到表的末尾。
 
 ### table.move 
