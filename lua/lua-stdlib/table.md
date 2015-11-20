@@ -8,7 +8,7 @@ Remember that, whenever an operation needs the length of a table,
 the table must be a proper sequence or have a `__len` metamethod (see §3.4.7). 
 All functions ignore non-numeric keys in the tables given as arguments. 
 
-该库提供对表的操作。所有函数都导出在表`table`中。
+该库提供对表的一般操作。所有函数都导出在表`table`中。
 当操作获取表的长度时，表必须可以看成是一个序列或拥有`__len`元函数。
 所有函数都会忽略表参数的非数值键。
 
