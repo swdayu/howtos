@@ -79,7 +79,8 @@ Returns a table with information about a function.
 You can give the function directly or you can give a number as the value of `f`, 
 which means the function running at level f of the call stack of the given thread: 
 level 0 is the current function (`getinfo` itself); 
-level 1 is the function that called `getinfo` (except for tail calls, which do not count on the stack); and so on. 
+level 1 is the function that called `getinfo` 
+(except for tail calls, which do not count on the stack); and so on. 
 If `f` is a number larger than the number of active functions, then getinfo returns nil.
 
 The returned table can contain all the fields returned by `lua_getinfo`, 
