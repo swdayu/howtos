@@ -126,3 +126,9 @@ sudo apt-get install oracle-java7-installer
 sudo apt-get install oracle-java7-set-default
 ```
 
+## Subversion
+```
+$ sudo apt-get install subversion
+# export files to local folder
+$ svn export http://192.168.7.3/svn/ --username <user>
+```
