@@ -75,7 +75,7 @@ in those cases, the function erases the element `list[pos]`.
 The default value for `pos` is `#list`, so that a call `table.remove(l)` removes the last element of list `l`.
 
 将表中`pos`位置的元素移除掉，`pos`之后的元素向前移动一位。
-默认`pos`的值为`#list`，因此`table.remove(l)`表示移除表的最后一个元素。
+参数`pos`的默认值是`#list`，因此`table.remove(l)`表示移除表的最后一个元素。
 
 ### table.sort 
 ```lua
