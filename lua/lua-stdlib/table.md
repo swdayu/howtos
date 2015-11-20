@@ -124,6 +124,6 @@ return list[i], list[i+1], ···, list[j]
 ```
 By default, `i` is `1` and `j` is `#list`. 
 
-返回给定表中的元素，相当于`return list[i], list[i+1], ..., list[j]`。
+返回表中的元素，相当于`return list[i], list[i+1], ..., list[j]`。
 参数`i`的默认值是1，`j`的默认值是`#list`。
 
