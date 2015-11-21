@@ -132,6 +132,8 @@ returns a table with all available information about the `print` function.
 ### debug.getlocal 
 ```lua
 getlocal([thread,] f, local)
+-- return the name and the value of a local variable at index `local`
+-- or just return the function parameter's name if `f` is a function
 ```
 
 This function returns the name and the value of the local variable 
@@ -146,19 +148,25 @@ The first parameter or local variable has index 1, and so on,
 following the order that they are declared in the code, 
 counting only the variables that are active in the current scope of the function. 
 Negative indices refer to vararg parameters; `-1` is the first vararg parameter. 
-The function returns nil if there is no variable with the given index, 
+The function returns `nil` if there is no variable with the given index, 
 and raises an error when called with a level out of range. 
 (You can call `debug.getinfo` to check whether the level is valid.)
 
-
-根据变量在代码中的声明顺序，第一个参数或第一个局部变量在索引位置1，一次类推。
+根据变量在代码中的声明顺序，第一个参数或第一个局部变量在索引位置1，依此类推。
+只有函数作用域中当前活动的变量才被计入到可访问的局部变量中。
+负索引用于表示传入的可变参数，如`-1`表示第一个可变参数。
+如果给定的索引对应的变量不存在则返回`nil`，如果给定的Level值超出范围则会抛出异常
+（可以调用`debug.getinfo`检查给定的Level是否有效）。
 
 Variable names starting with `'('` (open parenthesis) represent variables with no known names 
 (internal variables such as loop control variables, 
 and variables from chunks saved without debug information).
 
 The parameter `f` may also be a function. 
-In that case, getlocal returns only the name of function parameters.
+In that case, `getlocal` returns only the name of function parameters.
+
+以`(`开始的变量名称代表没有名字的变量（如循环的控制变量，Chunk中的没有保存调试信息的变量）。
+参数`f`也可以是一个函数。这种情况下，`getlocal`仅仅返回函数参数的名称。
 
 ### debug.setlocal 
 ```lua
@@ -173,6 +181,11 @@ and raises an error when called with a level out of range.
 Otherwise, it returns the name of the local variable.
 
 See `debug.getlocal` for more information about variable indices and names.
+
+将栈对应层次上的函数对应的局部变量设置成`value`。
+如果对应索引位置的局部变量不存在则会返回`nil`，如果的`level`层次超出范围则会抛出异常
+（可以调用`getinfo`检查对应的`level`是否有效）。
+否则，该函数返回对应局部变量的名称。更多信息参见`debug.getlocal`。
 
 ### debug.getmetatable 
 ```lua
