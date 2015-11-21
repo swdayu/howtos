@@ -1,18 +1,18 @@
 
 # Basic
 
-1. Prompt character (`#` or `$`).
+1) Prompt character (`#` or `$`).
 ```
 root@localhost:~# 
 user@localhost:~$ 
 ```
 
-2. Shebang ('#': sharp hash mesh; '!': bang) line of shell script.
+2) Shebang (`#` sharp hash mesh, `!` bang) line of shell script.
 ```
 #!/bin/bash
 ```
 
-3. Execute shell script.
+3) Execute shell script.
 ```
 $ cat << EOF > script.sh
 > #!/bin/bash
@@ -22,7 +22,7 @@ $ chmod u+x script.sh
 $ ./script.sh # same as: /bin/bash ./script.sh
 ```
 
-4. Config file and history file
+4) Config file and history file
 ```
 $ cat ~/.bashrc
 $ cat ~/.bashe_history
