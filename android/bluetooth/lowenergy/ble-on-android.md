@@ -37,5 +37,14 @@ Android 4.3只支持核心这一个角色，这个角色可以让应用搜索周
 
 图1-2 低功耗蓝牙的两个角色
 
-## 2. BLE具体架构
+## 2. BLE应用架构
+
+Android上蓝牙的基本结构如下：
+
+![Bluetooth Architecture](./assets/bluedroid.png)
+
+首先，Android的蓝牙协议栈（Bluetooth Stack）分成了相隔离的两层：
+最底层的蓝牙嵌入系统（Bluetooth Embedded System, BTE）层实现了蓝牙最核心功能；
+而上面的蓝牙应用层（Bluetooth Application Layer）则用于完成与Android应用框架的交互和沟通工作。
+
 ## 3. 
