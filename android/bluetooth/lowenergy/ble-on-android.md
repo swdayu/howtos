@@ -39,12 +39,46 @@ Android 4.3只支持核心这一个角色，这个角色可以让应用搜索周
 
 ## 2. BLE应用架构
 
-Android上蓝牙的基本结构如下：
+首先，Android的蓝牙协议栈（Bluetooth Stack）分成了相互隔离的两层：
+最底层的蓝牙嵌入系统（Bluetooth Embedded System, BTE）层实现蓝牙最核心功能；
+而上面的蓝牙应用层（Bluetooth Application Layer, BTA）则完成与上层Android框架的交互和沟通。
+
+蓝牙系统服务（Bluetooth System Service）位于蓝牙协议栈之上，它们之间通过JNI进行交互。
+而最上层的Android应用则通过Binder进程间通信机制与蓝牙系统服务进行交互。
+如下面的Android蓝牙基本架构图。
 
 ![Bluetooth Architecture](./assets/bluedroid.png)
 
-首先，Android的蓝牙协议栈（Bluetooth Stack）分成了相隔离的两层：
-最底层的蓝牙嵌入系统（Bluetooth Embedded System, BTE）层实现了蓝牙最核心功能；
-而上面的蓝牙应用层（Bluetooth Application Layer）则用于完成与Android应用框架的交互和沟通工作。
+架构中各模块具体功能如下：
+- 应用框架层
+
+    在应用框架层上的是应用代码，它们使用android.bluetooth包中提供的应用接口完成与蓝牙硬件的交互。
+    在内部，这些代码通过Binder进程间通信机制完成与蓝牙服务进程的调用。
+
+- 蓝牙系统服务层
+
+    蓝牙系统服务相关实现位于packages/apps/Bluetooth/文件夹内。
+    它在Android框架层实现了蓝牙服务及蓝牙Profiles，
+    并被打包成为一个Android应用APP，这个APP通过JNI调用HAL层的功能。
+
+- JNI层
+
+    蓝牙JNI的代码位于packages/apps/Bluetooth/jni/文件夹内。
+    这些JNI代码调用HAL层的功能，并接收来自于HAL层的回调。
+
+- HAL层
+
+    蓝牙硬件抽象层为蓝牙硬件的访问提供了标准接口。
+    这些接口包含在hardward/libhardware/include/hardward/文件夹中。
+
+- 蓝牙协议栈层
+
+    默认提供的蓝牙协议栈位于system/bt文件夹下，协议栈实现了HAL声明的功能，
+    并且能够通过扩展以及改变配置对是蓝牙进行客制化。
+
+- 厂商扩展层
+
+    用于增加定制扩展功能，以及跟踪调试用的HCI层。
+
 
 ## 3. 
