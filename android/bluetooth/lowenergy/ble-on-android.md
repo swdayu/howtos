@@ -19,7 +19,8 @@
 医疗保健及运动感应器等广大新兴市场的应用奠定基础。
 
 ![BLE Applications](./assets/ble_applications.png)
-图1-1 低功耗蓝牙的典型应用
+
+**图1-1 低功耗蓝牙的典型应用**
 
 ## 2. BLE具体架构
 ## 3. 
