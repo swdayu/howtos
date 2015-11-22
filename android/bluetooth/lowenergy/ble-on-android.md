@@ -70,15 +70,15 @@ Android 4.3只支持核心这一个角色，这个角色可以让应用搜索周
 
     蓝牙硬件抽象层为蓝牙硬件的访问提供了标准接口。
     这些接口包含在hardward/libhardware/include/hardward/文件夹中。
+    与BLE相关的接口是bluetooth.h，它实现了蓝牙最基本的接口；
+    以及bt_gatt.h、bt_gatt_client.h、bt_gatt_server.h，通过使用
+    这些GATT接口，可以实现各种不同的BLE应用。
 
 - 蓝牙协议栈层
 
     默认提供的蓝牙协议栈位于system/bt文件夹下，协议栈实现了HAL声明的功能，
     并且能够通过扩展以及改变配置对是蓝牙进行客制化。
 
-- 厂商扩展层
-
-    用于增加定制扩展功能，以及跟踪调试用的HCI层。
 
 
 ## 3. 
