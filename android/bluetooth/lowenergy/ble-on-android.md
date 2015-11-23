@@ -148,7 +148,7 @@ GATT使用属性传输协议（ATT）进行数据包传输。
 都不需要等待对方的回应。
 这些数据包都通过ATT的协议数据单元（PDU）进行传送，它的格式如图2-3。
 
-![ATT PDU Fromat](./assets/att_pdu_format.jpg)
+![ATT PDU Fromat](./assets/att_pdu_format.png)
 
 图2-3 ATT协议数据单元的格式
 
