@@ -179,15 +179,14 @@ if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) 
 private BluetoothAdapter mBluetoothAdapter;
 ...
 // Initializes Bluetooth adapter.
-final BluetoothManager bluetoothManager =
-        (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
+final BluetoothManager bluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
 mBluetoothAdapter = bluetoothManager.getAdapter();
 ...
 // Ensures Bluetooth is available on the device and it is enabled. 
 // If not, displays a dialog requesting user permission to enable Bluetooth.
 if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
-    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+  Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+  startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
 }
 ```
 
@@ -321,11 +320,55 @@ private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
 
 ### 3.4 读取BLE属性
 
+当Android应用连接到GATT Server并查询到对方的服务之后，
+就可以开始读写对方支持的属性（Attribute）。
 
+接收并显示对方的服务（Service）以及服务特性（Characteristic）：
+```java
+private void displayGattServices(List<BluetoothGattService> gattServices) {
+  if (gattServices == null) return;
+  ...
+  // Loops through available GATT Services.
+  for (BluetoothGattService gattService: gattServices) {
+    uuid = gattService.getUuid().toString();
+    currentServiceData.put(LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
+    currentServiceData.put(LIST_UUID, uuid);
+    gattServiceData.add(currentServiceData);
+    
+    gattCharacteristics = gattService.getCharacteristics();
+    ArrayList<HashMap<String, String>> gattCharacteristicGroupData = new ...;
+    ArrayList<BluetoothGattCharacteristic> charas = new ...;
+    
+    // Loops through available Characteristics.
+    for (BluetoothGattCharacteristic gattCharacteristic: gattCharacteristics) {
+      charas.add(gattCharacteristic);
+      uuid = gattCharacteristic.getUuid().toString();
+      currentCharaData2.put(LIST_NAME, SampleGattAttributes.lookup(uuid, unknownCharaString));
+      currentCharaData2.put(LIST_UUID, uuid);
+      gattCharacteristicGroupData.add(currentCharaData2);
+    }
+    
+    mGattCharacteristics.add(charas);
+    gattCharacteristicData.add(gattCharacteristicGroupData);
+  }
+  ...
+}
+```
 
 ### 3.5 接收GATT通知
 
-
+可以设置当对方的某个服务特性（Characteristic）发生变化时接收到通知。
+通过调用setCharacteristicNotification()以及定义回调函数onCharacteristicChanged()实现这个功能：
+```java
+mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
+...
+@Override
+// Characteristic notification
+public void onCharacteristicChanged(BluetoothGatt gatt, 
+  BluetoothGattCharacteristic characteristic) {
+  broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+}
+```
 
 ### 3.6 关闭BLE应用
 
