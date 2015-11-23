@@ -160,9 +160,9 @@ GATT使用属性传输协议（ATT）进行数据包传输。
 ### 3.1 开启BLE应用
 
 在使用低功耗蓝牙之前，首先需要确认设备是否支持这个特性，
-如果支持还要确认蓝牙是否已经打开。这两个步骤通过BluetoothAdapter完成。
-BluetoothAdapter是所有蓝牙Activity都必须的，它代表当前设备的蓝牙适配器。
-整个系统只有一个蓝牙适配器，你的应用可以通过这个对象访问这个适配器。
+如果支持还要确认蓝牙是否已经打开。
+BluetoothAdapter是所有蓝牙应用都必须的，它代表当前设备的蓝牙适配器。
+整个系统只有一个蓝牙适配器，应用可以通过这个对象访问这个适配器。
 
 确认设备是否支持BLE：
 ```java
@@ -260,11 +260,69 @@ BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(remoteLeAddress);
 mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
 ```
 
-定义回调接收连接结果：
+定义回调接收连接结果并查询对方设备提供的服务：
 ```java
+private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
+  @Override
+  public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+    String intentAction;
+    if (newState == BluetoothProfile.STATE_CONNECTED) {
+      intentAction = ACTION_GATT_CONNECTED;
+      mConnectionState = STATE_CONNECTED;
+      broadcastUpdate(intentAction);
+      Log.i(TAG, "Connected to GATT server.");
+      // Attempting to start service discovery
+      mBluetoothGatt.discoverServices();
+    }
+    else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+      intentAction = ACTION_GATT_DISCONNECTED;
+      mConnectionState = STATE_DISCONNECTED;
+      Log.i(TAG, "Disconnected from GATT server.");
+      broadcastUpdate(intentAction);
+    }
+  }
+
+  @Override
+  // New services discovered
+  public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+    if (status == BluetoothGatt.GATT_SUCCESS) {
+      broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
+    } else {
+      Log.w(TAG, "onServicesDiscovered received: " + status);
+    }
+  }
+  ...
+};
+```
+
+定义BroadcastReceiver更新连接状态以及接收查询的服务结果：
+```java
+private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+  @Override
+  public void onReceive(Context context, Intent intent) {
+    final String action = intent.getAction();
+    if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+      mConnected = true;
+      updateConnectionState(R.string.connected);
+      invalidateOptionsMenu();
+    } 
+    else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+      mConnected = false;
+      updateConnectionState(R.string.disconnected);
+      invalidateOptionsMenu();
+      clearUI();
+    } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+      // Show all the supported services and characteristics on the user interface.
+      displayGattServices(mBluetoothLeService.getSupportedGattServices());
+    }
+  }
+};
 ```
 
 ### 3.4 读取BLE属性
+
+
+
 ### 3.5 接收GATT通知
 
 
