@@ -154,14 +154,46 @@ GATT使用属性传输协议（ATT）进行数据包传输。
 其中操作码（Opcode）指定属性参数（Attribute Parameters）的类型、格式及含义，而属性参数则包含具体数据。
 可选部分Authentication Signature如果指定，则表示跟安全验证相关的识别标志。
 
-
-
-
-
 ## 3. 构建BLE应用
 
 ### 3.1 开启BLE应用
+
+在使用低功耗蓝牙之前，首先需要确认设备是否支持这个特性，
+如果支持还要确认蓝牙是否已经打开。这两个步骤通过BluetoothAdapter完成。
+BluetoothAdapter是所有蓝牙Activity都必须的，它代表当前设备的蓝牙适配器。
+整个系统只有一个蓝牙适配器，你的应用可以通过这个对象访问这个适配器。
+
+确认设备是否支持BLE：
+```
+// Use this check to determine whether BLE is supported on the device. Then
+// you can selectively disable BLE-related features.
+if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+    Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+    finish();
+}
+```
+
+确认设备上的蓝牙是否已经打开，如果没有打开则发送一个打开请求：
+```
+private BluetoothAdapter mBluetoothAdapter;
+...
+// Initializes Bluetooth adapter.
+final BluetoothManager bluetoothManager =
+        (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
+mBluetoothAdapter = bluetoothManager.getAdapter();
+...
+// Ensures Bluetooth is available on the device and it is enabled. 
+// If not, displays a dialog requesting user permission to enable Bluetooth.
+if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+}
+```
+
 ### 3.2 搜索BLE设备
+
+
+
 ### 3.3 连接到GATT Server
 ### 3.4 读取BLE属性
 ### 3.5 接收GATT通知
