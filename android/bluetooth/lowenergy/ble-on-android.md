@@ -42,11 +42,11 @@ Android 4.3只支持核心这一个角色，这个角色可以让应用搜索周
 ### 2.1 BLE Android架构
 
 首先，Android的蓝牙协议栈（Bluetooth Stack）分成了相互隔离的两层：
-最底层的蓝牙嵌入系统（Bluetooth Embedded System, BTE）层实现蓝牙最核心功能；
-而上面的蓝牙应用层（Bluetooth Application Layer, BTA）则完成与上层Android框架的交互和沟通。
+最底层的蓝牙嵌入系统（Bluetooth Embedded System, BTE）层实现蓝牙规范核心功能；
+上面的蓝牙应用层（Bluetooth Application Layer, BTA）则完成与Android框架的交互。
 
 蓝牙系统服务（Bluetooth System Service）位于蓝牙协议栈之上，它们之间通过JNI进行交互。
-而最上层的Android应用则通过Binder进程间通信机制与蓝牙系统服务进行交互。
+最上层的Android应用则通过Binder进程间通信机制与蓝牙系统服务进行沟通。
 如下面的Android蓝牙基本架构图。
 
 ![Bluetooth Architecture](./assets/bluedroid.png)
