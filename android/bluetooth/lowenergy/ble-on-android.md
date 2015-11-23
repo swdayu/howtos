@@ -164,7 +164,7 @@ BluetoothAdapter是所有蓝牙Activity都必须的，它代表当前设备的�
 整个系统只有一个蓝牙适配器，你的应用可以通过这个对象访问这个适配器。
 
 确认设备是否支持BLE：
-```
+```java
 // Use this check to determine whether BLE is supported on the device. Then
 // you can selectively disable BLE-related features.
 if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -174,7 +174,7 @@ if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) 
 ```
 
 确认设备上的蓝牙是否已经打开，如果没有打开则发送一个打开请求：
-```
+```java
 private BluetoothAdapter mBluetoothAdapter;
 ...
 // Initializes Bluetooth adapter.
@@ -192,10 +192,91 @@ if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
 
 ### 3.2 搜索BLE设备
 
+搜索附近的BLE设备，需要通过调用BluetoothAdapter的startLeScan()来完成，
+以及需要提供搜索回掉函数BluetoothAdapter.LeScanCallback。
 
+使用startLeScan()搜索BLE设备：
+```java
+private boolean mScanning;
+private Handler mHandler;
+
+// Stops scanning after 10 seconds.
+private static final long SCAN_PERIOD = 10000;
+...
+private void scanLeDevice(boolean enable) {
+  if (enable) {
+    // Stops scanning after a pre-defined scan period.
+    mHandler.postDelayed(new Runnable() {
+      @Override
+      public void run() {
+        mScanning = false;
+        mBluetoothAdapter.stopLeScan(mLeScanCallback);
+      }
+    }, SCAN_PERIOD);
+    
+    mScanning = true;
+    mBluetoothAdapter.startLeScan(mLeScanCallback);
+  } 
+  else {
+    mScanning = false;
+    mBluetoothAdapter.stopLeScan(mLeScanCallback);
+  }
+  ...
+}
+```
+
+定义回调接收搜索结果：
+```java
+private LeDeviceListAdapter mLeDeviceListAdapter;
+...
+// Device scan callback.
+private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
+  @Override
+  public void onLeScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mLeDeviceListAdapter.addDevice(device);
+        mLeDeviceListAdapter.notifyDataSetChanged();
+      }
+    });
+  }
+};
+```
 
 ### 3.3 连接到GATT Server
+
+与附近的BLE设备进行交互，首先第一步需要与它建立连接。
+可以通过BluetoothDevice的connectGatt()连接对应的GATT Server，
+并通过定义BluetoothGattCallback接收连接结果。
+可以通过上一步中搜索到的BLE蓝牙设备的地址获取到BluetoothDevice。
+
+使用BLE蓝牙设备地址连接到对方设备：
+```java
+private BluetoothGatt mBluetoothGatt;
+...
+BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(remoteLeAddress);
+mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
+```
+
+定义回调接收连接结果：
+```java
+```
+
 ### 3.4 读取BLE属性
 ### 3.5 接收GATT通知
+
+
+
 ### 3.6 关闭BLE应用
 
+最后，可以调用BluetoothGatt的close()方法关闭BLE连接应用：
+```java
+public void close() {
+  if (mBluetoothGatt == null) {
+    return;
+  }
+  mBluetoothGatt.close();
+  mBluetoothGatt = null;
+}
+```
