@@ -138,6 +138,24 @@ Physical Layer属于蓝牙Controller部分，位于蓝牙芯片内部。
 
 ### 2.4 属性传输协议
 
+GATT使用属性传输协议（ATT）进行数据包传输。
+有多种数据包类型，包括命令（Commands）、请求（Requests）、响应（Responses）、
+指示（Indications）、通知（Notifications）、以及确认（Confirmations）。
+这6种数据包中：请求包由Client发给Server，Server收到后必须响应一个响应包；
+而指示包则恰恰相反，它由Server发给Client，Client收到后必须响应一个确认包；
+另外Client可以自由向Server发送命令包，Server可以自由向Client发送通知包，
+都不需要等待对方的回应。
+这些数据包都通过ATT的协议数据单元（PDU）进行传送，它的格式如图2-3。
+
+![ATT PDU Fromat](./assets/att_pdu_format.png)
+
+图2-3 ATT协议数据单元的格式
+
+其中操作码（Opcode）指定属性参数（Attribute Parameters）的类型、格式及含义，而属性参数则包含具体数据。
+可选部分Authentication Signature如果指定，则表示跟安全验证相关的识别标志。
+
+
+
 
 
 ## 3. 构建BLE应用
