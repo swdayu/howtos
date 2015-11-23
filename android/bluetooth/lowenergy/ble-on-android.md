@@ -105,8 +105,8 @@ Android 4.3只支持核心这一个角色，这个角色可以让应用搜索周
 
 低功耗蓝牙使用基于服务的架构，所有数据交互都通过GATT（Generic Attribute Profile）来完成。
 GATT建立在ATT协议（Attribute Protocol）和SMP协议（Security Manager Protocol）之上，
-它定义了如何在Server端将应用或Profile提供的各种服务发布到外部、以及如何响应其他低功耗蓝牙设备的服务请求，
-它还定义了如何在Client端搜索附近的服务、以及如何访问和请求这些服务。低功耗蓝牙的完整架构图如下：
+它定义了如何将应用或Profile提供的各种服务发布到外部、以及如何响应其他低功耗蓝牙设备的服务请求，
+它还定义了如何搜索附近的服务、以及如何访问和请求这些服务。低功耗蓝牙的完整架构图如下：
 
 ![BLE Core Architecture](./assets/gatt_stack.png)
 
