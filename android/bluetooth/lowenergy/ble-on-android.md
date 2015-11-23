@@ -125,7 +125,7 @@ Physical Layer属于蓝牙Controller部分，位于蓝牙芯片内部。
 图2-1 GATT服务
 
 每个服务特性包含一个值（Value）以及多个对这个值的描述（Descriptor），
-描述来于指定诸如值的字符串描述、值定义范围、值测量单位等等信息，如图2-2。
+描述用于指定诸如值的字符串描述、值定义范围、值测量单位等等信息，如图2-2。
 
 ![GATT Characteristic](./assets/gatt_characteristic.png)
 
@@ -134,7 +134,6 @@ Physical Layer属于蓝牙Controller部分，位于蓝牙芯片内部。
 服务特性的值和描述都是通过属性（Attribute）来定义的，
 属性都关联了一个唯一的128位UUID，用来表示一个独一无二的数据信息。
 属性是GATT数据传输的单位，GATT使用ATT协议对这些属性进行传输。
-
 相互通信的两个低功耗蓝牙设备，请求服务一方的GATT称为GATT Server，
 提供服务的一方的GATT成为GATT Client。
 
