@@ -39,6 +39,8 @@ Android 4.3只支持核心这一个角色，这个角色可以让应用搜索周
 
 ## 2. BLE应用架构
 
+### 2.1 BLE Android架构
+
 首先，Android的蓝牙协议栈（Bluetooth Stack）分成了相互隔离的两层：
 最底层的蓝牙嵌入系统（Bluetooth Embedded System, BTE）层实现蓝牙最核心功能；
 而上面的蓝牙应用层（Bluetooth Application Layer, BTA）则完成与上层Android框架的交互和沟通。
@@ -54,31 +56,85 @@ Android 4.3只支持核心这一个角色，这个角色可以让应用搜索周
 
     在应用框架层上的是应用代码，它们使用android.bluetooth包中提供的应用接口完成与蓝牙硬件的交互。
     在内部，这些代码通过Binder进程间通信机制完成与蓝牙服务进程的调用。
+    BLE相关代码位于frameworks/base/core/java/android/bluetooth/le/文件夹中。
 
 - 蓝牙系统服务层
 
     蓝牙系统服务相关实现位于packages/apps/Bluetooth/文件夹内。
     它在Android框架层实现了蓝牙服务及蓝牙Profiles，
     并被打包成为一个Android应用APP，这个APP通过JNI调用HAL层的功能。
+    BLE相关代码位于packages/apps/Bluetooth/src/com/android/bluetooth/gatt/文件夹，
+    以及packages/apps/Bluetooth/src/com/android/bluetooth/btservice/文件夹中。
 
 - JNI层
 
     蓝牙JNI的代码位于packages/apps/Bluetooth/jni/文件夹内。
     这些JNI代码调用HAL层的功能，并接收来自于HAL层的回调。
+    BLE相关代码位于packages/apps/Bluetooth/jni/com_android_bluetooth.h以及
+    packages/apps/Bluetooth/jni/com_android_bluetooth_gatt.cpp文件中。
 
 - HAL层
 
     蓝牙硬件抽象层为蓝牙硬件的访问提供了标准接口。
     这些接口包含在hardward/libhardware/include/hardward/文件夹中。
-    与BLE相关的接口是bluetooth.h，它实现了蓝牙最基本的接口；
-    以及bt_gatt.h、bt_gatt_client.h、bt_gatt_server.h，通过使用
-    这些GATT接口，可以实现各种不同的BLE应用。
+    与BLE相关代码位于hardware/libhardware/include/hardware/bluetooth.h以及
+    hardware/libhardware/include/hardware/bt_gatt.h文件中。
 
 - 蓝牙协议栈层
 
-    默认提供的蓝牙协议栈位于system/bt文件夹下，协议栈实现了HAL声明的功能，
-    并且能够通过扩展以及改变配置对是蓝牙进行客制化。
+    默认提供的蓝牙协议栈位于system/bt文件夹下，实现蓝牙应用曾（BTA）以及
+    蓝牙嵌入系统（BTE）的功能。与BLE相关的代码主要位于如下文件中：
+    btif/co/bta_gattc_co.c，
+    btif/co/bta_gatts_co.c，
+    btif/include/btif_gatt.h，
+    btif/include/btif_gatt_*.h，
+    btif/src/btif_gatt.c，
+    btif/src/btif_gatt_*.c，
+    bta/include/bta_gatt_*.h，
+    bta/src/gatt/bta_gatt_*.c，
+    stack/include/gatt_api.h，
+    stack/include/gattdefs.h，
+    stack/include/smp_api.h，
+    stack/gatt/att_protocol.c，
+    stack/gatt/gatt_*.c，
+    stack/smp/*.c。
+
+### 2.2 BLE核心规范架构
+
+低功耗蓝牙使用基于服务的架构，所有数据交互都通过GATT（Generic Attribute Profile）来完成。
+GATT建立在ATT协议（Attribute Protocol）和SMP协议（Security Manager Protocol）之上，
+它定义了如何在Server端将应用或Profile提供的各种服务发布到外部、以及如何响应其他低功耗蓝牙设备的服务请求，
+它还定义了如何在Client端搜索附近的服务、以及如何访问和请求这些服务。低功耗蓝牙的完整架构图如下：
+
+![BLE Core Architecture](./assets/gatt_stack.png)
+
+底层的L2CAP协议（Logical Link Control and Adaptation Protocol）是两个蓝牙设备之间传输数据的标准接口，
+其相关代码定义在stack/l2cap文件夹中。L2CAP下面的HCI接口层（Host Controller Interface）是蓝牙Host与
+蓝牙Controller的标准接口，完成蓝牙协议栈与蓝牙芯片的通信。最底层的Link Layer、Direct Test Mode、以及
+Physical Layer属于蓝牙Controller部分，位于蓝牙芯片内部。
+
+### 2.3 服务定义与角色
+
+一个低功耗蓝牙应用可以提供多个服务（Service），服务使用特性（Characteristic）进行描述，
+每个服务可以包含多个特性，每个特性描述这个服务特性的详细信息，如图2-1。
+
+![GATT Service](./assets/ble_infographics.png)
+
+图2-1 GATT服务
+
+每个服务特性包含一个值（Value）以及多个对这个值的描述（Descriptor），
+描述来于指定诸如值的字符串描述、值定义范围、值测量单位等等信息，如图2-2。
+
+![GATT Characteristic](./assets/gatt_characteristic.png)
+
+图2-2 服务特性
+
+服务特性的值和描述都是通过属性（Attribute）来定义的，
+属性都关联了一个唯一的128位UUID，用来表示一个独一无二的数据信息。
+属性是GATT数据传输的单位，GATT使用ATT协议对这些属性进行传输。
+
+相互通信的两个低功耗蓝牙设备
+
+## 3. 构建BLE应用
 
 
-
-## 3. 
