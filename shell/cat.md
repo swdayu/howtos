@@ -80,12 +80,11 @@ input line one for c.txt
 input line two for c.txt
 input line three for c.txt
 
-$ cat << EOF > c.txt
-> input line one for c.txt truncate
-> EOF
+$ cat > c.txt
+input line one for c.txt truncate
+^D
 $ cat c.txt
 input line one for c.txt truncate
-
 ```
 
 (2) Files => Standard Output => File
