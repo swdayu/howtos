@@ -82,8 +82,8 @@ Android 4.3只支持核心这一个角色，这个角色可以让应用搜索周
 
 - 蓝牙协议栈层
 
-    默认提供的蓝牙协议栈在6.0开始位于system/bt文件夹下，而之前的版本则位于
-    android/external/bluetooth/文件目录下。
+    蓝牙协议栈代码从6.0开始位于system/bt文件夹下，而之前的版本则位于
+    android/external/bluetooth/下。
     它实现了蓝牙应用层（BTA）以及蓝牙嵌入系统（BTE）的功能。
     与BLE相关的代码主要位于如下文件中：
     btif/co/bta_gattc_co.c，
