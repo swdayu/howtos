@@ -61,16 +61,16 @@ Android 4.3只支持核心这一个角色，这个角色可以让应用搜索周
 - 蓝牙系统服务层
 
     蓝牙系统服务相关实现位于packages/apps/Bluetooth/文件夹内。
-    它在Android框架层实现了蓝牙服务及蓝牙Profiles，
-    并被打包成为一个Android应用APP，这个APP通过JNI调用HAL层的功能。
-    BLE相关代码位于packages/apps/Bluetooth/src/com/android/bluetooth/gatt/文件夹，
+    它在Android框架层实现了蓝牙相关服务及Profile，
+    它被打包成为一个Android应用APP，这个APP通过JNI调用蓝牙硬件抽象层（HAL）的功能。
+    其他中与BLE相关代码位于packages/apps/Bluetooth/src/com/android/bluetooth/gatt/
     以及packages/apps/Bluetooth/src/com/android/bluetooth/btservice/文件夹中。
 
 - JNI层
 
     蓝牙JNI的代码位于packages/apps/Bluetooth/jni/文件夹内。
     这些JNI代码调用HAL层的功能，并接收来自于HAL层的回调。
-    BLE相关代码位于packages/apps/Bluetooth/jni/com_android_bluetooth.h以及
+    与BLE相关代码位于packages/apps/Bluetooth/jni/com_android_bluetooth.h以及
     packages/apps/Bluetooth/jni/com_android_bluetooth_gatt.cpp文件中。
 
 - HAL层
@@ -82,8 +82,10 @@ Android 4.3只支持核心这一个角色，这个角色可以让应用搜索周
 
 - 蓝牙协议栈层
 
-    默认提供的蓝牙协议栈位于system/bt文件夹下，实现蓝牙应用层（BTA）以及
-    蓝牙嵌入系统（BTE）的功能。与BLE相关的代码主要位于如下文件中：
+    默认提供的蓝牙协议栈在6.0开始位于system/bt文件夹下，而之前的版本则位于
+    android/external/bluetooth/文件目录下。
+    它实现了蓝牙应用层（BTA）以及蓝牙嵌入系统（BTE）的功能。
+    与BLE相关的代码主要位于如下文件中：
     btif/co/bta_gattc_co.c，
     btif/co/bta_gatts_co.c，
     btif/include/btif_gatt.h，
