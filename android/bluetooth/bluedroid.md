@@ -13,45 +13,45 @@ Bluetooth Profiles and Protocols
   AVCTP - Audio/Video Control Transport Protocol  
 
 - HSP: Headset Profile  
-  Roles - Audio Gateway (AG) and Headset (HS) 
-  Example - Use a headset (HS) make a call on phone (AG)
-  Protocol Stack - HSP | RFCOMM | L2CAP  
-  RFCOMM - 
+  Roles - Audio Gateway (AG) and Headset (HS)  
+  Example - Use a headset (HS) make a call on phone (AG)   
+  Protocol Stack - HSP | RFCOMM | L2CAP    
+  RFCOMM - RFCOMM with TS 07.10 Serial Port Emulation  
 
-- HFP: Handsfree Profile
-  Roles - Audio Gateway (AG) and Handsfree (HF)
-  Example - Use a headset (HF) make a call on phone (AG)
-  Protocol Stack - HFP | RFCOMM | L2CAP
+- HFP: Handsfree Profile  
+  Roles - Audio Gateway (AG) and Handsfree (HF)   
+  Example - Use a headset (HF) make a call on phone (AG)   
+  Protocol Stack - HFP | RFCOMM | L2CAP   
 
-- HID: Human Interface Device Profile
-  Roles - HID Device and HID Host
-  Example - Use a bluetooth mouse (Device) on PC (Host)
-  Protocol Stack - HID | L2CAP
+- HID: Human Interface Device Profile   
+  Roles - HID Device and HID Host   
+  Example - Use a bluetooth mouse (Device) on PC (Host)   
+  Protocol Stack - HID | L2CAP   
 
-- HDP: Health Device Profile
-  Roles - Source and Sink
-  Example - Transfer data from blood pressure meter (Source) to phone (Sink)
-  Protocol Stack - HDP | MACP | L2CAP
+- HDP: Health Device Profile   
+  Roles - Source and Sink   
+  Example - Transfer data from blood pressure meter (Source) to phone (Sink)   
+  Protocol Stack - HDP | MACP | L2CAP   
 
-- MAP: Message Access Profile
-  Roles - Message Server and Client Equipment (MSE and MCE)
-  Example - PC (MCE) send/receive messages via a mobile phone (MSE)
-  Protocol Stack - MAP | GOEP | OBEX | L2CAP
+- MAP: Message Access Profile   
+  Roles - Message Server and Client Equipment (MSE and MCE)   
+  Example - PC (MCE) send/receive messages via a mobile phone (MSE)   
+  Protocol Stack - MAP | GOEP | OBEX | L2CAP   
 
-- PBAP: Phonebook Access Profile
-  Roles - Phonebook Server and Client Equipment (PSE and PCE)
-  Example - Carkit (PCE) read phonebook on a phone (PSE)
-  Protocol Stack - PBAP | GOEP | OBEX | L2CAP
+- PBAP: Phonebook Access Profile   
+  Roles - Phonebook Server and Client Equipment (PSE and PCE)   
+  Example - Carkit (PCE) read phonebook on a phone (PSE)   
+  Protocol Stack - PBAP | GOEP | OBEX | L2CAP   
 
-- SAP: SIM Access Profile
-  Roles - Client and Server
-  Example - a car phone (Client) uses mobile phone's SIM card (Server)
-  Protocol Stack - SAP | RFCOMM | L2CAP
+- SAP: SIM Access Profile   
+  Roles - Client and Server   
+  Example - a car phone (Client) uses mobile phone's SIM card (Server)   
+  Protocol Stack - SAP | RFCOMM | L2CAP   
 
-- GOEP: Generic Object Exchange Profile
-  Roles - Clinet and Server
-  Protocol Stack - GOEP | OBEX | L2CAP
-
+- GOEP: Generic Object Exchange Profile   
+  Roles - Clinet and Server   
+  Protocol Stack - GOEP | OBEX | L2CAP   
+ 
 Bluedroid Modules
 - bta_ag: audio gatway, hfp AG role
 - bta_ar: audio/video registration module
