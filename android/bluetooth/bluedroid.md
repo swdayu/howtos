@@ -1,4 +1,5 @@
 
+Bluetooth Profiles and Protocols
 - A2DP: Advanced Audio Distribution Profile  
   Roles - Source (SRC) and Sink (SNK)      
   Protocol Stack - A2DP | AVDTP | L2CAP  
@@ -9,7 +10,8 @@
   Protocol Stack - AVRCP | AVCTP | L2CAP  
   AVCTP - Audio/Video Control Transport Protocol  
 
-- bta_ag: audio gatway module, handsfree profile AG role
+Bluedroid Modules
+- bta_ag: audio gatway, hfp AG role
 - bta_ar: audio/video registration module
 - bta_av: audio/video module
 - bta_dm: device manager module
