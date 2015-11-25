@@ -22,7 +22,7 @@ Bluedroid Modules
 - bta_hh: hid host role
 - bta_hl: health device profile module
 - bta_jv: java api for JSR82 specification
-- bta_mce: 
+- bta_mce: map MCE role
 - bta_pan: personal area networking profile module
 - bta_pb: phone book access profile server module
 - bta_sys: system manager module
