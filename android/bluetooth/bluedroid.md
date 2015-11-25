@@ -51,7 +51,14 @@ Bluetooth Profiles and Protocols
 - GOEP: Generic Object Exchange Profile   
   Roles - Clinet and Server   
   Protocol Stack - GOEP | OBEX | L2CAP   
- 
+
+- PAN: Personal Area Networking Profile   
+  Roles - Network Access Point (NAP) and PAN User (PANU)  
+  Protocol Stack - PAN | BNEP | L2CAP   
+
+- Profiles based on GOEP: OPP FTP MAP PBAP SYNCH  
+  Profiles based on RFCOMM: HSP HFP SAP SPP DUN
+
 Bluedroid Modules
 - bta_ag: audio gatway, hfp AG role
 - bta_ar: audio/video registration module
