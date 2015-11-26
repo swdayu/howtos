@@ -126,6 +126,23 @@ sudo apt-get install oracle-java7-installer
 sudo apt-get install oracle-java7-set-default
 ```
 
+Select different version:
+```
+$ update-alternatives --list java
+/usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java
+/usr/lib/jvm/java-7-oracle/jre/bin/java
+$ sudo update-alternatives --config java
+There are 2 choices for the alternative java (providing /usr/bin/java).
+
+  Selection    Path                                            Priority   Status
+------------------------------------------------------------
+* 0            /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java   1071      auto mode
+  1            /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java   1071      manual mode
+  2            /usr/lib/jvm/java-7-oracle/jre/bin/java          1         manual mode
+
+Press enter to keep the current choice[*], or type selection number: 2
+```
+
 ## Subversion
 ```
 $ sudo apt-get install subversion
