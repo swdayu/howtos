@@ -1,14 +1,14 @@
 
 # C程序接口
 
-This section describes the set of C functions available to the host program to communicate with Lua. 
+> This section describes the set of C functions available to the host program to communicate with Lua. 
 All API functions and related types and constants are declared in the header file "lua.h".
 
-Even when we use the term "function", any facility in the API may be provided as a macro instead. 
+> Even when we use the term "function", any facility in the API may be provided as a macro instead. 
 Except where stated otherwise, all such macros use each of their arguments exactly once 
 (except for the first argument, which is always a Lua state), and so do not generate any hidden side-effects.
 
-As in most C libraries, the Lua API functions do not check their arguments for validity or consistency. 
+> As in most C libraries, the Lua API functions do not check their arguments for validity or consistency. 
 However, you can change this behavior by compiling Lua with the macro `LUA_USE_APICHECK` defined.
 
 C程序接口是实现C语言与Lua交互的一组C函数。
@@ -34,24 +34,24 @@ LUA_COMBINE_OP(s2);
 
 ## 错误处理
 
-Internally, Lua uses the C `longjmp` facility to handle errors. 
+> Internally, Lua uses the C `longjmp` facility to handle errors. 
 (Lua will use exceptions if you compile it as C++; search for `LUAI_THROW` in the source code for details.) 
 When Lua faces any error (such as a memory allocation error, type errors, syntax errors, and runtime errors) 
 it raises an error; that is, it does a long jump. 
 A protected environment uses `setjmp` to set a recovery point; any error jumps to the most recent active recovery point.
 
-If an error happens outside any protected environment, 
+> If an error happens outside any protected environment, 
 Lua calls a `panic` function (see `lua_atpanic`) and then calls `abort`, 
 thus exiting the host application. 
 Your panic function can avoid this exit by never returning 
 (e.g., doing a long jump to your own recovery point outside Lua).
 
-The panic function runs as if it were a message handler (see §2.3); 
+> The panic function runs as if it were a message handler (see §2.3); 
 in particular, the error message is at the top of the stack. 
 However, there is no guarantee about stack space. 
 To push anything on the stack, the panic function must first check the available space (see §4.2).
 
-Most functions in the API can raise an error, for instance due to a memory allocation error. 
+> Most functions in the API can raise an error, for instance due to a memory allocation error. 
 The documentation for each function indicates whether it can raise errors.
 Inside a C function you can raise an error by calling `lua_error`.
 
