@@ -190,7 +190,7 @@ Functions called `luaL_check*` always raise an error if the check is not satisfi
 
 辅助函数提供了一些便利的功能使C与Lua的交互更为方便，
 这些函数以及相关类型定义在`"lauxlib.h"`头文件中，辅助函数的名称使用`luaL_`前缀开头。
-相对于提供核心功能的基本函数，辅助函数则提供了一些更为高级的常用功能。
+相对于提供核心功能的基本函数，辅助函数提供了一些更为高级的功能。
 所有辅助函数都建立在基本函数之上，它提供的功能都可以用基本函数来实现，但使用它可以使代码变得更具简洁和一致性。
 
 一些辅助函数在内部使用了额外的一些栈空间。
@@ -198,5 +198,5 @@ Functions called `luaL_check*` always raise an error if the check is not satisfi
 一些辅助函数（例如`luaL_checknumber`）可用于检查C函数的参数。
 但是如果检查失败，格式化的错误消息（例如`"bad argument #1"`）会添加到栈中，
 因此不应该使用这些函数去检查栈中的其他值。
-调用`luaL_check*`的函数在条件不满足时都会抛出异常。
+调用`luaL_check*`的函数在条件不满足的情况下会抛出异常。
 
