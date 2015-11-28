@@ -2,7 +2,7 @@
 - http://www.lua.org/manual/5.3/manual.html
 - http://www.lua.org/cgi-bin/demo
 
-## Lua安装
+## 安装
 ```
 $ tar zxf lua-5.3.1.tar.gz
 $ cd lua-5.3.1
@@ -14,7 +14,7 @@ $ sudo make install
 $ sudo apt-get install libreadline-dev 
 ```
 
-## Lua简介
+## 简介
 
 > Lua is an extension programming language designed to support 
 general procedural programming with data description facilities. 
