@@ -1,6 +1,26 @@
 
 ## 辅助函数
 
+luaL_argcheck
+
+[-0, +0, v]
+void luaL_argcheck (lua_State *L,
+                    int cond,
+                    int arg,
+                    const char *extramsg);
+Checks whether cond is true. If it is not, raises an error with a standard message (see luaL_argerror).
+
+luaL_argerror
+
+[-0, +0, v]
+int luaL_argerror (lua_State *L, int arg, const char *extramsg);
+Raises an error reporting a problem with argument arg of the C function that called it, using a standard message that includes extramsg as a comment:
+
+     bad argument #arg to 'funcname' (extramsg)
+This function never returns.
+
+-------------------------------------------------------
+
 ### luaL_checkany [-0, +0, v]
 ```lua
 void luaL_checkany(lua_State* L, int arg);
