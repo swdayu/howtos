@@ -13,36 +13,76 @@ However, you can change this behavior by compiling Lua with the macro `LUA_USE_A
 
 C程序接口是实现C语言与Lua交互的一组C函数。
 这些函数及相关类型和常量声明在`"lua.h"`头文件中。
-这些接口可能使用宏来实现，除非特别说明，宏实现中的宏参都只使用一次以避免宏隐藏的副作用。
+这些接口的实现可能是宏，除非特别说明，宏实现中的宏参都只使用一次以避免宏隐藏的副作用。
 但是第一个参数除外，第一个参数总是Lua State指针，应该单独传入指针以避免出错。宏副作用举例:
 ```c
 lua_State* op(lua_State* s);
-void op1(lua_State* s);
-void op2(lua_State* s);
 #define LUA_COMBINE_OP(s) (op1(s), op2(s))
-
-// error, will expand to (op1(op(s)), op2(op(s)))
-LUA_COMBINE_OP(op(s));
-
-// correct version
-lua_State* s2 = op(s);
-LUA_COMBINE_OP(s2);
+LUA_COMBINE_OP(op(s)); // has side effect
+lua_State* s2 = op(s); LUA_COMBINE_OP(s2); // ok
 ```
-
 像大多数C函数库一样，Lua提供的这些C函数都不会额外检查参数的合法性。
 如果要检查，需要使用宏`LUA_USE_APICHECK`重新编译Lua。
 
 ## Lua虚拟栈
 
-> Lua uses a virtual stack to pass values to and from C. Each element in this stack represents a Lua value (nil, number, string, etc.). Whenever Lua calls C, the called function gets a new stack, which is independent of previous stacks and of stacks of C functions that are still active. This stack initially contains any arguments to the C function and it is where the C function pushes its results to be returned to the caller (see lua_CFunction).
+> Lua uses a virtual stack to pass values to and from C. 
+Each element in this stack represents a Lua value (nil, number, string, etc.). 
+Whenever Lua calls C, the called function gets a new stack, 
+which is independent of previous stacks and of stacks of C functions that are still active. 
+This stack initially contains any arguments to the C function and 
+it is where the C function pushes its results to be returned to the caller (see `lua_CFunction`).
 
-> For convenience, most query operations in the API do not follow a strict stack discipline. Instead, they can refer to any element in the stack by using an index: A positive index represents an absolute stack position (starting at 1); a negative index represents an offset relative to the top of the stack. More specifically, if the stack has n elements, then index 1 represents the first element (that is, the element that was pushed onto the stack first) and index n represents the last element; index -1 also represents the last element (that is, the element at the top) and index -n represents the first element.
+> For convenience, most query operations in the API do not follow a strict stack discipline. 
+Instead, they can refer to any element in the stack by using an index: 
+A positive index represents an absolute stack position (starting at 1); 
+a negative index represents an offset relative to the top of the stack. 
+More specifically, if the stack has n elements, then index 1 represents the first element 
+(that is, the element that was pushed onto the stack first) and index n represents the last element; 
+index -1 also represents the last element (that is, the element at the top) and index -n represents the first element.
+
+Lua使用虚拟栈与C交换数据。栈中的每一个元素都是一个Lua值（如`nil`、数值、字符串等等）。
+当Lua调用C函数时，C函数都会获得一个新的虚拟栈，这个栈是独立的与原来的虚拟栈或其他C函数正在使用的虚拟栈都不同。
+栈初始时包含了传给C函数的所有参数，C函数也把返回结果放到栈中传递给调用者
+（详情见`lua_CFunction`这个函数指针类型，所有能够被Lua调用的C函数都需要使用这个类型进行定义）。
+
+为了方便，大多数查询栈的操作都不严格遵循栈的规则，而是使用索引来直接访问栈中的元素。
+正索引表示栈的一个绝对位置（从1开始），而负索引则表示从栈顶算起的一个相对偏移位置。
+准确地，如果栈有n个元素，则索引1表示第一个元素（即最先入栈的元素），索引n表示最后一个元素；
+索引`-1`也表示最后一个元素（即栈顶元素），而索引`-n`表示第一个元素。
+
+## 栈的大小
 
 > When you interact with the Lua API, you are responsible for ensuring consistency. In particular, you are responsible for controlling stack overflow. You can use the function lua_checkstack to ensure that the stack has enough space for pushing new elements.
 
 > Whenever Lua calls C, it ensures that the stack has space for at least LUA_MINSTACK extra slots. LUA_MINSTACK is defined as 20, so that usually you do not have to worry about stack space unless your code has loops pushing elements onto the stack.
 
 > When you call a Lua function without a fixed number of results (see lua_call), Lua ensures that the stack has enough space for all results, but it does not ensure any extra space. So, before pushing anything in the stack after such a call you should use lua_checkstack.
+
+
+
+## 有效和可接受索引
+
+> Any function in the API that receives stack indices works only with **valid indices** or **acceptable indices**.
+A **valid index** is an index that refers to a position that stores a modifiable Lua value. 
+It comprises stack indices between 1 and the stack top (`1 ≤ abs(index) ≤ top`) plus **pseudo-indices**,
+which represent some positions that are accessible to C code but that are not in the stack. 
+**Pseudo-indices** are used to access the **registry** (see §4.5) and the **upvalues** of a C function (see §4.4).
+
+> Functions that do not need a specific mutable position, 
+but only a value (e.g., query functions), can be called with acceptable indices. 
+An acceptable index can be any valid index, but it also can be any positive index after the stack top 
+within the space allocated for the stack, that is, indices up to the stack size. 
+(Note that 0 is never an acceptable index.) 
+Except when noted otherwise, functions in the API work with acceptable indices.
+
+> Acceptable indices serve to avoid extra tests against the stack top when querying the stack. 
+For instance, a C function can query its third argument without the need to first check 
+whether there is a third argument, that is, without the need to check whether 3 is a valid index.
+For functions that can be called with acceptable indices, any non-valid index is treated as if 
+it contains a value of a virtual type `LUA_TNONE`, which behaves like a `nil` value.
+
+
 
 ## 错误处理
 
@@ -98,7 +138,7 @@ The third field, `x`, tells whether the function may raise errors:
 `v` means the function may raise an error on purpose.
 
 每个函数都有一个像这样的说明`[-0, +p, x]`。
-其中`o`表示这个函数会从栈中移除多少个元素，`p`表示函数会将多少个元素添加到栈中。
+其中`o`表示这个函数会从栈中移除多少个元素，`p`表示函数会将多少个元素添加到栈中
 （每个函数总是在移除所有函数参数之后才将函数结果压入到栈中）。
 `n|m`表示根据情况可能添加或移除`n`或`m`个元素；
 `?`表示不确定会添加或移除多少个数元素（可能与已在栈中的内容有关）。
