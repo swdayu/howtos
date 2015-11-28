@@ -19,6 +19,21 @@ Raises an error reporting a problem with argument arg of the C function that cal
      bad argument #arg to 'funcname' (extramsg)
 This function never returns.
 
+luaL_checkversion
+
+[-0, +0, –]
+void luaL_checkversion (lua_State *L);
+Checks whether the core running the call, the core that created the Lua state, and the code making the call are all using the same version of Lua. Also checks whether the core running the call and the core that created the Lua state are using the same address space.
+
+luaL_error
+
+[-0, +0, v]
+int luaL_error (lua_State *L, const char *fmt, ...);
+Raises an error. The error message format is given by fmt plus any extra arguments, following the same rules of lua_pushfstring. It also adds at the beginning of the message the file name and the line number where the error occurred, if this information is available.
+
+This function never returns, but it is an idiom to use it in C functions as return luaL_error(args).
+
+
 -------------------------------------------------------
 
 ### luaL_checkany [-0, +0, v]
@@ -85,4 +100,18 @@ void* luaL_checkudata(lua_State* L, int arg, const char* tname);
 ```
 > Checks whether the function argument `arg` is a userdata of the type tname (see `luaL_newmetatable`) 
 and returns the userdata address (see `lua_touserdata`).
+
+----------------------------------------------------------
+
+luaL_execresult
+
+[-0, +3, e]
+int luaL_execresult (lua_State *L, int stat);
+This function produces the return values for process-related functions in the standard library (os.execute and io.close).
+
+luaL_fileresult
+
+[-0, +(1|3), e]
+int luaL_fileresult (lua_State *L, int stat, const char *fname);
+This function produces the return values for file-related functions in the standard library (io.open, os.rename, file:seek, etc.).
 
