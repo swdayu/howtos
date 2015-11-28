@@ -92,21 +92,21 @@ Except when noted otherwise, functions in the API work with acceptable indices.
 > Acceptable indices serve to avoid extra tests against the stack top when querying the stack. 
 For instance, a C function can query its third argument without the need to first check 
 whether there is a third argument, that is, without the need to check whether 3 is a valid index.
-For functions that can be called with acceptable indices, any non-valid index is treated as if 
+For functions that can be called with acceptable indices, any non-**valid index** is treated as if 
 it contains a value of a virtual type `LUA_TNONE`, which behaves like a `nil` value.
 
-任何接受栈索引的函数都只能在**有效索引**或**可接受索引**下正常工作。
-**有效索引**引用的位置存储的Lua值是可修改的，它的范围从1到栈顶部（即`1 ≤ abs(index) ≤ top`）再加上**伪索引**。
-**伪索引**引用的地方可以被C代码访问但这些索引位置不在栈中，它用于访问C函数的**上值**和**注册表**。
+任何有栈索引参数的C接口函数都只接收**有效索引**或**可接受索引**。
+**有效索引**引用的是有效的栈位置，其中存储的是可以访问修改的Lua值，
+它的范围从1到栈顶部（即`1 ≤ abs(index) ≤ top`）以及**伪索引**。
+**伪索引**可以被C代码访问但实际的位置不在栈中，它用于访问C函数的**上值**和**注册表**。
 
-不需要可修改索引位置只需得到值的函数（如查询函数），可以用**可接受索引**调用。
-**可接受索引**可以是任何**有效索引**，还可以是栈顶之上但在栈空间之内的正索引，
-即索引值可以大于栈顶但不超过栈的大小（注意0永远不是一个**可接受索引**）。
-除非特别说明，API函数都接受**可接受索引**。
+如果一个函数不需要一个可以修改的索引位置，而只需要获取其中的值（例如查询函数），则可以使用**可接受索引**进行调用。
+**可接受索引**可以是任意的**有效索引**，以及栈顶之上但在栈空间内部的索引，
+即索引值可以大于栈顶但不超过栈的大小（注意0不是一个**可接受索引**）。除非特别说明，C接口函数都接受**可接受索引**。
 
-**可接受索引**主要为了避免在查询栈时相对栈顶做额外检查。
-例如，C函数可以查询它的第3个参数而不需要知道第3个参数是否存在，即无需检查3是否是**有效索引**。
-能够用**可接受索引**调用的函数，任何非**有效索引**都会被当作`LUA_TNONE`类型值，它的作用跟`nil`值类似。
+**可接受索引**的目的主要是为了避免在查询栈时相对栈顶做额外检查。
+例如，C函数可以查询它的第3个参数而不需要首先检查第3个参数是否存在，即无需检查3是否是**有效索引**。
+使用**可接受索引**参数的函数，会把非**有效索引**位置上的值看成是`LUA_TNONE`，它的作用跟`nil`值类似。
 
 ## 错误处理
 
