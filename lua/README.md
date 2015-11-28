@@ -2,7 +2,7 @@
 - http://www.lua.org/manual/5.3/manual.html
 - http://www.lua.org/cgi-bin/demo
 
-## Install
+## Lua安装
 ```
 $ tar zxf lua-5.3.1.tar.gz
 $ cd lua-5.3.1
