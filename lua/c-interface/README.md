@@ -67,14 +67,14 @@ So, before pushing anything in the stack after such a call you should use `lua_c
 当使用Lua提供的这些C接口函数时，需要自行保证程序的一致性。
 最特别的一项是你需要自己负责控制虚拟栈不让其溢出。
 可以调用`lua_checkstack`函数来确保栈有足够的空间用来压入新元素。
-不论何时Lua调用C函数，它都会保证栈至少有`LUA_MINISTACK`个额外空间。
+不论何时Lua调用C函数，它都会保证栈至少有`LUA_MINISTACK`个额外的空间。
 这个值是20，因此一般不需要有什么担心，除非你的代码一直循环将元素压入到栈中。
 
 当调用一个没有固定个数结果的Lua函数时（见函数`lua_call`，它可以在C函数中执行一段Lua代码），
 Lua会保证有足够的空间来存储所有的返回结果，但不确保还有额外的空间可用。
-因此，如果需要在调用这样的函数之后继续压入数据，应该首先调用`lua_checkstack`函数确保空间够用。
+因此，如果需要在调用这样的函数之后继续压入数据，首先应该调用`lua_checkstack`函数来确保空间够用。
 
-## 有效和可接受索引
+## 有效索引和可接受索引
 
 > Any function in the API that receives stack indices works only with **valid indices** or **acceptable indices**.
 A **valid index** is an index that refers to a position that stores a modifiable Lua value. 
