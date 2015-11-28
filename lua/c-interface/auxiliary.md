@@ -8,7 +8,7 @@ void luaL_checkany(lua_State* L, int arg);
 ```
 > Checks whether the function has an argument of any type (including `nil`) at position `arg`.
 
-函数在栈`arg`位置上必须要有一个参数，不管它的类型是什么（包括`nil`）。
+函数在栈`arg`位置上必须有一个参数，不管它的类型是什么（包括`nil`）。
 
 ### luaL_checkinteger [-0, +0, v]
 ```lua
