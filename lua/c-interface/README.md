@@ -161,12 +161,12 @@ The third field, `x`, tells whether the function may raise errors:
 `-` means the function never raises any error; `e` means the function may raise errors; 
 `v` means the function may raise an error on purpose.
 
-每个函数都有一个像这样的说明`[-0, +p, x]`。
+每个函数都有一个像`[-0, +p, x]`这样的说明。
 其中`o`表示这个函数会从栈中移除多少个元素，`p`表示函数会将多少个元素添加到栈中
 （每个函数总是在移除所有函数参数之后才将函数结果压入到栈中）。
-`n|m`表示根据情况可能添加或移除`n`或`m`个元素；
-`?`表示不确定会添加或移除多少个数元素（可能与已在栈中的内容有关）。
-而`x`表示函数是否抛出异常：`-`表示不抛出；`e`表示可能会抛出；`v`表示在特定条件下会抛出。
+`n|m`表示根据情况可能添加或移除`n`个或`m`个元素；
+`?`表示不确定会添加或移除多少个元素（可能与栈中已有内容有关）。
+而`x`则表示函数是否抛出异常：`-`表示不抛出；`e`表示可能会抛出；`v`表示在特定条件下会抛出。
 
 ## 辅助C函数
 
