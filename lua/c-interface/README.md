@@ -96,7 +96,7 @@ For functions that can be called with acceptable indices, any non-**valid index*
 it contains a value of a virtual type `LUA_TNONE`, which behaves like a `nil` value.
 
 任何有栈索引参数的C接口函数都只接收**有效索引**或**可接受索引**。
-**有效索引**引用的是有效的栈位置，其中存储的是可以访问修改的Lua值，
+**有效索引**引用的是有效的栈位置，其中存储的是可以修改的Lua值，
 它的范围从1到栈顶部（即`1 ≤ abs(index) ≤ top`）以及**伪索引**。
 **伪索引**可以被C代码访问但实际的位置不在栈中，它用于访问C函数的**上值**和**注册表**。
 
