@@ -65,5 +65,30 @@ Inside a C function you can raise an error by calling `lua_error`.
 如果异常发生在保护环境之外（Lua提供的一些C接口函数没有设置保护，如果这些函数中发生异常就是保护环境外的异常），
 Lua会调用`panic`函数并执行`abort`终止程序（相当于`try`块之外抛出异常会终止程序一样）。
 使用自己设置的`panic`函数（调用`lua_atpanic`进行设置）可以避免这种异常退出，例如可以`longjmp`到Lua外部你自己的恢复点。
+这个`panic`函数是被当作错误处理函数调用的，错误消息位于栈的顶部。
+但是不确保栈还有额外的空间，因此在`panic`函数内入栈任何数据之前，应先检查栈的空间。
 
+大多数C接口函数会抛出异常，例如内存分配失败导致的异常。
+每个函数的文档说明中都指明了这个函数是否会抛出异常。
+另外，在C函数内可以调用`lua_error`产生一个异常。
+
+## 函数说明
+
+> Each function has an indicator like this: `[-o, +p, x]`. 
+The first field,`o`, is how many elements the function pops from the stack. 
+The second field, `p`, is how many elements the function pushes onto the stack. 
+(Any function always pushes its results after popping its arguments.) 
+A field in the form `x|y` means the function can push (or pop) `x` or `y` elements, depending on the situation; 
+an interrogation mark `?` means that we cannot know how many elements the function pops/pushes 
+by looking only at its arguments (e.g., they may depend on what is on the stack). 
+The third field, `x`, tells whether the function may raise errors: 
+`-` means the function never raises any error; `e` means the function may raise errors; 
+`v` means the function may raise an error on purpose.
+
+每个函数都有一个像这样的说明`[-0, +p, x]`。
+其中`o`表示这个函数会从栈中移除多少个元素，`p`表示函数会将多少个元素添加到栈中。
+（每个函数总是在移除所有函数参数之后才将函数结果压入到栈中）。
+`x|y`表示根据情况可能添加或移除`x`或`y`个元素；
+`?`表示不确定会添加或移除多少个数元素（可能与已在栈中的内容有关）。
+而`x`表示函数是否抛出异常：`-`表示不抛出；`e`表示可能会抛出；`v`表示在特定条件下会抛出。
 
