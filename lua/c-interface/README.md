@@ -14,9 +14,7 @@ However, you can change this behavior by compiling Lua with the macro `LUA_USE_A
 C程序接口是实现C语言与Lua交互的一组C函数。
 这些函数及相关类型和常量声明在`"lua.h"`头文件中。
 这些接口可能使用宏实现，除非特别说明，宏实现中的宏参都只使用一次以避免宏隐藏的副作用。
-但是第一个参数除外，这个参数总是Lua State指针，应该传入单独的指针避免出错。
-
-宏副作用举例:
+但是第一个参数除外，这个参数总是Lua State指针，应该传入单独的指针避免出错。宏副作用举例:
 ```c
 lua_State* op(lua_State* s);
 void op1(lua_State* s);
