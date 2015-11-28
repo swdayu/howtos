@@ -195,8 +195,8 @@ Functions called `luaL_check*` always raise an error if the check is not satisfi
 
 一些辅助函数在内部使用了额外的一些栈空间。
 如果辅助函数要使用的栈元素个数少于5个，它不会检查栈的大小而假设栈有足够的空间可用。
-一些辅助函数（例如`luaL_checknumber`）可用于检查C函数的参数，
-但是如果检查失败格式化的错误消息（例如`"bad argument #1"`）会添加到栈中，
+一些辅助函数（例如`luaL_checknumber`）可用于检查C函数的参数。
+但是如果检查失败，格式化的错误消息（例如`"bad argument #1"`）会添加到栈中，
 因此不应该使用这些函数去检查栈中的其他值。
 调用`luaL_check*`的函数在条件不满足时都会抛出异常。
 
