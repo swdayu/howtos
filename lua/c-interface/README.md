@@ -78,7 +78,7 @@ Lua会调用`panic`函数并执行`abort`终止程序（相当于`try`块之外�
 The first field,`o`, is how many elements the function pops from the stack. 
 The second field, `p`, is how many elements the function pushes onto the stack. 
 (Any function always pushes its results after popping its arguments.) 
-A field in the form `x|y` means the function can push (or pop) `x` or `y` elements, depending on the situation; 
+A field in the form `n|m` means the function can push (or pop) `n` or `m` elements, depending on the situation; 
 an interrogation mark `?` means that we cannot know how many elements the function pops/pushes 
 by looking only at its arguments (e.g., they may depend on what is on the stack). 
 The third field, `x`, tells whether the function may raise errors: 
@@ -88,7 +88,7 @@ The third field, `x`, tells whether the function may raise errors:
 每个函数都有一个像这样的说明`[-0, +p, x]`。
 其中`o`表示这个函数会从栈中移除多少个元素，`p`表示函数会将多少个元素添加到栈中。
 （每个函数总是在移除所有函数参数之后才将函数结果压入到栈中）。
-`x|y`表示根据情况可能添加或移除`x`或`y`个元素；
+`n|m`表示根据情况可能添加或移除`n`或`m`个元素；
 `?`表示不确定会添加或移除多少个数元素（可能与已在栈中的内容有关）。
 而`x`表示函数是否抛出异常：`-`表示不抛出；`e`表示可能会抛出；`v`表示在特定条件下会抛出。
 
