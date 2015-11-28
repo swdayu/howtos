@@ -32,6 +32,18 @@ LUA_COMBINE_OP(s2);
 像大多数C函数库一样，Lua提供的这些C函数都不会额外检查参数的合法性。
 如果要检查，需要使用宏`LUA_USE_APICHECK`重新编译Lua。
 
+## Lua虚拟栈
+
+> Lua uses a virtual stack to pass values to and from C. Each element in this stack represents a Lua value (nil, number, string, etc.). Whenever Lua calls C, the called function gets a new stack, which is independent of previous stacks and of stacks of C functions that are still active. This stack initially contains any arguments to the C function and it is where the C function pushes its results to be returned to the caller (see lua_CFunction).
+
+> For convenience, most query operations in the API do not follow a strict stack discipline. Instead, they can refer to any element in the stack by using an index: A positive index represents an absolute stack position (starting at 1); a negative index represents an offset relative to the top of the stack. More specifically, if the stack has n elements, then index 1 represents the first element (that is, the element that was pushed onto the stack first) and index n represents the last element; index -1 also represents the last element (that is, the element at the top) and index -n represents the first element.
+
+> When you interact with the Lua API, you are responsible for ensuring consistency. In particular, you are responsible for controlling stack overflow. You can use the function lua_checkstack to ensure that the stack has enough space for pushing new elements.
+
+> Whenever Lua calls C, it ensures that the stack has space for at least LUA_MINSTACK extra slots. LUA_MINSTACK is defined as 20, so that usually you do not have to worry about stack space unless your code has loops pushing elements onto the stack.
+
+> When you call a Lua function without a fixed number of results (see lua_call), Lua ensures that the stack has enough space for all results, but it does not ensure any extra space. So, before pushing anything in the stack after such a call you should use lua_checkstack.
+
 ## 错误处理
 
 > Internally, Lua uses the C `longjmp` facility to handle errors. 
