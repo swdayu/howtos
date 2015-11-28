@@ -168,7 +168,7 @@ The third field, `x`, tells whether the function may raise errors:
 `?`表示不确定会添加或移除多少个元素（可能与栈中已有内容有关）。
 而`x`则表示函数是否抛出异常：`-`表示不抛出；`e`表示可能会抛出；`v`表示在特定条件下会抛出。
 
-## 辅助C函数
+## 辅助函数
 
 > The auxiliary library provides several convenient functions to interface C with Lua. 
 While the basic API provides the primitive functions for all interactions between C and Lua, 
@@ -187,4 +187,10 @@ it simply assumes that there are enough slots.
 Because the error message is formatted for arguments (e.g., "bad argument #1"), 
 you should not use these functions for other stack values.
 Functions called `luaL_check*` always raise an error if the check is not satisfied.
+
+辅助函数提供了一些便利的功能使C与Lua的交互更为方便，
+这些函数以及相关类型定义在`"lauxlib.h"`头文件中，辅助函数的名称使用`luaL_`前缀开头。
+相对于提供核心功能的基本函数，辅助函数则提供一些更高级的常用功能。
+所有辅助函数都建立在基本函数之上，它提供的功能都可以用基本函数来实现，但使用它可以使代码变得更具简洁和一致性。
+
 
