@@ -1,24 +1,6 @@
 
 ## 辅助函数
 
-luaL_argcheck
-
-[-0, +0, v]
-void luaL_argcheck (lua_State *L,
-                    int cond,
-                    int arg,
-                    const char *extramsg);
-Checks whether cond is true. If it is not, raises an error with a standard message (see luaL_argerror).
-
-luaL_argerror
-
-[-0, +0, v]
-int luaL_argerror (lua_State *L, int arg, const char *extramsg);
-Raises an error reporting a problem with argument arg of the C function that called it, using a standard message that includes extramsg as a comment:
-
-     bad argument #arg to 'funcname' (extramsg)
-This function never returns.
-
 luaL_checkversion
 
 [-0, +0, –]
@@ -33,75 +15,41 @@ Raises an error. The error message format is given by fmt plus any extra argumen
 
 This function never returns, but it is an idiom to use it in C functions as return luaL_error(args).
 
+luaL_setmetatable
+
+[-0, +0, –]
+void luaL_setmetatable (lua_State *L, const char *tname);
+Sets the metatable of the object at the top of the stack as the metatable associated with name tname in the registry (see luaL_newmetatable).
+
+luaL_newmetatable
+
+[-0, +1, e]
+int luaL_newmetatable (lua_State *L, const char *tname);
+If the registry already has the key tname, returns 0. Otherwise, creates a new table to be used as a metatable for userdata, adds to this new table the pair __name = tname, adds to the registry the pair [tname] = new table, and returns 1. (The entry __name is used by some error-reporting functions.)
+
+In both cases pushes onto the stack the final value associated with tname in the registry.
+
+luaL_newstate
+
+[-0, +0, –]
+lua_State *luaL_newstate (void);
+Creates a new Lua state. It calls lua_newstate with an allocator based on the standard C realloc function and then sets a panic function (see §4.6) that prints an error message to the standard error output in case of fatal errors.
+
+Returns the new state, or NULL if there is a memory allocation error.
+
 
 -------------------------------------------------------
+luaL_Stream
 
-### luaL_checkany [-0, +0, v]
-```lua
-void luaL_checkany(lua_State* L, int arg);
--- @arg: the argument position in stack
-```
-> Checks whether the function has an argument of any type (including `nil`) at position `arg`.
+typedef struct luaL_Stream {
+  FILE *f;
+  lua_CFunction closef;
+} luaL_Stream;
+The standard representation for file handles, which is used by the standard I/O library.
 
-函数在栈`arg`位置上必须有一个参数，不管它的类型是什么（包括`nil`）。
+A file handle is implemented as a full userdata, with a metatable called LUA_FILEHANDLE (where LUA_FILEHANDLE is a macro with the actual metatable's name). The metatable is created by the I/O library (see luaL_newmetatable).
 
-### luaL_checkinteger [-0, +0, v]
-```lua
-lua_Integer luaL_checkinteger(lua_State* L, int arg);
-```
-> Checks whether the function argument arg is an integer (or can be converted to an integer) 
-and returns this integer cast to a `lua_Integer`.
-
-### luaL_checklstring [-0, +0, v]
-```lua
-const char* luaL_checklstring (lua_State* L, int arg, size_t* l);
-```
-> Checks whether the function argument `arg` is a string and returns this string; 
-if `l` is not NULL fills `*l` with the string's length.
-This function uses `lua_tolstring` to get its result, so all conversions and caveats of that function apply here.
-
-### luaL_checknumber [-0, +0, v]
-```lua
-lua_Number luaL_checknumber(lua_State* L, int arg);
-```
-> Checks whether the function argument `arg` is a number and returns this number.
-
-### luaL_checkoption [-0, +0, v]
-```lua
-int luaL_checkoption(lua_State* L, int arg, const char* def, const char* const lst[]);
-```
-> Checks whether the function argument `arg` is a string and 
-searches for this string in the array `lst` (which must be NULL-terminated). 
-Returns the index in the array where the string was found. 
-Raises an error if the argument is not a string or if the string cannot be found.
-
-> If def is not NULL, the function uses `def` as a default value 
-when there is no argument `arg` or when this argument is `nil`.
-This is a useful function for mapping strings to C enums. 
-(The usual convention in Lua libraries is to use strings instead of numbers to select options.)
-
-### luaL_checkstring [-0, +0, v]
-```lua
-const char* luaL_checkstring(lua_State* L, int arg);
-```
-> Checks whether the function argument `arg` is a string and returns this string.
-This function uses `lua_tolstring` to get its result, so all conversions and caveats of that function apply here.
-
-### luaL_checktype [-0, +0, v]
-```lua
-void luaL_checktype(lua_State* L, int arg, int t);
-```
-> Checks whether the function argument `arg` has type `t`. 
-See `lua_type` for the encoding of types for `t`.
-
-### luaL_checkudata [-0, +0, v]
-```lua
-void* luaL_checkudata(lua_State* L, int arg, const char* tname);
-```
-> Checks whether the function argument `arg` is a userdata of the type tname (see `luaL_newmetatable`) 
-and returns the userdata address (see `lua_touserdata`).
-
-----------------------------------------------------------
+This userdata must start with the structure luaL_Stream; it can contain other data after this initial structure. Field f points to the corresponding C stream (or it can be NULL to indicate an incompletely created handle). Field closef points to a Lua function that will be called to close the stream when the handle is closed or collected; this function receives the file handle as its sole argument and must return either true (in case of success) or nil plus an error message (in case of error). Once Lua calls this field, the field value is changed to NULL to signal that the handle is closed.
 
 luaL_execresult
 
@@ -114,4 +62,90 @@ luaL_fileresult
 [-0, +(1|3), e]
 int luaL_fileresult (lua_State *L, int stat, const char *fname);
 This function produces the return values for file-related functions in the standard library (io.open, os.rename, file:seek, etc.).
+
+
+luaL_getmetafield
+
+[-0, +(0|1), e]
+int luaL_getmetafield (lua_State *L, int obj, const char *e);
+Pushes onto the stack the field e from the metatable of the object at index obj and returns the type of pushed value. If the object does not have a metatable, or if the metatable does not have this field, pushes nothing and returns LUA_TNIL.
+
+luaL_getmetatable
+
+[-0, +1, –]
+int luaL_getmetatable (lua_State *L, const char *tname);
+Pushes onto the stack the metatable associated with name tname in the registry (see luaL_newmetatable) (nil if there is no metatable associated with that name). Returns the type of the pushed value.
+
+luaL_getsubtable
+
+[-0, +1, e]
+int luaL_getsubtable (lua_State *L, int idx, const char *fname);
+Ensures that the value t[fname], where t is the value at index idx, is a table, and pushes that table onto the stack. Returns true if it finds a previous table there and false if it creates a new table.
+
+luaL_gsub
+
+[-0, +1, e]
+const char *luaL_gsub (lua_State *L,
+                       const char *s,
+                       const char *p,
+                       const char *r);
+Creates a copy of string s by replacing any occurrence of the string p with the string r. Pushes the resulting string on the stack and returns it.
+
+luaL_len
+
+[-0, +0, e]
+lua_Integer luaL_len (lua_State *L, int index);
+Returns the "length" of the value at the given index as a number; it is equivalent to the '#' operator in Lua (see §3.4.7). Raises an error if the result of the operation is not an integer. (This case only can happen through metamethods.)
+
+
+
+luaL_ref
+
+[-1, +0, e]
+int luaL_ref (lua_State *L, int t);
+Creates and returns a reference, in the table at index t, for the object at the top of the stack (and pops the object).
+
+A reference is a unique integer key. As long as you do not manually add integer keys into table t, luaL_ref ensures the uniqueness of the key it returns. You can retrieve an object referred by reference r by calling lua_rawgeti(L, t, r). Function luaL_unref frees a reference and its associated object.
+
+If the object at the top of the stack is nil, luaL_ref returns the constant LUA_REFNIL. The constant LUA_NOREF is guaranteed to be different from any reference returned by luaL_ref.
+
+luaL_tolstring
+
+[-0, +1, e]
+const char *luaL_tolstring (lua_State *L, int idx, size_t *len);
+Converts any Lua value at the given index to a C string in a reasonable format. The resulting string is pushed onto the stack and also returned by the function. If len is not NULL, the function also sets *len with the string length.
+
+If the value has a metatable with a "__tostring" field, then luaL_tolstring calls the corresponding metamethod with the value as argument, and uses the result of the call as its result.
+
+luaL_traceback
+
+[-0, +1, e]
+void luaL_traceback (lua_State *L, lua_State *L1, const char *msg,
+                     int level);
+Creates and pushes a traceback of the stack L1. If msg is not NULL it is appended at the beginning of the traceback. The level parameter tells at which level to start the traceback.
+
+luaL_typename
+
+[-0, +0, –]
+const char *luaL_typename (lua_State *L, int index);
+Returns the name of the type of the value at the given index.
+
+luaL_unref
+
+[-0, +0, –]
+void luaL_unref (lua_State *L, int t, int ref);
+Releases reference ref from the table at index t (see luaL_ref). The entry is removed from the table, so that the referred object can be collected. The reference ref is also freed to be used again.
+
+If ref is LUA_NOREF or LUA_REFNIL, luaL_unref does nothing.
+
+luaL_where
+
+[-0, +1, e]
+void luaL_where (lua_State *L, int lvl);
+Pushes onto the stack a string identifying the current position of the control at level lvl in the call stack. Typically this string has the following format:
+
+     chunkname:currentline:
+Level 0 is the running function, level 1 is the function that called the running function, etc.
+
+This function is used to build a prefix for error messages.
 
