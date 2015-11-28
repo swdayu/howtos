@@ -25,8 +25,8 @@ void op2(lua_State* s);
 LUA_COMBINE_OP(op(s));
 
 // correct version
-lua_State* s = op(s);
-LUA_COMBINE_OP(s);
+lua_State* s2 = op(s);
+LUA_COMBINE_OP(s2);
 ```
 
 像大多数C函数库一样，Lua提供的这些C函数都不会额外检查参数的合法性。
