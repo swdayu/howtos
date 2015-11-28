@@ -31,3 +31,39 @@ LUA_COMBINE_OP(s2);
 
 像大多数C函数库一样，Lua提供的这些C函数都不会额外检查参数的合法性。
 如果要检查，需要使用宏`LUA_USE_APICHECK`重新编译Lua。
+
+## 错误处理
+
+Internally, Lua uses the C `longjmp` facility to handle errors. 
+(Lua will use exceptions if you compile it as C++; search for `LUAI_THROW` in the source code for details.) 
+When Lua faces any error (such as a memory allocation error, type errors, syntax errors, and runtime errors) 
+it raises an error; that is, it does a long jump. 
+A protected environment uses `setjmp` to set a recovery point; any error jumps to the most recent active recovery point.
+
+If an error happens outside any protected environment, 
+Lua calls a `panic` function (see `lua_atpanic`) and then calls `abort`, 
+thus exiting the host application. 
+Your panic function can avoid this exit by never returning 
+(e.g., doing a long jump to your own recovery point outside Lua).
+
+The panic function runs as if it were a message handler (see §2.3); 
+in particular, the error message is at the top of the stack. 
+However, there is no guarantee about stack space. 
+To push anything on the stack, the panic function must first check the available space (see §4.2).
+
+Most functions in the API can raise an error, for instance due to a memory allocation error. 
+The documentation for each function indicates whether it can raise errors.
+Inside a C function you can raise an error by calling `lua_error`.
+
+在内部，Lua使用C的`longjmp`机制来进行错误处理。但如果使用C++编译，Lua会使用C++中的异常（见代码中的`LUAI_THROW`）。
+为了方便，这里也将Lua中的错误称为异常，并使用C语言中的`longjmp`和`setjmp`进行描述，如果是C++则对应的是`throw`和`try catch`。
+
+当Lua遇到任何错误（如内存分配、类型、语法、运行时）都会触发异常，即执行`longjmp`。
+使用`setjmp`设置了恢复点的环境称为受保护的环境，受保护环境中遇到任何错误都会跳转到最近一个恢复点
+（相当于在`try`之内的代码是受保护的）。
+
+如果异常发生在保护环境之外（Lua提供的一些C接口函数没有设置保护，如果这些函数中发生异常就是保护环境外的异常），
+Lua会调用`panic`函数并执行`abort`终止程序（相当于`try`块之外抛出异常会终止程序一样）。
+使用自己设置的`panic`函数（调用`lua_atpanic`进行设置）可以避免这种异常退出，例如可以`longjmp`到Lua外部你自己的恢复点。
+
+
