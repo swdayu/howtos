@@ -39,7 +39,7 @@ A positive index represents an absolute stack position (starting at 1);
 a negative index represents an offset relative to the top of the stack. 
 More specifically, if the stack has n elements, then index 1 represents the first element 
 (that is, the element that was pushed onto the stack first) and index n represents the last element; 
-index -1 also represents the last element (that is, the element at the top) and index -n represents the first element.
+index `-1` also represents the last element (that is, the element at the top) and index `-n` represents the first element.
 
 Lua使用虚拟栈与C交换数据。栈中的每一个元素都是一个Lua值（如`nil`、数值、字符串等等）。
 当Lua调用C函数时，C函数都会获得一个新的虚拟栈，这个栈是独立的与原来的虚拟栈或其他C函数正在使用的虚拟栈都不同。
@@ -95,7 +95,18 @@ whether there is a third argument, that is, without the need to check whether 3 
 For functions that can be called with acceptable indices, any non-valid index is treated as if 
 it contains a value of a virtual type `LUA_TNONE`, which behaves like a `nil` value.
 
+任何接受栈索引的函数都只能在**有效索引**或**可接受索引**下正常工作。
+**有效索引**引用的位置存储的Lua值是可修改的，它的范围从1到栈顶部（即`1 ≤ abs(index) ≤ top`）再加上**伪索引**。
+**伪索引**引用的地方可以被C代码访问但这些索引位置不在栈中，它用于访问C函数的**上值**和**注册表**。
 
+不需要可修改索引位置只需得到值的函数（如查询函数），可以用**可接受索引**调用。
+**可接受索引**可以是任何**有效索引**，还可以是栈顶之上但在栈空间之内的正索引，
+即索引值可以大于栈顶但不超过栈的大小（注意0永远不是一个**可接受索引**）。
+除非特别说明，API函数都接受**可接受索引**。
+
+**可接受索引**主要为了避免在查询栈时相对栈顶做额外检查。
+例如，C函数可以查询它的第3个参数而不需要知道第3个参数是否存在，即无需检查3是否是**有效索引**。
+能够用**可接受索引**调用的函数，任何非**有效索引**都会被当作`LUA_TNONE`类型值，它的作用跟`nil`值类似。
 
 ## 错误处理
 
