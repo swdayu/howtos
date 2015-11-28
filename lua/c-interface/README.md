@@ -43,8 +43,8 @@ index -1 also represents the last element (that is, the element at the top) and 
 
 Lua使用虚拟栈与C交换数据。栈中的每一个元素都是一个Lua值（如`nil`、数值、字符串等等）。
 当Lua调用C函数时，C函数都会获得一个新的虚拟栈，这个栈是独立的与原来的虚拟栈或其他C函数正在使用的虚拟栈都不同。
-栈初始时包含了传给C函数的所有参数，C函数也把返回结果放到栈中传递给调用者
-（详情见`lua_CFunction`这个函数指针类型，所有能够被Lua调用的C函数都需要使用这个类型进行定义）。
+栈初始时包含了要传给C函数的所有参数，C函数也把返回结果放到栈中传递给调用者
+（详见`lua_CFunction`这个函数指针类型，所有能够被Lua调用的C函数都需要使用这个类型进行定义）。
 
 为了方便，大多数查询栈的操作都不严格遵循栈的规则，而是使用索引来直接访问栈中的元素。
 正索引表示栈的一个绝对位置（从1开始），而负索引则表示从栈顶算起的一个相对偏移位置。
@@ -53,13 +53,23 @@ Lua使用虚拟栈与C交换数据。栈中的每一个元素都是一个Lua值�
 
 ## 栈的大小
 
-> When you interact with the Lua API, you are responsible for ensuring consistency. In particular, you are responsible for controlling stack overflow. You can use the function lua_checkstack to ensure that the stack has enough space for pushing new elements.
+> When you interact with the Lua API, you are responsible for ensuring consistency. 
+In particular, you are responsible for controlling stack overflow. 
+You can use the function `lua_checkstack` to ensure that the stack has enough space for pushing new elements.
 
-> Whenever Lua calls C, it ensures that the stack has space for at least LUA_MINSTACK extra slots. LUA_MINSTACK is defined as 20, so that usually you do not have to worry about stack space unless your code has loops pushing elements onto the stack.
+> Whenever Lua calls C, it ensures that the stack has space for at least `LUA_MINSTACK` extra slots. 
+`LUA_MINSTACK` is defined as 20, so that usually you do not have to worry about stack space 
+unless your code has loops pushing elements onto the stack.
+When you call a Lua function without a fixed number of results (see `lua_call`), 
+Lua ensures that the stack has enough space for all results, but it does not ensure any extra space. 
+So, before pushing anything in the stack after such a call you should use `lua_checkstack`.
 
-> When you call a Lua function without a fixed number of results (see lua_call), Lua ensures that the stack has enough space for all results, but it does not ensure any extra space. So, before pushing anything in the stack after such a call you should use lua_checkstack.
-
-
+当与Lua API交互时，程序的一致性需要你自己保证。特别地，你有责任负责控制栈溢出。
+可以使用`lua_checkstack`函数保证栈有足够的空间压入新元素。
+不论何时Lua调用C，都会保证栈有至少`Lua_MINISTACK`个额外空间。
+这个值是20，因此你通常不必担心栈的空间，除非代码中有循环将元素压入栈中。
+当调用没有固定个数结果的Lua函数时（见`lua_call`），Lua保证有足够的空间存储所有结果，但不保证还有额外空间可用。
+因此，在调用这样的函数后再继续压入数据，都应先调用`lua_checkstack`。
 
 ## 有效和可接受索引
 
