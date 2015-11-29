@@ -117,14 +117,6 @@ If the registry already has the key tname, returns 0. Otherwise, creates a new t
 
 In both cases pushes onto the stack the final value associated with tname in the registry.
 
-luaL_newstate
-
-[-0, +0, –]
-lua_State *luaL_newstate (void);
-Creates a new Lua state. It calls lua_newstate with an allocator based on the standard C realloc function and then sets a panic function (see §4.6) that prints an error message to the standard error output in case of fatal errors.
-
-Returns the new state, or NULL if there is a memory allocation error.
-
 
 -------------------------------------------------------
 luaL_Stream
@@ -185,18 +177,6 @@ luaL_len
 lua_Integer luaL_len (lua_State *L, int index);
 Returns the "length" of the value at the given index as a number; it is equivalent to the '#' operator in Lua (see §3.4.7). Raises an error if the result of the operation is not an integer. (This case only can happen through metamethods.)
 
-
-
-luaL_ref
-
-[-1, +0, e]
-int luaL_ref (lua_State *L, int t);
-Creates and returns a reference, in the table at index t, for the object at the top of the stack (and pops the object).
-
-A reference is a unique integer key. As long as you do not manually add integer keys into table t, luaL_ref ensures the uniqueness of the key it returns. You can retrieve an object referred by reference r by calling lua_rawgeti(L, t, r). Function luaL_unref frees a reference and its associated object.
-
-If the object at the top of the stack is nil, luaL_ref returns the constant LUA_REFNIL. The constant LUA_NOREF is guaranteed to be different from any reference returned by luaL_ref.
-
 luaL_tolstring
 
 [-0, +1, e]
@@ -217,14 +197,6 @@ luaL_typename
 [-0, +0, –]
 const char *luaL_typename (lua_State *L, int index);
 Returns the name of the type of the value at the given index.
-
-luaL_unref
-
-[-0, +0, –]
-void luaL_unref (lua_State *L, int t, int ref);
-Releases reference ref from the table at index t (see luaL_ref). The entry is removed from the table, so that the referred object can be collected. The reference ref is also freed to be used again.
-
-If ref is LUA_NOREF or LUA_REFNIL, luaL_unref does nothing.
 
 luaL_where
 
