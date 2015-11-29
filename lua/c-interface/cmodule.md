@@ -44,9 +44,9 @@ Lua提供了一个预定义的**注册表**，C可以用它来存储需要的Lua
 原则上，应该使用包含模块名称的字符串，或者关联了C对象地址的**轻量用户数据**，或者创建的Lua对象。
 像变量名一样，以下划线开始后面跟大写字母的字符串键是Lua的保留值。
 
-**注册表**中的数值键不能用于其他目的，仅供引用机制（见`luaL_ref`）和一些预定义值使用。
+**注册表**中的整数键不能用于其他目的，仅供引用机制（见`luaL_ref`）和一些预定义值使用。
 当创建一个新的**Lua状态**时，它的**注册表**就关联了一些预定义值。
-这些值用定义在`"lua.h"`中的数值键进行访问：
+这些值用定义在`"lua.h"`中的整数键进行访问：
 `LUA_RIDX_MAINTHREAD`对应**Lua状态**的主线程（它是与**Lua状态**一起创建的），
 `LUA_RIDX_GLOBALS`对应全局环境。
 
@@ -119,7 +119,7 @@ In that case, it never raises a memory error.
 然后再调用`lua_pushcclosure`来创建和压入这个闭包，在压入之前`lua_pushcclosure`会将关联值从栈中移除。
 
 最大的上值个数是255。如果`n`是0，这个函数仅仅创建一个C函数，即一个指向C函数的指针。
-在这种情况下，这个函数不会发生抛出内存异常。
+在这种情况下，这个函数不会抛出内存异常。
 
 ### lua_pushcfunction [-0, +1, –]
 ```c
@@ -137,14 +137,24 @@ and return its results (see `lua_CFunction`).
 ```c
 int luaL_ref(lua_State* L, int t); 
 ```
-> Creates and returns a reference, in the table at index `t`, for the object at the top of the stack (and pops the object).
+> Creates and returns a reference, in the table at index `t`, 
+for the object at the top of the stack (and pops the object).
 A reference is a unique integer key. 
-As long as you do not manually add integer keys into table `t`, `luaL_ref` ensures the uniqueness of the key it returns. 
+As long as you do not manually add integer keys into table `t`, 
+`luaL_ref` ensures the uniqueness of the key it returns. 
 You can retrieve an object referred by reference `r` by calling `lua_rawgeti(L, t, r)`. 
 Function `luaL_unref` frees a reference and its associated object.
 
 > If the object at the top of the stack is `nil`, `luaL_ref` returns the constant `LUA_REFNIL`. 
 The constant `LUA_NOREF` is guaranteed to be different from any reference returned by `luaL_ref`.
+
+创建和返回栈顶元素的引用，这个引用和栈顶元素会保存到在索引`t`位置的表中，最后移除栈顶元素。
+引用是具有唯一性的整数键，只要没有手动添加的整数键，`luaL_ref`就会保证键的唯一性。
+通过引用和函数`lua_rawgeti(L, t, r)`可以获取到表中这个引用关联的值。
+而函数`luaL_unreg`可以用于释放表中的引用和关联的值。
+
+如果栈顶元素是`nil`，`luaL_reg`会返回一个`LUA_REFNIL`常量。
+而常量`LUA_NOREF`是一个与任何`luaL_ref`返回值都不同的值。
 
 ### luaL_unref [-0, +0, –] 
 ```c
@@ -154,6 +164,9 @@ void luaL_unref(lua_State* L, int t, int ref);
 The entry is removed from the table, so that the referred object can be collected. 
 The reference `ref` is also freed to be used again.
 If `ref` is `LUA_NOREF` or `LUA_REFNIL`, `luaL_unref` does nothing.
+
+释放表中的引用和关联的值。释放之后，这个引用可以被重新使用，而关联的值可以被回收了。
+如果指定的引用是`LUA_NOREF`或者`LUA_REFNIL`，函数`luaL_unref`不会做任何事情。
 
 ### luaL_Reg
 ```c
