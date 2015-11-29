@@ -179,6 +179,9 @@ typedef struct luaL_Reg {
 `name` is the function name and `func` is a pointer to the function. 
 Any array of `luaL_Reg` must end with a sentinel entry in which both name and func are `NULL`.
 
+这个类型包含C函数的名称和指针，这个类型的数组用于注册C模块的一组C函数（通过调用函数`luaL_setfuncs`）。
+数组必须使用一个空元素结束，其中C函数名称和指针都为`NULL`。
+
 ### luaL_newlib [-0, +1, e]
 ```c
 void luaL_newlib(lua_State* L, const luaL_Reg l[]);
@@ -186,6 +189,9 @@ void luaL_newlib(lua_State* L, const luaL_Reg l[]);
 > Creates a new table and registers there the functions in list `l`.
 It is implemented as the following macro: `(luaL_newlibtable(L,l), luaL_setfuncs(L,l,0))`.
 The array `l` must be the actual array, not a pointer to it.
+
+创建一个注册了C函数的新表，它是通过函数`luaL_newlibtable`和`luaL_setfuncs`来实现的。
+它是一个宏，指定的数组`l`必须是一个实际的数组，而不能是一个指向它的指针。
 
 ### luaL_newlibtable [-0, +1, e]
 ```c
@@ -195,16 +201,23 @@ void luaL_newlibtable(lua_State* L, const luaL_Reg l[]);
 It is intended to be used in conjunction with `luaL_setfuncs` (see `luaL_newlib`).
 It is implemented as a macro. The array `l` must be the actual array, not a pointer to it.
 
+创建一个对应大小的新表，并将它压入到栈中，它通常与函数`luaL_setfuncs`一起使用。
+它是一个宏，指定的数组`l`必须是一个实际的数组，而不能是一个指向它的指针。
+
 ### luaL_setfuncs [-nup, +0, e]
 ```c
 void luaL_setfuncs(lua_State* L, const luaL_Reg* l, int nup);
 ```
 > Registers all functions in the array `l` (see `luaL_Reg`) into the table on the top of the stack 
-(below optional upvalues, see `next`).
+(below optional upvalues, see next).
 
 > When `nup` is not zero, all functions are created sharing `nup` upvalues, 
 which must be previously pushed on the stack on top of the library table. 
 These values are popped from the stack after the registration.
+
+将`l`中的所有函数都注册到栈顶的表中（如果要共享上值，这个表位于压入的所有上值之下）。
+如果`nup`不是0，则表示这些函数共享`nup`个上值，调用这个函数之前必须将所有上值都压入到栈中。
+最后这些上值会从栈中移除。
 
 ### luaL_openlibs [-0, +0, e]
 ```c
@@ -212,14 +225,19 @@ void luaL_openlibs(lua_State* L);
 ```
 > Opens all standard Lua libraries into the given state.
 
+打开所有Lua标准的C模块，并将它们关联到指定的Lua状态中。
+
 ### luaL_requiref [-0, +1, e]
 ```c
 void luaL_requiref(lua_State* L, const char* modname, lua_CFunction openf, int glb);
 ```
 > If `modname` is not already present in `package.loaded`, 
 calls function `openf` with string `modname` as an argument and sets the call result in `package.loaded[modname]`, 
-as if that function has been called through require.
+as if that function has been called through `require`.
 
 > If `glb` is true, also stores the module into global `modname`.
 Leaves a copy of the module on the stack.
+
+如果模块名称不在已加载的列表`package.loaded`中，则用模块名称调用函数`openf`并将结果设置到`package.loaded[modname]`。
+如果参数`glb`为真，会将加载的模块保证到名为`modname`的全局变量中。最后，将加载的模块压入栈中。
 
