@@ -65,13 +65,14 @@ in direct order (the first result is pushed first), and returns the number of re
 Any other value in the stack below the results will be properly discarded by Lua. 
 Like a Lua function, a C function called by Lua can also return many results.
 
-能被Lua是的C函数类型。为了与Lua交互，C函数的必须满足下面的规则，这个规则定义了函数的参数和返回值怎样传递。
-C函数从Lua栈中接收参数，第一个参数先入栈。因此当函数开始执行时，`lua_gettop(L)`返回传入函数的参数个数。
-第一个参数（如果存在）在位置1，最后一个参数在位置`lua_gettop(L)`。
-当返回结果给Lua时，C函数要按顺序将结果入栈（第一个结果先入栈），并将结果的个数当作函数返回值返回。
-Lua会丢弃任何栈中结果下面的值。像Lua函数一样，C函数也能返回多个结果。
-
-下面的例子计算多个数值的平均值以及数值之和：
+`lua_CFunction`是能被Lua调用的C函数类型。
+为了与Lua交互，C函数必须满足以下规则，这些规则定义了C函数的参数和返回值怎样传递。
+C函数从Lua栈中依次接收函数的参数（第一个参数最先入栈）；
+当函数开始执行时，`lua_gettop(L)`可以获取传入函数的参数个数；
+第一个参数（如果存在）在位置1上，最后一个参数在位置`lua_gettop(L)`上；
+当将结果返回给Lua时，C函数要按顺序将结果依次入栈（第一个结果先入栈），并将结果个数当作函数返回值返回；
+Lua会丢弃任何在函数结果下面的值；像Lua函数一样，C函数也能返回多个结果。
+例如下面的一个例子，它计算多个数值的平均值及和：
 ```c
 static int foo (lua_State *L) {
   int n = lua_gettop(L);    /* number of arguments */
