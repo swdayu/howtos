@@ -12,7 +12,7 @@ Any access to `lua_upvalueindex(n)`, where `n` is greater than the number of **u
 (but not greater than 256), produces an acceptable but invalid index.
 
 C函数可以关联一些值形成C**闭包**（见`lua_pushcclosure`）。
-这些关联的值称为**上值**，在C函数内部可以自由访问这些值（因此C闭包是拥有上值的C函数）。
+这些关联的值称为**上值**，在C函数内部可以自由访问这些值。
 当C函数被调用时，它的**上值**都分配在一些特定的**伪索引**上。
 这些**伪索引**通过一个宏`lua_upvalueindex`来产生。
 例如第一个**上值**关联在索引`lua_upvalueindex(1)`位置上，依次类推。
@@ -31,23 +31,22 @@ As with variable names, string keys starting with an underscore followed by uppe
 
 > The integer keys in the registry are used by the reference mechanism (see `luaL_ref`) and by some predefined values. 
 Therefore, integer keys must not be used for other purposes.
-
-> When you create a new **Lua state**, its registry comes with some predefined values. 
+When you create a new **Lua state**, its registry comes with some predefined values. 
 These predefined values are indexed with integer keys defined as constants in lua.h. 
 The following constants are defined:
 - **LUA_RIDX_MAINTHREAD**: At this index the registry has the main thread of the state. 
   (The main thread is the one created together with the state.)
 - **LUA_RIDX_GLOBALS**: At this index the registry has the global environment.
 
-Lua提供了一个预定义的**注册表**，C代码可以用它存储任何需要的Lua值。
-**注册表**总是分配在**伪索引**`LUA_REGISTRYINDEX`上。
-任何C代码库都可以将数据存储到这个表中，但必须选择不同于其他库的名称作为键，来避免冲突。
-原则上，应该使用包含代码库名称的字符串，或关联了C对象地址的**轻量用户数据**，或创建的任何Lua对象。
-像变量名称一样，以下划线开始后跟大写字母的字符串键保留给了Lua使用。
-**注册表**中的数值键提供给引用机制（见`luaL_ref`）和预定义值使用。因而不能将数值键用于其他目的。
+Lua提供了一个预定义的**注册表**，C可以用它来存储需要的Lua值。
+**注册表**总是分配在**伪索引**`LUA_REGISTRYINDEX`位置上。
+任何C模块都可以将数据存储到这个表中，但必须选择不同于其他模块的名称作为键，来避免冲突。
+原则上，应该使用包含模块名称的字符串，或者关联了C对象地址的**轻量用户数据**，或者创建的Lua对象。
+像变量名一样，以下划线开始后面跟大写字母的字符串键保留给了Lua使用。
 
+**注册表**中的数值键提供给引用机制（见`luaL_ref`）和一些预定义值使用。因而不能将数值键用于其他目的。
 当新创建一个**Lua状态**时，它的**注册表**就关联了一些预定义值。
-这些预定义的值用定义在`lua.h`中的数值键访问：
+这些值用定义在`"lua.h"`中的数值键进行访问：
 `LUA_RIDX_MAINTHREAD`对应**Lua状态**的主线程（它是与**Lua状态**一起创建的），
 `LUA_RIDX_GLOBALS`对应全局环境。
 
