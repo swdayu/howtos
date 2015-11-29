@@ -52,16 +52,13 @@ and returns a pointer to a `lua_State` that represents this new thread.
 The new thread returned by this function shares with the original thread its global environment, 
 but has an independent execution stack.
 
-> There is no explicit function to close or to destroy a thread. 
-Threads are subject to garbage collection, like any Lua object.
-
-
+创建一个新的线程，把它压入到栈中，返回代表这个新线程的Lua State指针。
+新线程与原线程`L`共享相同的全局环境，但拥有完全独立的执行栈。
 
 ### lua_close [-0, +0, –]
 ```c
 void lua_close (lua_State *L);
 ```
-
 > Destroys all objects in the given Lua state (calling the corresponding garbage-collection metamethods, if any) 
 and frees all dynamic memory used by this state. 
 On several platforms, you may not need to call this function, 
@@ -69,7 +66,7 @@ because all resources are naturally released when the host program ends.
 On the other hand, long-running programs that create multiple states, such as daemons or web servers, 
 will probably need to close states as soon as they are not needed.
 
-销毁给定Lua State中的所有对象（通过调用相应垃圾回收云方法，如果存在）并且释放State使用的所有动态内存。
+销毁给定Lua State中的对象（通过调用相应垃圾回收元方法，如果存在）并释放所有使用过的动态内存。
 在一些平台上，你可能不必调用这个函数，因为宿主程序结束时会释放所有的资源。
 另一方面，长时间运行的创建多个State的程序，如后台程序或服务器程序，应该尽快关掉不再使用的State。
 
@@ -197,8 +194,6 @@ Similarly, when using `lua_callk`, you should call the continuation function wit
 (For `lua_yieldk`, there is not much point in calling directly the continuation function, 
 because `lua_yieldk` usually does not return.)
 
-[[TODO？？？]]
-
 Lua treats the continuation function as if it were the original function. 
 The continuation function receives the same Lua stack from the original function, 
 in the same state it would be if the callee function had returned. 
@@ -240,3 +235,21 @@ Usually, this function does not return; when the coroutine eventually resumes, i
 
 This function can raise an error if it is called from a thread with a pending C call with no continuation function, or it is called from a thread that is not running inside a resume (e.g., the main thread).
 
+### lua_resume [-?, +?, –]
+```c
+int lua_resume(lua_State* L, lua_State* from, int nargs);
+```
+> Starts and resumes a coroutine in the given thread L.
+To start a coroutine, you push onto the thread stack the main function plus any arguments; 
+then you call `lua_resume`, with `nargs` being the number of arguments. 
+This call returns when the coroutine suspends or finishes its execution. 
+When it returns, the stack contains all values passed to `lua_yield`, or all values returned by the body function. 
+`lua_resume` returns `LUA_YIELD` if the coroutine yields, 
+`LUA_OK` if the coroutine finishes its execution without errors, or an error code in case of errors (see `lua_pcall`).
+
+In case of errors, the stack is not unwound, so you can use the debug API over it. 
+The error message is on the top of the stack.
+To resume a coroutine, you remove any results from the last `lua_yield`, 
+put on its stack only the values to be passed as results from yield, and then call lua_resume.
+The parameter from represents the coroutine that is resuming `L`. 
+If there is no such coroutine, this parameter can be NULL.
