@@ -101,11 +101,9 @@ int lua_upvalueindex(int i);
 
 ### lua_pushcclosure [-n, +1, e]
 ```c
-void lua_pushcclosure (lua_State *L, lua_CFunction fn, int n);
+void lua_pushcclosure(lua_State* L, lua_CFunction fn, int n);
 ```
-> Pushes a new C closure onto the stack.
-When a C function is created, it is possible to associate some values with it, 
-thus creating a C closure (see §4.4); these values are then accessible to the function whenever it is called. 
+> Pushes a new C closure onto the stack. 
 To associate values with a C function, first these values must be pushed onto the stack 
 (when there are multiple values, the first value is pushed first). 
 Then `lua_pushcclosure` is called to create and push the C function onto the stack, 
@@ -116,18 +114,24 @@ with the argument `n` telling how many values will be associated with the functi
 When `n` is zero, this function creates a light C function, which is just a pointer to the C function. 
 In that case, it never raises a memory error.
 
+这个函数创建一个新的由C函数`fn`以及`n`个上值组成的C闭包，并将它压入到栈中。
+要将值关联到C函数，首先需要将这些值压入到栈中（如果有多个，第一个应该先压入）；
+然后再调用`lua_pushcclosure`来创建和压入这个闭包，在压入之前`lua_pushcclosure`会将关联值从栈中移除。
 
+最大的上值个数是255。如果`n`是0，这个函数仅仅创建一个C函数，即一个指向C函数的指针。
+在这种情况下，这个函数不会发生抛出内存异常。
 
 ### lua_pushcfunction [-0, +1, –]
 ```c
-void lua_pushcfunction (lua_State *L, lua_CFunction f);
+void lua_pushcfunction(lua_State* L, lua_CFunction f);
 ```
 > Pushes a C function onto the stack. 
 This function receives a pointer to a C function and pushes onto the stack a Lua value of type function that, 
 when called, invokes the corresponding C function.
-
-> Any function to be callable by Lua must follow the correct protocol to receive its parameters 
+Any function to be callable by Lua must follow the correct protocol to receive its parameters 
 and return its results (see `lua_CFunction`).
+
+将一个C函数压入到栈中，任何可以被Lua调用的C函数都必须遵循有关函数参数和结果传递的规则（见`lua_CFunction`）。
 
 ### luaL_ref [-1, +0, e] 
 ```c
@@ -205,6 +209,4 @@ as if that function has been called through require.
 
 > If `glb` is true, also stores the module into global `modname`.
 Leaves a copy of the module on the stack.
-
--------------------------------------------
 
