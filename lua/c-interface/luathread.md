@@ -11,9 +11,9 @@ All information about a state is accessible through this structure.
 > A pointer to this structure must be passed as the first argument to every function in the library, 
 except to `lua_newstate`, which creates a Lua state from scratch.
 
-结构体lua_State表示一个线程或间接表示（通过线程）Lua解析器的整体状态。
-Lua提供的C接口函数都是可重入的：它们没有全局变量，所以的状态信息都通过这个结构体进行访问。
-指向这个结构体的指针必须作为所有C接口函数的第一个参数传入，除了用于创建Lua State的函数除外。
+结构体lua_State表示一个线程或通过线程间接表示Lua解析器的整体状态。
+Lua提供的C接口函数都是可重入的：它们没有全局变量，所有的状态信息都通过这个结构体进行访问。
+除了创建Lua State的函数之外，其他函数都需要传入这个结构体的指针作为第一参数。
 
 ### lua_newstate [-0, +0, –]
 ```c
@@ -25,8 +25,8 @@ The argument `f` is the allocator function; Lua does all memory allocation for t
 The second argument, `ud`, is an opaque pointer that Lua passes to the allocator in every call.
 
 创建一个在新的独立状态中运行的线程。
-返回NULL表示由于内存不足不能创建这个新线程或Lua State。
-参数`f`是内存分配函数；Lua使用这个函数分配所需要的内存。
+返回NULL表示内存不足不能创建这个新线程或Lua State。
+参数`f`是内存分配函数，Lua使用这个函数分配所需要的内存。
 第二个参数`ud`是用户数据指针，Lua每次调用分配函数时都会传入这个值。
 
 ### luaL_newstate [-0, +0, –]
@@ -40,7 +40,7 @@ prints an error message to the standard error output in case of fatal errors.
 Returns the new state, or NULL if there is a memory allocation error.
 
 相当于`lua_newstate(l_alloc, NULL)`，它使用默认的内存分配函数创建新的Lua State。
-并且设置`panic`函数，在错误发生时将错误消息打印到标准错误输出。
+并设置`panic`函数，在错误发生时将错误消息打印到标准错误输出。
 这个函数返回新创建的Lua State，或者内存分配失败返回NULL。
 
 ### lua_newthread [-0, +1, e]
@@ -54,6 +54,8 @@ but has an independent execution stack.
 
 > There is no explicit function to close or to destroy a thread. 
 Threads are subject to garbage collection, like any Lua object.
+
+
 
 ### lua_close [-0, +0, –]
 ```c
