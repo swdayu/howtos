@@ -3,39 +3,64 @@
 ```c
 typedef struct lua_State lua_State;
 ```
-An opaque structure that points to a thread 
+> An opaque structure that points to a thread 
 and indirectly (through the thread) to the whole state of a Lua interpreter. 
 The Lua library is fully reentrant: it has no global variables. 
 All information about a state is accessible through this structure.
 
-表示线程或间接表示（通过线程）Lua解析器状态的抽象结构体。
-Lua函数都是可重入的：它们没有全局变量。所以的状态信息都通过这个结构体访问。
-
-A pointer to this structure must be passed as the first argument to every function in the library, 
+> A pointer to this structure must be passed as the first argument to every function in the library, 
 except to `lua_newstate`, which creates a Lua state from scratch.
 
-指向这个结构体的指针必须作为所以库函数的第一个参数传入，除了`lua_newstate`，它用于创建Lua State。
+结构体lua_State表示一个线程或间接表示（通过线程）Lua解析器的整体状态。
+Lua提供的C接口函数都是可重入的：它们没有全局变量，所以的状态信息都通过这个结构体进行访问。
+指向这个结构体的指针必须作为所有C接口函数的第一个参数传入，除了用于创建Lua State的函数除外。
 
-## lua_newstate [-0, +0, –]
+### lua_newstate [-0, +0, –]
 ```c
-lua_State *lua_newstate (lua_Alloc f, void *ud);
+lua_State* lua_newstate(lua_Alloc f, void* ud);
 ```
-
-Creates a new thread running in a new, independent state. 
+> Creates a new thread running in a new, independent state. 
 Returns NULL if it cannot create the thread or the state (due to lack of memory). 
 The argument `f` is the allocator function; Lua does all memory allocation for this state through this function.
 The second argument, `ud`, is an opaque pointer that Lua passes to the allocator in every call.
 
-创建一个在新的独立State中执行的线程。返回NULL表示不能创建这个线程或State（由于内存不足）。
-参数`f`是内存分配函数；Lua用这个函数为State分配所有内存。
-第二个参数`ud`是一个抽象指针，Lua每次调用分配函数时都传人这个指针。
+创建一个在新的独立状态中运行的线程。
+返回NULL表示由于内存不足不能创建这个新线程或Lua State。
+参数`f`是内存分配函数；Lua使用这个函数分配所需要的内存。
+第二个参数`ud`是用户数据指针，Lua每次调用分配函数时都会传入这个值。
 
-## lua_close [-0, +0, –]
+### luaL_newstate [-0, +0, –]
+```c
+lua_State* luaL_newstate(void);
+```
+> Creates a new Lua state. 
+It calls `lua_newstate` with an allocator based on the standard C `realloc` function 
+and then sets a `panic` function (see §4.6) that 
+prints an error message to the standard error output in case of fatal errors.
+Returns the new state, or NULL if there is a memory allocation error.
+
+相当于`lua_newstate(l_alloc, NULL)`，它使用默认的内存分配函数创建新的Lua State。
+并且设置`panic`函数，在错误发生时将错误消息打印到标准错误输出。
+这个函数返回新创建的Lua State，或者内存分配失败返回NULL。
+
+### lua_newthread [-0, +1, e]
+```c
+lua_State* lua_newthread(lua_State* L);
+```
+> Creates a new thread, pushes it on the stack, 
+and returns a pointer to a `lua_State` that represents this new thread. 
+The new thread returned by this function shares with the original thread its global environment, 
+but has an independent execution stack.
+
+> There is no explicit function to close or to destroy a thread. 
+Threads are subject to garbage collection, like any Lua object.
+
+### lua_close [-0, +0, –]
 ```c
 void lua_close (lua_State *L);
 ```
 
-Destroys all objects in the given Lua state (calling the corresponding garbage-collection metamethods, if any) 
+> Destroys all objects in the given Lua state (calling the corresponding garbage-collection metamethods, if any) 
 and frees all dynamic memory used by this state. 
 On several platforms, you may not need to call this function, 
 because all resources are naturally released when the host program ends. 
@@ -46,17 +71,16 @@ will probably need to close states as soon as they are not needed.
 在一些平台上，你可能不必调用这个函数，因为宿主程序结束时会释放所有的资源。
 另一方面，长时间运行的创建多个State的程序，如后台程序或服务器程序，应该尽快关掉不再使用的State。
 
-## lua_status [-0, +0, –]
+### lua_status [-0, +0, –]
 ```c
 int lua_status (lua_State *L);
 ```
-Returns the status of the thread L.
-
+> Returns the status of the thread L.
 The status can be 0 (`LUA_OK`) for a normal thread, 
 an error code if the thread finished the execution of a `lua_resume` with an error, 
 or `LUA_YIELD` if the thread is suspended.
 
-You can only call functions in threads with status `LUA_OK`. 
+> You can only call functions in threads with status `LUA_OK`. 
 You can resume threads with status `LUA_OK` (to start a new coroutine) or `LUA_YIELD` (to resume a coroutine).
 
 返回指定线程的状态。
@@ -66,16 +90,15 @@ You can resume threads with status `LUA_OK` (to start a new coroutine) or `LUA_Y
 只有状态是`LUA_OK`时才能去调用函数。
 可以`lua_resume`一个线程当状态是`LUA_OK`时（开启新线程）或是`LUA_YIELD`时（重新启动线程）。
 
-## lua_getextraspace [-0, +0, –]
+### lua_getextraspace [-0, +0, –]
 ```c
 void* lua_getextraspace(lua_State* L);
 ```
-Returns a pointer to a raw memory area associated with the given Lua state. 
+> Returns a pointer to a raw memory area associated with the given Lua state. 
 The application can use this area for any purpose; Lua does not use it for anything.
-
 Each new thread has this area initialized with a copy of the area of the main thread.
 
-By default, this area has the size of a pointer to `void`, 
+> By default, this area has the size of a pointer to `void`, 
 but you can recompile Lua with a different size for this area. (See `LUA_EXTRASPACE` in `luaconf.h`.)
 
 返回与Lua State关联的原始内存指针。
@@ -83,24 +106,16 @@ but you can recompile Lua with a different size for this area. (See `LUA_EXTRASP
 每个新线程都会从主线程重新拷贝一份这个区域的内容。
 默认这个区域的大小是`void`指针的大小，但可以重新编译Lua改变这个值（见`luaconf.h`中的`LUA_EXTRASPACE`）。
 
-## 4.7 Handling Yields in C
+## Handling Yields in C
 
 Internally, Lua uses the C `longjmp` facility to yield a coroutine. 
 Therefore, if a C function `foo` calls an API function and this API function yields 
 (directly or indirectly by calling another function that yields), 
 Lua cannot return to `foo` any more, because the `longjmp` removes its frame from the C stack.
 
-在内部，Lua使用C语言的`longjmp`暂停一个协程。
-因此，如果C函数`foo`调用一个C API函数，并且这个C API函数会yield（直接的或间接的调用其他函数yield），
-Lua就不能再回到`foo`函数中，因为`longjmp`移除了C栈这个函数的frame。
-
 To avoid this kind of problem, Lua raises an error whenever it tries to yield across an API call, 
 except for three functions: `lua_yieldk`, `lua_callk`, and `lua_pcallk`. 
 All those functions receive a continuation function (as a parameter named `k`) to continue execution after a yield.
-
-为了避免这样的问题，Lua都会抛出异常当在API调用之间yield的时候，
-除这3个函数之外：`lua_yieldk`、`lua_callk`、以及`lua_pcallk`。
-这3个函数接收一个继续执行的函数为参数（名为`k`的参数），当yield之后继续这个函数。
 
 We need to set some terminology to explain continuations. 
 We have a C function called from Lua which we will call the original function. 
@@ -109,17 +124,25 @@ which we will call the callee function, that then yields the current thread.
 (This can happen when the callee function is `lua_yieldk`, 
 or when the callee function is either `lua_callk` or `lua_pcallk` and the function called by them yields.)
 
-为了解释continuation function，我们需要引入一些术语。
-Lua中调用的C函数我们称为原始函数。原始函数然后调用上面3个C API函数，它们称为被调函数，
-然后被调函数暂定当前的线程（只要被调函数是`lua_yieldk`，
-或被调函数是`lua_callk`和`lua_pcallk`并且它们调用的函数有yield）。
-
 Suppose the running thread yields while executing the callee function. 
 After the thread resumes, it eventually will finish running the callee function. 
 However, the callee function cannot return to the original function, 
 because its frame in the C stack was destroyed by the yield. 
 Instead, Lua calls a continuation function, which was given as an argument to the callee function. 
 As the name implies, the continuation function should continue the task of the original function.
+
+在内部，Lua使用C语言的`longjmp`暂停一个协程。
+因此，如果C函数`foo`调用一个C API函数，并且这个C API函数会yield（直接的或间接的调用其他函数yield），
+Lua就不能再回到`foo`函数中，因为`longjmp`移除了C栈这个函数的frame。
+
+为了避免这样的问题，Lua都会抛出异常当在API调用之间yield的时候，
+除这3个函数之外：`lua_yieldk`、`lua_callk`、以及`lua_pcallk`。
+这3个函数接收一个继续执行的函数为参数（名为`k`的参数），当yield之后继续这个函数。
+
+为了解释continuation function，我们需要引入一些术语。
+Lua中调用的C函数我们称为原始函数。原始函数然后调用上面3个C API函数，它们称为被调函数，
+然后被调函数暂定当前的线程（只要被调函数是`lua_yieldk`，
+或被调函数是`lua_callk`和`lua_pcallk`并且它们调用的函数有yield）。
 
 假设执行被调函数时当前正在运行的线程被yield，当线程resume时，被调函数最终会执行完毕。
 然而，被调函数不会再返回到原始函数中，因为它在C stack中的frame已经被yield破坏掉。
@@ -183,17 +206,6 @@ Whatever it returns is handled by Lua as if it were the return of the original f
 
 [[TODO？？？]]
 
-### lua_newthread [-0, +1, e]
-```c
-lua_State *lua_newthread (lua_State *L);
-```
-Creates a new thread, pushes it on the stack, 
-and returns a pointer to a `lua_State` that represents this new thread. 
-The new thread returned by this function shares with the original thread its global environment, 
-but has an independent execution stack.
-
-There is no explicit function to close or to destroy a thread. 
-Threads are subject to garbage collection, like any Lua object.
 
 ### lua_xmove [-?, +?, –]
 ```c
