@@ -11,11 +11,11 @@ The first **upvalue** associated with a function is at index `lua_upvalueindex(1
 Any access to `lua_upvalueindex(n)`, where `n` is greater than the number of **upvalues** of the current function 
 (but not greater than 256), produces an acceptable but invalid index.
 
-C函数创建后，可以关联一些值形成C**闭包**（见`lua_pushcclosure`）。
-关联的值称为**上值**，不论函数何时被调用，都能访问到这些值。
-
-C函数调用时，它的**上值**都分配在特定的**伪索引**上。
-这些**伪索引**通过一个宏`lua_upvalueindex`来产生。第一个**上值**关联在索引`lua_upvalueindex(1)`上，依次类推。
+C函数可以关联一些值形成C**闭包**（见`lua_pushcclosure`）。
+这些关联的值称为**上值**，在C函数内部可以自由访问这些值（因此C闭包是拥有上值的C函数）。
+当C函数被调用时，它的**上值**都分配在一些特定的**伪索引**上。
+这些**伪索引**通过一个宏`lua_upvalueindex`来产生。
+例如第一个**上值**关联在索引`lua_upvalueindex(1)`位置上，依次类推。
 任何大于当前函数**上值**个数的索引（不能大于256），都是一个**可接受索引**，但不是**有效索引**。
 
 ## 注册表
@@ -93,9 +93,11 @@ static int foo (lua_State *L) {
 
 ### lua_upvalueindex [-0, +0, –]
 ```c
-int lua_upvalueindex (int i);
+int lua_upvalueindex(int i);
 ```
 > Returns the pseudo-index that represents the `i`-th upvalue of the running function (see §4.4).
+
+返回当前函数的第`i`个**上值**的**伪索引**。
 
 ### lua_pushcclosure [-n, +1, e]
 ```c
@@ -113,6 +115,8 @@ with the argument `n` telling how many values will be associated with the functi
 > The maximum value for `n` is 255.
 When `n` is zero, this function creates a light C function, which is just a pointer to the C function. 
 In that case, it never raises a memory error.
+
+
 
 ### lua_pushcfunction [-0, +1, –]
 ```c
