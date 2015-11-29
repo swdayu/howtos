@@ -149,11 +149,11 @@ Function `luaL_unref` frees a reference and its associated object.
 The constant `LUA_NOREF` is guaranteed to be different from any reference returned by `luaL_ref`.
 
 创建和返回栈顶元素的引用，这个引用和栈顶元素会保存到在索引`t`位置的表中，最后移除栈顶元素。
-引用是具有唯一性的整数键，只要表中没有手动添加的整数键，`luaL_ref`就会保证键的唯一性。
-通过引用和函数`lua_rawgeti(L, t, r)`可以获取到表中的这个引用关联的值。
-而函数`luaL_unreg`则用于释放表中的引用和关联的值。
+引用是具有唯一性的整数键，只要表中没有手动添加过整数键，`luaL_ref`就会保证键的唯一性。
+调用函数`lua_rawgeti(L, t, r)`可以获取到对应引用关联的值。
+而函数`luaL_unref`则用于释放对应的引用。
 
-如果栈顶元素是`nil`，`luaL_reg`会返回一个`LUA_REFNIL`常量。
+如果栈顶元素是`nil`，`luaL_ref`会返回一个`LUA_REFNIL`常量。
 而常量`LUA_NOREF`是一个与任何`luaL_ref`返回值都不同的值。
 
 ### luaL_unref [-0, +0, –] 
