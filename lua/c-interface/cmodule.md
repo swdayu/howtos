@@ -241,3 +241,19 @@ Leaves a copy of the module on the stack.
 如果模块名称不在已加载的列表`package.loaded`中，则用模块名称调用函数`openf`并将结果设置到`package.loaded[modname]`。
 如果参数`glb`为真，会将加载的模块保证到名为`modname`的全局变量中。最后，将加载的模块压入栈中。
 
+### lua_getextraspace [-0, +0, –]
+```c
+void* lua_getextraspace(lua_State* L);
+```
+> Returns a pointer to a raw memory area associated with the given Lua state. 
+The application can use this area for any purpose; Lua does not use it for anything.
+Each new thread has this area initialized with a copy of the area of the main thread.
+
+> By default, this area has the size of a pointer to `void`, 
+but you can recompile Lua with a different size for this area. (See `LUA_EXTRASPACE` in `luaconf.h`.)
+
+返回与Lua State关联的原始内存指针。
+应用程序可以自由使用这个内存区域，Lua不会用它做其他事。
+每个新创建的线程都会从主线程拷贝一份这个区域的内容。
+这个区域的默认大小与`void`指针相同，但是可以重新编译Lua改变这个区域的大小
+（见头文件`luaconf.h`中宏`LUA_EXTRASPACE`的定义）。
