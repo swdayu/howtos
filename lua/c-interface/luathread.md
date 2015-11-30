@@ -1,5 +1,10 @@
 
-## lua_State
+## Lua线程
+
+Lua中的线程表示的是协程（coroutine），多个协程可以运行在同一个真实的操作系统线程中。
+由于官方文档也将协程称为线程，并且协程的类型也是用`thread`表示的，因此在这里不区分线程和协程，它们都表示同一个概念。
+
+### lua_State
 ```c
 typedef struct lua_State lua_State;
 ```
@@ -13,7 +18,7 @@ except to `lua_newstate`, which creates a Lua state from scratch.
 
 结构体lua_State表示一个线程或通过线程间接表示Lua解析器的整体状态。
 Lua提供的C接口函数都是可重入的：它们没有全局变量，所有的状态信息都通过这个结构体进行访问。
-除了创建Lua State的函数之外，其他函数都需要传入这个结构体的指针作为第一参数。
+除了创建Lua State的函数之外，其他函数都需要传入这个结构体的指针作为第一个参数。
 
 ### lua_newstate [-0, +0, –]
 ```c
@@ -53,7 +58,7 @@ The new thread returned by this function shares with the original thread its glo
 but has an independent execution stack.
 
 创建一个新的线程，把它压入到栈中，返回代表这个新线程的Lua State指针。
-新线程与原线程`L`共享相同的全局环境，但拥有完全独立的执行栈。
+新线程与原线程`L`共享相同的全局环境，但拥有完全独立的Lua栈。
 
 ### lua_close [-0, +0, –]
 ```c
@@ -66,9 +71,9 @@ because all resources are naturally released when the host program ends.
 On the other hand, long-running programs that create multiple states, such as daemons or web servers, 
 will probably need to close states as soon as they are not needed.
 
-销毁给定Lua State中的对象（通过调用相应垃圾回收元方法，如果存在）并释放所有使用过的动态内存。
-在一些平台上，你可能不必调用这个函数，因为宿主程序结束时会释放所有的资源。
-另一方面，长时间运行的创建多个State的程序，如后台程序或服务器程序，应该尽快关掉不再使用的State。
+通过对应的垃圾收集元方法（如果存在）销毁给定Lua State中的对象并释放所有使用过的动态内存。
+在一些平台上可能不需要调用这个函数，因为宿主程序结束时会释放所有的资源。
+但如果是长时间运行的创建了多个Lua State的程序（例如后台程序或服务器程序），则应该尽快释放掉不再使用的Lua State。
 
 ### lua_status [-0, +0, –]
 ```c
@@ -82,12 +87,11 @@ or `LUA_YIELD` if the thread is suspended.
 > You can only call functions in threads with status `LUA_OK`. 
 You can resume threads with status `LUA_OK` (to start a new coroutine) or `LUA_YIELD` (to resume a coroutine).
 
-返回指定线程的状态。
-状态可以是0（`LUA_OK`）对于正常线程；一个错误代码对于已执行完毕的`lua_resume`线程；
-或是`LUA_YIELD`对于暂停的线程。
-
-只有状态是`LUA_OK`时才能去调用函数。
-可以`lua_resume`一个线程当状态是`LUA_OK`时（开启新线程）或是`LUA_YIELD`时（重新启动线程）。
+返回指定线程的状态。正常线程对应的状态是0（`LUA_OK`）；
+如果线程`lua_resume`执行完毕后有错误，对应的状态是这个错误代码；
+挂起的线程的状态是`LUA_YIELD`。
+只有在`LUA_OK`状态下的线程才能调用函数。
+函数`lua_resume`只能在`LUA_OK`状态下（重新启动线程）或`LUA_YIELD`状态（恢复线程）下调用。
 
 ### lua_getextraspace [-0, +0, –]
 ```c
@@ -101,9 +105,10 @@ Each new thread has this area initialized with a copy of the area of the main th
 but you can recompile Lua with a different size for this area. (See `LUA_EXTRASPACE` in `luaconf.h`.)
 
 返回与Lua State关联的原始内存指针。
-应用可以任意使用这个过内存区域，Lua不会用它做其他事。
-每个新线程都会从主线程重新拷贝一份这个区域的内容。
-默认这个区域的大小是`void`指针的大小，但可以重新编译Lua改变这个值（见`luaconf.h`中的`LUA_EXTRASPACE`）。
+应用程序可以自由使用这个内存区域，Lua不会用它做其他事。
+每个新创建的线程都会从主线程拷贝一份这个区域的内容。
+这个区域的默认大小与`void`指针相同，但是可以重新编译Lua改变这个区域的大小
+（见头文件`luaconf.h`中宏`LUA_EXTRASPACE`的定义）。
 
 ## Handling Yields in C
 
