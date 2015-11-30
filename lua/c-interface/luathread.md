@@ -17,8 +17,8 @@ All information about a state is accessible through this structure.
 except to `lua_newstate`, which creates a Lua state from scratch.
 
 结构体lua_State表示一个线程或通过线程间接表示Lua解析器的整体状态。
-Lua提供的C接口函数都是可重入的：它们没有全局变量，所有的状态信息都通过这个结构体进行访问。
-除了创建Lua State的函数之外，其他函数都需要传入这个结构体的指针作为第一个参数。
+Lua提供的C接口函数都是可重入的：它们没有全局变量，所有的状态信息都通过这个结构体来访问。
+除了创建Lua State的函数之外，其他函数都需要传入这个结构体的指针作为它们的第一个参数。
 
 ### lua_newstate [-0, +0, –]
 ```c
