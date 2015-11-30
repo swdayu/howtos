@@ -1,5 +1,11 @@
 
-## 函数上值
+## C模块
+
+在一定规则下，Lua与C可以相互调用以及传递数据。
+通过Lua提供的C接口函数，在C语言中可以以字符串、文件或内存块的形式执行一段Lua代码。
+而在Lua中，可以通过动态链接库的形式调用符合规则的C模块中的C函数。
+
+### 函数上值
 
 > When a C function is created, it is possible to associate some values with it, 
 thus creating a C **closure** (see `lua_pushcclosure`); 
@@ -18,7 +24,7 @@ C函数可以关联一些值形成C**闭包**（见`lua_pushcclosure`）。
 例如第一个**上值**关联在索引`lua_upvalueindex(1)`位置上，依此类推。
 任何大于当前函数**上值**个数的索引（不能大于256），都是一个**可接受索引**，但不是**有效索引**。
 
-## 注册表
+### 注册表
 
 > Lua provides a **registry**, a predefined table that can be used by any C code 
 to store whatever Lua values it needs to store. 
@@ -50,7 +56,7 @@ Lua提供了一个预定义的**注册表**，C可以用它来存储需要的Lua
 `LUA_RIDX_MAINTHREAD`对应**Lua状态**的主线程（它是与**Lua状态**一起创建的），
 `LUA_RIDX_GLOBALS`对应全局环境。
 
-## lua_CFunction
+### lua_CFunction
 ```c
 typedef int (*lua_CFunction)(lua_State* L);
 ```
