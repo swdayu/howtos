@@ -119,9 +119,8 @@ Instead, Lua calls a continuation function, which was given as an argument to th
 As the name implies, the continuation function should continue the task of the original function.
 
 在内部，Lua使用C语言的`longjmp`Yield一个协程。
-因此，如果C函数`foo`调用了一个会执行Yield的C接口函数（直接执行Yield或间接调用其他函数执行Yield），
-代码就永远不会再回到`foo`函数中，因为调用了`longjmp`的函数永远不会返回，调用这个函数的函数也一样。
-有关于C语言`longjmp`更详细的描述请参考[非本地跳转](https://github.com/massivesupernova/c-mists/blob/master/longjmp.md).
+因此，如果C函数`foo`调用了一个会执行Yield的C接口函数（直接Yield或间接调用其他函数执行Yield），
+代码将永远不会再回到`foo`函数中，因为调用`longjmp`的函数永远不会返回，调用这个函数的函数也一样。
 
 为了避免这样的问题，Lua都会抛出异常当在API调用之间yield的时候，
 除这3个函数之外：`lua_yieldk`、`lua_callk`、以及`lua_pcallk`。
