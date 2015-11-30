@@ -2,7 +2,7 @@
 ## Lua线程
 
 Lua中的线程其实是协程（coroutine），它使用lua_State结构体来表示，多个协程可以运行在同一个真实的操作系统线程中。
-由于官方文档也将协程称为线程，并且协程的类型也是用`thread`表示的，因此在这里不区分线程和协程，它们都表示同一个概念。
+由于官方文档也将协程称为线程，并且协程的类型也是用`thread`表示的，因此这里不区分线程和协程，它们都表示同一个概念。
 
 ### lua_State
 ```c
@@ -118,9 +118,10 @@ because its frame in the C stack was destroyed by the yield.
 Instead, Lua calls a continuation function, which was given as an argument to the callee function. 
 As the name implies, the continuation function should continue the task of the original function.
 
-在内部，Lua使用C语言的`longjmp`暂停一个协程。
-因此，如果C函数`foo`调用一个C API函数，并且这个C API函数会yield（直接的或间接的调用其他函数yield），
-Lua就不能再回到`foo`函数中，因为`longjmp`移除了C栈这个函数的frame。
+在内部，Lua使用C语言的`longjmp`Yield一个协程。
+因此，如果C函数`foo`调用了一个会执行Yield的C接口函数（直接执行Yield或间接调用其他函数执行Yield），
+代码就永远不会再回到`foo`函数中，因为调用了`longjmp`的函数永远不会返回，调用这个函数的函数也一样。
+有关于C语言`longjmp`更详细的描述请参考[非本地跳转](https://github.com/massivesupernova/c-mists/blob/master/longjmp.md).
 
 为了避免这样的问题，Lua都会抛出异常当在API调用之间yield的时候，
 除这3个函数之外：`lua_yieldk`、`lua_callk`、以及`lua_pcallk`。
