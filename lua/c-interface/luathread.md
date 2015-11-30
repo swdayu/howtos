@@ -1,7 +1,7 @@
 
 ## Lua线程
 
-Lua中的线程表示的是协程（coroutine），多个协程可以运行在同一个真实的操作系统线程中。
+Lua中的线程其实是协程（coroutine），它使用lua_State结构体来表示，多个协程可以运行在同一个真实的操作系统线程中。
 由于官方文档也将协程称为线程，并且协程的类型也是用`thread`表示的，因此在这里不区分线程和协程，它们都表示同一个概念。
 
 ### lua_State
@@ -16,7 +16,7 @@ All information about a state is accessible through this structure.
 > A pointer to this structure must be passed as the first argument to every function in the library, 
 except to `lua_newstate`, which creates a Lua state from scratch.
 
-结构体lua_State表示一个线程或通过线程间接表示Lua解析器的整体状态。
+结构体lua_State表示一个线程并通过线程间接表示Lua解析器的整体状态。
 Lua提供的C接口函数都是可重入的：它们没有全局变量，所有的状态信息都通过这个结构体来访问。
 除了创建Lua State的函数之外，其他函数都需要传入这个结构体的指针作为它们的第一个参数。
 
@@ -92,23 +92,6 @@ You can resume threads with status `LUA_OK` (to start a new coroutine) or `LUA_Y
 挂起的线程的状态是`LUA_YIELD`。
 只有在`LUA_OK`状态下的线程才能调用函数。
 函数`lua_resume`只能在`LUA_OK`状态下（重新启动线程）或`LUA_YIELD`状态（恢复线程）下调用。
-
-### lua_getextraspace [-0, +0, –]
-```c
-void* lua_getextraspace(lua_State* L);
-```
-> Returns a pointer to a raw memory area associated with the given Lua state. 
-The application can use this area for any purpose; Lua does not use it for anything.
-Each new thread has this area initialized with a copy of the area of the main thread.
-
-> By default, this area has the size of a pointer to `void`, 
-but you can recompile Lua with a different size for this area. (See `LUA_EXTRASPACE` in `luaconf.h`.)
-
-返回与Lua State关联的原始内存指针。
-应用程序可以自由使用这个内存区域，Lua不会用它做其他事。
-每个新创建的线程都会从主线程拷贝一份这个区域的内容。
-这个区域的默认大小与`void`指针相同，但是可以重新编译Lua改变这个区域的大小
-（见头文件`luaconf.h`中宏`LUA_EXTRASPACE`的定义）。
 
 ### Yield处理
 
@@ -258,3 +241,40 @@ To resume a coroutine, you remove any results from the last `lua_yield`,
 put on its stack only the values to be passed as results from yield, and then call lua_resume.
 The parameter from represents the coroutine that is resuming `L`. 
 If there is no such coroutine, this parameter can be NULL.
+
+lua_callk
+
+[-(nargs + 1), +nresults, e]
+void lua_callk (lua_State *L,
+                int nargs,
+                int nresults,
+                lua_KContext ctx,
+                lua_KFunction k);
+This function behaves exactly like lua_call, but allows the called function to yield (see §4.7).
+
+lua_pcallk
+
+[-(nargs + 1), +(nresults|1), –]
+int lua_pcallk (lua_State *L,
+                int nargs,
+                int nresults,
+                int msgh,
+                lua_KContext ctx,
+                lua_KFunction k);
+This function behaves exactly like lua_pcall, but allows the called function to yield (see §4.7).
+
+lua_isyieldable
+
+[-0, +0, –]
+int lua_isyieldable (lua_State *L);
+Returns 1 if the given coroutine can yield, and 0 otherwise.
+
+lua_KContext
+
+typedef ... lua_KContext;
+The type for continuation-function contexts. It must be a numeric type. This type is defined as intptr_t when intptr_t is available, so that it can store pointers too. Otherwise, it is defined as ptrdiff_t.
+
+lua_KFunction
+
+typedef int (*lua_KFunction) (lua_State *L, int status, lua_KContext ctx);
+Type for continuation functions (see §4.7).
