@@ -45,8 +45,8 @@ prints an error message to the standard error output in case of fatal errors.
 Returns the new state, or NULL if there is a memory allocation error.
 
 相当于`lua_newstate(l_alloc, NULL)`，它使用默认的内存分配函数创建新的Lua State。
-并设置`panic`函数，在错误发生时将错误消息打印到标准错误输出。
-这个函数返回新创建的Lua State，或者内存分配失败返回NULL。
+并设置`panic`函数，当发生错误时将错误消息打印到标准错误输出。
+这个函数返回新创建的Lua State，如果内存分配失败则返回NULL。
 
 ### lua_newthread [-0, +1, e]
 ```c
@@ -88,7 +88,7 @@ or `LUA_YIELD` if the thread is suspended.
 You can resume threads with status `LUA_OK` (to start a new coroutine) or `LUA_YIELD` (to resume a coroutine).
 
 返回指定线程的状态。正常线程对应的状态是0（`LUA_OK`）；
-如果线程`lua_resume`执行完毕后有错误，对应的状态是这个错误代码；
+如果线程`lua_resume`执行完毕后带有错误，对应的状态是这个错误代码；
 挂起的线程的状态是`LUA_YIELD`。
 只有在`LUA_OK`状态下的线程才能调用函数。
 函数`lua_resume`只能在`LUA_OK`状态下（重新启动线程）或`LUA_YIELD`状态（恢复线程）下调用。
@@ -110,7 +110,7 @@ but you can recompile Lua with a different size for this area. (See `LUA_EXTRASP
 这个区域的默认大小与`void`指针相同，但是可以重新编译Lua改变这个区域的大小
 （见头文件`luaconf.h`中宏`LUA_EXTRASPACE`的定义）。
 
-## Handling Yields in C
+### Yield处理
 
 Internally, Lua uses the C `longjmp` facility to yield a coroutine. 
 Therefore, if a C function `foo` calls an API function and this API function yields 
