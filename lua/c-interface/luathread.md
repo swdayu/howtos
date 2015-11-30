@@ -29,7 +29,7 @@ Returns NULL if it cannot create the thread or the state (due to lack of memory)
 The argument `f` is the allocator function; Lua does all memory allocation for this state through this function.
 The second argument, `ud`, is an opaque pointer that Lua passes to the allocator in every call.
 
-创建一个在新的独立状态中运行的线程。
+创建一个新的在独立状态中运行的线程。
 返回NULL表示内存不足不能创建这个新线程或Lua State。
 参数`f`是内存分配函数，Lua使用这个函数分配所需要的内存。
 第二个参数`ud`是用户数据指针，Lua每次调用分配函数时都会传入这个值。
