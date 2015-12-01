@@ -248,39 +248,34 @@ put on its stack only the values to be passed as results from yield, and then ca
 The parameter `from` represents the coroutine that is resuming `L`. 
 If there is no such coroutine, this parameter can be NULL.
 
-lua_callk
+### lua_callk [-(nargs + 1), +nresults, e]
+```c
+void lua_callk (lua_State *L, int nargs, int nresults, lua_KContext ctx, lua_KFunction k);
+```
+This function behaves exactly like `lua_call`, but allows the called function to yield (see §4.7).
 
-[-(nargs + 1), +nresults, e]
-void lua_callk (lua_State *L,
-                int nargs,
-                int nresults,
-                lua_KContext ctx,
-                lua_KFunction k);
-This function behaves exactly like lua_call, but allows the called function to yield (see §4.7).
+### lua_pcallk [-(nargs + 1), +(nresults|1), –]
+```c
+int lua_pcallk (lua_State *L, int nargs, int nresults, int msgh, lua_KContext ctx, lua_KFunction k);
+```
+This function behaves exactly like `lua_pcall`, but allows the called function to `yield` (see §4.7).
 
-lua_pcallk
-
-[-(nargs + 1), +(nresults|1), –]
-int lua_pcallk (lua_State *L,
-                int nargs,
-                int nresults,
-                int msgh,
-                lua_KContext ctx,
-                lua_KFunction k);
-This function behaves exactly like lua_pcall, but allows the called function to yield (see §4.7).
-
-lua_isyieldable
-
-[-0, +0, –]
+### lua_isyieldable [-0, +0, –]
+```c
 int lua_isyieldable (lua_State *L);
+```
 Returns 1 if the given coroutine can yield, and 0 otherwise.
 
-lua_KContext
-
+### lua_KContext
+```c
 typedef ... lua_KContext;
-The type for continuation-function contexts. It must be a numeric type. This type is defined as intptr_t when intptr_t is available, so that it can store pointers too. Otherwise, it is defined as ptrdiff_t.
+```
+The type for continuation-function contexts. It must be a numeric type. 
+This type is defined as `intptr_t` when `intptr_t` is available, so that it can store pointers too. 
+Otherwise, it is defined as `ptrdiff_t`.
 
-lua_KFunction
-
-typedef int (*lua_KFunction) (lua_State *L, int status, lua_KContext ctx);
+### lua_KFunction
+```c
+typedef int (*lua_KFunction)(lua_State* L, int status, lua_KContext ctx);
+```
 Type for continuation functions (see §4.7).
