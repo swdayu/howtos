@@ -4,8 +4,9 @@
 
 ## 安装
 ```
-$ tar zxf lua-5.3.1.tar.gz
-$ cd lua-5.3.1
+$ curl -R -O http://www.lua.org/ftp/lua-5.3.2.tar.gz
+$ tar zxf lua-5.3.2.tar.gz
+$ cd lua-5.3.2
 $ make linux test # make macosx test
 $ sudo make install
 
