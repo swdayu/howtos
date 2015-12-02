@@ -1,4 +1,14 @@
 
+C函数的参数：通过C函数拥有的独立的虚拟栈，查看lua_setfiled弄清栈是怎么分配的  
+C函数的上值：C中可以通过lua_pushcclosure设定上值，然后通过为索引访问上值，上值是怎样分配的  
+C函数还可以访问lua state关联的注册表，这个表通过伪索引REGISTER访问，可以将非数值键对应的数据保存到注册表中  
+C函数还可以访问lua state的extra space  
+
+Lua中的参数（固定参数或不定参数...)；  
+Lua中的局部变量local var 放在哪里；  
+怎么区分Lua中的上值和全局变量；  
+
+
 # C程序接口
 
 > This section describes the set of C functions available to the host program to communicate with Lua. 
