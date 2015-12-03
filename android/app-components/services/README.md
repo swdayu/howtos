@@ -1,5 +1,6 @@
 
 # 服务（Services）
+
 > A Service is an application component that can perform long-running operations in the background 
 and does not provide a user interface. 
 Another application component can start a service and it will continue to run in the background 
@@ -49,3 +50,23 @@ Multiple components can bind to the service at once, but when all of them unbind
 注意的是，服务将运行在当前进程的主线程中，服务不会创建自己的线程、也不会运行在隔离的进程中（除非你明确指定）。
 因此，如果服务执行的是CPU繁忙的或阻塞的操作（例如MP3播放或网络操作），应该创建一个新的线程让服务在新线程中工作。
 这样可以避免应用没有响应的错误，应用的主线程也可以保持活动持续响应用户的交互。
+
+## 
+
+> To create a service, you must create a subclass of `Service` (or one of its existing subclasses). In your implementation, you need to override some callback methods that handle key aspects of the service lifecycle and provide a mechanism for components to bind to the service, if appropriate. The most important callback methods you should override are:
+> - **onStartCommand()**: The system calls this method when another component, such as an activity, requests that the service be started, by calling startService(). Once this method executes, the service is started and can run in the background indefinitely. If you implement this, it is your responsibility to stop the service when its work is done, by calling stopSelf() or stopService(). (If you only want to provide binding, you don't need to implement this method.)
+> - **onBind()**: The system calls this method when another component wants to bind with the service (such as to perform RPC), by calling bindService(). In your implementation of this method, you must provide an interface that clients use to communicate with the service, by returning an IBinder. You must always implement this method, but if you don't want to allow binding, then you should return null.
+> - **onCreate()**: The system calls this method when the service is first created, to perform one-time setup procedures (before it calls either onStartCommand() or onBind()). If the service is already running, this method is not called.
+> - **onDestroy()**: The system calls this method when the service is no longer used and is being destroyed. Your service should implement this to clean up any resources such as threads, registered listeners, receivers, etc. This is the last call the service receives.
+
+> If a component starts the service by calling `startService()` (which results in a call to `onStartCommand()`), then the service remains running until it stops itself with `stopSelf()` or another component stops it by calling `stopService()`.
+If a component calls `bindService()` to create the service (and `onStartCommand()` is not called), then the service runs only as long as the component is bound to it. Once the service is unbound from all clients, the system destroys it.
+
+> The Android system will force-stop a service only when memory is low and it must recover system resources for the activity that has user focus. If the service is bound to an activity that has user focus, then it's less likely to be killed, and if the service is declared to run in the foreground (discussed later), then it will almost never be killed. Otherwise, if the service was started and is long-running, then the system will lower its position in the list of background tasks over time and the service will become highly susceptible to killing - if your service is started, then you must design it to gracefully handle restarts by the system. If the system kills your service, it restarts it as soon as resources become available again (though this also depends on the value you return from `onStartCommand()`, as discussed later). For more information about when the system might destroy a service, see the *Processes and Threading* document.
+
+要创建服务，必须实现`Service`类（或该类的已有子类）的一个子类，
+并且重写服务生命期相关的回调函数，其中最重要的几个回调函数如下：
+- **onStartCommand()**：
+- **onBind()**：
+- **onCreate()**：
+- **onDestroy()**：
