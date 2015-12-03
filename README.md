@@ -1,8 +1,11 @@
-# How-to
+# Howtos
 
 Write down notes or guides of things.
 
-## Todo
+## Wish List
 - android / bluedroid
 - lua / skynet
 - shell / glfw
+- tex
+- PEG/regex
+- compiler
