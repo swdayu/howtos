@@ -69,10 +69,10 @@ void f_luaopen (lua_State *L, void *ud) {
 }
 
 // 4. 初始化Lua虚拟栈:
-// -- L->stack分配Lua值TValue的一个数组，大小默认是40个（保存在L->stacksize中），每个元素初始化成nil值
-// -- 40个元素中，Lua保留最上面的5个（EXTRA_STACK）作为额外空间使用，L->stack_last指向额外空间中的第1个元素
-// -- L->top表示栈中可以使用的第1个元素，因此宿主程序可以使用的栈空间范围是[L->top, L->stack_last)
-// -- 
+// L->stack分配Lua值TValue的一个数组，大小默认是40个（保存在L->stacksize中），每个元素初始化成nil值
+// 40个元素中，Lua保留最上面的5个（EXTRA_STACK）作为额外空间使用，L->stack_last指向额外空间中的第1个元素
+// L->top表示栈中可以使用的第1个元素，因此宿主程序可以使用的栈空间范围是[L->top, L->stack_last)
+//  
 void stack_init (lua_State* L, lua_State* hint) {
   int i; CallInfo *ci;
   // 分配Lua状态的虚拟栈并都初始化成nil
