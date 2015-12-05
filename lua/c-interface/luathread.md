@@ -37,14 +37,16 @@ The second argument, `ud`, is an opaque pointer that Lua passes to the allocator
 代码追踪：
 ```c
 // 1. 该函数使用分配函数`f`分配一个结构体LG，它包含全局状态g、Lua状态l.l、以及额外空间l.extra_；
+#define LUA_EXTRASPACE	(sizeof(void*)) // 额外空间默认大小是一个指针
 typedef struct LG {
-  LX l -> lu_byte extra_[LUA_EXTRASPACE];
+  LX l -> lu_byte extra_[LUA_EXTRASPACE]; 
           lua_State l;
   global_State g;
 } LG;
 
-// 2. 传入函数的参数保存在全局状态frealloc和ud中，而结构体中的Lua状态L称为该全局状态的主线程，关联在全局状态mainthread中；
-// 而C语言可以访问Lua注册表则保存在全局状态l_registery中;
+// 2. 传入函数的参数保存在全局状态frealloc和ud中；
+// 新分配的结构体中的Lua状态L称为该全局状态的主线程，关联在全局状态mainthread中；
+// 而C语言可以访问的Lua注册表保存在全局状态l_registery中;
 // 通过Lua状态L，用L->l_G或G(L)可以访问到全局状态，用lua_getextraspace(L)可以获取到额外空间的地址，
 // 用fromstate(L)可以获取到分配的结构体的首地址；
 L = &l.l;
@@ -66,14 +68,21 @@ void f_luaopen (lua_State *L, void *ud) {
   // ...
 }
 
-// 4. 初始化Lua虚拟栈
+// 4. 初始化Lua虚拟栈:
+// -- L->stack分配Lua值TValue的一个数组，大小默认是40个（保存在L->stacksize中），每个元素初始化成nil值
+// -- 40个元素中，Lua保留最上面的5个（EXTRA_STACK）作为额外空间使用，L->stack_last指向额外空间中的第1个元素
+// -- L->top表示栈中可以使用的第1个元素，因此宿主程序可以使用的栈空间范围是[L->top, L->stack_last)
+// -- 
 void stack_init (lua_State* L, lua_State* hint) {
   int i; CallInfo *ci;
+  // 分配Lua状态的虚拟栈并都初始化成nil
   L->stack = luaM_newvector(hint, BASIC_STACK_SIZE, TValue);
-  L->stacksize = BASIC_STACK_SIZE;
+  L->stacksize = BASIC_STACK_SIZE; 
   for (i = 0; i < BASIC_STACK_SIZE; i++) setnilvalue(L->stack + i); 
-  L->top = L->stack;
+  // Lua保留5个额外空间，宿主程序可以使用空间从L->top到L->stack_last
+  L->top = L->stack; 
   L->stack_last = L->stack + L->stacksize - EXTRA_STACK;
+  // 
   ci = &L->base_ci; ci->next = ci->previous = NULL;
   ci->callstatus = 0; ci->func = L->top; 
   setnilvalue(L->top++); ci->top = L->top + LUA_MINSTACK;
