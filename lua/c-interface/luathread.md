@@ -34,6 +34,56 @@ The second argument, `ud`, is an opaque pointer that Lua passes to the allocator
 参数`f`是内存分配函数，Lua使用这个函数分配所需要的内存。
 第二个参数`ud`是用户数据指针，Lua每次调用分配函数时都会传入这个值。
 
+代码追踪：
+```c
+// 1. 该函数使用分配函数`f`分配一个结构体LG，它包含全局状态g、Lua状态l.l、以及额外空间l.extra_；
+typedef struct LG {
+  LX l -> lu_byte extra_[LUA_EXTRASPACE];
+          lua_State l;
+  global_State g;
+} LG;
+
+// 2. 传入函数的参数保存在全局状态frealloc和ud中，而结构体中的Lua状态L称为该全局状态的主线程，关联在全局状态mainthread中；
+// 而C语言可以访问Lua注册表则保存在全局状态l_registery中;
+// 通过Lua状态L，用L->l_G或G(L)可以访问到全局状态，用lua_getextraspace(L)可以获取到额外空间的地址，
+// 用fromstate(L)可以获取到分配的结构体的首地址；
+L = &l.l;
+L->l_G = &g;
+g.frealloc = f;
+g.ud = ud;
+g.mainthread = L;
+setnilvalue(g.l_registry);
+#define G(L) L->l_G
+#define lua_getextraspace(L) ((void *)((char *)(L) - LUA_EXTRASPACE))
+#define fromstate(L) (cast(LX *, cast(lu_byte *, (L)) - offsetof(LX, l)))
+
+// 3. 最后调用f_luaopen函数执行一系列的初始化工作
+void f_luaopen (lua_State *L, void *ud) {
+  global_State *g = G(L);
+  stack_init(L, L);     // 初始化Lua状态中的Lua栈
+  init_registry(L, g);  // 初始化全局状态中的注册表
+  luaS_init(L); luaT_init(L); luaX_init(L); // 其他一些初始化
+  // ...
+}
+
+// 4. 初始化Lua虚拟栈
+void stack_init (lua_State* L, lua_State* hint) {
+  int i; CallInfo *ci;
+  L->stack = luaM_newvector(hint, BASIC_STACK_SIZE, TValue);
+  L->stacksize = BASIC_STACK_SIZE;
+  for (i = 0; i < BASIC_STACK_SIZE; i++) setnilvalue(L->stack + i); 
+  L->top = L->stack;
+  L->stack_last = L->stack + L->stacksize - EXTRA_STACK;
+  ci = &L->base_ci; ci->next = ci->previous = NULL;
+  ci->callstatus = 0; ci->func = L->top; 
+  setnilvalue(L->top++); ci->top = L->top + LUA_MINSTACK;
+  L->ci = ci;
+}
+
+// 5. 初始化Lua注册表
+// 6. 其他初始化工作
+```
+
 ### luaL_newstate [-0, +0, –]
 ```c
 lua_State* luaL_newstate(void);
