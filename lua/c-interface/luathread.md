@@ -213,39 +213,35 @@ but has an independent execution stack.
 
 ### 代码追踪
 ```
-lua_State *lua_newthread (lua_State *L) {
-  global_State *g = G(L);
-  lua_State *L1;
-  lua_lock(L);
-  luaC_checkGC(L);
-  /* create new thread */
-  L1 = &cast(LX *, luaM_newobject(L, LUA_TTHREAD, sizeof(LX)))->l;
-  L1->marked = luaC_white(g);
-  L1->tt = LUA_TTHREAD;
-  /* link it on list 'allgc' */
-  L1->next = g->allgc;
-  g->allgc = obj2gco(L1);
-  /* anchor it on L stack */
-  setthvalue(L, L->top, L1);
-  api_incr_top(L);
-  preinit_thread(L1, g);
-  L1->hookmask = L->hookmask;
-  L1->basehookcount = L->basehookcount;
-  L1->hook = L->hook;
-  resethookcount(L1);
-  /* initialize L1 extra space */
-  memcpy(lua_getextraspace(L1), lua_getextraspace(g->mainthread),
-         LUA_EXTRASPACE);
-  luai_userstatethread(L, L1);
-  stack_init(L1, L);  /* init stack */
-  lua_unlock(L);
-  return L1;
+// 1. 新分配一个LX结构体，并对这个结构体进行初始化，最后返回这个结构体中的Lua状态指针&l
+typedef struct LX {
+  lu_byte extra_[LUA_EXTRASPACE];
+  lua_State l;
+} LX;
+lua_State* lua_newthread(lua_State* parent) {
+  global_State *g = G(parent);
+  // 将新创建的Lua状态L添加到父状态的栈中
+  setthvalue(parent, parent->top, L);
+  api_incr_top(parent);
+  // 根据父状态对新状态L进行初始化
+  preinit_thread(L, g);
+  L->hookmask = parent->hookmask;
+  L->basehookcount = parent->basehookcount;
+  L->hook = parent->hook;
+  resethookcount(L);
+  // ...
 }
+
+// 2. 将主线程中的额外内存内容拷贝到新Lua状态中，然后分配Lua状态的虚拟栈
+// L->stack栈首地址，L->stacksize栈的总大小，宿主程序可以使用的栈空间[L->top, L->stack_last)
+// L->ci->func当前函数在栈中的索引，当前函数可以使用的栈空间[L->ci->func+1, L->ci->top)
+memcpy(lua_getextraspace(L), lua_getextraspace(g->mainthread), LUA_EXTRASPACE);
+stack_init(L, parent);
 ```
 
 ## lua_close [-0, +0, –]
 ```c
-void lua_close (lua_State *L);
+void lua_close(lua_State* L);
 ```
 > Destroys all objects in the given Lua state (calling the corresponding garbage-collection metamethods, if any) 
 and frees all dynamic memory used by this state. 
