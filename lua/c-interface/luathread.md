@@ -50,11 +50,11 @@ typedef struct LG {
 // 通过Lua状态L，用L->l_G或G(L)可以访问到全局状态，用lua_getextraspace(L)可以获取到额外空间的地址，
 // 用fromstate(L)可以获取到分配的结构体的首地址；
 L = &l.l;
-L->l_G = &g;
-g.frealloc = f;
-g.ud = ud;
-g.mainthread = L;
-setnilvalue(g.l_registry);
+L->l_G = g;
+g->frealloc = f;
+g->ud = ud;
+g->mainthread = L;
+setnilvalue(g->l_registry);
 #define G(L) L->l_G
 #define lua_getextraspace(L) ((void *)((char *)(L) - LUA_EXTRASPACE))
 #define fromstate(L) (cast(LX *, cast(lu_byte *, (L)) - offsetof(LX, l)))
@@ -69,10 +69,9 @@ void f_luaopen (lua_State *L, void *ud) {
 }
 
 // 4. 初始化Lua虚拟栈:
-// L->stack分配Lua值TValue的一个数组，大小默认是40个（保存在L->stacksize中），每个元素初始化成nil值
-// 40个元素中，Lua保留最上面的5个（EXTRA_STACK）作为额外空间使用，L->stack_last指向额外空间中的第1个元素
+// L->stack分配Lua值TValue的一个数组，大小默认是40个（保存在L->stacksize中），每个元素都被初始化为nil
+// 40个元素中，Lua保留最后的5个（EXTRA_STACK）作为额外空间使用，L->stack_last指向栈中额外空间的第1个元素
 // L->top表示栈中可以使用的第1个元素，因此宿主程序可以使用的栈空间范围是[L->top, L->stack_last)
-//  
 void stack_init (lua_State* L, lua_State* hint) {
   int i; CallInfo *ci;
   // 分配Lua状态的虚拟栈并都初始化成nil
@@ -82,12 +81,35 @@ void stack_init (lua_State* L, lua_State* hint) {
   // Lua保留5个额外空间，宿主程序可以使用空间从L->top到L->stack_last
   L->top = L->stack; 
   L->stack_last = L->stack + L->stacksize - EXTRA_STACK;
-  // 
-  ci = &L->base_ci; ci->next = ci->previous = NULL;
-  ci->callstatus = 0; ci->func = L->top; 
-  setnilvalue(L->top++); ci->top = L->top + LUA_MINSTACK;
-  L->ci = ci;
+  // 初始化Lua状态中第1个函数的调用信息（L->base_ci），并将当前函数的调用信息指向它（L->ci = &L->base_ci）
+  ci = &L->base_ci; ci->next = ci->previous = NULL; ci->callstatus = 0; 
+  ci->func = L->top; setnilvalue(L->top++);     // 第1个函数初始化为nil
+  ci->top = L->top + LUA_MINSTACK; L->ci = ci;  // 函数可以使用的空间默认为20个元素（LUA_MINSTACK）
 }
+
+// 4.1 Lua栈中的调用信息：
+// 先初始化第一个函数的调用信息（L->base_ci），并将第一个函数初始化为nil
+// 此时base_ci.func表示函数在栈中的索引，初始化后L->top等于`base_ci.func + 1`
+// base_ci.top表示该函数可以访问的Lua栈的顶部，最后将当前函数调用信息指向第一个函数的调用信息（L->ci = &L->base_ci）
+// 因此初始化后当前函数可以使用的栈空间的范围是[ci->func+1, ci->top)，默认为20个元素
+struct lua_State {
+  CallInfo* ci;     // 当前函数的调用信息
+  CallInfo base_ci; // 第一个函数的调用信息
+};
+typedef struct CallInfo {
+  StkId func;                       // 当前函数在栈中的索引
+  StkId	top;                        // 当前函数可以使用的栈的顶部
+  struct CallInfo *previous, *next; // 动态调用链
+  union {
+    struct { StkId base; const Instruction *savedpc; 
+    } l; // Lua函数的信息
+    struct { lua_KFunction k; ptrdiff_t old_errfunc; lua_KContext ctx; 
+    } c; // C函数的信息，k是Yield时的Continuation函数，ctx是Yield时的上下文信息
+  } u;
+  ptrdiff_t extra;
+  short nresults;     // 当前函数期望返回的结果个数
+  lu_byte callstatus; // 当前函数调用状态
+} CallInfo;
 
 // 5. 初始化Lua注册表
 // 6. 其他初始化工作
