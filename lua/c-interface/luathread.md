@@ -1,10 +1,10 @@
 
-## Lua线程
+# Lua线程
 
 Lua中的线程其实是协程（coroutine），它使用lua_State结构体来表示，多个协程可以运行在同一个真实的操作系统线程中。
 由于官方文档也将协程称为线程，并且协程的类型也是用`thread`表示的，因此这里不区分线程和协程，它们都表示同一个概念。
 
-### lua_State
+## lua_State
 ```c
 typedef struct lua_State lua_State;
 ```
@@ -18,9 +18,9 @@ except to `lua_newstate`, which creates a Lua state from scratch.
 
 结构体lua_State表示一个线程并通过线程间接表示Lua解析器的整体状态。
 Lua提供的C接口函数都是可重入的：它们没有全局变量，所有的状态信息都通过这个结构体来访问。
-除了创建Lua State的函数之外，其他函数都需要传入这个结构体的指针作为它们的第一个参数。
+除了创建Lua状态的函数之外，其他函数都需要传入这个结构体的指针作为它们的第一个参数。
 
-### lua_newstate [-0, +0, –]
+## lua_newstate [-0, +0, –]
 ```c
 lua_State* lua_newstate(lua_Alloc f, void* ud);
 ```
@@ -30,13 +30,14 @@ The argument `f` is the allocator function; Lua does all memory allocation for t
 The second argument, `ud`, is an opaque pointer that Lua passes to the allocator in every call.
 
 创建一个新的在独立状态中运行的线程。
-返回NULL表示内存不足不能创建这个新线程或Lua State。
+返回NULL表示内存不足不能创建这个新线程或Lua状态。
 参数`f`是内存分配函数，Lua使用这个函数分配所需要的内存。
 第二个参数`ud`是用户数据指针，Lua每次调用分配函数时都会传入这个值。
 
-代码追踪：
+### 代码追踪
 ```c
 // 1. 该函数首先使用内存分配函数`f`分配一个结构体LG，它包含全局状态g、Lua状态l.l、以及额外空间l.extra_；
+// 然后对这个结构体进行初始化，最后返回这个结构体中的Lua状态的指针&l.l
 #define LUA_EXTRASPACE	(sizeof(void*)) // 额外空间默认大小是一个指针
 typedef struct LG {
   LX l -> lu_byte extra_[LUA_EXTRASPACE]; 
@@ -184,7 +185,7 @@ void luaX_init (lua_State *L) {
 }
 ```
 
-### luaL_newstate [-0, +0, –]
+## luaL_newstate [-0, +0, –]
 ```c
 lua_State* luaL_newstate(void);
 ```
@@ -198,7 +199,7 @@ Returns the new state, or NULL if there is a memory allocation error.
 并设置`panic`函数，当发生错误时将错误消息打印到标准错误输出。
 这个函数返回新创建的Lua State，如果内存分配失败则返回NULL。
 
-### lua_newthread [-0, +1, e]
+## lua_newthread [-0, +1, e]
 ```c
 lua_State* lua_newthread(lua_State* L);
 ```
@@ -210,7 +211,39 @@ but has an independent execution stack.
 创建一个新的线程，把它压入到栈中，返回代表这个新线程的Lua State指针。
 新线程与原线程`L`共享相同的全局环境，但拥有完全独立的Lua栈。
 
-### lua_close [-0, +0, –]
+### 代码追踪
+```
+lua_State *lua_newthread (lua_State *L) {
+  global_State *g = G(L);
+  lua_State *L1;
+  lua_lock(L);
+  luaC_checkGC(L);
+  /* create new thread */
+  L1 = &cast(LX *, luaM_newobject(L, LUA_TTHREAD, sizeof(LX)))->l;
+  L1->marked = luaC_white(g);
+  L1->tt = LUA_TTHREAD;
+  /* link it on list 'allgc' */
+  L1->next = g->allgc;
+  g->allgc = obj2gco(L1);
+  /* anchor it on L stack */
+  setthvalue(L, L->top, L1);
+  api_incr_top(L);
+  preinit_thread(L1, g);
+  L1->hookmask = L->hookmask;
+  L1->basehookcount = L->basehookcount;
+  L1->hook = L->hook;
+  resethookcount(L1);
+  /* initialize L1 extra space */
+  memcpy(lua_getextraspace(L1), lua_getextraspace(g->mainthread),
+         LUA_EXTRASPACE);
+  luai_userstatethread(L, L1);
+  stack_init(L1, L);  /* init stack */
+  lua_unlock(L);
+  return L1;
+}
+```
+
+## lua_close [-0, +0, –]
 ```c
 void lua_close (lua_State *L);
 ```
@@ -225,7 +258,7 @@ will probably need to close states as soon as they are not needed.
 在一些平台上可能不需要调用这个函数，因为宿主程序结束时会释放所有的资源。
 但如果是长时间运行的创建了多个Lua State的程序（例如后台程序或服务器程序），则应该尽快释放掉不再使用的Lua State。
 
-### lua_status [-0, +0, –]
+## lua_status [-0, +0, –]
 ```c
 int lua_status (lua_State *L);
 ```
@@ -243,7 +276,7 @@ You can resume threads with status `LUA_OK` (to start a new coroutine) or `LUA_Y
 只有在`LUA_OK`状态下的线程才能调用函数。
 函数`lua_resume`只能在`LUA_OK`状态下（重新启动线程）或`LUA_YIELD`状态（恢复线程）下调用。
 
-### Yield处理
+## Yield处理
 
 Internally, Lua uses the C `longjmp` facility to yield a coroutine. 
 Therefore, if a C function `foo` calls an API function and this API function yields 
@@ -339,21 +372,21 @@ in the same state it would be if the callee function had returned.
 replaced by the results from the call.) It also has the same upvalues. 
 Whatever it returns is handled by Lua as if it were the return of the original function.
 
-### lua_xmove [-?, +?, –]
+## lua_xmove [-?, +?, –]
 ```c
 void lua_xmove(lua_State* from, lua_State* to, int n);
 ```
 > Exchange values between different threads of the same state.
 This function pops `n` values from the stack `from`, and pushes them onto the stack `to`.
 
-### lua_yield [-?, +?, e]
+## lua_yield [-?, +?, e]
 ```c
 int lua_yield (lua_State *L, int nresults);
 ```
 > This function is equivalent to `lua_yieldk`, but it has no continuation (see §4.7). 
 Therefore, when the thread resumes, it continues the function that called the function calling `lua_yield`.
 
-### lua_yieldk [-?, +?, e]
+## lua_yieldk [-?, +?, e]
 ```c
 int lua_yieldk (lua_State *L, int nresults, lua_KContext ctx, lua_KFunction k);
 ```
@@ -379,7 +412,7 @@ it will continue the normal execution of the (Lua) function that triggered the h
 > This function can raise an error if it is called from a thread with a pending C call with no continuation function, 
 or it is called from a thread that is not running inside a resume (e.g., the main thread).
 
-### lua_resume [-?, +?, –]
+## lua_resume [-?, +?, –]
 ```c
 int lua_resume(lua_State* L, lua_State* from, int nargs);
 ```
@@ -398,25 +431,25 @@ put on its stack only the values to be passed as results from yield, and then ca
 The parameter `from` represents the coroutine that is resuming `L`. 
 If there is no such coroutine, this parameter can be NULL.
 
-### lua_callk [-(nargs + 1), +nresults, e]
+## lua_callk [-(nargs + 1), +nresults, e]
 ```c
 void lua_callk (lua_State *L, int nargs, int nresults, lua_KContext ctx, lua_KFunction k);
 ```
 This function behaves exactly like `lua_call`, but allows the called function to yield (see §4.7).
 
-### lua_pcallk [-(nargs + 1), +(nresults|1), –]
+## lua_pcallk [-(nargs + 1), +(nresults|1), –]
 ```c
 int lua_pcallk (lua_State *L, int nargs, int nresults, int msgh, lua_KContext ctx, lua_KFunction k);
 ```
 This function behaves exactly like `lua_pcall`, but allows the called function to `yield` (see §4.7).
 
-### lua_isyieldable [-0, +0, –]
+## lua_isyieldable [-0, +0, –]
 ```c
 int lua_isyieldable (lua_State *L);
 ```
 Returns 1 if the given coroutine can yield, and 0 otherwise.
 
-### lua_KContext
+## lua_KContext
 ```c
 typedef ... lua_KContext;
 ```
@@ -424,7 +457,7 @@ The type for continuation-function contexts. It must be a numeric type.
 This type is defined as `intptr_t` when `intptr_t` is available, so that it can store pointers too. 
 Otherwise, it is defined as `ptrdiff_t`.
 
-### lua_KFunction
+## lua_KFunction
 ```c
 typedef int (*lua_KFunction)(lua_State* L, int status, lua_KContext ctx);
 ```
