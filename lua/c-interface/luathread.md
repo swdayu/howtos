@@ -36,7 +36,7 @@ The second argument, `ud`, is an opaque pointer that Lua passes to the allocator
 
 代码追踪：
 ```c
-// 1. 该函数使用分配函数`f`分配一个结构体LG，它包含全局状态g、Lua状态l.l、以及额外空间l.extra_；
+// 1. 该函数使用`f`分配一个结构体LG，它包含全局状态g、Lua状态l.l、以及额外空间l.extra_；
 #define LUA_EXTRASPACE	(sizeof(void*)) // 额外空间默认大小是一个指针
 typedef struct LG {
   LX l -> lu_byte extra_[LUA_EXTRASPACE]; 
@@ -70,21 +70,21 @@ void f_luaopen (lua_State *L, void *ud) {
 
 // 4. 初始化Lua虚拟栈:
 // L->stack分配Lua值TValue的一个数组，大小默认是40个（保存在L->stacksize中），每个元素都被初始化为nil
-// 40个元素中，Lua保留最后的5个（EXTRA_STACK）作为额外空间使用，L->stack_last指向栈中额外空间的第1个元素
+// 40个元素中，Lua保留最后5个（EXTRA_STACK）作为额外空间使用，L->stack_last指向栈中额外空间的第1个元素
 // L->top表示栈中可以使用的第1个元素，因此宿主程序可以使用的栈空间范围是[L->top, L->stack_last)
 void stack_init (lua_State* L, lua_State* hint) {
   int i; CallInfo *ci;
-  // 分配Lua状态的虚拟栈并都初始化成nil
+  // 分配Lua状态的虚拟栈并将所有元素都初始化成nil
   L->stack = luaM_newvector(hint, BASIC_STACK_SIZE, TValue);
   L->stacksize = BASIC_STACK_SIZE; 
   for (i = 0; i < BASIC_STACK_SIZE; i++) setnilvalue(L->stack + i); 
-  // Lua保留5个额外空间，宿主程序可以使用空间从L->top到L->stack_last
+  // Lua保留5个额外空间，宿主程序可以使用的空间从L->top到L->stack_last
   L->top = L->stack; 
   L->stack_last = L->stack + L->stacksize - EXTRA_STACK;
-  // 初始化Lua状态中第1个函数的调用信息（L->base_ci），并将当前函数的调用信息指向它（L->ci = &L->base_ci）
+  // 初始化Lua状态中第一个函数的调用信息（L->base_ci），并将当前函数的调用信息指向它（L->ci = &L->base_ci）
   ci = &L->base_ci; ci->next = ci->previous = NULL; ci->callstatus = 0; 
-  ci->func = L->top; setnilvalue(L->top++);     // 第1个函数初始化为nil
-  ci->top = L->top + LUA_MINSTACK; L->ci = ci;  // 函数可以使用的空间默认为20个元素（LUA_MINSTACK）
+  ci->func = L->top; setnilvalue(L->top++);     // 第一个函数初始化为nil
+  ci->top = L->top + LUA_MINSTACK; L->ci = ci;  // 当前函数可以使用的空间默认为20个元素（LUA_MINSTACK）
 }
 
 // 4.1 Lua栈中的调用信息：
@@ -112,6 +112,20 @@ typedef struct CallInfo {
 } CallInfo;
 
 // 5. 初始化Lua注册表
+// Lua注册表保存在全局状态g->l_registry变量中，它有两个预定义值：主线程、全局环境
+void init_registry (lua_State *L, global_State *g) {
+  TValue temp;
+  // 新分配一个注册表关联到全局状态g->l_registry，并将表数组部分的大小设置为2个（LUA_RIDX_LAST）
+  Table *registry = luaH_new(L); sethvalue(L, &g->l_registry, registry);
+  luaH_resize(L, registry, LUA_RIDX_LAST, 0);
+  // 设置第1个预定义值-主线程L：g->registry[LUA_RIDX_MAINTHREAD] = L
+  setthvalue(L, &temp, L);
+  luaH_setint(L, registry, LUA_RIDX_MAINTHREAD, &temp);
+  // 设置第2个预定义值-新分配的全局环境：g->registry[LUA_RIDX_GLOBALS]，全局环境是用于保存Lua全局变量的表
+  sethvalue(L, &temp, luaH_new(L));
+  luaH_setint(L, registry, LUA_RIDX_GLOBALS, &temp);
+}
+
 // 6. 其他初始化工作
 ```
 
