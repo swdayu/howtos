@@ -36,9 +36,9 @@ The second argument, `ud`, is an opaque pointer that Lua passes to the allocator
 
 ### 代码追踪
 ```c
-// 1. 该函数首先使用内存分配函数`f`分配一个结构体LG，它包含全局状态g、Lua状态l.l、以及额外空间l.extra_；
+// 1. 该函数首先使用内存分配函数`f`分配一个结构体LG，它包含全局状态g、Lua状态l.l、以及额外内存l.extra_；
 // 然后对这个结构体进行初始化，最后返回这个结构体中的Lua状态的指针&l.l
-#define LUA_EXTRASPACE	(sizeof(void*)) // 额外空间默认大小是一个指针
+#define LUA_EXTRASPACE	(sizeof(void*)) // 额外内存默认大小是一个指针
 typedef struct LG {
   LX l -> lu_byte extra_[LUA_EXTRASPACE]; 
           lua_State l;
@@ -48,7 +48,7 @@ typedef struct LG {
 // 2. 传入函数的参数保存在全局状态frealloc和ud中；
 // 新分配的结构体中的Lua状态L称为该全局状态的主线程，关联在全局状态mainthread中；
 // 而C语言可以访问的Lua注册表保存在全局状态l_registery中;
-// 通过Lua状态L，用L->l_G或G(L)可以访问到全局状态，用lua_getextraspace(L)可以获取到额外空间的地址，
+// 通过Lua状态L，用L->l_G或G(L)可以访问到全局状态，用lua_getextraspace(L)可以获取到额外内存的地址，
 // 用fromstate(L)可以获取到分配的结构体的首地址；
 L = &l.l;
 L->l_G = g;
@@ -212,7 +212,7 @@ but has an independent execution stack.
 新线程与原线程`L`共享相同的全局环境，但拥有完全独立的Lua栈。
 
 ### 代码追踪
-```
+```c
 // 1. 新分配一个LX结构体，并对这个结构体进行初始化，最后返回这个结构体中的Lua状态指针&l
 typedef struct LX {
   lu_byte extra_[LUA_EXTRASPACE];
