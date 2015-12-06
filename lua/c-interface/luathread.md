@@ -126,7 +126,26 @@ void init_registry (lua_State *L, global_State *g) {
   luaH_setint(L, registry, LUA_RIDX_GLOBALS, &temp);
 }
 
-// 6. 其他初始化工作
+// 6. 初始化全局状态中的字符串哈希表和字符串缓存
+// 设置字符串哈希表的大小，填充有效的字符串到字符串缓存中
+typedef struct global_State {
+  stringtable strt;         // 字符串哈希表
+  TString* memerrmsg;       // 内存错误消息
+  Tstring* strcache[53][2]; // 字符串缓存
+  // ...
+} global_State;
+void luaS_init (lua_State *L) {
+  // 设置字符串哈希表的大小为128（MINSTRTABSIZE）
+  global_State *g = G(L); int i, j;
+  luaS_resize(L, MINSTRTABSIZE);
+  // 预定义内存错误字符串为"not enough memory"，并设置不让垃圾收集器收集
+  g->memerrmsg = luaS_newliteral(L, MEMERRMSG);
+  luaC_fix(L, obj2gco(g->memerrmsg));
+  // 填充有效的字符串（预定义的内存错误字符串）到字符串缓存中
+  for (i = 0; i < STRCACHE_N; i++)
+    for (j = 0; j < STRCACHE_M; j++)
+      g->strcache[i][j] = g->memerrmsg;
+}
 ```
 
 ### luaL_newstate [-0, +0, –]
