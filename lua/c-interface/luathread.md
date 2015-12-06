@@ -36,7 +36,7 @@ The second argument, `ud`, is an opaque pointer that Lua passes to the allocator
 
 代码追踪：
 ```c
-// 1. 该函数使用`f`分配一个结构体LG，它包含全局状态g、Lua状态l.l、以及额外空间l.extra_；
+// 1. 该函数首先使用内存分配函数`f`分配一个结构体LG，它包含全局状态g、Lua状态l.l、以及额外空间l.extra_；
 #define LUA_EXTRASPACE	(sizeof(void*)) // 额外空间默认大小是一个指针
 typedef struct LG {
   LX l -> lu_byte extra_[LUA_EXTRASPACE]; 
