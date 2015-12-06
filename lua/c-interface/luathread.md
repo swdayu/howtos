@@ -146,6 +146,42 @@ void luaS_init (lua_State *L) {
     for (j = 0; j < STRCACHE_M; j++)
       g->strcache[i][j] = g->memerrmsg;
 }
+
+// 7. 设置全局状态中的tag-method名称
+// luaT_eventname: "__index" "__newindex" "__gc" "__mode" "__len" "__eq" "__add" 
+// "__sub" "__mul" "__mod" "__pow" "__div" "__idiv" "__band" "__bor" "__bxor" 
+// "__shl" "__shr" "__unm" "__bnot" "__lt" "__le" "__concat" "__call"
+typedef struct global_State {
+  TString* tmname[TM_N]; // tag-method名称字符串数组
+  // ...
+} global_State;
+void luaT_init (lua_State *L) {
+  int i;
+  for (i=0; i<TM_N; i++) {
+    // 初始化tag-method名称字符串数组，并将这个些字符串设置成不让垃圾收集器进行收集
+    G(L)->tmname[i] = luaS_new(L, luaT_eventname[i]);
+    luaC_fix(L, obj2gco(G(L)->tmname[i]));
+  }
+}
+
+// 8. 创建字符串"_ENV"以及Lua保留字符串，并将它们设置成不进行垃圾收集
+// 可以进行垃圾收集的对象都保存在全局状态g->allgc列表中
+// 不进行垃圾收集的对象保存在全局状态g->fixedgc列表中
+// luaX_tokens: "and" "break" "do" "else" "elseif" "end" "false" "for" "function" "goto" "if"
+// "in" "local" "nil" "not" "or" "repeat" "return" "then" "true" "until" "while"
+// "//" ".." "..." "==" ">=" "<=" "~=" "<<" ">>" "::" "<eof>" "<number>" "<integer>" "<name>" "<string>"
+void luaX_init (lua_State *L) {
+  int i;
+  // 新创建环境字符串"_ENV"，并设置成不让垃圾收集器进行收集
+  TString *e = luaS_newliteral(L, LUA_ENV);  // LUA_ENV: "_ENV"
+  luaC_fix(L, obj2gco(e));
+  // 新创建Lua保留字符串，并将这些字符串设置成不让垃圾收集器收集
+  for (i=0; i<NUM_RESERVED; i++) {
+    TString *ts = luaS_new(L, luaX_tokens[i]);
+    luaC_fix(L, obj2gco(ts));  /* reserved words are never collected */
+    ts->extra = cast_byte(i+1);  /* reserved word */
+  }
+}
 ```
 
 ### luaL_newstate [-0, +0, –]
