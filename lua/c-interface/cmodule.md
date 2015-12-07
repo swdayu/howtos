@@ -56,7 +56,7 @@ Lua提供了一个预定义的**注册表**，C可以用它来存储需要的Lua
 `LUA_RIDX_MAINTHREAD`对应**Lua状态**的主线程（它是与**Lua状态**一起创建的），
 `LUA_RIDX_GLOBALS`对应全局环境。
 
-### lua_CFunction
+## lua_CFunction
 ```c
 typedef int (*lua_CFunction)(lua_State* L);
 ```
@@ -97,7 +97,7 @@ static int foo (lua_State *L) {
 }
 ```
 
-### lua_upvalueindex [-0, +0, –]
+## lua_upvalueindex [-0, +0, –]
 ```c
 int lua_upvalueindex(int i);
 ```
@@ -105,7 +105,7 @@ int lua_upvalueindex(int i);
 
 返回当前函数的第`i`个**上值**的**伪索引**。
 
-### lua_pushcclosure [-n, +1, e]
+## lua_pushcclosure [-n, +1, e]
 ```c
 void lua_pushcclosure(lua_State* L, lua_CFunction fn, int n);
 ```
@@ -127,9 +127,36 @@ In that case, it never raises a memory error.
 最大的上值个数是255。如果`n`是0，这个函数仅仅创建一个C函数，即一个指向C函数的指针。
 在这种情况下，这个函数不会抛出内存异常。
 
-### lua_pushcfunction [-0, +1, –]
+### 代码追踪
+```c
+// 1. 当C函数上值个数为0时，仅将C函数`fn`压入栈中
+setfvalue(L->top, fn);
+api_incr_top(L);
+
+// 2. 否则新创建一个CClosure，将传人的n个上值复制到cl->upvalue[]数组中，最后将这个CClosure压入栈中
+typedef struct CClosure {
+  ClosureHeader;     // 其中的lu_byte nupvalues表示上值的个数（最多255个），它在luaF_newCclosure里面被赋值
+  lua_CFunction f;   // C函数
+  TValue upvalue[1]; // 保存上值的数组，分配结构体时其大小会扩展到sizeof(CClosure)+sizeof(TValue)*(n-1)
+} CClosure;
+void lua_pushcclosure(lua_State* L, lua_CFunction fn, int n) {
+  // 2.1 新分配一个CClosure，设置上值个数（在luaF_newCclosure中），并将传入的C函数保存在cl->f中
+  CClosure *cl = luaF_newCclosure(L, n); cl->f = fn;
+  // 2.2 将n个上值出栈，并将这个n个上值拷贝到cl->upvalue[]数组中
+  L->top -= n;
+  while (n--) {
+    setobj2n(L, &cl->upvalue[n], L->top + n);
+  }
+  // 2.3 将新生成的CClosure入栈
+  setclCvalue(L, L->top, cl);
+  api_incr_top(L);
+}
+```
+
+## lua_pushcfunction [-0, +1, –]
 ```c
 void lua_pushcfunction(lua_State* L, lua_CFunction f);
+#define lua_pushcfunction(L,f) lua_pushcclosure(L, (f), 0)
 ```
 > Pushes a C function onto the stack. 
 This function receives a pointer to a C function and pushes onto the stack a Lua value of type function that, 
@@ -139,7 +166,7 @@ and return its results (see `lua_CFunction`).
 
 将一个C函数压入到栈中，任何可以被Lua调用的C函数都必须遵循有关函数参数和结果传递的规则（见`lua_CFunction`）。
 
-### luaL_ref [-1, +0, e] 
+## luaL_ref [-1, +0, e] 
 ```c
 int luaL_ref(lua_State* L, int t); 
 ```
@@ -162,7 +189,7 @@ The constant `LUA_NOREF` is guaranteed to be different from any reference return
 如果栈顶元素是`nil`，`luaL_ref`会返回一个`LUA_REFNIL`常量。
 而常量`LUA_NOREF`是一个与任何`luaL_ref`返回值都不同的值。
 
-### luaL_unref [-0, +0, –] 
+## luaL_unref [-0, +0, –] 
 ```c
 void luaL_unref(lua_State* L, int t, int ref); 
 ```
@@ -174,7 +201,7 @@ If `ref` is `LUA_NOREF` or `LUA_REFNIL`, `luaL_unref` does nothing.
 释放表中的引用和关联的值。释放之后，这个引用可以被重新使用，而关联的值可以被回收。
 如果指定的引用是`LUA_NOREF`或者`LUA_REFNIL`，则这个函数不会做任何事情。
 
-### luaL_Reg
+## luaL_Reg
 ```c
 typedef struct luaL_Reg {
   const char *name;
@@ -188,7 +215,7 @@ Any array of `luaL_Reg` must end with a sentinel entry in which both name and fu
 这个类型包含C函数的名称和指针，这个类型的数组用于注册C模块的一组C函数（通过调用函数`luaL_setfuncs`）。
 数组必须使用一个空元素结束，其中C函数名称和指针都为`NULL`。
 
-### luaL_newlib [-0, +1, e]
+## luaL_newlib [-0, +1, e]
 ```c
 void luaL_newlib(lua_State* L, const luaL_Reg l[]);
 ```
@@ -199,7 +226,7 @@ The array `l` must be the actual array, not a pointer to it.
 创建一个注册了C函数的新表，它是通过函数`luaL_newlibtable`和`luaL_setfuncs`来实现的。
 它是一个宏，指定的数组`l`必须是一个实际的数组，而不能是一个指向它的指针。
 
-### luaL_newlibtable [-0, +1, e]
+## luaL_newlibtable [-0, +1, e]
 ```c
 void luaL_newlibtable(lua_State* L, const luaL_Reg l[]);
 ```
@@ -210,7 +237,7 @@ It is implemented as a macro. The array `l` must be the actual array, not a poin
 创建一个对应大小的新表，并将它压入到栈中，它通常与函数`luaL_setfuncs`一起使用。
 它是一个宏，指定的数组`l`必须是一个实际的数组，而不能是一个指向它的指针。
 
-### luaL_setfuncs [-nup, +0, e]
+## luaL_setfuncs [-nup, +0, e]
 ```c
 void luaL_setfuncs(lua_State* L, const luaL_Reg* l, int nup);
 ```
@@ -225,7 +252,7 @@ These values are popped from the stack after the registration.
 如果`nup`不是0，则表示这些函数共享`nup`个上值，调用这个函数之前必须将所有上值都压入到栈中。
 最后这些上值会从栈中移除。
 
-### luaL_openlibs [-0, +0, e]
+## luaL_openlibs [-0, +0, e]
 ```c
 void luaL_openlibs(lua_State* L);
 ```
@@ -233,7 +260,7 @@ void luaL_openlibs(lua_State* L);
 
 打开所有Lua标准的C模块，并将它们关联到指定的Lua状态中。
 
-### luaL_requiref [-0, +1, e]
+## luaL_requiref [-0, +1, e]
 ```c
 void luaL_requiref(lua_State* L, const char* modname, lua_CFunction openf, int glb);
 ```
@@ -247,7 +274,7 @@ Leaves a copy of the module on the stack.
 如果模块名称不在已加载的列表`package.loaded`中，则用模块名称调用函数`openf`并将结果设置到`package.loaded[modname]`。
 如果参数`glb`为真，会将加载的模块保证到名为`modname`的全局变量中。最后，将加载的模块压入栈中。
 
-### lua_getextraspace [-0, +0, –]
+## lua_getextraspace [-0, +0, –]
 ```c
 void* lua_getextraspace(lua_State* L);
 ```
