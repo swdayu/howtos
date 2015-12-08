@@ -224,7 +224,7 @@ lua_State* lua_newthread(lua_State* parent) {
   setthvalue(parent, parent->top, L);
   api_incr_top(parent);
   // 根据父状态对新状态L进行初始化
-  preinit_thread(L, g);
+  preinit_thread(L, g); // Lua状态中关联的全局状态L->l_G会指向parent->l_G
   L->hookmask = parent->hookmask;
   L->basehookcount = parent->basehookcount;
   L->hook = parent->hook;
