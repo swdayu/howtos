@@ -375,6 +375,22 @@ void lua_xmove(lua_State* from, lua_State* to, int n);
 > Exchange values between different threads of the same state.
 This function pops `n` values from the stack `from`, and pushes them onto the stack `to`.
 
+### 代码追踪
+```c
+// 将from栈中的n个元素拷贝到to栈中
+void lua_xmove (lua_State *from, lua_State *to, int n) {
+  // 1. 如果两个栈相同，直接返回
+  if (from == to) return;
+  // 2. 移除from栈的n个元素
+  from->top -= n;
+  // 3. 将这n个元素拷贝到to栈中
+  for (i = 0; i < n; i++) {
+    setobj2s(to, to->top, from->top + i);
+    to->top++;
+  }
+}
+```
+
 ## lua_yield [-?, +?, e]
 ```c
 int lua_yield (lua_State *L, int nresults);
