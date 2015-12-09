@@ -55,19 +55,22 @@ As in Lua, this function may trigger a metamethod for the "newindex" event (see 
 ```c
 int lua_geti (lua_State *L, int index, lua_Integer i);
 ```
-Pushes onto the stack the value `t[i]`, where `t` is the value at the given `index`. 
+> Pushes onto the stack the value `t[i]`, where `t` is the value at the given `index`. 
 As in Lua, this function may trigger a metamethod for the "index" event (see §2.4).
-
 Returns the type of the pushed value.
+
+将`index`位置上的对像`t`的`i`索引上的值`t[i]`压入到栈中，并返回这个值的类型，
+可能回调用对象的"index"元方法。
 
 ### lua_rawgeti [-0, +1, –]
 ```c
 int lua_rawgeti (lua_State *L, int index, lua_Integer n);
 ```
-Pushes onto the stack the value `t[n]`, where `t` is the table at the given `index`. 
+> Pushes onto the stack the value `t[n]`, where `t` is the table at the given `index`. 
 The access is raw; that is, it does not invoke metamethods.
-
 Returns the type of the pushed value.
+
+与`lua_geti`一样，只是不会调用元方法，在`index`位置上的对象必须是一个表。
 
 ### lua_seti [-1, +0, e]
 ```c
@@ -75,7 +78,6 @@ void lua_seti (lua_State *L, int index, lua_Integer n);
 ```
 Does the equivalent to `t[n] = v`, 
 where `t` is the value at the given `index` and `v` is the value at the top of the stack.
-
 This function pops the value from the stack. 
 As in Lua, this function may trigger a metamethod for the "newindex" event (see §2.4).
 
