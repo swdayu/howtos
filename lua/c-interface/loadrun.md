@@ -1,4 +1,17 @@
 
+## lua_Reader
+
+```c
+typedef const char* (*lua_Reader) (lua_State *L, void *data, size_t *size);
+```
+The reader function used by `lua_load`. 
+Every time it needs another piece of the chunk, `lua_load` calls the reader, passing along its `data` parameter.
+The reader must return a pointer to a block of memory with a new piece of the chunk 
+and set size to the block size.
+The block must exist until the reader function is called again. 
+To signal the end of the chunk, the reader must return NULL or set size to zero. 
+The reader function may return pieces of any size greater than zero.
+
 ## lua_load [-0, +1, –]
 ```c
 int lua_load(lua_State* L, lua_Reader reader, void* data, const char* chunkname, const char* mode);
@@ -32,19 +45,6 @@ If the resulting function has upvalues, its first upvalue is set to the value of
 stored at index `LUA_RIDX_GLOBALS` in the registry (see §4.5). 
 When loading main chunks, this upvalue will be the `_ENV` variable (see §2.2). 
 Other upvalues are initialized with `nil`.
-
-## lua_Reader
-
-```c
-typedef const char* (*lua_Reader) (lua_State *L, void *data, size_t *size);
-```
-The reader function used by `lua_load`. 
-Every time it needs another piece of the chunk, `lua_load` calls the reader, passing along its `data` parameter.
-The reader must return a pointer to a block of memory with a new piece of the chunk 
-and set size to the block size.
-The block must exist until the reader function is called again. 
-To signal the end of the chunk, the reader must return NULL or set size to zero. 
-The reader function may return pieces of any size greater than zero.
 
 ## luaL_loadbuffer [-0, +1, –]
 
@@ -265,8 +265,9 @@ It returns false if there are no errors or true in case of errors.
 ## lua_call [-(nargs+1),+nresults,e]
 ```c
 void lua_call(lua_State* L, int nargs, int nresults);
+#define lua_call(L,n,r) lua_callk(L, (n), (r), 0, NULL)
 ```
-To call a function you must use the following protocol: first, the function to be called is pushed onto the stack;
+> To call a function you must use the following protocol: first, the function to be called is pushed onto the stack;
 then, the arguments to the function are pushed in direct order; that is, the first argument is pushed first.
 Finally you call `lua_call`; `nargs` is the number of arguments that you pushed onto the stack.
 All arguments and the function value are popped from the stack when the function is called.
@@ -276,6 +277,7 @@ In this case, all results from the function are pushed.
 Lua takes care that the returned values to fit into the stack sapce.
 The function results are pushed onto the stack in direct order (the first result is pushed first),
 so that after the call the last result is on the top of the stack.
+Any error inside the called function is propagated upwards (with a `longjmp`). 
 
 用C API调用Lua函数需要遵循如下规则：首先将要调用的函数入栈；
 然后将函数的参数，从第一个到最后一个依次入栈。
@@ -283,17 +285,13 @@ so that after the call the last result is on the top of the stack.
 函数执行时，传入的参数和栈底的函数会出栈。函数返回时，会将函数的结果入栈。
 结束的个数会调整到`nresults`个，除非`nresults`的值为LUA_MULTRET，此时函数所有的结果都会入栈。
 Lua会管理好结果的入栈操作。函数结果的入栈顺序是第一个结果先入栈，因此调用完后最后一个结果会在栈顶。
-
 调用Lua函数任何错误都会通过`longjmp`向上传递。
 如下所示的是与Lua函数等价的C API调用。
 
-Any error inside the called function is propagated upwards (with a `longjmp`). 
-The following example shows how the host program can do the equivalent to this Lua code:
 ```c
-a = f("how", t.x, 14);
-```
-Here it is in C:
-```
+// lua code:
+a = f("how", t.x, 14)
+// do same work with c:
 lua_getglobal(L, "f");                  /* function to be called */
 lua_pushliteral(L, "how");                       /* 1st argument */
 lua_getglobal(L, "t");                    /* table to be indexed */
@@ -304,37 +302,41 @@ lua_call(L, 3, 1);     /* call 'f' with 3 arguments and 1 result */
 lua_setglobal(L, "a");                         /* set global 'a' */
 ```
 
-Note that the code above is *balanced*: at its end, the stack is back to its original configuration.
+> Note that the code above is *balanced*: at its end, the stack is back to its original configuration.
 This is considered good programming practice.
 
 注意的是上面的代码是*平衡的*：即在最后，栈的状态回到与原始状态一样。
 这被认为是一种好的编程方法。
 
-## lua_callk [-(nargs+1),+nresults,e]
-```c
-void lua_callk(lua_State* L, int nargs, int nresults, lua_LContent ctx, lua_KFunction k);
-```
-
-This function behaves exactly like `lua_call`, but allows the called function to yield (see 4.7).
-
-该函数跟`lua_call`一样，但允许被调用的Lua函数yield。
-
-
 ## lua_KFunction
 ```c
 typedef int (*lua_KFunction)(lua_State* L, int status, lua_KContext ctx);
 ```
+> Type for continuation functions (4.7).
 
-Type for continuation functions (4.7).
+> **lua_KContext**
 
-**lua_KContext**
-
-The type for continuation-function contexts. It must be a numeric type.
+> The type for continuation-function contexts. It must be a numeric type.
 This type is deinfed as `intptr_t` when `intptr_t` is available, so that it can store pointers too.
 Otherwise, it is defined as `ptrdiff_t`.
 
 Continuation函数的类型（见4.7）。类型`lua_KContent`是Continuation函数的上下文。
 它是一个数值类型，如果`intptr_t`存在则这个类型被定义成`intptr_t`，因此可以存储指针值。否则它被定义成`ptrdiff_t`。
+
+## lua_callk [-(nargs+1),+nresults,e]
+```c
+void lua_callk(lua_State* L, int nargs, int nresults, lua_LContent ctx, lua_KFunction k);
+```
+> This function behaves exactly like `lua_call`, but allows the called function to yield (see 4.7).
+
+该函数跟`lua_call`一样，但允许函数进行Yield。
+
+### 代码追踪
+```c
+void lua_callk (lua_State *L, int nargs, int nresults, lua_KContext ctx, lua_KFunction k) {
+  
+}
+```
 
 ## lua_pcall [-(nargs + 1), +(nresults|1), –]
 ```c
