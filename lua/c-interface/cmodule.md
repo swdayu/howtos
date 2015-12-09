@@ -189,6 +189,43 @@ The constant `LUA_NOREF` is guaranteed to be different from any reference return
 如果栈顶元素是`nil`，`luaL_ref`会返回一个`LUA_REFNIL`常量。
 而常量`LUA_NOREF`是一个与任何`luaL_ref`返回值都不同的值。
 
+### 代码追踪
+```c
+// 这个函数的一般步骤：
+// 情况一：ref = t[0]; 
+//         t[0] = t[ref]; 
+//         t[ref] = stack top element;
+// 情况二：ref = #t + 1;
+//         t[ref] = stack top element;
+#define freelist 0
+int luaL_ref (lua_State *L, int t) {
+  int ref;
+  // 1. 如果栈顶元素是nil则移除这个元素并返回LUA_REFNIL
+  if (lua_isnil(L, -1)) {
+    lua_pop(L, 1);  /* remove from stack */
+    return LUA_REFNIL;  /* 'nil' has a unique fixed reference */
+  }
+  // 2. 将表中的元素t[0]压入栈中，并将这个值转换成整数作为ref值，最后将t[0]这个值从栈中移除
+  t = lua_absindex(L, t);
+  lua_rawgeti(L, t, freelist);  /* get first free element */
+  ref = (int)lua_tointeger(L, -1);  /* ref = t[freelist] */
+  lua_pop(L, 1);
+  // 3. 如果ref值为0则设置为表t的长度加1 
+  if (ref == 0) {
+    ref = (int)lua_rawlen(L, t) + 1;
+  }
+  // 4. 否则将t[ref]位置上的值压人到栈中，将设置t[0]=t[ref]，最后将t[ref]这个值从栈中移除
+  else {  /* any free element? */
+    lua_rawgeti(L, t, ref);
+    lua_rawseti(L, t, freelist);
+  }
+  // 5. 将栈顶元素赋值给t[ref]，并将栈顶元素从栈中移除
+  lua_rawseti(L, t, ref);
+  // 6. 返回这个ref值
+  return ref;
+}
+```
+
 ## luaL_unref [-0, +0, –] 
 ```c
 void luaL_unref(lua_State* L, int t, int ref); 
@@ -200,6 +237,21 @@ If `ref` is `LUA_NOREF` or `LUA_REFNIL`, `luaL_unref` does nothing.
 
 释放表中的引用和关联的值。释放之后，这个引用可以被重新使用，而关联的值可以被回收。
 如果指定的引用是`LUA_NOREF`或者`LUA_REFNIL`，则这个函数不会做任何事情。
+
+### 代码追踪
+```c
+// 1. t[ref] = t[0];
+// 2. t[0] = ref;
+void luaL_unref (lua_State *L, int t, int ref) {
+  if (ref >= 0) {
+    t = lua_absindex(L, t);
+    lua_rawgeti(L, t, freelist);
+    lua_rawseti(L, t, ref);  /* t[ref] = t[freelist] */
+    lua_pushinteger(L, ref);
+    lua_rawseti(L, t, freelist);  /* t[freelist] = ref */
+  }
+}
+```
 
 ## luaL_Reg
 ```c
