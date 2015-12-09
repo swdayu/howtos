@@ -1,25 +1,26 @@
 
-## Basic
+# Basic
 
-luaL_checkstack
+## luaL_checkstack [-0, +0, v] 
+```c
+void luaL_checkstack (lua_State *L, int sz, const char *msg); 
+```
+> Grows the stack size to top + sz elements, raising an error if the stack cannot grow to that size. msg is an additional text to go into the error message (or NULL for no additional text).
 
-[-0, +0, v] void luaL_checkstack (lua_State *L, int sz, const char *msg); Grows the stack size to top + sz elements, raising an error if the stack cannot grow to that size. msg is an additional text to go into the error message (or NULL for no additional text).
-
-### lua_absindex[-0, +0, –]
+## lua_absindex[-0, +0, –]
 ```c
 int lua_absindex (lua_State *L, int idx);
 ```
-Converts the acceptable index `idx` into an equivalent absolute index
+> Converts the acceptable index `idx` into an equivalent absolute index
 (that is, one that does not depend on the stack top).
 
 将**可接受索引**转换成绝对索引（即从1开始的不依赖于栈顶的索引）。
 
-### lua_checkstack [-0, +0, –]
+## lua_checkstack [-0, +0, –]
 ```c
 int lua_checkstack (lua_State *L, int n);
 ```
-
-Ensures that the stack has space for at least `n` extra slots. 
+> Ensures that the stack has space for at least `n` extra slots. 
 It returns false if it cannot fulfill the request, 
 either because it would cause the stack to be larger than a fixed maximum size 
 (typically at least several thousand elements) or because it cannot allocate memory for the extra space. 
@@ -29,53 +30,50 @@ This function never shrinks the stack; if the stack is already larger than the n
 如果请求失败它会返回`false`，原因可能是总大小超过`LUAI_MAXSTACK`或内存分配失败。
 函数永远不会缩减栈的大小；如果栈已经超过请求空间的大小，会什么也不做。
 
-### lua_copy [-0, +0, –]
+## lua_copy [-0, +0, –]
 ```c
 void lua_copy (lua_State *L, int fromidx, int toidx);
 ```
-Copies the element at index `fromidx` into the valid index `toidx`, replacing the value at that position. 
+> Copies the element at index `fromidx` into the valid index `toidx`, replacing the value at that position. 
 Values at other positions are not affected.
 
 将栈中`fromidx`中的元素拷贝到`toidx`指定的元素中，目的元素值会被覆盖。
 其他位置的值保持不变。
 
-### lua_insert [-1, +1, –]
+## lua_insert [-1, +1, –]
 ```c
 void lua_insert (lua_State *L, int index);
 ```
-Moves the top element into the given valid `index`, shifting up the elements above this index to open space. 
+> Moves the top element into the given valid `index`, shifting up the elements above this index to open space. 
 This function cannot be called with a pseudo-index, because a pseudo-index is not an actual stack position.
 
 将栈顶元素插入到`index`对应的位置上，插入位置之上的元素都往上移。
 不能用伪索引调用这个函数，因为伪索引不是真正的栈位置。
 
-### lua_remove [-1, +0, –]
+## lua_remove [-1, +0, –]
 ```c
 void lua_remove (lua_State *L, int index);
 ```
-
-Removes the element at the given valid `index`, shifting down the elements above this index to fill the gap. 
+> Removes the element at the given valid `index`, shifting down the elements above this index to fill the gap. 
 This function cannot be called with a pseudo-index, because a pseudo-index is not an actual stack position.
 
 将`index`位置上的元素移除，移除位置之上的元素都往下移填补空位。
 不能用伪索引调用这个函数，因为伪索引不是真正的栈位置。
 
-### lua_replace [-1, +0, –]
+## lua_replace [-1, +0, –]
 ```c
 void lua_replace (lua_State *L, int index);
 ```
-
-Moves the top element into the given valid `index` without shifting any element 
+> Moves the top element into the given valid `index` without shifting any element 
 (therefore replacing the value at that given index), and then pops the top element.
 
 用栈顶元素将位置`index`上的元素替换掉，然后将栈顶元素出栈。
 
-### lua_rotate [-0, +0, –]
+## lua_rotate [-0, +0, –]
 ```c
 void lua_rotate (lua_State *L, int idx, int n);
 ```
-
-Rotates the stack elements between the valid index `idx` and the top of the stack. 
+> Rotates the stack elements between the valid index `idx` and the top of the stack. 
 The elements are rotated `n` positions in the direction of the top, for a positive `n`, 
 or `-n` positions in the direction of the bottom, for a negative `n`. 
 The absolute value of `n` must not be greater than the size of the slice being rotated. 
@@ -86,11 +84,10 @@ This function cannot be called with a pseudo-index, because a pseudo-index is no
 移动次数`n`的绝对值不能比移动元素的个数还要大。
 不能用伪索引调用这个函数，因为伪索引不是真正的栈位置。
 
-### lua_next [-1, +(2|0), e]
+## lua_next [-1, +(2|0), e]
 ```c
 int lua_next (lua_State *L, int index);
 ```
-
 Pops a key from the stack, and pushes a key–value pair from the table at the given index 
 (the "next" pair after the given key). 
 If there are no more elements in the table, then `lua_next` returns 0 (and pushes nothing).
@@ -114,12 +111,12 @@ Recall that `lua_tolstring` may change the value at the given index; this confus
 
 See function `next` for the caveats of modifying the table during its traversal.
 
-### lua_type [-0, +0, –]
+## lua_type [-0, +0, –]
 ```c
 int lua_type (lua_State *L, int index);
 ```
 
-Returns the type of the value in the given valid index, 
+> Returns the type of the value in the given valid index, 
 or `LUA_TNONE` for a non-valid (but acceptable) index. 
 The types returned by `lua_type` are coded by the following constants defined in `lua.h`: 
 `LUA_TNIL` (0), `LUA_TNUMBER`, `LUA_TBOOLEAN`, `LUA_TSTRING`, `LUA_TTABLE`, 
@@ -149,7 +146,7 @@ int lua_isfunction (lua_State *L, int index);
 int lua_isinteger (lua_State *L, int index);
 ```
 
-### lua_arith [-(2|1), +1, e]
+## lua_arith [-(2|1), +1, e]
 ```c
 void lua_arith (lua_State *L, int op);
 ```
@@ -174,7 +171,7 @@ The value of `op` must be one of the following constants:
 - LUA_OPSHL: performs left shift (<<)
 - LUA_OPSHR: performs right shift (>>)
 
-### lua_compare [-0, +0, e]
+## lua_compare [-0, +0, e]
 ```c
 int lua_compare (lua_State *L, int index1, int index2, int op);
 ```
@@ -188,7 +185,7 @@ The value of op must be one of the following constants:
 - LUA_OPLT: compares for less than (<)
 - LUA_OPLE: compares for less or equal (<=)
 
-### lua_rawequal [-0, +0, –]
+## lua_rawequal [-0, +0, –]
 ```c
 int lua_rawequal (lua_State *L, int index1, int index2);
 ```
@@ -196,7 +193,7 @@ Returns 1 if the two values in indices `index1` and `index2` are primitively equ
 (that is, without calling metamethods). 
 Otherwise returns 0. Also returns 0 if any of the indices are not valid.
 
-### lua_concat [-n, +1, e]
+## lua_concat [-n, +1, e]
 ```c
 void lua_concat (lua_State *L, int n);
 ```
@@ -205,7 +202,7 @@ If `n` is 1, the result is the single value on the stack (that is, the function 
 if `n` is 0, the result is the empty string. 
 Concatenation is performed following the usual semantics of Lua (see §3.4.6).
 
-### lua_len [-0, +1, e]
+## lua_len [-0, +1, e]
 ```c
 void lua_len (lua_State *L, int index);
 ```
@@ -214,8 +211,11 @@ It is equivalent to the `#` operator in Lua (see §3.4.7) and
 may trigger a metamethod for the "length" event (see §2.4). 
 The result is pushed on the stack.
 
+## lua_rawlen
+```c
+```
 
-### lua_toboolean [-0, +0, –]
+## lua_toboolean [-0, +0, –]
 ```c
 int lua_toboolean (lua_State *L, int index);
 ```
@@ -224,30 +224,34 @@ Like all tests in Lua, `lua_toboolean` returns true for any Lua value different 
 otherwise it returns `false`. 
 (If you want to accept only actual boolean values, use lua_isboolean to test the value's type.)
 
-### lua_tocfunction [-0, +0, –]
+## lua_tocfunction [-0, +0, –]
 ```c
 lua_CFunction lua_tocfunction (lua_State *L, int index);
 ```
 Converts a value at the given index to a C function. 
 That value must be a C function; otherwise, returns NULL.
 
-### lua_tointegerx [-0, +0, –]
+## lua_tointegerx [-0, +0, –]
 ```c
-lua_Integer lua_tointegerx (lua_State *L, int index, int *isnum);
+lua_Integer lua_tointegerx(lua_State* L, int index, int* isnum);
 ```
-Converts the Lua value at the given index to the signed integral type `lua_Integer`. 
+> Converts the Lua value at the given index to the signed integral type `lua_Integer`. 
 The Lua value must be an integer, or a number or string convertible to an integer (see §3.4.3); 
 otherwise, `lua_tointegerx` returns 0.
-
 If `isnum` is not NULL, its referent is assigned a boolean value that indicates whether the operation succeeded.
 
-### lua_tointeger [-0, +0, –]
-```c
-lua_Integer lua_tointeger (lua_State *L, int index);
-```
-Equivalent to `lua_tointegerx` with isnum equal to NULL.
+将栈位置`index`上的值转换成整数并返回，这个位置上的值必须是一个整数、或可能转换成整数的浮点数或字符串，
+否则这个函数返回0。如果`isnum`不为空，则会写入一个布尔值表示这个函数的操作是否成功。
 
-### lua_tolstring [-0, +0, e]
+## lua_tointeger [-0, +0, –]
+```c
+lua_Integer lua_tointeger(lua_State* L, int index);
+```
+> Equivalent to `lua_tointegerx` with `isnum` equal to NULL.
+
+相当于lua_tointegerx(L, index, NULL)。
+
+## lua_tolstring [-0, +0, e]
 ```c
 const char *lua_tolstring (lua_State *L, int index, size_t *len);
 ```
@@ -263,13 +267,13 @@ This string always has a zero ('\0') after its last character (as in C), but can
 Because Lua has garbage collection, there is no guarantee that the pointer returned by `lua_tolstring` 
 will be valid after the corresponding Lua value is removed from the stack.
 
-### lua_tostring [-0, +0, e]
+## lua_tostring [-0, +0, e]
 ```c
 const char *lua_tostring (lua_State *L, int index);
 ```
 Equivalent to `lua_tolstring` with `len` equal to NULL.
 
-### lua_tonumberx [-0, +0, –]
+## lua_tonumberx [-0, +0, –]
 ```c
 lua_Number lua_tonumberx (lua_State *L, int index, int *isnum);
 ```
@@ -279,13 +283,13 @@ otherwise, `lua_tonumberx` returns 0.
 
 If `isnum` is not NULL, its referent is assigned a boolean value that indicates whether the operation succeeded.
 
-### lua_tonumber [-0, +0, –]
+## lua_tonumber [-0, +0, –]
 ```c
 lua_Number lua_tonumber (lua_State *L, int index);
 ```
 Equivalent to `lua_tonumberx` with isnum equal to NULL.
 
-### lua_stringtonumber [-0, +1, –]
+## lua_stringtonumber [-0, +1, –]
 ```c
 size_t lua_stringtonumber (lua_State *L, const char *s);
 ```
@@ -296,7 +300,7 @@ The string may have leading and trailing spaces and a sign.
 If the string is not a valid numeral, returns 0 and pushes nothing. 
 (Note that the result can be used as a boolean, true if the conversion succeeds.)
 
-### lua_topointer [-0, +0, –]
+## lua_topointer [-0, +0, –]
 ```c
 const void *lua_topointer (lua_State *L, int index);
 ```
@@ -306,14 +310,14 @@ Different objects will give different pointers. There is no way to convert the p
 
 Typically this function is used only for hashing and debug information.
 
-### lua_tothread [-0, +0, –]
+## lua_tothread [-0, +0, –]
 ```c
 lua_State *lua_tothread (lua_State *L, int index);
 ```
 Converts the value at the given index to a Lua thread (represented as `lua_State*`). 
 This value must be a thread; otherwise, the function returns NULL.
 
-### lua_touserdata [-0, +0, –]
+## lua_touserdata [-0, +0, –]
 ```c
 void *lua_touserdata (lua_State *L, int index);
 ```
