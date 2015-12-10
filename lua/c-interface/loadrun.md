@@ -333,9 +333,64 @@ void lua_callk(lua_State* L, int nargs, int nresults, lua_LContent ctx, lua_KFun
 
 ### 代码追踪
 ```c
-void lua_callk (lua_State *L, int nargs, int nresults, lua_KContext ctx, lua_KFunction k) {
-  
+void lua_callk (lua_State* L, int nargs, int nresults, lua_KContext ctx, lua_KFunction k) {
+  StkId func = L->top - (nargs+1);
+  if (k != NULL && L->nny == 0) {  /* need to prepare continuation? */
+    L->ci->u.c.k = k;  /* save continuation */
+    L->ci->u.c.ctx = ctx;  /* save context */
+    luaD_call(L, func, nresults);  /* do the call */
+  }
+  else  /* no continuation or no yieldable */
+    luaD_callnoyield(L, func, nresults);  /* just do the call */
+  adjustresults(L, nresults);
 }
+void luaD_call(lua_State* L, StkId func, int nresults) {
+  if (++L->nCcalls >= LUAI_MAXCCALLS) stackerror(L); // LUAI_MAXCCALLS: 200
+  if (!luaD_precall(L, func, nresults)) luaV_execute(L);
+  L->nCcalls--;
+}
+void luaD_callnoyield(lua_State* L, StdId func, int nresults) {
+  L->nyy++;
+  luaD_call(L, func, nresults);
+  L->nyy--;
+}
+
+// C函数调用流程
+// 1. 
+int luaD_precall(lua_State* L, StkId func, int nresults) {
+  lua_CFunction f;
+  CallInfo *ci;
+  switch (ttype(func)) {
+  case LUA_TCCL:  /* C closure */
+    f = clCvalue(func)->f;
+    goto Cfunc;
+  case LUA_TLCF:  /* light C function */
+    f = fvalue(func);
+    Cfunc:
+    // ...
+    return 1
+  }
+}
+// 2.
+Cfunc:
+int n;  /* number of returns */
+checkstackp(L, LUA_MINSTACK, func);  /* ensure minimum stack size */
+ci = next_ci(L);  /* now 'enter' new function */
+ci->nresults = nresults;
+ci->func = func;
+ci->top = L->top + LUA_MINSTACK;
+lua_assert(ci->top <= L->stack_last);
+ci->callstatus = 0;
+if (L->hookmask & LUA_MASKCALL)
+  luaD_hook(L, LUA_HOOKCALL, -1);
+lua_unlock(L);
+n = (*f)(L);  /* do the actual call */
+lua_lock(L);
+api_checknelems(L, n);
+luaD_poscall(L, ci, L->top - n, n);
+return 1;
+      
+// Lua函数调用流程
 ```
 
 ## lua_pcall [-(nargs + 1), +(nresults|1), –]
