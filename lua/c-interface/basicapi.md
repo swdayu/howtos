@@ -1,4 +1,48 @@
 
+## Lua值
+
+Lua的变量没有类型，所有变量都用C中的一个结构体表示：
+```c
+typedef struct lua_TValue {
+  Value value_;
+  int tt_;
+} TValue;
+typedef union Value {
+  GCObject* gc;    // collectable object
+  void* p;         // light userdata
+  int b;           // boolean
+  lua_CFunction f; // light C function
+  lua_Integer i;   // interger number
+  lua_Number n;    // float number
+} Value;
+typedef struct GCObject {
+  struct GCObject* next;
+  lu_byte tt;
+  lu_byte marked;
+} GCObject;
+```
+
+Lua值的类型（luaValue.tt_）
+```c
+[bit3-0]                   | [bit5-4]
+0x00: LUA_TNIL             | 
+0x01: LUA_TBOOLEAN         | 
+0x02: LUA_TLIGHTUSERDATA   | 
+0x03: LUA_TNUMBER          | [0: float][1: integer]
+0x04: LUA_TSTRING          | [0: short string][1: long string]
+0x05: LUA_TTABLE           | 
+0x06: LUA_TFUNCTION        | [0: Lua closure][1: C function][2: C closure]
+0x07: LUA_TUSERDATA        | 
+0x08: LUA_TTHREAD          | 
+0x09: LUA_TPROTO           | 
+0x0A: LUA_TDEADKEY         | 
+0xFF: LUA_TNONE            | [always 3]
+
+[bit6] [0: non-collectable][1: collectable]
+[bit7] N/A
+```
+
+
 ## lua_Integer
 
 The type of integers in Lua.
