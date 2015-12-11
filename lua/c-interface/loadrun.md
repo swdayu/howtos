@@ -356,15 +356,15 @@ void luaD_callnoyield(lua_State* L, StdId func, int nresults) {
 }
 
 // C函数调用流程
-// 1. 
+// 1. 获取C闭包或C函数的函数指针
 int luaD_precall(lua_State* L, StkId func, int nresults) {
   lua_CFunction f;
   CallInfo *ci;
   switch (ttype(func)) {
-  case LUA_TCCL:  /* C closure */
+  case LUA_TCCL: // 如果是C closure，获取closure中存储的函数指针
     f = clCvalue(func)->f;
     goto Cfunc;
-  case LUA_TLCF:  /* light C function */
+  case LUA_TLCF: // 如果是C函数，获取Lua值中存储的函数luaValue.value_.f
     f = fvalue(func);
     Cfunc:
     // ...
