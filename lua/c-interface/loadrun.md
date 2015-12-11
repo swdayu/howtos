@@ -329,7 +329,7 @@ void lua_callk(lua_State* L, int nargs, int nresults, lua_LContent ctx, lua_KFun
 ```
 > This function behaves exactly like `lua_call`, but allows the called function to yield (see 4.7).
 
-该函数跟`lua_call`一样，但允许函数进行Yield。
+该函数跟`lua_call`一样，但允许函数Yield。
 
 ### 代码追踪
 ```c
