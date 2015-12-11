@@ -358,33 +358,38 @@ void luaD_callnoyield(lua_State* L, StdId func, int nresults) {
 // C函数调用流程
 // 1. 获取C闭包或C函数的函数指针
 int luaD_precall(lua_State* L, StkId func, int nresults) {
-  lua_CFunction f;
-  CallInfo *ci;
+  lua_CFunction f;         // C函数指针类型
   switch (ttype(func)) {
-  case LUA_TCCL: // 如果是C closure，获取closure中存储的函数指针
-    f = clCvalue(func)->f;
+  case LUA_TCCL:           // 当前函数是C closure:
+    f = clCvalue(func)->f; // 获取closure中存储的函数指针
     goto Cfunc;
-  case LUA_TLCF: // 如果是C函数，获取Lua值中存储的函数luaValue.value_.f
-    f = fvalue(func);
-    Cfunc:
-    // ...
-    return 1
+  case LUA_TLCF:           // 当前函数是普通的C函数:
+    f = fvalue(func);      // 获取这个C函数的指针luaValue.value_.f
+    Cfunc: ...             // 见第2步
+    return 1;
   }
 }
-// 2.
-Cfunc:
-int n;  /* number of returns */
-checkstackp(L, LUA_MINSTACK, func);  /* ensure minimum stack size */
-ci = next_ci(L);  /* now 'enter' new function */
+// 2. 为当前函数准备Lua栈空间，保证可用空间大于20个(LUA_MINSTACK)
+checkstackp(L, LUA_MINSTACK, func):
+ -> if (L->stack_last - L->top <= 20) {
+      ptrdiff_t offset = savestack(L, func); // 记住当前函数所在位置的偏移：(char*)func - (char*)L->stack
+      luaC_checkGC(L);
+      luaD_growstack(L, 20); // 增长后的栈大小: max(请求的大小,当前栈大小的2倍)
+      func = restorestack(L, offset); // 恢复当前函数在新栈中的位置：(TValue*)((char*)L->stack + offset)
+    }
+// 3. 准备好当前函数调用信息
+CallInfo *ci = next_ci(L);  /* now 'enter' new function */
 ci->nresults = nresults;
 ci->func = func;
 ci->top = L->top + LUA_MINSTACK;
 lua_assert(ci->top <= L->stack_last);
 ci->callstatus = 0;
+// 4. 
 if (L->hookmask & LUA_MASKCALL)
   luaD_hook(L, LUA_HOOKCALL, -1);
+// 5. 
 lua_unlock(L);
-n = (*f)(L);  /* do the actual call */
+int n = (*f)(L);  /* do the actual call */
 lua_lock(L);
 api_checknelems(L, n);
 luaD_poscall(L, ci, L->top - n, n);
