@@ -373,27 +373,23 @@ int luaD_precall(lua_State* L, StkId func, int nresults) {
 checkstackp(L, LUA_MINSTACK, func):
  if (L->stack_last - L->top <= 20) {
     ptrdiff_t offset = savestack(L, func); // 记住当前函数所在位置的偏移：(char*)func - (char*)L->stack
-    luaC_checkGC(L);
-    luaD_growstack(L, 20); // 增长后的栈大小: max(请求的大小,当前栈大小的2倍)
+    luaC_checkGC(L); // 先做一步垃圾回收：if (G(L)->GCdebt > 0) luaC_step(L);
+    luaD_growstack(L, 20); // 增长栈空间，增长后的大小为: max(请求的大小,当前栈大小的2倍)
     func = restorestack(L, offset); // 恢复当前函数在新栈中的位置：(TValue*)((char*)L->stack + offset)
   }
-// 3. 准备好当前函数调用信息
-CallInfo *ci = next_ci(L);  /* now 'enter' new function */
-ci->nresults = nresults;
-ci->func = func;
-ci->top = L->top + LUA_MINSTACK;
-lua_assert(ci->top <= L->stack_last);
-ci->callstatus = 0;
-// 4. 
-if (L->hookmask & LUA_MASKCALL)
-  luaD_hook(L, LUA_HOOKCALL, -1);
-// 5. 
-lua_unlock(L);
-int n = (*f)(L);  /* do the actual call */
-lua_lock(L);
-api_checknelems(L, n);
+// 3. 准备当前函数调用信息
+CallInfo *ci = next_ci(L);  // 进入调用链下一层，如果下一层为空则会新分配一个CallInfo对象
+ci->nresults = nresults; ci->func = func; ci->callstatus = 0; // 设置返回结果个数、当前函数，并初始化函数调用状态
+ci->top = L->top + LUA_MINSTACK; // 设置函数可以使用的栈空间范围[L->top, ci->top)
+// 4. 如果设置了Hook，先调用luaD_hook
+if (L->hookmask & LUA_MASKCALL) luaD_hook(L, LUA_HOOKCALL, -1);
+// 5. 调用C函数
+// 调用前，栈中保存有当前的函数、传入函数的参数、以及20个可用的栈空间
+// 调用时，C函数会读取栈中的参数，最后将结果压入栈并返回结果的个数
+int n = (*f)(L);
+// 6. 函数调用完之后的操作
 luaD_poscall(L, ci, L->top - n, n);
-return 1;
+
       
 // Lua函数调用流程
 ```
