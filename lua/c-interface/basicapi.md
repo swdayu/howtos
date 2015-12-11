@@ -36,7 +36,7 @@ Lua值的类型（luaValue.tt_）
 0x08: LUA_TTHREAD          | 
 0x09: LUA_TPROTO           | 
 0x0A: LUA_TDEADKEY         | 
-0xFF: LUA_TNONE            | [always 3]
+0xFF: LUA_TNONE            | 
 
 [bit6] [0: non-collectable][1: collectable]
 [bit7] N/A
