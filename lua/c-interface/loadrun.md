@@ -371,12 +371,12 @@ int luaD_precall(lua_State* L, StkId func, int nresults) {
 }
 // 2. 为当前函数准备Lua栈空间，保证可用空间大于20个(LUA_MINSTACK)
 checkstackp(L, LUA_MINSTACK, func):
- -> if (L->stack_last - L->top <= 20) {
-      ptrdiff_t offset = savestack(L, func); // 记住当前函数所在位置的偏移：(char*)func - (char*)L->stack
-      luaC_checkGC(L);
-      luaD_growstack(L, 20); // 增长后的栈大小: max(请求的大小,当前栈大小的2倍)
-      func = restorestack(L, offset); // 恢复当前函数在新栈中的位置：(TValue*)((char*)L->stack + offset)
-    }
+ if (L->stack_last - L->top <= 20) {
+    ptrdiff_t offset = savestack(L, func); // 记住当前函数所在位置的偏移：(char*)func - (char*)L->stack
+    luaC_checkGC(L);
+    luaD_growstack(L, 20); // 增长后的栈大小: max(请求的大小,当前栈大小的2倍)
+    func = restorestack(L, offset); // 恢复当前函数在新栈中的位置：(TValue*)((char*)L->stack + offset)
+  }
 // 3. 准备好当前函数调用信息
 CallInfo *ci = next_ci(L);  /* now 'enter' new function */
 ci->nresults = nresults;
