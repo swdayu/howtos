@@ -387,7 +387,7 @@ if (L->hookmask & LUA_MASKCALL) luaD_hook(L, LUA_HOOKCALL, -1);
 // 调用前，栈中保存有当前的函数、传入函数的参数、以及20个可用的栈空间
 // 调用时，C函数会读取栈中的参数，最后将结果压入栈并返回结果的个数
 int n = (*f)(L);
-// 6. 函数调用完之后的操作
+// 6. 函数调用完毕，返回调用链上一层，并调整栈内容
 luaD_poscall(L, ci, L->top - n, n):
   // 传入的参数L->top-n表示函数第一个结果的位置，n是函数结果的个数
   L->ci = ci->previous; // 当前函数调用完毕，返回调用链上一层
@@ -395,7 +395,8 @@ luaD_poscall(L, ci, L->top - n, n):
   // firstresultpos指向第一个函数结果的位置，funcpos指向当前函数位置，
   // funcresults表示函数的结果个数，wantedresults表示调用者实际希望获得的结果个数
   // firstresultpos = L->top - n; funcpos = ci->func; funcresults = n; wantedresults = ci->nresults;
-  moveresults(L, firstresultpos, funcpos, funcresults, wantedresults); // 将实际希望的结果拷贝到funcpos及之后，并忽略其他内容
+  // 将实际希望的结果拷贝到funcpos及之后，并忽略其他内容
+  moveresults(L, firstresultpos, funcpos, funcresults, wantedresults); 
     
 
       
