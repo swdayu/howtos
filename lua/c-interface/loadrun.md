@@ -385,7 +385,7 @@ ci->top = L->top + LUA_MINSTACK; // 设置函数可以使用的栈空间范围[L
 if (L->hookmask & LUA_MASKCALL) luaD_hook(L, LUA_HOOKCALL, -1);
 // 5. 调用C函数
 // 调用前，栈中保存有当前的函数、传入函数的参数、以及20个可用的栈空间
-// 调用时，C函数会读取栈中的参数，最后将结果压入栈并返回结果的个数
+// 调用时，C函数会读取栈中的参数（调用lua_gettop可以获得参数的个数），最后将结果压入栈并返回结果的个数
 int n = (*f)(L);
 // 6. 函数调用完毕，返回调用链上一层，并调整栈内容
 luaD_poscall(L, ci, L->top - n, n):
