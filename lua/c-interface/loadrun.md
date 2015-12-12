@@ -356,7 +356,13 @@ void luaD_callnoyield(lua_State* L, StdId func, int nresults) {
 }
 
 // C函数调用流程
-// 1. 获取C闭包或C函数的函数指针
+// 1. 获取C闭包或C函数的函数指针，C闭包的结构体如下：
+typedef struct CClosure {
+  GCObject* next; lu_byte tt; lu_byte marked; // GCObject CommandHeader
+  lu_byte nupvalues; GCObject* gclist; // ClosureHeader
+  lua_CFunction f;
+  TValue upvalue[1];
+} CClosure;
 int luaD_precall(lua_State* L, StkId func, int nresults) {
   lua_CFunction f;         // C函数指针类型
   switch (ttype(func)) {
@@ -401,6 +407,50 @@ luaD_poscall(L, ci, L->top - n, n):
 
       
 // Lua函数调用流程
+// 1. Lua Closure的结构体
+typedef struct LClosure {
+  GCObject* next; lu_byte tt; lu_byte marked; // GCObject CommandHeader
+  lu_byte nupvalues; GCObject* gclist; // ClosureHeader
+  struct Proto* p;
+  UpVal* upvals[1];
+} LClosure;
+typedef struct UpVal {
+  TValue* v;
+  lu_mem refcount;
+  union {
+    struct { UpVal* next; int touched; } open;
+    TValue value;
+  } u;
+} UpVal;
+// 2.
+int luaD_precall(lua_State* L, StkId func, int nresults) {
+  switch (ttype(func)) {
+  case LUA_TLCL: {  /* Lua function: prepare its call */
+    StkId base;
+    Proto *p = clLvalue(func)->p;
+    int n = cast_int(L->top - func) - 1;  /* number of real arguments */
+    int fsize = p->maxstacksize;  /* frame size */
+    checkstackp(L, fsize, func);
+    if (p->is_vararg != 1) {  /* do not use vararg? */
+      for (; n < p->numparams; n++)
+        setnilvalue(L->top++);  /* complete missing arguments */
+      base = func + 1;
+    }
+    else
+      base = adjust_varargs(L, p, n);
+    ci = next_ci(L);  /* now 'enter' new function */
+    ci->nresults = nresults;
+    ci->func = func;
+    ci->u.l.base = base;
+    L->top = ci->top = base + fsize;
+    lua_assert(ci->top <= L->stack_last);
+    ci->u.l.savedpc = p->code;  /* starting point */
+    ci->callstatus = CIST_LUA;
+    if (L->hookmask & LUA_MASKCALL)
+      callhook(L, ci);
+    return 0;
+  }
+}
 ```
 
 ## lua_pcall [-(nargs + 1), +(nresults|1), –]
