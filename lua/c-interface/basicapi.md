@@ -211,3 +211,73 @@ For more details about these options, see `collectgarbage`.
 该函数用于控制垃圾收集器。根据传人的`what`值函数可以执行不同的操作，这些值如上所示。
 更多的细节请参考`collectgarbage`。
 
+```c
+#define LOCALHOST_LITTLE_ENDIAN 1 // @autogen
+
+capidecl(inline) tint lowzeroint_set(tint n, tint zerobytes) {
+#if LOCALHOST_LITTLE_ENDIAN
+  return (n << (zerobytes*8));
+#else
+  return n;
+#endif
+}
+
+capidecl(inline) tint lowzeroint_get(tint n, tint zerobytes) {
+#if LOCALHOST_LITTLE_ENDIAN
+  return (n >> (zerobytes*8));
+#else
+  return n;
+#endif
+}
+
+capidecl(inline) tint byteptr_elems(void* start, void* end) { 
+  return (byte*)end - (byte*)start; 
+}
+capidecl(inline) tint pointer_elems(void* start, void* end, tint elembytes) { 
+  return byteptr_elems(start, end) / elembytes; 
+}
+
+typedef struct {
+  tint elembytes;   // lower one byte is not used (always 0)
+  void* first;      // first stack start address
+  void* firstend;   // first stack end address
+  void* second;     // second stack start address
+  void* secondend;  // second stack end address
+} dstack_t;
+
+capidecl(export) void dstack_init(dstack_t* self, tint elembytes, tint nelems);
+capidecl(export) void dstack_free(dstack_t* self);
+capidecl(export) void dstack_lpush(dstack_t* self, const void* elem);
+capidecl(export) void dstack_rpush(dstack_t* self, const void* elem);
+capidecl(export) void dstack_lpop(dstack_t* self);
+capidecl(export) void dstack_rpop(dstack_t* self);
+capidecl(export) const void* dstack_lgettop(dstack_t* self, tint n);
+capidecl(export) const void* dstack_rgettop(dstack_t* self, tint n);
+capidecl(export) void dstack_movel2r(dstack_t* self, tint n);
+capidecl(export) void dstack_movdr2l(dstack_t* self, tint n);
+
+capidecl(inline) tint dstack_elembytes(dstack_t* self) { 
+  return lowzeroint_get(self->elembytes, 1); 
+}
+capidecl(inline) tint dstack_lsize(dstack_t* self) { 
+  return pointer_elems(self->first, self->firstend, dstack_elembytes(self)); 
+}
+capidecl(inline) tint dstack_rsize(dstack_t* self) {
+  return pointer_elems(self->second, self->secondend, dstack_elembytes(self));
+}
+capidecl(inline) tint dstack_size(dstack_t* self) {
+  return dstack_lszie(self) + dstack_rsize(self);
+}
+capidecl(export) const void* dstack_ltop(dstack_t* self) {
+  return dstack_lgettop(self, 0);
+}
+capidecl(inline) const void* dstack_rtop(dstack_t* self) {
+  return dstack_rgettop(self, 0);
+}
+
+typedef union {
+  dstack_t lstr;
+  tbyte sstr[sizeof(dstack_t)];
+} editorline_t;
+```
+
