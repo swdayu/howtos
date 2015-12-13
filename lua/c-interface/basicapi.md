@@ -212,8 +212,10 @@ For more details about these options, see `collectgarbage`.
 更多的细节请参考`collectgarbage`。
 
 ```c
-#define LOCALHOST_LITTLE_ENDIAN 1 // @autogen
+//[[autogen.h]]
+#define LOCALHOST_LITTLE_ENDIAN 1
 
+//[[byteorder.h]]
 capidecl(inline) tint lowzeroint_set(tint n, tint zerobytes) {
 #if LOCALHOST_LITTLE_ENDIAN
   return (n << (zerobytes*8));
@@ -221,7 +223,6 @@ capidecl(inline) tint lowzeroint_set(tint n, tint zerobytes) {
   return n;
 #endif
 }
-
 capidecl(inline) tint lowzeroint_get(tint n, tint zerobytes) {
 #if LOCALHOST_LITTLE_ENDIAN
   return (n >> (zerobytes*8));
@@ -229,9 +230,9 @@ capidecl(inline) tint lowzeroint_get(tint n, tint zerobytes) {
   return n;
 #endif
 }
-
+//[[base/prefix.h]] capicheck, use errno for error number
 capidecl(inline) tint byteptr_elems(void* start, void* end) { 
-  return (byte*)end - (byte*)start; 
+  return (byte*)end - (byte*)start;
 }
 capidecl(inline) tint pointer_elems(void* start, void* end, tint elembytes) { 
   return byteptr_elems(start, end) / elembytes; 
