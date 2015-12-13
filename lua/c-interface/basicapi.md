@@ -249,30 +249,33 @@ capidecl(export) void dstack_init(dstack_t* self, tint elembytes, tint nelems);
 capidecl(export) void dstack_free(dstack_t* self);
 capidecl(export) void dstack_lpush(dstack_t* self, const void* elem);
 capidecl(export) void dstack_rpush(dstack_t* self, const void* elem);
+capidecl(export) void dstack_lpushn(dstack_t* self, const void* p, tint nelems);
+capidecl(export) void dstack_rpushn(dstack_t* self, const void* p, tint nelems);
 capidecl(export) void dstack_lpop(dstack_t* self);
 capidecl(export) void dstack_rpop(dstack_t* self);
-capidecl(export) const void* dstack_lgettop(dstack_t* self, tint n);
-capidecl(export) const void* dstack_rgettop(dstack_t* self, tint n);
+capidecl(export) void dstack_lpopn(dstack_t* self, tint n);
+capidecl(export) void dstack_rpopn(dstack_t* self, tint n);
 capidecl(export) void dstack_movel2r(dstack_t* self, tint n);
 capidecl(export) void dstack_movdr2l(dstack_t* self, tint n);
+capidecl(export) void dstack_ltop(dstack_t* self, void* elemout);
+capidecl(export) void dstack_rtop(dstack_t* self, void* elemout);
+capidecl(export) void dstack_lgettop(dstack_t* self, tint n, void* elemout);
+capidecl(export) void dstack_rgettop(dstack_t* self, tint n, void* elemout);
 
 capidecl(inline) tint dstack_elembytes(dstack_t* self) { 
   return lowzeroint_get(self->elembytes, 1); 
 }
-capidecl(inline) tint dstack_lsize(dstack_t* self) { 
+capidecl(inline) tint dstack_lelems(dstack_t* self) { 
   return pointer_elems(self->first, self->firstend, dstack_elembytes(self)); 
 }
-capidecl(inline) tint dstack_rsize(dstack_t* self) {
+capidecl(inline) tint dstack_relems(dstack_t* self) {
   return pointer_elems(self->second, self->secondend, dstack_elembytes(self));
 }
-capidecl(inline) tint dstack_size(dstack_t* self) {
+capidecl(inline) tint dstack_elems(dstack_t* self) {
   return dstack_lszie(self) + dstack_rsize(self);
 }
-capidecl(export) const void* dstack_ltop(dstack_t* self) {
-  return dstack_lgettop(self, 0);
-}
-capidecl(inline) const void* dstack_rtop(dstack_t* self) {
-  return dstack_rgettop(self, 0);
+capidecl(inline) tint dstack_maxelems(dstack_t* self) {
+  return pointer_elems(self->first, self->secondend, dstack_elembytes(self));
 }
 
 typedef union {
