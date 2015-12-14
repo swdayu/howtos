@@ -1,5 +1,5 @@
 
-# BLE On Android
+# Android低功耗蓝牙架构
 
 ## 1. 低功耗蓝牙简介
 
@@ -37,7 +37,7 @@ Android 4.3只支持核心这一个角色，这个角色可以让应用搜索周
 
 图1-2 低功耗蓝牙的两个角色
 
-## 2. BLE应用架构
+## 2. BLE整体架构
 
 ### 2.1 BLE Android架构
 
@@ -188,9 +188,9 @@ BTIF实现的set_scan_parameters接口为btif_gattc_set_scan_parameters()函数�
 
 ### 3.4 BLE协议栈
 
-## 3. 构建BLE应用
+## 4. 构建完整BLE应用
 
-### 3.1 开启BLE应用
+### 4.1 开启BLE应用
 
 在使用低功耗蓝牙之前，首先需要确认设备是否支持这个特性，
 如果支持还要确认蓝牙是否已经打开。
@@ -223,7 +223,7 @@ if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
 }
 ```
 
-### 3.2 搜索BLE设备
+### 4.2 搜索BLE设备
 
 搜索附近的BLE设备，需要通过调用BluetoothAdapter的startLeScan()来完成，
 以及需要提供搜索回掉函数BluetoothAdapter.LeScanCallback。
@@ -277,7 +277,7 @@ private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.L
 };
 ```
 
-### 3.3 连接到GATT Server
+### 4.3 连接到GATT Server
 
 与附近的BLE设备进行交互，首先第一步需要与它建立连接。
 可以通过BluetoothDevice的connectGatt()连接对应的GATT Server，
@@ -351,7 +351,7 @@ private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
 };
 ```
 
-### 3.4 读取BLE属性
+### 4.4 读取BLE属性
 
 当Android应用连接到GATT Server并查询到对方的服务之后，
 就可以开始读写对方支持的属性（Attribute）。
@@ -388,7 +388,7 @@ private void displayGattServices(List<BluetoothGattService> gattServices) {
 }
 ```
 
-### 3.5 接收GATT通知
+### 4.5 接收GATT通知
 
 可以设置当对方的某个服务特性（Characteristic）发生变化时接收到通知。
 通过调用setCharacteristicNotification()以及定义回调函数onCharacteristicChanged()实现这个功能：
@@ -403,7 +403,7 @@ public void onCharacteristicChanged(BluetoothGatt gatt,
 }
 ```
 
-### 3.6 关闭BLE应用
+### 4.6 关闭BLE应用
 
 最后，可以调用BluetoothGatt的close()方法关闭BLE连接应用：
 ```java
