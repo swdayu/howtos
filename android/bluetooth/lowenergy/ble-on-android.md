@@ -192,6 +192,31 @@ BTIF实现的set_scan_parameters接口为btif_gattc_set_scan_parameters()函数�
 
 ### 3.4 BLE协议栈
 
+调用到BTIF层之后，第一个函数btif_gattc_set_scan_parameters()会调用BTM_BleSetScanParams
+将Scan参数设置到btm_cb.ble_ctr.cb.inq_var变量中，如图3-2中步骤1到4。
+第二个函数btif_gattc_scan()会调用到BTM_BleObserve()函数中，如图3-2中步骤5到9。
+BLE设备搜索最终要发送两个相关的HCI命令给蓝牙芯片去执行相应的操作，
+第一个HCI命令是HCI_BLE_WRITE_SCAN_PARAMS，它用于配置Scan的行为，
+主要设置Scan的Interval大小以及每个Interval中实际进行Scan的Window，
+Scan的Window开得越大搜索效率越高，但功耗也越大，相反则效率越低功耗越小；
+第二个HCI命令是HCI_BLE_WRITE_SCAN_ENABLE，它使用配置的参数启动搜索。
+
+如图BTA层的函数BTM_BleObserve()会依次调用btsnd_hcic_ble_set_scan_params和btsnd_hcic_ble_set_scan_enable
+去发送这两个HCI命令，见步骤10和15。设置Scan参数的流程从步骤10开始到步骤14设置完毕，
+它的任务是将对应的参数设置到蓝牙芯片中，设置完毕后不需要进行回调。
+HCI命令的发送是通过BTE与HCI层之间的bt_hc_if接口实现的，首先调用bt_hc_if.transmit_buf()将HCI命令发送给蓝牙芯片，
+当蓝牙芯片获取到命令并设置完对应的参数后，会返回Command Complete Event，
+HCI回调hc_callbacks.data_ind()函数将Event发送到BTE层的BTU Task中，最后BTE层调用btu_hcif_command_complete_evt处理完毕。
+
+而btsnd_hcic_ble_set_scan_enable则复杂一些，它需要蓝牙芯片去执行真正的搜索任务。
+跟Scan参数设置一样，该函数会使用bt_hc_if.transmit_buf()函数将HCI命令发送给蓝牙芯片，
+蓝牙芯片收到这个命令后会按照设定的Interval和Window执行搜索任务，只要搜索到BLE设备，
+蓝牙芯片就会上报HCI_BLE_ADV_PKT_RPT_EVT事件给HCI，HCI层再调用hc_callbacks.data_ind()回调给BTE层。
+只要应用没有去终止设备的搜索，蓝牙芯片就会一直往上报搜索到的设备的Event，如图步骤18、23、26和29。
+搜索到设备并回调到BTE层后，BTE会调用btu_ble_process_adv_pkt()函数处理搜索结果，调用bta_dm_observe_results_cb()回到BTA层，
+BTA层继续回调bta_scan_results_cb()回到BTIF层，
+最后BTIF层使用HAL提供的接口HAL_CBACK(bt_gatt_callbacks, client.scan_result_cb, ...)回调到GattJNI层。
+持续上报搜索结果的流程如图步骤18到32。
 
 
 ![Below BTIF](./assets/below_btif.jpg)
