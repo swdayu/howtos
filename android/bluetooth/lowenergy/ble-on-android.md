@@ -155,6 +155,21 @@ GATT使用属性传输协议（ATT）进行数据包传输。
 其中操作码（Opcode）指定属性参数（Attribute Parameters）的类型、格式及含义，而属性参数则包含具体数据。
 可选部分Authentication Signature如果指定，则表示跟安全验证相关的识别标志。
 
+## 3. BLE设备搜索流程
+### 3.1 层次划分
+上文介绍了BLE及其在Android上的架构及各组成模块之间的关系。接下来以BLE设备搜索为例，具体讨论BLE各个模块之间如何进行调用和回调，并详细介绍它们之间相互调用的流程。根据上文内容，一般可以将BLE涉及的各个层次划分为三大部分：第一部分是Java层，包括最上面的Java应用和其下的Java服务，它实现BLE应用和服务；第二部分是GATT接口层，包括GATT JNI、GATT HAL、以及BTIF，它实现Java世界与C语言世界之间的蓝牙抽象调用接口；第三部分是BLE协议栈，包含BTA和BTE，它是BLE核心规范Host部分的具体实现。
+下面根据代码流程图，详细介绍BLE设备搜索中有关这三大部分的详细内容。
+
+###3.2 BLE应用和服务
+在Android上搜索BLE设备，可以直接在蓝牙Setting界面下进行搜索，或使用独立的BLE APK进行搜索。无论使用哪个应用进行搜索，该应用中的核心步骤是要实现android.bluetooth.le包中的ScanCallback抽象类的onScanResult()回调方法，并调用BluetoothLeScanner类的startLeScan()进行BLE设备搜索。该方法首先会注册一个实现了回调接口IBluetoothGattCallback的类BleScanCallbackWrapper，这个类保存了上层应用实现的onScanResult回调函数，并在自己的onScanResult函数中回调这个函数。
+BLE应用与服务之间通过Binder机制进行沟通，当上面的回调类注册成功后，onClientRegistered函数会绑定到服务GattService.BluetoothGattBinder，并最终调用GattService.startLeScan真正启动BLE设备搜索服务。
+通过Binder机制，BLE应用层的BluetoothLeScanner.startLeScan()可以调用到BLE服务层的GattService.startLeSan开始BLE设备搜索服务，如图3-1中的步骤2到步骤3；同样BLE服务层的GattService.onScanResult可以回调到BLE应用层的BleScanCallbackWrapper.onScanResult并最终将搜索结果传递到上层应用实现的onScanResult回调函数，如图3-1中的步骤19到步骤20。
+BLE服务GattService调用startLeScan()之后，通过如图步骤4到6以及步骤11，最终使用ScannManager中的ScanNative接口
+
+### 3.3 GATT接口层
+
+### 3.4 BLE协议栈
+
 ## 3. 构建BLE应用
 
 ### 3.1 开启BLE应用
