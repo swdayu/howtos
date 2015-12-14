@@ -172,6 +172,10 @@ BLE服务GattService调用startLeScan之后，如图步骤4到6以及步骤11，
 对应的两个Native函数为gattSetScanParametersNative()以及gattClientScanNative()。
 第一个函数用于设置Scan的参数，第二个函数用于启动Scan。GattJNI层的调用和回调见下一节。
 
+![Above BTIF](./assets/above_btif.jpg)
+
+图3-1 BLE设备搜索流程（一）
+
 ### 3.3 GATT接口层
 
 GATT接口层包含如图中的GattJNI、GattHAL以及BTIF，其中GattHAL定义了GattJNI与BTIF交互的抽象接口。
@@ -186,7 +190,13 @@ BTIF实现的set_scan_parameters接口为btif_gattc_set_scan_parameters()函数�
 并调用BTIF中的btif_gattc_scan()函数启动Scan；而BTIF接收到搜索结果后会回调GattJNI中的btgattc_scan_result_cb()函数回报结果；
 最后GattJNI层会回调GattService.onScanResult()函数回调到BLE服务层。
 
+![Below BTIF](./assets/below_btif.jpg)
+
+图3-2 BLE设备搜索流程（二）
+
 ### 3.4 BLE协议栈
+
+
 
 ## 4. 构建完整BLE应用
 
