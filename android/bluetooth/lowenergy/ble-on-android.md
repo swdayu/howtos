@@ -216,8 +216,8 @@ HCI回调hc_callbacks.data_ind()函数将Event发送到BTE层的BTU Task中，�
 搜索到设备并回调到BTE层后，BTE会调用btu_ble_process_adv_pkt()函数处理搜索结果，调用bta_dm_observe_results_cb()回到BTA层，
 BTA层继续回调bta_scan_results_cb()回到BTIF层，
 最后BTIF层使用HAL提供的接口HAL_CBACK(bt_gatt_callbacks, client.scan_result_cb, ...)回调到GattJNI层。
-持续上报搜索结果的流程如图步骤18到32。
-
+持续上报搜索结果的流程如图步骤18到32。BLE搜索只有当上层应用调用stopLeScan时才会停止，
+一般情况下，上层应用会设置一个搜索超时，当搜索事件超过后，会自动调用这个函数停止搜索，详情可参考4.2节的例子。
 
 ![Below BTIF](./assets/below_btif.jpg)
 
