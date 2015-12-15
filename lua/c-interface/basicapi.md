@@ -283,5 +283,19 @@ typedef union {
   dstack_t lstr;
   tbyte sstr[sizeof(dstack_t)];
 } editorline_t;
+
+// the standard says that there must be at least one argument for the ellipsis of `...`
+#define _FIRST_HELPER(first, ...) first
+#define _REST_HELPER_ONE(first) 
+#define _REST_HELPER_MORE(first, ...) , __VA_ARGS__
+#define _REST_HELPER(tail, ...) _REST_HELPER_##tail(__VA_ARGS__)
+#define _REST_HELPER_EX(tail, ...) _REST_HELPER(tail, __VA_ARGS__)
+
+#define _VARGS_MAX_16_ARGS(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af, ...) af
+#define _VARGS_ONE_OR_MORE(...) \
+  _VARGS_MAX_16_ARGS(__VA_ARGS__, MORE, MORE, MORE, MORE, MORE, MORE, MORE, MORE, MORE, MORE, MORE, MORE, MORE, MORE, ONE, arg4ellipsis)
+
+#define FIRST_VA_ARGS(...) _FIRST_HELPER(__VA_ARGS__, this_macro_need_at_least_two_args)
+#define REST_VA_ARGS(...) _REST_HELPER_EX(_NUM_VA(__VA_ARGS__), __VA_ARGS__)
 ```
 
