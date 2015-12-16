@@ -70,7 +70,7 @@ SDP is the Bluetooth Service Discovery Protocol.
 OBEX [1] is the Bluetooth adaptation of IrOBEX [5].
 
 > [1] IrDA Interoperability, version 2.0 or later  
-> [5] IrDA Object Exchange Protocol (IrOBEX) with Published Errata, Version 1.5 (www.irda.org)
+> [5] IrDA Object Exchange Protocol (IrOBEX) with Published Errata, Version 1.5 (IRDA.ORG)
 
 Client can push data to Server and pull data from Server. 
 For the device containing the Server, it is assumed that 
@@ -117,8 +117,14 @@ The profile fundamentals, with which all application profiles must comply, are t
 
 # IRDA
 
-# IrOBEX
+# IrOBEX (IRDA.ORG)
 
+
+Specifications are FREE to members and members will not be charged. Prices below are non-member fees. 
+You will received an invoice as soon as your request is processed. Please choose either Version 1.3 or Version 1.5.
+- IrDA OBEX Protocol v 1.3 ($1000) OR
+- IrDA OBEX Protocol v 1.5 ($1500)
+- IrDA OBEX Test Specification ($1000)
 
 
 
