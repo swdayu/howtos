@@ -33,7 +33,7 @@ for both sides of the Bluetooth air interface.
 
 The Generic Object Exchange profile defines the protocols and procedures that shall be used
 by the applications providing the usage models which need the object exchange capabilities.
-The usage model can be, for example, Synchronization(SYNCH), File Transfer(FTP), or Object Push(OPP) model. 
+The usage model can be, for example, Synchronization (SYNCH), File Transfer (FTP), or Object Push (OPP) model. 
 The most common devices using these usage models can be notebook PCs, PDAs, smart phones, and mobile phones.
 
 Bluetooth Specification includes a number of separate specifications for OBEX and applications using it.
@@ -50,25 +50,25 @@ Bluetooth Specification includes a number of separate specifications for OBEX an
   - Define the interoperability requirements for applications using OBEX.
   - Does not define the requirements for the Baseband, LMP or L2CAP.
 
-Profile Stack:  
-
-- Client    <--> Server  
-  OBEX      <--> OBEX  
-  SDP       <--> SDP  
-  LMP|L2CAP <--> LMP|L2CAP  
-  Baseband  <--> Baseband  
-
-- The Baseband, LMP, and L2CAP are the OSI layer 1 and 2 Bluetooth protocols.
-  SDP is the Bluetooth Service Discovery Protocol. 
-  OBEX [1] is the Bluetooth adaptation of IrOBEX [5].
-
-[1] IrDA Interoperability, version 2.0 or later  
-[5] Infrared Data Association, IrDA Object Exchange Protocol (IrOBEX) with Published Errata, Version 1.5
+PROFILE STACK
 
 The following roles are defined for this profile:
 - Server: This is the device that provides an object exchange server 
   to and from which data objects can be pushed and pulled, respectively.
 - Client: This is the device that can push data object(s) to or/and pull data object(s) from the Server.
+
+Client    <--> Server  
+OBEX      <--> OBEX  
+SDP       <--> SDP  
+LMP|L2CAP <--> LMP|L2CAP  
+Baseband  <--> Baseband  
+
+The Baseband, LMP, and L2CAP are the OSI layer 1 and 2 Bluetooth protocols.
+SDP is the Bluetooth Service Discovery Protocol. 
+OBEX [1] is the Bluetooth adaptation of IrOBEX [5].
+
+[1] IrDA Interoperability, version 2.0 or later  
+[5] Infrared Data Association, IrDA Object Exchange Protocol (IrOBEX) with Published Errata, Version 1.5
 
 Client can push data to Server and pull data from Server. 
 For the device containing the Server, it is assumed that 
@@ -79,7 +79,9 @@ The profile only supports point-to-point configurations.
 As a result, the Server is assumed to offer services only for one Client at a time. 
 However, the implementation may offer a possibility for multiple Clients at a time but this is not a requirement.
 
-The **profile fundamentals**, with which all application profiles must comply, are the following:
+PROFILE FUNDAMENTALS
+
+The profile fundamentals, with which all application profiles must comply, are the following:
 
 1. Before a Server is used with a Client for the first time, 
    a bonding procedure including the pairing may be performed (see Section 8.3.1). 
