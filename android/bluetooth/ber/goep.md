@@ -117,6 +117,25 @@ The profile fundamentals, with which all application profiles must comply, are t
 
 # IRDA
 
+IrDA Interoperability  
+Latest Version - V20r00 2010.08.26  
+OBEX WG - OBEX-feedback@bluetooth.org  
+
+ABSTRACT
+
+The IrOBEX protocol is utilized by the Bluetooth technology. 
+In Bluetooth, OBEX offers the same features for applications as within the IrDA protocol hierarchy, 
+enabling the applications to work over the Bluetooth protocol stack as well as the IrDA stack.
+
+## 1. Introduction
+
+## 2. OBEX Object and Protocol
+
+## 3. OBEX over L2CAP
+
+## 4. OBEX over TCP/IP
+
+
 # IrOBEX (IRDA.ORG)
 
 Infrared Data Association Object Exchange (IrDA OBEX) Protocol:
