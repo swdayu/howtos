@@ -78,6 +78,9 @@ The profile only supports point-to-point configurations.
 As a result, the Server is assumed to offer services only for one Client at a time. 
 However, the implementation may offer a possibility for multiple Clients at a time but this is not a requirement.
 
+> [1] IrDA Interoperability, version 2.0 or later  
+> [5] Infrared Data Association, IrDA Object Exchange Protocol (IrOBEX) with Published Errata, Version 1.5
+
 PROFILE FUNDAMENTALS
 
 The profile fundamentals, with which all application profiles must comply, are the following:
@@ -106,7 +109,6 @@ The profile fundamentals, with which all application profiles must comply, are t
 
 5. There are no fixed master/slave roles, and this profile does not require any lower power mode to be used.
 
-> [1] IrDA Interoperability, version 2.0 or later  
-> [5] Infrared Data Association, IrDA Object Exchange Protocol (IrOBEX) with Published Errata, Version 1.5
+
 
 
