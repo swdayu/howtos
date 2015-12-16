@@ -69,8 +69,8 @@ The Baseband, LMP, and L2CAP are the OSI layer 1 and 2 Bluetooth protocols.
 SDP is the Bluetooth Service Discovery Protocol. 
 OBEX [1] is the Bluetooth adaptation of IrOBEX [5].
 
-[1] IrDA Interoperability, version 2.0 or later  
-[5] Infrared Data Association, IrDA Object Exchange Protocol (IrOBEX) with Published Errata, Version 1.5
+> [1] IrDA Interoperability, version 2.0 or later  
+> [5] Infrared Data Association, IrDA Object Exchange Protocol (IrOBEX) with Published Errata, Version 1.5
 
 Client can push data to Server and pull data from Server. 
 For the device containing the Server, it is assumed that 
@@ -81,7 +81,7 @@ The profile only supports point-to-point configurations.
 As a result, the Server is assumed to offer services only for one Client at a time. 
 However, the implementation may offer a possibility for multiple Clients at a time but this is not a requirement.
 
-[PROFILE FUNDAMENTALS]
+PROFILE FUNDAMENTALS
 
 The profile fundamentals, with which all application profiles must comply, are the following:
 
@@ -92,18 +92,21 @@ The profile fundamentals, with which all application profiles must comply, are t
    as defined in GAP on the keyboards of the Client and Server devices. 
    This procedure may have to be repeated under certain circumstances; for example, 
    if a common link key (as a bonding result) is removed on the device involved in the object exchange.
+
 2. In addition to the link level bonding, an OBEX initialization procedure may be performed (see Section 5.3) 
    before the Client can use the Server for the first time.
    The application profiles using GOEP must specify whether this procedure must be supported 
    to provide the required security level.
+
 3. Security can be provided by authenticating the other party upon connection establishment, 
    and by encrypting all user data on the link level. 
    The authentication and encryption must be supported by the devices; 
    but whether they are used depends on the application profile using GOEP.
+
 4. Link and channel establishments must be done according to the procedures defined in GAP (see [2]). 
    Link and channel establishment procedures in addition to the procedures in GAP 
    must not be defined by the application profiles using GOEP.
-5. There are no fixed master/slave roles.
-6. This profile does not require any lower power mode to be used.
+
+5. There are no fixed master/slave roles, and this profile does not require any lower power mode to be used.
 
 
