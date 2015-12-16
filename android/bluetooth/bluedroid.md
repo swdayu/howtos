@@ -16,7 +16,7 @@ Bluetooth Profiles and Protocols
   Roles - Audio Gateway (AG) and Headset (HS)  
   Example - Use a headset (HS) make a call on phone (AG)   
   Protocol Stack - HSP | RFCOMM | L2CAP    
-  RFCOMM - RFCOMM with TS 07.10 Serial Port Emulation  
+  RFCOMM - Serial Cable Emulation Protocol based on ETSI TS 07.10
 
 - HFP: Handsfree Profile  
   Roles - Audio Gateway (AG) and Handsfree (HF)   
