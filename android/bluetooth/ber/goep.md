@@ -18,7 +18,6 @@ FORWORD
 
 The purpose of this document is to work as a generic profile document 
 for all application profiles using the OBEX protocol.
-
 Interoperability between devices from different manufacturers is provided for a specific service and usage model 
 if the devices conform to a Bluetooth SIG defined profile specification.
 
