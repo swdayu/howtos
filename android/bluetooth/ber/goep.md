@@ -5,7 +5,7 @@ Generic Object Exchange Profile
 Latest Version - V21 2012.07.24  
 BARB - barb-main@bluetooth.org  
 
-ABSTRACT
+[ABSTRACT]
 
 This profile defines the requirements for Bluetooth devices 
 necessary for the support of the object exchange usage models. 
@@ -14,7 +14,7 @@ for interoperability between Bluetooth devices in the object exchange usage mode
 
 (define features and procedures for object exchange)
 
-FORWORD
+[FORWORD]
 
 The purpose of this document is to work as a generic profile document 
 for all application profiles using the OBEX protocol.
@@ -37,20 +37,18 @@ The usage model can be, for example, Synchronization (SYNCH), File Transfer (FTP
 The most common devices using these usage models can be notebook PCs, PDAs, smart phones, and mobile phones.
 
 Bluetooth Specification includes a number of separate specifications for OBEX and applications using it.
+- Bluetooth IrDA Interoperability Specification [1]  
+  Defines how the applications can function over both Bluetooth and IrDA.  
+  Specifies how OBEX is mapped over L2CAP and TCP.  
+  Defines the application profiles using OBEX over Bluetooth.
+- Bluetooth Generic Object Exchange Profile Specification (This specification)  
+  Generic interoperability specification for the application profiles using OBEX.  
+  Defines the interoperability requirements of the lower protocol layers for the application profiles.
+- Application Profiles  
+  Define the interoperability requirements for applications using OBEX.  
+  Does not define the requirements for the Baseband, LMP or L2CAP.  
 
-1. Bluetooth IrDA Interoperability Specification
-  - Defines how the applications can function over both Bluetooth and IrDA.
-  - Specifies how OBEX is mapped over L2CAP and TCP.
-  - Defines the application profiles using OBEX over Bluetooth.
-2. Bluetooth Generic Object Exchange Profile Specification (This specification)
-  - Generic interoperability specification for the application profiles using OBEX.
-  - Defines the interoperability requirements of the lower protocol layers (e.g. Baseband and LMP) 
-    for the application profiles.
-3. Application Profiles
-  - Define the interoperability requirements for applications using OBEX.
-  - Does not define the requirements for the Baseband, LMP or L2CAP.
-
-PROFILE STACK
+[PROFILE STACK]
 
 The following roles are defined for this profile:
 - Server: This is the device that provides an object exchange server 
@@ -79,7 +77,7 @@ The profile only supports point-to-point configurations.
 As a result, the Server is assumed to offer services only for one Client at a time. 
 However, the implementation may offer a possibility for multiple Clients at a time but this is not a requirement.
 
-PROFILE FUNDAMENTALS
+[PROFILE FUNDAMENTALS]
 
 The profile fundamentals, with which all application profiles must comply, are the following:
 
