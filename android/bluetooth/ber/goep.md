@@ -5,7 +5,7 @@ Generic Object Exchange Profile
 Latest Version - V21 2012.07.24  
 BARB - barb-main@bluetooth.org  
 
-Abstract
+ABSTRACT
 
 This profile defines the requirements for Bluetooth devices  
 necessary for the support of the object exchange usage models.   
@@ -14,7 +14,7 @@ for interoperability between Bluetooth devices in the object exchange usage mode
 
 (define features and procedures for object exchange)
 
-Foreword: 
+FORWORD
 
 The purpose of this document is to work as a generic profile document   
 for all application profiles using the OBEX protocol.
