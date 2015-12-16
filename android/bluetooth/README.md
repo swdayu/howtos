@@ -44,3 +44,6 @@ Bluetooth related folders on Android
 Bluedroid run in the process of `com.android.bluetooth`.
 There are 4 tasks: BTIF_TASK, BTU_TASK, A2DP_MEDIA_TASK, GKI_TIMER_TASK. 
 There is a RX thread of `bt_hc_workder_thread` used to read data from lower layer such as uart.
+
+- BARB  
+  Bluetooth Architectural Review Board
