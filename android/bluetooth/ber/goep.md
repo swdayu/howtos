@@ -1,30 +1,34 @@
 
 # GOEP
 
-- Generic Object Exchange Profile  
-  Latest Version - V21 2012.07.24  
-  BARB - barb-main@bluetooth.org
+Generic Object Exchange Profile  
+Latest Version - V21 2012.07.24  
+BARB - barb-main@bluetooth.org  
 
-- Abstract:
+Abstract
 
-    > This profile defines the requirements for Bluetooth devices
-      necessary for the support of the object exchange usage models. 
-      The requirements are expressed by defining the features and procedures that are required 
-      for interoperability between Bluetooth devices in the object exchange usage models.
-    
-    **define features and procedures for object exchange**
+This profile defines the requirements for Bluetooth devices  
+necessary for the support of the object exchange usage models.   
+The requirements are expressed by defining the features and procedures that are required   
+for interoperability between Bluetooth devices in the object exchange usage models.  
 
-- Foreword: 
+(define features and procedures for object exchange)
 
-    > The purpose of this document is to work as a generic profile document 
-      for all application profiles using the OBEX protocol.
-    > Interoperability between devices from different manufacturers is provided for a specific service and usage model 
-      if the devices conform to a Bluetooth SIG defined profile specification. 
-      A profile defines a selection of messages and procedures (generally termed capabilities) from the Bluetooth SIG specifications 
-      and gives an unambiguous description of the air interface for specified service(s) and usage model(s).
-    > All defined features are process-mandatory. This means that if a feature is used, it is used in a specified manner. 
-      Whether the provision of a feature is mandatory or optional is stated separately for both sides of the Bluetooth air interface.
+Foreword: 
 
+The purpose of this document is to work as a generic profile document   
+for all application profiles using the OBEX protocol.
+
+Interoperability between devices from different manufacturers is provided for a specific service and usage model   
+if the devices conform to a Bluetooth SIG defined profile specification. 
+
+A profile defines a selection of messages and procedures (generally termed capabilities) 
+from the Bluetooth SIG specifications and gives an unambiguous description of the air interface 
+for specified service(s) and usage model(s).
+
+All defined features are process-mandatory. This means that if a feature is used, it is used in a specified manner. 
+Whether the provision of a feature is mandatory or optional is stated separately 
+for both sides of the Bluetooth air interface.
 
 ## 1. Introduction
 
@@ -37,14 +41,15 @@ Bluetooth Specification includes a number of separate specifications for OBEX an
 
 1. Bluetooth IrDA Interoperability Specification
   - Defines how the applications can function over both Bluetooth and IrDA.
-   - Specifies how OBEX is mapped over L2CAP and TCP.
-   - Defines the application profiles using OBEX over Bluetooth.
+  - Specifies how OBEX is mapped over L2CAP and TCP.
+  - Defines the application profiles using OBEX over Bluetooth.
 2. Bluetooth Generic Object Exchange Profile Specification (This specification)
   - Generic interoperability specification for the application profiles using OBEX.
-   - Defines the interoperability requirements of the lower protocol layers (e.g. Baseband and LMP) for the application profiles.
+  - Defines the interoperability requirements of the lower protocol layers (e.g. Baseband and LMP) 
+    for the application profiles.
 3. Application Profiles
   - Define the interoperability requirements for applications using OBEX.
-   - Does not define the requirements for the Baseband, LMP or L2CAP.
+  - Does not define the requirements for the Baseband, LMP or L2CAP.
 
 Profile Stack:  
 
