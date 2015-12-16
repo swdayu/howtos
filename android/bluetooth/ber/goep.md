@@ -14,7 +14,7 @@ for interoperability between Bluetooth devices in the object exchange usage mode
 
 (define features and procedures for object exchange)
 
-FORWORD
+FOREWORD
 
 The purpose of this document is to work as a generic profile document 
 for all application profiles using the OBEX protocol.
@@ -119,12 +119,28 @@ The profile fundamentals, with which all application profiles must comply, are t
 
 # IrOBEX (IRDA.ORG)
 
+IrDA OBEX (Object Exchange) Protocol:
+
+OBEX is a compact, efficient, binary protocol that enables a wide range of devices 
+to exchange data in a simple and spontaneous manner.  A major use of OBEX is a “Push” or “Pull” application, 
+allowing rapid and ubiquitous communications among portable devices or in dynamic environments. 
+For instance, a laptop user pushes a file to another laptop or PDA; 
+an industrial computer pulls status and diagnostic information from a piece of factory floor machinery; 
+a digital camera pushes its pictures into a film development kiosk, 
+or if lost can be queried (pulled) for the electronic business card of its owner. 
+However, OBEX is not limited to quick connect transfer disconnect scenarios - 
+it also allows sessions in which transfers take place over a period of time, 
+maintaining the connection even when it is idle. 
+PCs, pagers, PDAs, phones, printers, cameras, auto-tellers, information kiosks, calculators, 
+data collection devices, watches, home electronics, industrial machinery, medical instruments, 
+automobiles, and office equipment are all candidates for using OBEX.
+
+The following specifications are included.
+- IrDA Object Exchange (OBEX) Protocol v1.5
+- IrDA OBEX Test Specification  
 
 Specifications are FREE to members and members will not be charged. Prices below are non-member fees. 
 You will received an invoice as soon as your request is processed. Please choose either Version 1.3 or Version 1.5.
 - IrDA OBEX Protocol v 1.3 ($1000) OR
 - IrDA OBEX Protocol v 1.5 ($1500)
 - IrDA OBEX Test Specification ($1000)
-
-
-
