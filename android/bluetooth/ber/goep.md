@@ -111,6 +111,86 @@ The profile fundamentals, with which all application profiles must comply, are t
 
 ## 2. Application Layer
 
+GOEP FEATURES
+
+The list below shows the features which the GOEP provides for the application profiles. 
+The use of other features (e.g. setting the current directory) must be defined by the applications profiles needing them.
+
+1. Establishing an Object Exchange connection
+2. Pushing a data object
+3. Pulling a data object
+4. Performing an Action on a data object
+5. Creating and Managing a Reliable Object Exchange Session
+
+OBEX OPERATIONS
+
+The list below shows the OBEX operations which are specified by the OBEX protocol. 
+The application profiles using GOEP must specify which operations must be supported 
+to provide the functionality defined in the application profiles.
+
+1. Connect
+2. Disconnect
+3. Put
+4. Get
+5. Abort
+6. SetPath
+7. Action
+8. Session
+
+The IrOBEX specification does not define how long a client should wait for a response to an OBEX request. 
+However, implementations which do not provide a user interface for canceling an OBEX operation 
+should wait a reasonable period between a request and response before automatically canceling the operation. 
+A reasonable time period is 30 seconds or more.
+
+See the specification [1] for discussion of the available OBEX headers.
+The non-Body headers such as Name or Description that may exceed the allowed OBEX packet size 
+may be issued multiple times in consecutive packets within a single PUT/GET operation.
+
+OBEX INITIALIZATION
+
+If OBEX authentication is supported and used by the Server and the Client, the
+initialization for this authentication (see also Section 5.4.2) shall be done before the first
+OBEX connection is established. The initialization can be done at any time before the
+first OBEX connection.
+
+Authentication is done using an OBEX password, which may be related to the Bluetooth
+passkey, if present. Even if the same code is used for Bluetooth authentication and
+OBEX authentication, the user must enter that code twice, once for each authentication.
+After entering the OBEX password in both the Client and Server, the OBEX password is
+stored in the Client and the Server, and it may be used in the future for authenticating
+the Client and the Server. When an OBEX connection is established, OBEX
+authentication may be used by the server to authenticate the client, and the client may
+also authenticate the server.
+
+### 2.1 Establishment of OBEX connection
+
+For the object exchange, the OBEX connection can be made with or without OBEX
+authentication. In the next two subsections, both of these cases are explained. All
+application profiles using GOEP must support an OBEX session without authentication,
+although authentication may be used. 
+
+
+### 2.2 Using Single Response Mode
+
+SRM headers shall not be sent in the Connect
+request or response packets (note, this is to preserve backwards compatibility). SRM
+shall be enabled through Put and Get operations only.
+
+
+### 2.3 Pushing a data object
+
+If data needs to be transferred from the Client to the Server, then this feature is used.
+
+
+### 2.4 Pulling a data object
+
+If data need to be transferred from the Server to the Client, then this feature is used.
+
+
+### 2.5 Performing an Action on a Data Object
+
+If an Action (copy, move/rename, or set permissions) needs to be performed on a
+Server object, then this feature is used.
 
 ## 3. Lower Layer Requirements
 
