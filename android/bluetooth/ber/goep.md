@@ -69,6 +69,9 @@ The Baseband, LMP, and L2CAP are the OSI layer 1 and 2 Bluetooth protocols.
 SDP is the Bluetooth Service Discovery Protocol. 
 OBEX [1] is the Bluetooth adaptation of IrOBEX [5].
 
+> [1] IrDA Interoperability, version 2.0 or later  
+> [5] Infrared Data Association, IrDA Object Exchange Protocol (IrOBEX) with Published Errata, Version 1.5
+
 Client can push data to Server and pull data from Server. 
 For the device containing the Server, it is assumed that 
 the user may have to put it into the discoverable and connectable modes 
@@ -77,9 +80,6 @@ when the inquiry and link establishment procedures, respectively, are processed 
 The profile only supports point-to-point configurations. 
 As a result, the Server is assumed to offer services only for one Client at a time. 
 However, the implementation may offer a possibility for multiple Clients at a time but this is not a requirement.
-
-> [1] IrDA Interoperability, version 2.0 or later  
-> [5] Infrared Data Association, IrDA Object Exchange Protocol (IrOBEX) with Published Errata, Version 1.5
 
 PROFILE FUNDAMENTALS
 
