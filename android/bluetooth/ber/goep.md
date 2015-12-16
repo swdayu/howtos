@@ -7,20 +7,20 @@ BARB - barb-main@bluetooth.org
 
 ABSTRACT
 
-This profile defines the requirements for Bluetooth devices  
-necessary for the support of the object exchange usage models.   
-The requirements are expressed by defining the features and procedures that are required   
+This profile defines the requirements for Bluetooth devices 
+necessary for the support of the object exchange usage models. 
+The requirements are expressed by defining the features and procedures that are required 
 for interoperability between Bluetooth devices in the object exchange usage models.  
 
 (define features and procedures for object exchange)
 
 FORWORD
 
-The purpose of this document is to work as a generic profile document   
+The purpose of this document is to work as a generic profile document 
 for all application profiles using the OBEX protocol.
 
-Interoperability between devices from different manufacturers is provided for a specific service and usage model   
-if the devices conform to a Bluetooth SIG defined profile specification. 
+Interoperability between devices from different manufacturers is provided for a specific service and usage model 
+if the devices conform to a Bluetooth SIG defined profile specification.
 
 A profile defines a selection of messages and procedures (generally termed capabilities) 
 from the Bluetooth SIG specifications and gives an unambiguous description of the air interface 
