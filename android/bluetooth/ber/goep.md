@@ -119,7 +119,7 @@ The profile fundamentals, with which all application profiles must comply, are t
 
 # IrOBEX (IRDA.ORG)
 
-IrDA OBEX (Object Exchange) Protocol:
+Infrared Data Association Object Exchange (IrDA OBEX) Protocol:
 
 OBEX is a compact, efficient, binary protocol that enables a wide range of devices 
 to exchange data in a simple and spontaneous manner.  A major use of OBEX is a “Push” or “Pull” application, 
