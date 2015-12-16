@@ -5,7 +5,7 @@ Generic Object Exchange Profile
 Latest Version - V21 2012.07.24  
 BARB - barb-main@bluetooth.org  
 
-[ABSTRACT]
+ABSTRACT
 
 This profile defines the requirements for Bluetooth devices 
 necessary for the support of the object exchange usage models. 
@@ -14,7 +14,7 @@ for interoperability between Bluetooth devices in the object exchange usage mode
 
 (define features and procedures for object exchange)
 
-[FORWORD]
+FORWORD
 
 The purpose of this document is to work as a generic profile document 
 for all application profiles using the OBEX protocol.
@@ -37,29 +37,33 @@ The usage model can be, for example, Synchronization (SYNCH), File Transfer (FTP
 The most common devices using these usage models can be notebook PCs, PDAs, smart phones, and mobile phones.
 
 Bluetooth Specification includes a number of separate specifications for OBEX and applications using it.
+
 - Bluetooth IrDA Interoperability Specification [1]  
   Defines how the applications can function over both Bluetooth and IrDA.  
   Specifies how OBEX is mapped over L2CAP and TCP.  
   Defines the application profiles using OBEX over Bluetooth.
+
 - Bluetooth Generic Object Exchange Profile Specification (This specification)  
   Generic interoperability specification for the application profiles using OBEX.  
   Defines the interoperability requirements of the lower protocol layers for the application profiles.
+
 - Application Profiles  
   Define the interoperability requirements for applications using OBEX.  
   Does not define the requirements for the Baseband, LMP or L2CAP.  
 
-[PROFILE STACK]
+PROFILE STACK
 
-The following roles are defined for this profile:
-- Server: This is the device that provides an object exchange server 
-  to and from which data objects can be pushed and pulled, respectively.
-- Client: This is the device that can push data object(s) to or/and pull data object(s) from the Server.
+The following roles are defined for this profile:  
+Server - the device provides an object exchange server to and from which data objects can be pushed and pulled;   
+Client - the device that can push or/and pull data object(s) to/from from the Server.
 
+```
 Client    <--> Server  
 OBEX      <--> OBEX  
 SDP       <--> SDP  
 LMP|L2CAP <--> LMP|L2CAP  
 Baseband  <--> Baseband  
+```
 
 The Baseband, LMP, and L2CAP are the OSI layer 1 and 2 Bluetooth protocols.
 SDP is the Bluetooth Service Discovery Protocol. 
