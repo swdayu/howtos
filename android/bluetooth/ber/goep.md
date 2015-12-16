@@ -2,8 +2,8 @@
 # GOEP
 
 - Generic Object Exchange Profile  
-  Latest Version - V21 2012.07.24
-	BARB - barb-main@bluetooth.org
+  Latest Version - V21 2012.07.24  
+  BARB - barb-main@bluetooth.org
 
 ## Abstract
 
