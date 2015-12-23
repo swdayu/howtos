@@ -23,7 +23,7 @@ Android系统只有在内存不足，并且当获取了用户焦点的Activity�
 可以使用传统的Thread类，也可以考虑AsyncTask或HandlerThread。
 另外注意的是服务默认会在应用程序主线程上运行，如果服务执行密集型或阻塞式操作，仍然需要在服务中创建新的线程。
 
-# Menifest配置文件
+# Manifest配置文件
 
 像Activity和其他组件一样，需要在Manifest文件中声明所有定义的服务。
 声明一个服务只需要在<application>父元素下添加<service>子元素，例如：
@@ -42,3 +42,15 @@ Android系统只有在内存不足，并且当获取了用户焦点的Activity�
 you can supply intent filters for your services and exclude the component name from the Intent, 
 but you then must set the package for the intent with setPackage(), 
 which provides sufficient disambiguation for the target service.
+
+# Started Service
+
+用一个Intent调用startService()可以启动服务，Intent用于指定对应的服务及要传递的数据。
+服务会在onStartCommand()回调函数中接收到这个Intent。
+
+一般情况下，可以从两个类继承来创建启动的服务。第一个类是Service：它是所有服务的子类，
+从这个类继承要注意的一点是应该创建新线程去执行密集型或阻塞式任务；
+第二个类是IntentService：它使用工作线程依次处理收到的所有start请求，
+如果你的服务不需要同时处理多个请求，从这个类继承是最好的选择，
+你只需要实现onHandleIntent()回调函数来处理每个请求即可。
+
