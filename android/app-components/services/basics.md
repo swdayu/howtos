@@ -29,13 +29,13 @@ Android系统只有在内存不足，并且当获取了用户焦点的Activity�
 声明一个服务只需要在<application>父元素下添加<service>子元素，例如：
 ```xml
 <service android:name=".ExampleService"
-         android:enabled=["true" | "false"]
-         android:exported=["true" | "false"] #false: stop other apps to use your service even with explicit intent
-         android:isolatedProcess=["true" | "false"]
-         android:permission="string" <!--the premission an entity must have to start or bind the service-->
-         android:process="string"    <!--the name of a process that you want the service to run-->
-         android:label="string_resource"
-         android:icon="drawable_resource" />
+  android:enabled=["true"|"false"]
+  android:exported=["true"|"false"] #false: stop other apps use your service even with explicit intent
+  android:isolatedProcess=["true"|"false"]
+  android:permission="string" #the premission an entity must have to start or bind the service
+  android:process="string"    #the name of a process that you want the service to run
+  android:label="string_resource"
+  android:icon="drawable_resource" />
 ```
 为了你应用的安全性，应该只使用explicit intent启动或绑定你的服务，不要为服务定义indent过滤条件。
 >  If it's critical that you allow for some amount of ambiguity as to which service starts, 
