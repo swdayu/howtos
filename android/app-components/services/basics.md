@@ -54,3 +54,10 @@ which provides sufficient disambiguation for the target service.
 如果你的服务不需要同时处理多个请求，从这个类继承是最好的选择，
 你只需要实现onHandleIntent()回调函数来处理每一个请求即可。
 
+IntentService已经实现的功能：创建一个工作线程在主线程外处理onStartCommand()接收到的所有Intent；
+创建一个工作队列存储接收到的Intent，然后依次取出Intent回调子类实现的onHandleIntent()；
+当所有start请求都处理完毕时自动终止服务，你不需要去调用stopSelf()去终止服务；
+提供默认的onBind()回调函数的实现，它简单返回null；
+提供默认的onStartCommand()回调函数实现，它将Intent发送到工作队列，然后传递到你定义的onHandleIntent()回调函数中。
+因此从这个类继承，你只需要实现onHandleIntent()回调函数就行了。
+
