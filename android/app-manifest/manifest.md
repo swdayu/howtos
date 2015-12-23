@@ -3,8 +3,8 @@
 
 ```xml
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.example.BLESettings"
-  android:sharedUserId="string"
+  package="com.example.project.BLESettings"
+  android:sharedUserId="string" #android.uid.bluetooth
   android:sharedUserLabel="string_resource" 
   android:versionCode="1.0"
   android:versionName="stable 1.0"
@@ -30,3 +30,13 @@ Application with the same user ID can access each other's data and, if desired, 
 然而如果指定两个或多个应用相同的该属性，它们就共享同一个ID。
 共享同一个ID的应用可以访问每一个应用的数据，如果需要还可以运行在同一个进程中。
 
+# permission
+
+```xml
+<permission android:name="android.permission.RECV_ANS_ALERTS"
+  android:protectionLevel=["normal"|"dangerous"|"signature" |"signatureOrSystem"]
+  android:permissionGroup="string"
+  android:description="string_resource"
+  android:icon="drawable_resource"
+  android:label="string_resource" />
+```
