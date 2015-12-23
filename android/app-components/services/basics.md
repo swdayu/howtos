@@ -19,6 +19,26 @@ Android系统只有在内存不足，并且当获取了用户焦点的Activity�
 
 使用服务还是线程：服务简单的说是一个可以在后台运行的组件，即使与它交互的组件不再来访问了，
 它还可能在后台运行，如果这是你需要的就应该使用服务；如果仅需在用户交互时在主线程外执行一项任务，
-可能你需要的就是创建一个新线程去执行这项任务，然后终止这个线程。可以使用传统的Thread类，也可以考虑AsyncTask或HandlerThread。
-另外注意的是服务默认会在应用程序主线程上运行，如果服务执行密集型或阻塞式操作，你仍然需要在服务中创建新的线程。
+可能你需要的就是创建一个新线程去执行这项任务，然后终止这个线程。
+可以使用传统的Thread类，也可以考虑AsyncTask或HandlerThread。
+另外注意的是服务默认会在应用程序主线程上运行，如果服务执行密集型或阻塞式操作，仍然需要在服务中创建新的线程。
 
+# Menifest配置文件
+
+像Activity和其他组件一样，需要在Manifest文件中声明所有定义的服务。
+声明一个服务只需要在<application>父元素下添加<service>子元素，例如：
+```xml
+<service android:name=".ExampleService"
+         android:enabled=["true" | "false"]
+         android:exported=["true" | "false"] #false: stop other apps to use your service even with explicit intent
+         android:isolatedProcess=["true" | "false"]
+         android:permission="string" <!--the premission an entity must have to start or bind the service-->
+         android:process="string"    <!--the name of a process that you want the service to run-->
+         android:label="string_resource"
+         android:icon="drawable_resource" />
+```
+为了你应用的安全性，应该只使用explicit intent启动或绑定你的服务，不要为服务定义indent过滤条件。
+>  If it's critical that you allow for some amount of ambiguity as to which service starts, 
+you can supply intent filters for your services and exclude the component name from the Intent, 
+but you then must set the package for the intent with setPackage(), 
+which provides sufficient disambiguation for the target service.
