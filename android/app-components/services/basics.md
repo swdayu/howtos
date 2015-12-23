@@ -49,8 +49,8 @@ which provides sufficient disambiguation for the target service.
 服务会在onStartCommand()回调函数中接收到这个Intent。
 
 一般情况下，可以从两个类继承来创建启动的服务。第一个类是Service：它是所有服务的子类，
-从这个类继承要注意的一点是应该创建新线程去执行密集型或阻塞式任务；
+从这个类继承要注意的一点是，应该创建新线程去执行密集型或阻塞式任务；
 第二个类是IntentService：它使用工作线程依次处理收到的所有start请求，
 如果你的服务不需要同时处理多个请求，从这个类继承是最好的选择，
-你只需要实现onHandleIntent()回调函数来处理每个请求即可。
+你只需要实现onHandleIntent()回调函数来处理每一个请求即可。
 
