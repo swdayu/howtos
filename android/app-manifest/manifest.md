@@ -1,5 +1,5 @@
 
-# <manifest>
+# manifest
 
 ```xml
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -13,10 +13,10 @@
 </manifest>
 ```
 
-这个元素是Manifest的根元素，必须包含一个<application>子元素，以及指定xmlns:android和package属性，
-它还可以包含的子元素是<compatible-screens>,<instrumentation>, <permission>, <permission-group>, 
-<permission-tree>, <supports-gl-texture>, <supports-screens>, <uses-configuration>, <uses-feature>, 
-<uses-permission>, <uses-permission-sdk-23>, <uses-sdk>。
+这个元素是Manifest的根元素，必须包含一个application子元素，以及指定xmlns:android和package属性，
+它还可以包含的子元素是compatible-screens, instrumentation, permission, permission-group, 
+permission-tree, supports-gl-texture, supports-screens, uses-configuration, uses-feature, 
+uses-permission, uses-permission-sdk-23, uses-sdk。
 
 **android:sharedUserId**
 
