@@ -3,7 +3,7 @@
 
 创建服务，需要从Service或其子类继承，然后实现必要的Service生存期回调函数。
 几个重要的回调函数是：onStartCommand()会在其他组件startService()时调用，
-start的服务会持续执行，直到调用stopSelf()或stopService()结束服务，
+start的服务会持续执行，直到服务自己调用stopSelf()或其他组件调用stopService()结束服务，
 如果只希望其他组件来bindService()，则不需要定义这个回调函数；
 onBind()会在其他组件bindService()时调用，该回调函数需要返回用于访问该服务的IBinder接口，
 这个函数必须要实现，如果不希望其他组件来绑定应该返回null，绑定的服务在第一个组件bindService()时开始执行，
