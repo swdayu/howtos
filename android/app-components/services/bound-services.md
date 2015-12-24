@@ -47,7 +47,7 @@ Android SDK工具会解析这个文件并生成一个包含这些接口并处理
 最后，Client使用对象提供的public方法访问绑定的服务。
 
 服务和Client必须在同一进程的原因是，Client会直接将IBinder对象转换成实际的类型从而调用它的方法。
-一个具体的示例如下：
+一个具体的示例如下。注意在下面的例子中，服务在onStop()函数中解绑，但在实际情况中Client应该选择合适的时间点。
 ```java
 // Service
 public class MyService extends Service {
@@ -107,4 +107,4 @@ public class ClientActivity extends Activity {
   }
 }
 ```
-注意在上面的例子中，服务在onStop()函数中解绑，但在实际情况中Client应该选择合适的时间点。
+
