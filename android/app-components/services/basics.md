@@ -77,7 +77,7 @@ Started服务必须自己负责终止，即使允许Bound，只要onStartCommand
 它可以避免终止服务时接收的请求还没处理完的情况。
 调用stopSelf(startId)后，系统只会在startId与最新的请求Id相等时才将服务终止掉。
 
-# 发送通知
+# 服务通知
 
 服务启动后，通过[Toast Notification][1]或[Status Bar Notification][2]可以给用户发送事件消息。
 Toast通知是在当前窗口之上显示一会然后自动消失的通知；
@@ -95,3 +95,18 @@ Toast通知是在当前窗口之上显示一会然后自动消失的通知；
 它带有一个布尔参数表示是否也将状态栏通知移除，这个函数不会终止服务。
 然而如果终止一个在前台运行的服务，对应的状态栏通知也会被移除。
 
+# 生存周期
+
+![Service Lifecycle](../assets/service_lifecycle.png)
+
+上图中的Start和Bind服务两条路径不是完全隔离的。你可以绑定一个已经startService()的服务。
+这种情况下，stopService()或stopSelf()不会真正将服务终止，直到所有绑定的Client都解绑了。
+
+Started服务生存期流程：
+```
+1. Start Request 1 -> onCreate() -> onStartCommand()
+2. Start Request 2 -> onStartCommand()
+3. System Kill Service -> onDestory()
+4. System Recreate Service -> onCreate() -> onStartCommand()
+5. Stop Service -> onDestory()
+```
