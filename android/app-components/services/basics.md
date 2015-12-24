@@ -99,7 +99,7 @@ Toast通知是在当前窗口之上显示一会然后自动消失的通知；
 
 ![Service Lifecycle](../assets/service_lifecycle.png)
 
-上图中的Start和Bind服务两条路径不是完全隔离的。你可以绑定一个已经startService()的服务。
+Start和Bind服务两条路径不是完全隔离的。你可以绑定一个已经startService()的服务。
 这种情况下，stopService()或stopSelf()不会真正将服务终止，直到所有绑定的Client都解绑了。
 
 Started服务生存期流程：
