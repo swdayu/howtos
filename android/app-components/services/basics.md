@@ -73,5 +73,25 @@ startService(intent);
 如果希望服务返回一个结果，可以getBroadcast()并为广播创建PendingIntent去启动服务，服务可以使用广播将结果传回。
 多次startService()会导致多次调用服务的onStartCommand()，然而只需要执行一次stopSelf()或stopService()就可以终止服务。
 Started服务必须自己负责终止，即使允许Bound，只要onStartCommand()接收到了Start请求就必须自己将服务终止。
-如果多线程同时处理onStartCommand()收到的请求，可以使用stopSelf(startId)来终止服务，它可以避免终止服务时接收的请求还没处理完的情况。
+如果多线程同时处理onStartCommand()收到的请求，可以使用stopSelf(startId)来终止服务，
+它可以避免终止服务时接收的请求还没处理完的情况。
 调用stopSelf(startId)后，系统只会在startId与最新的请求Id相等时才将服务终止掉。
+
+# 发送通知
+
+服务启动后，通过[Toast Notification][1]或[Status Bar Notifications][2]可以给用户发送事件消息。
+Toast通知是会在当前窗口之上显示一会然后自动消失的通知；
+而状态栏通知则会在状态栏显示图标和消息，用户还可以选择执行相应的操作。
+例如当服务下载完一个文件后，可以发送一个状态栏通知，然后用户可以点击启动一个Activity查看下载的文件。
+
+[1]: http://developer.android.com/guide/topics/ui/notifiers/toasts.html
+[2]: http://developer.android.com/guide/topics/ui/notifiers/notifications.html
+
+服务可以在前台运行，前台运行的服务必须提供一个状态栏通知，它会有"Ongoing"的头部，
+表示这个通知不能清除，除非服务终止了或从前台移除了。
+例如播放器使用服务播放音乐，这个服务应该设置成前台运行，状态栏中的通知可能显示当前的音乐，
+并可以让用户启动Activity打开播放器。调用startForeground()函数即可以让服务进入前台，它需要两个参数：
+一个唯一标识通知的整数，不能为0；以及对应的通知Notification对象。将服务从前台移除可以调用stopForeground()，
+它带有一个布尔参数表示是否也将状态栏通知移除，这个函数不会终止服务。
+然而如果终止一个在前台运行的服务，对应的状态栏通知也会被移除。
+
