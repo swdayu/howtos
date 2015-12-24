@@ -12,7 +12,7 @@ Client得到IBinder对象后，就可以通过这个接口对象访问绑定的�
 系统会自动将服务销毁（除非服务还被其他Client调用startService()启动了）。
 
 如果定义的服务既可以Start也可以Bind，绑定服务的所有Client都解绑之后，只要服务被Start系统就不会将服务销毁，
-Started的服务需要调用stopSelf()或stopService()来终止服务。
+Started的服务需要调用stopSelf()或stopService()来终止。
 但如果没有完全解绑的情况下就调用stopSelf()或stopService()会怎样？
 同时允许Start和Bind在有些情况下是需要的，例如：
 > For example, a music player might find it useful to allow its service to run indefinitely and also provide binding. 
