@@ -33,7 +33,7 @@ Started的服务需要调用stopSelf()或stopService()来终止。
 
 使用AIDL：Messenger其实是基于AIDL（Android接口定义语言）实现的，它将所有Client请求都缓存在同一个线程队列中，
 使得服务可以在Handler中依次处理每个请求，不需要考虑线程安全性。然而如果你的服务希望同时处理多个请求，则需要使用AIDL。
-这种情况下，你的服务必须处理多线程问题，似的服务是线程安全的。使用这种方法，首先需要创建.aidl文件定义对应的接口；
+这种情况下，你的服务必须处理多线程问题，使得服务是线程安全的。使用这种方法，首先需要创建.aidl文件定义对应的接口；
 Android SDK工具会解析这个文件并生成一个包含这些接口并处理进程间通信的抽象类；
 在你的服务中，需要从这个抽象类继承并实现这些接口。
 > AIDL (Android Interface Definition Language) performs all the work to decompose objects into primitives 
