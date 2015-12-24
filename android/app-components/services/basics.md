@@ -60,3 +60,18 @@ IntentService已经实现的功能：创建一个工作线程在主线程外处�
 提供默认的onStartCommand()回调函数实现，它将Intent发送到工作队列，然后传递到onHandleIntent()回调函数中。
 因此从这个类继承，只需实现onHandleIntent()回调函数。
 
+回调函数onStartCommand()会返回一个整数，它决定系统杀死服务后的行为，返回的值可以是：
+START_NOT_STICKY，如果系统在onStartCommand()之后杀死服务，除非有新的Intents需要传递否则不会重新创建这个服务；
+START_STICKY，；
+START_REDELIVER_INTENT，。
+
+使用Intent启动服务，例如：
+```java
+Intent intent = new Intent(this, ExampleService.class);
+startService(intent);
+```
+如果希望服务返回一个结果，可以getBroadcast()并为广播创建PendingIntent去启动服务，服务可以使用广播将结果传回。
+多次startService()会导致多次调用服务的onStartCommand()，然而只需要执行一次stopSelf()或stopService()就可以终止服务。
+Started服务必须自己负责终止，即使允许Bound，只要onStartCommand()接收到了Start请求就必须自己将服务终止。
+如果多线程同时处理onStartCommand()收到的请求，可以使用stopSelf(startId)来终止服务，它可以避免终止服务时接收的请求还没处理完的情况。
+调用stopSelf(startId)后，系统只会在startId与最新的请求Id相等时才将服务终止掉。
