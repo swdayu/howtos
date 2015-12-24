@@ -79,7 +79,7 @@ Started服务必须自己负责终止，即使允许Bound，只要onStartCommand
 
 # 发送通知
 
-服务启动后，通过[Toast Notification][1]或[Status Bar Notifications][2]可以给用户发送事件消息。
+服务启动后，通过[Toast Notification][1]或[Status Bar Notification][2]可以给用户发送事件消息。
 Toast通知是在当前窗口之上显示一会然后自动消失的通知；
 而状态栏通知则会在状态栏显示图标和消息，用户还可以选择执行相应的操作。
 例如当服务下载完文件后，可以发送一个状态栏通知，用户可以点击启动一个Activity查看下载的文件。
