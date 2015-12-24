@@ -80,18 +80,18 @@ Started服务必须自己负责终止，即使允许Bound，只要onStartCommand
 # 发送通知
 
 服务启动后，通过[Toast Notification][1]或[Status Bar Notifications][2]可以给用户发送事件消息。
-Toast通知是会在当前窗口之上显示一会然后自动消失的通知；
+Toast通知是在当前窗口之上显示一会然后自动消失的通知；
 而状态栏通知则会在状态栏显示图标和消息，用户还可以选择执行相应的操作。
-例如当服务下载完一个文件后，可以发送一个状态栏通知，然后用户可以点击启动一个Activity查看下载的文件。
+例如当服务下载完文件后，可以发送一个状态栏通知，用户可以点击启动一个Activity查看下载的文件。
 
 [1]: http://developer.android.com/guide/topics/ui/notifiers/toasts.html
 [2]: http://developer.android.com/guide/topics/ui/notifiers/notifications.html
 
-服务可以在前台运行，前台运行的服务必须提供一个状态栏通知，它会有"Ongoing"的头部，
+服务可以在前台运行，前台运行的服务必须提供状态栏通知，它会有"Ongoing"头部，
 表示这个通知不能清除，除非服务终止了或从前台移除了。
-例如播放器使用服务播放音乐，这个服务应该设置成前台运行，状态栏中的通知可能显示当前的音乐，
+例如播放器使用服务播放音乐，这个服务应该设置成前台运行，状态栏中的通知可能显示当前播放的音乐，
 并可以让用户启动Activity打开播放器。调用startForeground()函数即可以让服务进入前台，它需要两个参数：
-一个唯一标识通知的整数，不能为0；以及对应的通知Notification对象。将服务从前台移除可以调用stopForeground()，
+一个不为0的唯一标识通知的整数；以及对应的Notification对象。将服务从前台移除可以调用stopForeground()，
 它带有一个布尔参数表示是否也将状态栏通知移除，这个函数不会终止服务。
 然而如果终止一个在前台运行的服务，对应的状态栏通知也会被移除。
 
