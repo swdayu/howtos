@@ -39,3 +39,72 @@ Android SDK工具会解析这个文件并生成一个包含这些接口并处理
 > AIDL (Android Interface Definition Language) performs all the work to decompose objects into primitives 
   that the operating system can understand and marshall them across processes to perform IPC.
   
+# 从Binder继承
+
+首先在服务中实现一个Binder子类，该类或者包含Client能够调用的public方法，
+或者返回包含对应public方法的当前Service对象或Service中的其他类对象；
+然后在onBind()回调函数中返回该对象，Client会在onServiceConnected()回调函数中获取到该对象；
+最后Client使用对象提供的public方法访问绑定的服务。
+
+服务和Client必须在同一进程的原因是，Client会直接将IBinder对象转换成实际的类型从而调用它的方法。
+一个具体的示例如下：
+```java
+// Service
+public class MyService extends Service {
+  public class MyBinder extends Binder {
+    MyService getService() { return MyService.this; }
+  }
+
+  public int callMethodForClients() {
+    return 0;
+  }
+
+  private final IBinder mBinder = new MyBinder();
+
+  @Override
+  public IBinder onBind(Intent intent) {
+    return mBinder;
+  }
+}
+
+// Client
+public class ClientActivity extends Activity {
+  private ServiceConnection mConnection = new ServiceConnection() {
+    @Override
+    public void onServiceConnected(ComponentName className, IBinder service) {
+      MyBinder binder = (MyBinder)service;
+      mService = binder.getService();
+      mBound = true;
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName arg0) {
+      mBound = false;
+    }
+  }
+
+  @Override
+  protected void onStart() {
+    super.onStart();
+    Intent intent = new Intent(this, MyService.class);
+    bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+  }
+
+  public void onButtonClick(View v) {
+    if (mBound) {
+      int num = mService.callMethodForClients();
+      Log.i(TAG, "number: " + num);
+    }
+  }
+
+  @Override
+  protected void onStop() {
+    super.onStop();
+    if (mBound) {
+      unbindService(mConnection);
+      mBound = false;
+    }
+  }
+}
+```
+注意在上面的例子中，服务在onStop()函数中解绑，但在实际情况中Client应该选择合适的时间点。
