@@ -41,10 +41,10 @@ Android SDK工具会解析这个文件并生成一个包含这些接口并处理
   
 # 从Binder继承
 
-首先在服务中实现一个Binder子类，该类或者包含Client能够调用的public方法，
+首先，需要在服务中实现一个Binder子类，该类或者包含Client能够调用的public方法，
 或者返回包含对应public方法的当前Service对象或Service中的其他类对象；
-然后在onBind()回调函数中返回该对象，Client会在onServiceConnected()回调函数中获取到该对象；
-最后Client使用对象提供的public方法访问绑定的服务。
+然后，在onBind()回调函数中返回该对象，Client会在onServiceConnected()回调函数中获取到该对象；
+最后，Client使用对象提供的public方法访问绑定的服务。
 
 服务和Client必须在同一进程的原因是，Client会直接将IBinder对象转换成实际的类型从而调用它的方法。
 一个具体的示例如下：
