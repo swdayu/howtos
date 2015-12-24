@@ -61,21 +61,24 @@ IntentService已经实现的功能：创建一个工作线程在主线程外处�
 因此从这个类继承，只需实现onHandleIntent()回调函数。
 
 回调函数onStartCommand()会返回一个整数，它决定系统杀死服务后的行为，返回的值可以是：
-- START_NOT_STICKY，如果系统在onStartCommand()之后将服务进程杀死，该服务不会由系统重新创建，
-只有当新的startService()请求到来时才再次创建服务，例如使用定时器不断startService()从服务获取数据，
+
+START_NOT_STICKY，如果系统在onStartCommand()之后将服务进程杀死，该服务不会由系统重新创建，
+只有新的startService()请求到来时才再次创建服务，例如使用定时器不断startService()从服务获取数据，
 该过程系统可能将服务杀死，当下次获取更多数据时，startService()会重新创建服务；
-    > This is the safest option to avoid running your service when not necessary and 
-      when your application can simply restart any unfinished jobs.
-- START_REDELIVER_INTENT，如果系统在onStartCommand()之后将服务进程杀死，并且还有没处理完的Intents，
-则系统会安排时间重新创建这个服务，使用这些Intents调用onStartCommand()，如果所以Intents在杀死服务前都处理完了，
-系统不会重新创建这个服务。
-    > This is suitable for services that are actively performing a job that should be immediately resumed, 
-      such as downloading a file.
-- START_STICKY，如果系统在onStartCommand()之后将服务进程杀死，该服务会在适当的时候由系统重新创建，
-并使用一个null Intent调用onStartCommand()让服务回到started状态，但是系统不会重新传递服务杀死时没有处理完的Intent，
+> This is the safest option to avoid running your service when not necessary and 
+  when your application can simply restart any unfinished jobs.
+
+START_REDELIVER_INTENT，如果系统在onStartCommand()之后将服务进程杀死，并且还有没处理完的Intents，
+则系统会安排时间重新创建这个服务，并将这些Intents传递到onStartCommand()，
+如果杀死服务前所有请求都处理完了，系统不会重新创建这个服务。
+> This is suitable for services that are actively performing a job that should be immediately resumed, 
+  such as downloading a file.
+
+START_STICKY，如果系统在onStartCommand()之后将服务进程杀死，该服务会在适当的时候由系统重新创建，
+并使用一个null Intent调用onStartCommand()让服务回到started状态，但系统不会重新传递服务杀死时没有处理完的Intent，
 另外新的startService()请求也会触发服务重新创建；
-    > This is suitable for media players (or similar services) that are not executing commands, 
-      but running indefinitely and waiting for a job.
+> This is suitable for media players (or similar services) that are not executing commands, 
+  but running indefinitely and waiting for a job.
 
 使用Intent启动服务，例如：
 ```java
