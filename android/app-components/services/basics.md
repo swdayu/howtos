@@ -75,7 +75,7 @@ START_REDELIVER_INTENT，如果系统在onStartCommand()之后将服务进程杀
   such as downloading a file.
 
 START_STICKY，如果系统在onStartCommand()之后将服务进程杀死，该服务会在适当的时候由系统重新创建，
-并使用一个null Intent调用onStartCommand()让服务回到started状态，但系统不会重新传递服务杀死时没有处理完的Intent，
+并使用null Intent调用onStartCommand()让服务回到started状态，但系统不会重新传递服务杀死时没有处理完的Intent，
 另外新的startService()请求也会触发服务重新创建；
 > This is suitable for media players (or similar services) that are not executing commands, 
   but running indefinitely and waiting for a job.
