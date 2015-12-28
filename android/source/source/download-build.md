@@ -2,9 +2,9 @@
 # 下载和编译
 
 在下载Android源代码之前，确保系统满足以下需求：
-- Linux或者Mac OS操作系统，Android内部编译测试使用的是Ubuntu LTS(14.04)
-- Gingerbread(2.3.x)及以上版本需要64位系统，32位系统只能编译老版本
-- 至少需要100G硬盘空间下载代码（checkout），150G进行单次编译（single build），
+- Linux或者Mac OS操作系统，Android内部编译测试使用的是Ubuntu LTS(14.04);   
+  Gingerbread(2.3.x)及以上版本需要64位系统，32位系统只能编译老版本;
+  至少需要100G硬盘空间下载代码（checkout），150G进行单次编译（single build），
   200G或更多空间进行多次编译（multiple build）
 - [Python](python.org) 2.6-2.7 (`$ python --version`)； [GNU](gnu.org) Make 3.81-3.82 (`$ make --version`)； 
   [Git](git-scm.com) 1.7+ (`$ git --version`)；需要JDK7编译AOSP主分支（master branch），
