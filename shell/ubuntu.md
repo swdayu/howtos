@@ -120,10 +120,17 @@ sudo apt-get install chromium-browser
 
 ## Java
 ```
-sudo add-apt-repository ppa:webupd8team/java
-sudo apt-get update
-sudo apt-get install oracle-java7-installer
-sudo apt-get install oracle-java7-set-default
+# install openjdk for android and make default
+$ sudo apt-get update
+$ sudo apt-get install openjdk-7-jdk
+$ sudo update-alternatives --config java
+$ sudo update-alternatives --config javac
+
+# oracle java
+$ sudo add-apt-repository ppa:webupd8team/java
+$ sudo apt-get update
+$ sudo apt-get install oracle-java7-installer
+$ sudo apt-get install oracle-java7-set-default
 ```
 
 Select different version:
