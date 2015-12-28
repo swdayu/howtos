@@ -8,7 +8,7 @@
   200G或更多空间进行多次编译（multiple build）
 - [Python](python.org) 2.6-2.7； [GNU](gnu.org) Make 3.81-3.82； [Git](git-scm.com) 1.7+；
   需要JDK7编译AOSP主分支（master branch），JDK6编译Gingerbread到KitKat版本，JDK5编译Cupcake到Froyo版本；
-  版本检查：python --version；make --version；git --version；java -version #OpenJDK。
+  版本检查：python --version；make --version；git --version；java -version #需要OpenJDK。
 
 ## 搭建编译环境
 
