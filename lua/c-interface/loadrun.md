@@ -403,55 +403,87 @@ luaD_poscall(L, ci, L->top - n, n):
   // firstresultpos = L->top - n; funcpos = ci->func; funcresults = n; wantedresults = ci->nresults;
   // 将实际希望的结果拷贝到funcpos及之后，并忽略其他内容
   moveresults(L, firstresultpos, funcpos, funcresults, wantedresults); 
-    
+```
 
-      
-// Lua函数调用流程
-// 1. Lua Closure的结构体
+/* 约定名称列表
+====================================================
+ * 中文名词     英文解释              Lua表示
+ * =========== ===================== =============
+ * Lua值       Lua Value             TValue
+ * Lua栈       Lua Virtual Stack     TValue的数组
+ * C函数       C Function            lua_CFunction
+ * C闭包       C Closure             CClosure
+ * Lua函数     Lua Function          LClosure
+ * 上值        Upvalue               TValue或UpVal
+ * Lua线程     Lua Coroutine         lua_State
+ * Lua状态     Lua State             lua_State
+========================================================
+*/
+
+## Lua中的函数
+
+函数只能访问全局变量和自己的局部变量（包括参数），但闭包还可以访问上文局部变量（即Lua中的上值）。
+Lua有三种函数：用函数指针lua_CFunction表示的C函数；用CClosure表示的C闭包；以及用LClosure表示的Lua函数；
+闭包和函数的本质区别是闭包可以访问上值，其结构体中维护了自己可以访问的上值列表。
+
+## 有关Lua函数的类型定义
+
+```c
+//Lua函数结构体
 typedef struct LClosure {
-  GCObject* next; lu_byte tt; lu_byte marked; // GCObject CommandHeader
-  lu_byte nupvalues; GCObject* gclist; // ClosureHeader
-  struct Proto* p;
-  UpVal* upvals[1];
+  ClosureHeader;    //闭包公共头部
+  struct Proto* p;  //TODO
+  UpVal* upvals[1]; //上值的列表，有nupvalues个上值
 } LClosure;
+//闭包公共头部
+#define ClosureHeader \
+  CommonHeader; /*GC对象公共头部*/ lu_byte nupvalues; /*上值个数*/ GCObject *gclist /*TODO*/
+//Lua函数上值结构体
 typedef struct UpVal {
-  TValue* v;
-  lu_mem refcount;
+  TValue* v;        //指向Lua栈元素或Lua值 //TODO
+  lu_mem refcount;  //引用计数 //TODO
   union {
-    struct { UpVal* next; int touched; } open;
-    TValue value;
+    struct { UpVal* next; int touched; } open; //TODO
+    TValue value; //TODO
   } u;
 } UpVal;
-// 2.
-int luaD_precall(lua_State* L, StkId func, int nresults) {
-  switch (ttype(func)) {
-  case LUA_TLCL: {  /* Lua function: prepare its call */
-    StkId base;
-    Proto *p = clLvalue(func)->p;
-    int n = cast_int(L->top - func) - 1;  /* number of real arguments */
-    int fsize = p->maxstacksize;  /* frame size */
-    checkstackp(L, fsize, func);
-    if (p->is_vararg != 1) {  /* do not use vararg? */
-      for (; n < p->numparams; n++)
-        setnilvalue(L->top++);  /* complete missing arguments */
-      base = func + 1;
+```
+
+## 调用Lua函数
+
+```c
+int luaD_precall (lua_State *L, StkId func, int nresults) {
+  CallInfo *ci;
+  switch (ttype(func)) {                  //获取Lua值的类型（func->tt_ & 0x3F）
+  case LUA_TLCL:                          //类型是Lua函数
+    StkId base;                           //指向第1个参数
+    Proto *p = clLvalue(func)->p;         //TODO
+    int n = cast_int(L->top - func) - 1;  //函数参数[func+1, L->top)
+    int fsize = p->maxstacksize;          //TODO
+    checkstackp(L, fsize, func);          //TODO
+    if (p->is_vararg != 1) {              //如果是固定参数函数
+      for (; n < p->numparams; n++)       //传入的参数比实际的参数少（如果比实际参数多放在那里不管）
+        setnilvalue(L->top++);            //用nil值填补少掉的参数
+      base = func + 1;                    //保存第1个参数的指针
+    } else {                              //如果是可变参数函数，接收所有的参数
+      base = adjust_varargs(L, p, n);     //TODO
     }
-    else
-      base = adjust_varargs(L, p, n);
-    ci = next_ci(L);  /* now 'enter' new function */
-    ci->nresults = nresults;
+    ci = next_ci(L);                      //进入函数调用链下一层（L->ci->next or new）
+    ci->nresults = nresults;              //纪录当前函数调用信息：返回结果个数，当前函数在Lua栈中的位置，第1个参数的位置
     ci->func = func;
     ci->u.l.base = base;
-    L->top = ci->top = base + fsize;
-    lua_assert(ci->top <= L->stack_last);
-    ci->u.l.savedpc = p->code;  /* starting point */
-    ci->callstatus = CIST_LUA;
-    if (L->hookmask & LUA_MASKCALL)
-      callhook(L, ci);
-    return 0;
+    L->top = ci->top = base + fsize;      //TODO
+    lua_assert(ci->top <= L->stack_last); //TODO
+    ci->u.l.savedpc = p->code;            //当前函数开始执行位置 //TODO
+    ci->callstatus = CIST_LUA;            //初始化当前调用状态为调用Lua函数
+    if (L->hookmask & LUA_MASKCALL)       //如果Lua状态设置了Call Hook掩码
+      callhook(L, ci);                    //TODO
+    return 0;                             //返回0表示当前出来的Lua函数
   }
 }
 ```
+
+
 
 ## lua_pcall [-(nargs + 1), +(nresults|1), –]
 ```c
