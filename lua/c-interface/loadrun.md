@@ -405,6 +405,12 @@ luaD_poscall(L, ci, L->top - n, n):
   moveresults(L, firstresultpos, funcpos, funcresults, wantedresults); 
 ```
 
+## Lua中的函数
+
+函数只能访问全局变量和自己的局部变量（包括参数），但闭包还可以访问上文局部变量（即Lua中的上值）。
+Lua有三种函数：用函数指针lua_CFunction表示的C函数；用CClosure表示的C闭包；以及用LClosure表示的Lua函数；
+闭包和函数的本质区别是闭包可以访问上值，其结构体中维护了自己可以访问的上值列表。
+```c
 /* 约定名称列表
 ====================================================
  * 中文名词     英文解释              Lua表示
@@ -419,12 +425,7 @@ luaD_poscall(L, ci, L->top - n, n):
  * Lua状态     Lua State             lua_State
 ========================================================
 */
-
-## Lua中的函数
-
-函数只能访问全局变量和自己的局部变量（包括参数），但闭包还可以访问上文局部变量（即Lua中的上值）。
-Lua有三种函数：用函数指针lua_CFunction表示的C函数；用CClosure表示的C闭包；以及用LClosure表示的Lua函数；
-闭包和函数的本质区别是闭包可以访问上值，其结构体中维护了自己可以访问的上值列表。
+```
 
 ## 有关Lua函数的类型定义
 
@@ -444,7 +445,7 @@ typedef struct UpVal {
   lu_mem refcount;  //引用计数 //TODO
   union {
     struct { UpVal* next; int touched; } open; //TODO
-    TValue value; //TODO
+    TValue value;   //TODO
   } u;
 } UpVal;
 ```
