@@ -453,6 +453,16 @@ typedef struct UpVal {
 ## 调用Lua函数
 
 ```c
+//@[luaD_call]调用C或Lua函数
+//前置条件：函数放在func位置，[func+1, L->top)放的是函数参数，并传入需要返回的结果个数nResults
+//运行结果：[func, L->top)存放了调整后的nResults个函数结果
+void luaD_call(lua_State* L, StkId func, int nResults) {
+  if (++L->nCcalls >= LUAI_MAXCCALLS)   //函数嵌套调用深度必须小于LUAI_MAXCCALLS（200）@[lua-nest-call]
+    stackerror(L);                      //否则抛出错误
+  if (!luaD_precall(L, func, nResults)) //@[luaD_precall]调用C函数或为Lua函数调用作准备，返回0表示Lua函数
+    luaV_execute(L);                    //@[luaV_execute]执行Lua函数
+  L->nCcalls--;
+}
 int luaD_precall (lua_State *L, StkId func, int nresults) {
   CallInfo *ci;
   switch (ttype(func)) {                  //获取Lua值的类型（func->tt_ & 0x3F）
@@ -469,8 +479,8 @@ int luaD_precall (lua_State *L, StkId func, int nresults) {
     } else {                              //如果是可变参数函数，接收所有的参数
       base = adjust_varargs(L, p, n);     //TODO
     }
-    ci = next_ci(L);                      //进入函数调用链下一层（L->ci->next or new）
-    ci->nresults = nresults;              //纪录当前函数调用信息：返回结果个数，当前函数在Lua栈中的位置，第1个参数的位置
+    ci = next_ci(L);                      //进入函数调用链下一层（ci = L->ci = L->ci->next or new）
+    ci->nresults = nresults;              //初始化当前调用信息：返回结果个数，当前函数的位置，第1个参数的位置
     ci->func = func;
     ci->u.l.base = base;
     L->top = ci->top = base + fsize;      //TODO
@@ -479,7 +489,7 @@ int luaD_precall (lua_State *L, StkId func, int nresults) {
     ci->callstatus = CIST_LUA;            //初始化当前调用状态为调用Lua函数
     if (L->hookmask & LUA_MASKCALL)       //如果Lua状态设置了Call Hook掩码
       callhook(L, ci);                    //TODO
-    return 0;                             //返回0表示当前出来的Lua函数
+    return 0;                             //返回0表示当前是Lua函数
   }
 }
 ```
