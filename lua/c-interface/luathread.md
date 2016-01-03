@@ -20,6 +20,35 @@ except to `lua_newstate`, which creates a Lua state from scratch.
 Lua提供的C接口函数都是可重入的：它们没有全局变量，所有的状态信息都通过这个结构体来访问。
 除了创建Lua状态的函数之外，其他函数都需要传入这个结构体的指针作为它们的第一个参数。
 
+```c
+//@[lua_State]保存每个独立Lua线程的状态
+struct lua_State {
+  CommonHeader;                                                           //GC对象共用头部
+  unsigned short nci;  /* number of items in 'ci' list */                 //调用信息链表中的元素个数
+  lu_byte status;                                                         //线程状态
+  StkId top;  /* first free slot in the stack */                          //指向当前可用栈元素
+  global_State* l_G;                                                      //指向所有线程共享的全局状态
+  CallInfo* ci;  /* call info for current function */                     //当前函数调用信息
+  const Instruction* oldpc;  /* last pc traced */
+  StkId stack_last;  /* last free slot in the stack */                    //Lua额外保留空间[stack_last, stack+stacksize)
+  StkId stack;  /* stack base */                                          //可用栈空间[stack, stack_last)
+  UpVal* openupval;  /* list of open upvalues in this stack */
+  GCObject* gclist;
+  struct lua_State* twups;  /* list of threads with open upvalues */
+  struct lua_longjmp* errorJmp;  /* current error recover point */
+  CallInfo base_ci;  /* CallInfo for first level (C calling Lua) */
+  lua_Hook hook;
+  ptrdiff_t errfunc;  /* current error handling function (stack index) */ //当前错误处理函数栈索引
+  int stacksize;                                                          //栈最大元素个数
+  int basehookcount;
+  int hookcount;
+  unsigned short nny;  /* number of non-yieldable calls in stack */       //非yield调用深度
+  unsigned short nCcalls;  /* number of nested C calls */                 //嵌套调用深度
+  lu_byte hookmask;
+  lu_byte allowhook;
+};
+```
+
 ## lua_newstate [-0, +0, –]
 ```c
 lua_State* lua_newstate(lua_Alloc f, void* ud);
@@ -444,9 +473,15 @@ put on its stack only the values to be passed as results from yield, and then ca
 The parameter `from` represents the coroutine that is resuming `L`. 
 If there is no such coroutine, this parameter can be NULL.
 
+在给定线程L中启动或恢复一个Coroutine。
+启动一个Coroutine，首先压入主函数以及所需的参数，然后调用这个函数，指定传入的参数个数。
+这个调用当Coroutine挂起或执行完毕时返回。
+当这个函数返回时，栈会保存传给lua_yield的所有值，回主函数返回的所有值。
+当因为挂起返回时，该函数返回LUA_YIELD，当执行完毕返回时，该函数返回LUA_OK或某种错误代码。
 
-
-
+当发生错误时，栈没有展开，可以使用debug API。错误信息对象回放在栈顶部。
+Resume一个Coroutine，要移除上一次lua_yield返回的所有结果，...。
+参数from表示resume线程L的线程，NULL表示resume线程L的是它自己。
 
 
 ## lua_callk [-(nargs + 1), +nresults, e]
