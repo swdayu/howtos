@@ -550,7 +550,7 @@ This function behaves exactly like `lua_pcall`, but allows the called function t
 
 ### 代码追踪
 ```c
-//@[lua_pcallk]执行可错误恢复的保护调用，如果提供了k函数，被调函数可以yield
+//@[lua_pcallk]执行可错误恢复的保护调用，如果提供了k函数，被调函数可yield
 int lua_pcallk(lua_State* L, int nargs, int nresults, int errfunc,
   lua_KContext ctx, lua_KFunction k) {
   struct CallS c;                             //该结构记录被调函数在Lua栈中的元素指针，以及函数需返回的结果个数
@@ -570,7 +570,7 @@ int lua_pcallk(lua_State* L, int nargs, int nresults, int errfunc,
     api_checkstackindex(L, errfunc, o);       //TODO
     func = savestack(L, o);                   //记录错误函数在Lua栈中的绝对索引（o - L->stack）
   }
-  c.func = L->top - (nargs+1);                //被调函数对应在Lua栈中的元素指针
+  c.func = L->top - (nargs+1);                //被调函数对应的Lua栈元素指针
   if (k == NULL || L->nny > 0) {              //没有k函数或者不能yield，执行不能yield的保护调用 //TODO
     c.nresults = nresults;                    //记录返回结果个数
     //执行保护调用@[luaD_pcall]，保护的函数是f_call，最后两个参数传递被调函数和错误函数的绝对索引值
@@ -606,7 +606,7 @@ int luaD_pcall(lua_State* L, Pfunc pfunc, void* u, ptrdiff_t funcidx, ptrdiff_t 
   L->errfunc = ef;                            //记录当前错误处理函数绝对索引值
   status = luaD_rawrunprotected(L, pfunc, u); //执行保护调用 @[luaD_rawrunprotected]
   if (status != LUA_OK) {                     //如果保护调用发生了错误
-    StkId funcpos = restorestack(L, funcidx); //使用被调函数的索引，获取被调函数在当前Lua栈中的元素指针
+    StkId funcpos = restorestack(L, funcidx); //使用被调函数的索引，获取被调函数在当前Lua栈中的栈元素指针
     luaF_close(L, funcpos);  /* close possible pending closures */ //TODO
     seterrorobj(L, status, funcpos);          //将错误信息保存到被调函数所在位置 //TODO
     L->ci = old_ci;                           //恢复旧的调用信息指针
@@ -622,15 +622,15 @@ int luaD_pcall(lua_State* L, Pfunc pfunc, void* u, ptrdiff_t funcidx, ptrdiff_t 
 int luaD_rawrunprotected(lua_State* L, Pfunc f, void* ud) {
   unsigned short oldnCcalls = L->nCcalls; //记录旧的nCcalls
   struct lua_longjmp lj;
-  lj.status = LUA_OK;                     //初始化longjmp状态为LUA_OK @[lua-longjmp]
-  lj.previous = L->errorJmp;              //记录旧的errorJmp
-  L->errorJmp = &lj;                      //使用新的errorJmp
-  LUAI_TRY(L, &lj,                        //保护调用(*f)(L,ud)，相当于：
-    (*f)(L, ud);                          //if (setjmp((&lj)->b) == 0) { (*f)(l,ud); }
-  );                                      //第1次调用setjmp会返回0执行函数f，如果f发生错误longjmp，setjmp会返回非0值
-  L->errorJmp = lj.previous;              //恢复旧的errorJmp
-  L->nCcalls = oldnCcalls;                //恢复旧的nCcalls
-  return lj.status;                       //返回longjmp的最终状态
+  lj.status = LUA_OK;        //初始化longjmp状态为LUA_OK @[lua-longjmp]
+  lj.previous = L->errorJmp; //记录旧的errorJmp
+  L->errorJmp = &lj;         //使用新的errorJmp
+  LUAI_TRY(L, &lj,           //保护调用(*f)(L,ud)，相当于：
+    (*f)(L, ud);             //if (setjmp((&lj)->b) == 0) { (*f)(l,ud); }
+  );                         //第一次调用setjmp会返回0执行函数f，如果f中发生错误longjmp，setjmp会返回非0值
+  L->errorJmp = lj.previous; //恢复旧的errorJmp
+  L->nCcalls = oldnCcalls;   //恢复旧的nCcalls
+  return lj.status;          //返回longjmp的最终状态
 }
 ```
 
