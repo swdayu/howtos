@@ -30,7 +30,7 @@ struct lua_State {
   global_State* l_G;                                                      //指向所有线程共享的全局状态
   CallInfo* ci;  /* call info for current function */                     //当前函数调用信息
   const Instruction* oldpc;  /* last pc traced */
-  StkId stack_last;  /* last free slot in the stack */                    //Lua额外保留空间[stack_last, stack+stacksize)
+  StkId stack_last;  /* last free slot in the stack */                    //Lua保留[stack_last, stack+stacksize)
   StkId stack;  /* stack base */                                          //可用栈空间[stack, stack_last)
   UpVal* openupval;  /* list of open upvalues in this stack */
   GCObject* gclist;
