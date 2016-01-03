@@ -627,7 +627,7 @@ int luaD_rawrunprotected(lua_State* L, Pfunc f, void* ud) {
   L->errorJmp = &lj;                      //使用新的errorJmp
   LUAI_TRY(L, &lj,                        //保护调用(*f)(L,ud)，相当于：
     (*f)(L, ud);                          //if (setjmp((&lj)->b) == 0) { (*f)(l,ud); }
-  );                                      //第一次调用setjmp会返回0执行函数f，如果函数f发生错误longjmp，setjmp会返回非0值
+  );                                      //第1次调用setjmp会返回0执行函数f，如果f发生错误longjmp，setjmp会返回非0值
   L->errorJmp = lj.previous;              //恢复旧的errorJmp
   L->nCcalls = oldnCcalls;                //恢复旧的nCcalls
   return lj.status;                       //返回longjmp的最终状态
