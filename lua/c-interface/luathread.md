@@ -533,24 +533,24 @@ static void resume (lua_State* L, void* ud) {
   CallInfo *ci = L->ci;
   if (nCcalls >= LUAI_MAXCCALLS)
     resume_error(L, "C stack overflow", firstArg);
-  if (L->status == LUA_OK) {  /* may be starting a coroutine */
-    if (ci != &L->base_ci)  /* not in base level? */
+  if (L->status == LUA_OK) {                          //重新启动Coroutine
+    if (ci != &L->base_ci)  /* not in base level? */  //当前调用信息必须是调用链第一个调用信息
       resume_error(L, "cannot resume non-suspended coroutine", firstArg);
-    /* coroutine is in base level; start running it */
-    if (!luaD_precall(L, firstArg - 1, LUA_MULTRET))  /* Lua function? */
-      luaV_execute(L);  /* call it */
+    /* coroutine is in base level; start running it *///执行函数调用：firstArg-1表示被调函数，LUA_MULTRET表示返回函数所有结果
+    if (!luaD_precall(L, firstArg - 1, LUA_MULTRET))  //执行C函数或准备Lua函数的调用
+      luaV_execute(L);                                //如果是Lua函数，执行这个函数
   }
-  else if (L->status != LUA_YIELD)
+  else if (L->status != LUA_YIELD)                    //不是从挂起状态恢复Coroutine则报错
     resume_error(L, "cannot resume dead coroutine", firstArg);
-  else {  /* resuming from previous yield */
-    L->status = LUA_OK;  /* mark that it is running (again) */
-    ci->func = restorestack(L, ci->extra);
-    if (isLua(ci))  /* yielded inside a hook? */
-      luaV_execute(L);  /* just continue running Lua code */
-    else {  /* 'common' yield */
-      if (ci->u.c.k != NULL) {  /* does it have a continuation function? */
+  else {  /* resuming from previous yield */          //否则恢复挂起的Coroutine
+    L->status = LUA_OK;
+    ci->func = restorestack(L, ci->extra);            //使用被调函数的栈索引（ci->extra），获取在当前栈中栈元素指针
+    if (isLua(ci))  /* yielded inside a hook? */      //如果在执行Lua函数
+      luaV_execute(L);                                //则继续执行Lua函数代码
+    else {  /* 'common' yield */                      //如果在执行C函数
+      if (ci->u.c.k != NULL) {                        //如果提供了k函数
         lua_unlock(L);
-        n = (*ci->u.c.k)(L, LUA_YIELD, ci->u.c.ctx); /* call continuation */
+        n = (*ci->u.c.k)(L, LUA_YIELD, ci->u.c.ctx);  //调用k函数
         lua_lock(L);
         api_checknelems(L, n);
         firstArg = L->top - n;  /* yield results come from continuation */
@@ -563,21 +563,9 @@ static void resume (lua_State* L, void* ud) {
 }
 ```
 
-## lua_callk [-(nargs + 1), +nresults, e]
-```c
-void lua_callk (lua_State *L, int nargs, int nresults, lua_KContext ctx, lua_KFunction k);
-```
-This function behaves exactly like `lua_call`, but allows the called function to yield (see §4.7).
-
-## lua_pcallk [-(nargs + 1), +(nresults|1), –]
-```c
-int lua_pcallk (lua_State *L, int nargs, int nresults, int msgh, lua_KContext ctx, lua_KFunction k);
-```
-This function behaves exactly like `lua_pcall`, but allows the called function to `yield` (see §4.7).
-
 ## lua_isyieldable [-0, +0, –]
 ```c
-int lua_isyieldable (lua_State *L);
+int lua_isyieldable(lua_State* L);
 ```
 Returns 1 if the given coroutine can yield, and 0 otherwise.
 
