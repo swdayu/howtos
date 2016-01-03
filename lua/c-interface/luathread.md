@@ -393,7 +393,8 @@ void lua_xmove (lua_State *from, lua_State *to, int n) {
 
 ## lua_yield [-?, +?, e]
 ```c
-int lua_yield (lua_State *L, int nresults);
+int lua_yield(lua_State* L, int nresults);
+#define lua_yield(L,n) lua_yieldk(L, (n), 0, NULL)
 ```
 > This function is equivalent to `lua_yieldk`, but it has no continuation (see §4.7). 
 Therefore, when the thread resumes, it continues the function that called the function calling `lua_yield`.
@@ -442,6 +443,11 @@ To resume a coroutine, you remove any results from the last `lua_yield`,
 put on its stack only the values to be passed as results from yield, and then call `lua_resume`.
 The parameter `from` represents the coroutine that is resuming `L`. 
 If there is no such coroutine, this parameter can be NULL.
+
+
+
+
+
 
 ## lua_callk [-(nargs + 1), +nresults, e]
 ```c
