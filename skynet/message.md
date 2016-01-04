@@ -235,3 +235,29 @@ void skynet_error(struct skynet_context* context, const char* msg, ...) {
 }
 ```
 
+# 消息源头三：计时器消息
+
+```c
+int skynet_timeout(uint32_t handle, int time, int session) {
+  if (time <= 0) {
+    //如果计时器立即超时，直接发送一个消息到handle对应的服务的消息队列中
+    struct skynet_message message;
+    message.source = 0;
+    message.session = session;
+    message.data = NULL;
+    message.sz = (size_t)PTYPE_RESPONSE << MESSAGE_TYPE_SHIFT;
+    if (skynet_context_push(handle, &message)) {
+      return -1; //如果发送失败则返回-1
+    }
+  } 
+  else {
+    //否则添加一个计时器事件到全局计时器TI
+    struct timer_event event;
+    event.handle = handle;
+    event.session = session;
+    timer_add(TI, &event, sizeof(event), time);
+  }
+  //没有发生错误返回传入的session值
+  return session;
+}
+```
