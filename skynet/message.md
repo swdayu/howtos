@@ -251,13 +251,13 @@ int skynet_timeout(uint32_t handle, int time, int session) {
     }
   } 
   else {
-    //否则添加一个计时器事件到全局计时器TI
+    //否则添加一个计时器事件到全局计时器TI中
     struct timer_event event;
     event.handle = handle;
     event.session = session;
     timer_add(TI, &event, sizeof(event), time);
   }
-  //没有发生错误返回传入的session值
+  //返回session表示没有错误发生
   return session;
 }
 ```
