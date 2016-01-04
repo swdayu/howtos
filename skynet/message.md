@@ -162,5 +162,71 @@ void forward_message(int type, bool padding, struct socket_message* result) {
     skynet_free(sm);
   }
 }
-
 ```
+
+# 消息源头二：错误消息
+
+```c
+//@[skynet_error]将context服务的错误消息发送到logger服务的消息队列
+void skynet_error(struct skynet_context* context, const char* msg, ...) {
+  //找到logger服务的handle
+  static uint32_t logger = 0;
+  if (logger == 0) {
+    logger = skynet_handle_findname("logger");
+  }
+  //如果找不到logger服务则返回
+  if (logger == 0) {
+    return;
+  }
+
+  char tmp[LOG_MESSAGE_SIZE];
+  char *data = NULL;
+  va_list ap;
+
+  //将错误信息打印到tmp数组中，这个数组的大小为256个字节
+  va_start(ap,msg);
+  int len = vsnprintf(tmp, LOG_MESSAGE_SIZE, msg, ap);
+  va_end(ap);
+
+  if (len >=0 && len < LOG_MESSAGE_SIZE) { //如果打印成功并且错误信息长度小于256个字节
+    data = skynet_strdup(tmp);             //分配内存并将错误信息复制一份到内存中
+  } else {                                 //否则成倍扩大内存直到打印出的错误信息小于分配的内存大小
+    int max_size = LOG_MESSAGE_SIZE;
+    for (;;) {
+      max_size *= 2;
+      data = skynet_malloc(max_size);
+
+      va_start(ap,msg);
+      len = vsnprintf(data, max_size, msg, ap);
+      va_end(ap);
+
+      if (len < max_size) {
+        break;
+      }
+      skynet_free(data);
+    }
+  }
+
+  //如果信息打印出错则释放内存并返回
+  if (len < 0) {
+    skynet_free(data);
+    perror("vsnprintf error :");
+    return;
+  }
+
+  //获取发生错误的服务的handle
+  struct skynet_message smsg;
+  if (context == NULL) {
+    smsg.source = 0;
+  } else {
+    smsg.source = skynet_context_handle(context);
+  }
+
+  //设置好消息，并将消息发送到logger服务的消息队列
+  smsg.session = 0;
+  smsg.data = data;
+  smsg.sz = len | ((size_t)PTYPE_TEXT << MESSAGE_TYPE_SHIFT);
+  skynet_context_push(logger, &smsg);
+}
+```
+
