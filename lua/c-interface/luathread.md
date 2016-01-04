@@ -493,7 +493,7 @@ int lua_resume(lua_State* L, lua_State* from, int nargs) {
   int status;
   unsigned short oldnny = L->nny;                     //保存旧的nny
   lua_lock(L);                                        //进入Lua核心
-  luai_userstateresume(L, nargs);                     //可以为LUAI_EXTRASPACE自定义进入resume的行为
+  luai_userstateresume(L, nargs);                     //可以为LUAI_EXTRASPACE自定义resume的行为
   L->nCcalls = (from) ? from->nCcalls + 1 : 1;        //嵌套调用深度初始化
   L->nny = 0;  /* allow yields */                     //非yield调用深度设为0，允许被调函数yield
   api_checknelems(L, (L->status == LUA_OK) ? nargs + 1 : nargs); //TODO
@@ -536,7 +536,8 @@ static void resume (lua_State* L, void* ud) {
   if (L->status == LUA_OK) {                          //重新启动Coroutine
     if (ci != &L->base_ci)  /* not in base level? */  //当前调用信息必须是调用链第一个调用信息
       resume_error(L, "cannot resume non-suspended coroutine", firstArg);
-    /* coroutine is in base level; start running it *///执行函数调用：firstArg-1表示被调函数，LUA_MULTRET表示返回函数所有结果
+    /* coroutine is in base level; start running it */
+    //执行函数调用：firstArg-1表示被调函数，LUA_MULTRET表示返回函数所有结果
     if (!luaD_precall(L, firstArg - 1, LUA_MULTRET))  //执行C函数或准备Lua函数的调用
       luaV_execute(L);                                //如果是Lua函数，执行这个函数
   }
