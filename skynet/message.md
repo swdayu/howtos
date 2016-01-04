@@ -167,6 +167,11 @@ void forward_message(int type, bool padding, struct socket_message* result) {
 # 消息源头二：错误消息
 
 ```c
+//@[error-msg-flow]
+//skynet_error
+//skynet_context_push
+//skynet_mq_push
+
 //@[skynet_error]将context服务的错误消息发送到logger服务的消息队列
 void skynet_error(struct skynet_context* context, const char* msg, ...) {
   //找到logger服务的handle
