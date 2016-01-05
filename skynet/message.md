@@ -260,4 +260,97 @@ int skynet_timeout(uint32_t handle, int time, int session) {
   //返回session表示没有错误发生
   return session;
 }
+
+void* thread_timer(void* p) {
+  struct monitor* m = p;             //TODO
+  skynet_initthread(THREAD_TIMER);   //将(-THREAD_TIMER)保存到G_NODE.handle_key对应的thread local变量中
+  for (;;) {
+    skynet_updatetime();             //更新时间以及检查计时器是否超时
+    CHECK_ABORT                      //如服务个数为0退出线程
+    wakeup(m, m->count-1);           //TODO
+    usleep(2500);                    //TODO
+  }
+  // wakeup socket thread
+  skynet_socket_exit();              //TODO
+  // wakeup all worker thread
+  pthread_mutex_lock(&m->mutex);     //TODO
+  m->quit = 1;                       //TODO
+  pthread_cond_broadcast(&m->cond);  //TODO
+  pthread_mutex_unlock(&m->mutex);   //TODO
+  return NULL;
+}
+
+void skynet_updatetime(void) {
+  uint64_t cp = gettime();                               //获取当前时间
+  if(cp < TI->current_point) {                           //TI记录的时间不能比当前时间还大
+    skynet_error(NULL, "time diff error: change from %lld to %lld", cp, TI->current_point);
+    TI->current_point = cp;                              //否则报错并把TI记录的时间调小到当前时间
+  } 
+  else if (cp != TI->current_point) {                    //如果当前时间大于TI记录的时间
+    uint32_t diff = (uint32_t)(cp - TI->current_point);  //计算当前时间超出的时间单位
+    TI->current_point = cp;                              //更新TI记录的时间
+    TI->current += diff;                                 //TODO
+    int i;
+    for (i=0;i<diff;i++) {                               //对每一个超出的时间单位
+      timer_update(TI);                                  //更新一次计时器
+    }
+  }
+}
+
+void timer_update(struct timer* T) {
+  SPIN_LOCK(T);
+  // try to dispatch timeout 0 (rare condition)
+  timer_execute(T);
+  // shift time first, and then dispatch timer message
+  timer_shift(T);
+  timer_execute(T);
+  SPIN_UNLOCK(T);
+}
+
+void timer_execute(struct timer* T) {
+  int idx = T->time & TIME_NEAR_MASK;
+  while (T->near[idx].head.next) {
+    struct timer_node *current = link_clear(&T->near[idx]);
+    SPIN_UNLOCK(T);
+    // dispatch_list don't need lock T
+    dispatch_list(current);
+    SPIN_LOCK(T);
+  }
+}
+
+void timer_shift(struct timer* T) {
+  int mask = TIME_NEAR;
+  uint32_t ct = ++T->time;
+  if (ct == 0) {
+    move_list(T, 3, 0);
+  } 
+  else {
+    uint32_t time = ct >> TIME_NEAR_SHIFT;
+    int i=0;
+    while ((ct & (mask-1))==0) {
+      int idx=time & TIME_LEVEL_MASK;
+      if (idx!=0) {
+        move_list(T, i, idx);
+        break;
+      }
+      mask <<= TIME_LEVEL_SHIFT;
+      time >>= TIME_LEVEL_SHIFT;
+      ++i;
+    }
+  }
+}
+
+void dispatch_list(struct timer_node* current) {
+  do {
+    struct timer_event* event = (struct timer_event*)(current+1);
+    struct skynet_message message;
+    message.source = 0;
+    message.session = event->session;
+    message.data = NULL;
+    message.sz = (size_t)PTYPE_RESPONSE << MESSAGE_TYPE_SHIFT;
+    skynet_context_push(event->handle, &message);
+    struct timer_node* temp = current;
+    current=current->next;
+    skynet_free(temp);	
+  } while (current);
 ```
