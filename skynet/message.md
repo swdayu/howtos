@@ -307,6 +307,50 @@ void timer_update(struct timer* T) {
   SPIN_UNLOCK(T);
 }
 
+//@[timer_node]计时器节点公共结构体
+struct timer_node {        //该结构体只提供必要的信息
+  struct timer_node *next; //单链表链接指针
+  uint32_t expire;         //多久之后触发
+};                         //更多的数据可以在动态分配时追加在这个结构体之后
+
+struct timer {
+  struct link_list near[TIME_NEAR];  //链表link_list是计时器节点单链表，TIMER_NEAR(256)个单链表
+  struct link_list t[4][TIME_LEVEL]; //4 x TIME_LEVLE(64)个单链表（一共256个）
+  struct spinlock lock;              //线程安全锁
+  uint32_t time;                     //TODO
+  uint32_t starttime;                //TODO
+  uint64_t current;                  //TODO
+  uint64_t current_point;            //TODO
+};
+
+void timer_add(struct timer* T, void* arg, size_t sz, int time) {
+  struct timer_node* node = (struct timer_node*)skynet_malloc(sizeof(*node)+sz);
+  memcpy(node+1, arg, sz);    //分配计时器节点timer_node以及额外数据的空间，并初始化额外数据
+  SPIN_LOCK(T);               //线程安全加锁
+  node->expire=time+T->time;  //TODO
+  add_node(T, node);          //添加计时器节点
+  SPIN_UNLOCK(T);
+}
+
+void add_node(struct timer* T, struct timer_node* node) {
+  uint32_t time = node->expire;
+  uint32_t current_time = T->time;
+  if ((time | TIME_NEAR_MASK) == (current_time | TIME_NEAR_MASK)) {
+    link(&T->near[time & TIME_NEAR_MASK], node);
+  } 
+  else {
+    int i;
+    uint32_t mask = (TIME_NEAR << TIME_LEVEL_SHIFT);
+    for (i=0; i<3; i++) {
+      if ((time | (mask - 1)) == (current_time | (mask - 1))) {
+        break;
+      }
+      mask <<= TIME_LEVEL_SHIFT;
+    }
+    link(&T->t[i][(time >> (TIME_NEAR_SHIFT + i * TIME_LEVEL_SHIFT)) & TIME_LEVEL_MASK], node);	
+  }
+}
+
 void timer_execute(struct timer* T) {
   int idx = T->time & TIME_NEAR_MASK;
   while (T->near[idx].head.next) {
