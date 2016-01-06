@@ -159,17 +159,13 @@ permissions, authentication permissions and authorization permissions.
 - Authentication required, No authentication required
 - Authorization required, No authorization required
 
-Access permissions are used by a server to determine if a client can read and/
-or write an attribute value.
-
-Authentication permissions are used by a server to determine if an
-authenticated physical link is required when a client attempts to access an
-attribute. Authentication permissions are also used by a server to determine if
-an authenticated physical link is required before sending a notification or
-indication to a client.
-
-Authorization permissions determine if a client needs to be authorized before
-accessing an attribute value.
+Access permissions are used by a server to determine if a client can read and/or 
+write an attribute value. Authentication permissions are used by a server to 
+determine if an authenticated physical link is required when a client attempts 
+to access an attribute. Authentication permissions are also used by a server to 
+determine if an authenticated physical link is required before sending a 
+notification or indication to a client. Authorization permissions determine if a 
+client needs to be authorized before accessing an attribute value.
 
 5\. CONTROL-POINT ATTRIBUTES
 
