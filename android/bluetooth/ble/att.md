@@ -1,6 +1,6 @@
 # Attribute Protocol (ATT)
 
-\1. INTRODUCTION
+1\. INTRODUCTION
 
 The attribute protocol allows a device referred to as the server to expose a set
 of attributes and their associated values to a peer device referred to as the
@@ -26,7 +26,7 @@ Note: multiple services may be exposed on a single server by allocating separate
 ranges of handles for each service. The discovery of these handle ranges is defined 
 by a higher layerspecification.
 
-\2. SECURITY CONSIDERATIONS
+2\. SECURITY CONSIDERATIONS
 
 The attribute protocol can be used to access information that may require both
 authorization and an authenticated and encrypted physical link before an
@@ -77,13 +77,13 @@ server. Attributes also have a set of permissions that controls whether they can
 be read or written, or whether the attribute value shall be sent over an encrypted
 link.
 
-\1. ATTRIBUTE TYPE
+1\. ATTRIBUTE TYPE
 
 A universally unique identifier (UUID) is used to identify every attribute type. A
 UUID is considered unique over all space and time. All 32-bit Attribute UUIDs shall 
 be converted to 128-bit UUIDs when the Attribute UUID is contained in an ATT PDU.
 
-\2. ATTRIBUTE HANDLE
+2\. ATTRIBUTE HANDLE
 
 An attribute handle is a 16-bit value that is assigned by each server to its own
 attributes to allow a client to reference those attributes. An attribute handle
@@ -102,7 +102,7 @@ a range of other attributes that are grouped with that attribute, as defined by
 a higher layer specification. Clients can request the first and last handles 
 associated with a group of attributes.
 
-\3. ATTRIBUTE VALUE
+3\. ATTRIBUTE VALUE
 
 An attribute value is an octet array that may be either fixed or variable length.
 For example, it can be a one octet value, or a four octet integer, or a variable
@@ -125,7 +125,7 @@ client requests multiple attribute reads. For the client to determine the attrib
 value boundaries, the attribute values must have a fixed size defined by the
 attribute type.
 
-\4. ATTRIBUTE PERMISSIONS
+4\. ATTRIBUTE PERMISSIONS
 
 An attribute has a set of permission values associated with it. The permissions
 associated with an attribute specifies that it may be read and/or written, and 
@@ -171,7 +171,7 @@ indication to a client.
 Authorization permissions determine if a client needs to be authorized before
 accessing an attribute value.
 
-\5. CONTROL-POINT ATTRIBUTES
+5\. CONTROL-POINT ATTRIBUTES
 
 Attributes that cannot be read, but can only be written, notified or indicated are
 called control-point attributes. These control-point attributes can be used by
@@ -179,7 +179,7 @@ higher layers to enable device specific procedures, for example the writing of a
 command or the indication when a given procedure on a device has
 completed.
 
-\6. ATTRIBUTE MTU
+6\. ATTRIBUTE MTU
 
 
 ## Protocol PDUs
