@@ -315,6 +315,11 @@ struct timer_node {        //该结构体只提供必要的信息
   uint32_t expire;         //多久之后触发
 };                         //更多的数据可以在动态分配时追加在这个结构体之后
 
+struct link_list {
+  struct timer_node head;
+  struct timer_node *tail;
+};
+
 struct timer {
   struct link_list near[TIME_NEAR];  //链表link_list是计时器节点单链表，TIMER_NEAR(256)个单链表
   struct link_list t[4][TIME_LEVEL]; //4 x TIME_LEVLE(64)个单链表（一共256个）
@@ -325,12 +330,51 @@ struct timer {
   uint64_t current_point;            //TODO
 };
 
+struct timer_node* link_clear(struct link_list* list) {
+  struct timer_node* ret = list->head.next;
+  list->head.next = 0;
+  list->tail = &(list->head);
+  return ret;
+}
+
+void link(struct link_list* list, struct timer_node* node) {
+  list->tail->next = node;
+  list->tail = node;
+  node->next = 0;
+}
+
+struct timer* timer_create_timer() {
+  struct timer* r = (struct timer*)skynet_malloc(sizeof(struct timer));
+  memset(r, 0, sizeof(*r));
+  int i, j;
+  for (i=0; i<TIME_NEAR; i++) {
+    link_clear(&r->near[i]);
+  }
+  for (i=0; i<4; i++) {
+    for (j=0; j<TIME_LEVEL; j++) {
+      link_clear(&r->t[i][j]);
+    }
+  }
+  SPIN_INIT(r)
+  r->current = 0;
+  return r;
+}
+
 void skynet_timer_init(void) {
-	TI = timer_create_timer();
-	uint32_t current = 0;
-	systime(&TI->starttime, &current);
-	TI->current = current;
-	TI->current_point = gettime();
+  TI = timer_create_timer();
+  uint32_t current = 0;
+  systime(&TI->starttime, &current);
+  TI->current = current;
+  TI->current_point = gettime();
+}
+
+void move_list(struct timer* T, int level, int idx) {
+  struct timer_node* current = link_clear(&T->t[level][idx]);
+  while (current) {
+    struct timer_node* temp = current->next;
+    add_node(T, current);
+    current = temp;
+  }
 }
 
 void timer_add(struct timer* T, void* arg, size_t sz, int time) {
