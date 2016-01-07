@@ -252,13 +252,11 @@ Command.
 
 **PDU FORMART**
 
-```
-LSB
+LSB  
 Attribute_Opcode: 1-Byte [Method(012345) Command_Flag(6) Authentication_Signature_Flag(7)]  
-Attribute_Parameters: 0 to ATT_MTU-1 Bytes or 0 to ATT_MTU-13 Bytes  
-Authentication_Signature_Flag: 0-Byte or 12-Byte  
-MSB
-```
+Attribute_Parameters: 0 to ATT_MTU-1 Bytes or 0 to ATT_MTU-13 Bytes   
+Authentication_Signature_Flag: 0-Byte or 12-Byte    
+MSB  
 
 Multi-octet fields within the attribute protocol shall be sent least significant octet
 first (little endian) with the exception of the Attribute Value field in Attribute Parameters. 
@@ -330,9 +328,9 @@ Note: Each Prepare Write Request is a separate request and is therefore a
 separate transaction. Note: Each Read Blob Request is a separate request and is 
 therefore a separate transaction.
 
-### Error Handling
+## Error Handling
 
-Error_Response, Request_Opcode, Attribute_Handle, Error_Code  
+**Error_Response**, Request_Opcode, Attribute_Handle, Error_Code  
 [0x01][0x00][0x0000][0x00]  
 
 The Error Response is used to state that a given request cannot be performed,
@@ -363,11 +361,11 @@ The Error Code parameter shall be set to one of the following values:
 0x12 - 0x7F, 0xA0 - 0xDF: Reserved for future use  
 
 
-### MTU Exchange
+## MTU Exchange
 
-Exchange_MTU_Request, Client_Receive_MTU_Size  
+**Exchange_MTU_Request**, Client_Receive_MTU_Size  
 [0x02][0x0000]  
-Exchange_MTU_Response, Server_Receive_MTU_Size  
+**Exchange_MTU_Response**, Server_Receive_MTU_Size  
 [0x03][0x0000]  
 
 This request shall only be sent once during a connection by the client. 
@@ -397,11 +395,11 @@ If a device is both a client and a server, the following rules shall apply:
   Exchange Response has been received. Note: This stops the risk of a cross-over  
   condition where the MTU size is unknown for the Indication or Notification;  
 
-### Find Information
+## Find Information
 
-Find_Information_Request, Starting_Handle, Ending_Handle  
+**Find_Information_Request**, Starting_Handle, Ending_Handle  
 [0x04][0x0000][0x0000]  
-Find_Information_Response, Format, Infromation_Data  
+**Find_Information_Response**, Format, Infromation_Data  
 [0x05][0x01|0x02][4 to ATT_MTU-2]  
 
 The Find Information Request is used to obtain the mapping of attribute
@@ -440,10 +438,9 @@ differing UUID sizes into a single response packet. In that case, the following
 attribute would have to be read using another Find Information Request with its
 starting handle updated.
 
-
-Find_By_Type_Value_Request, Starting/Ending_Handle, Attribute_Type/Value  
+**Find_By_Type_Value_Request**, Starting/Ending_Handle, Attribute_Type/Value  
 [0x06][0x0000][0x0000][0x0000][0 to ATT_MTU-7]  
-Find_By_Type_Value_Response, Handles_Information_List  
+**Find_By_Type_Value_Response**, Handles_Information_List  
 [0x07][4 to ATT_MTU-1]  
 
 The Find By Type Value Request is used to obtain the handles of attributes that
