@@ -330,4 +330,178 @@ Note: Each Prepare Write Request is a separate request and is therefore a
 separate transaction. Note: Each Read Blob Request is a separate request and is 
 therefore a separate transaction.
 
+## 1. ERROR HANDLING
+
+```c
+Error_Response, Request_Opcode, Attribute_Handle, Error_Code
+[0x01][0x00][0x0000][0x00]
+```
+
+The Error Response is used to state that a given request cannot be performed,
+and to provide the reason. If there was no attribute handle in the original 
+request or if the request is not supported, then the value 0x0000 shall be used 
+for this field.
+
+The Error Code parameter shall be set to one of the following values:  
+0x01 - Invalid Handle  
+0x02 - Read Not Permitted  
+0x03 - Write Not Permitted  
+0x04 - Invalid PDU  
+0x05 - Insufficient Authentication  
+0x06 - Request Not Supported  
+0x07 - Invalid Offset  
+0x08 - Insufficient Authorization  
+0x09 - Prepare Queue Full  
+0x0A - Attribute Not Found  
+0x0B - Attribute Not Long (Read Blob Request)  
+0x0C - Insufficient Encryption Key Size  
+0x0D - Invalid Attribute Value Length  
+0x0E - Unlikely Error  
+0x0F - Insufficient Encryption  
+0x10 - Unsupported Group Type  
+0x11 - Insufficient Resources  
+0x80 - 0x9F: Application error code defined by a higher layer specification  
+0xE0 - 0xFF: Common Profile and Service Error Codes defined in CSS spec Part B  
+0x12 - 0x7F, 0xA0 - 0xDF: Reserved for future use  
+
+
+## 2. MTU EXCHANGE
+
+```c
+Exchange_MTU_Request, Client_Receive_MTU_Size
+[0x02][0x0000]
+Exchange_MTU_Response, Server_Receive_MTU_Size
+[0x03][0x0000]
+```
+
+This request shall only be sent once during a connection by the client. 
+The Client/Server Rx MTU shall be greater than or equal to the default ATT_MTU.
+The Client/Server Rx MTU parameter shall be set to the maximum size of the attribute
+protocol PDU that the client/server can receive.
+
+The server and client shall set ATT_MTU to the minimum of the Client Rx MTU
+and the Server Rx MTU. The size is the same to ensure that a client can
+correctly detect the final packet of a long attribute read. If Client or Server 
+Rx MTU are incorrectly less than the default ATT_MTU, then the ATT_MTU shall not be 
+changed and the ATT_MTU shall be the default ATT_MTU.
+
+This ATT_MTU value shall be applied in the server after this response has
+been sent and before any other attribute protocol PDU is sent.
+This ATT_MTU value shall be applied in the client after this response has been
+received and before any other attribute protocol PDU is sent.
+
+If a device is both a client and a server, the following rules shall apply:  
+\- A device's Exchange MTU Request shall contain the same MTU as the  
+  device's Exchange MTU Response (i.e. the MTU shall be symmetric);  
+\- If an Attribute Protocol Request is received after the MTU Exchange  
+  Request is sent and before the MTU Exchange Response is received, the  
+  associated Attribute Protocol Response shall use the default MTU (23);  
+\- Once the MTU Exchange Request has been sent, the initiating device shall  
+  not send an Attribute Protocol Indication or Notification until after the MTU  
+  Exchange Response has been received. Note: This stops the risk of a cross-over  
+  condition where the MTU size is unknown for the Indication or Notification;  
+
+## 3. FIND INFORMATION
+
+```c
+Find_Information_Request, Starting_Handle, Ending_Handle
+[0x04][0x0000][0x0000]
+Find_Information_Response, Format, Infromation_Data
+[0x05][0x01|0x02][4 to ATT_MTU-2]
+```
+
+The Find Information Request is used to obtain the mapping of attribute
+handles with their associated types. This allows a client to discover the list of
+attributes and their types on a server. Only attributes with attribute handles 
+between and including the Starting Handle parameter and the Ending Handle parameter 
+will be returned. To read all attributes, the Starting Handle parameter shall be 
+set to 0x0001, and the Ending Handle parameter shall be set to 0xFFFF.
+
+If no attributes will be returned, an Error Response shall be sent with the
+«Attribute Not Found» error code; the Attribute Handle In Error parameter shall
+be set to the Starting Handle parameter. If one or more attributes will be returned, 
+a Find Information Response PDU shall be sent.
+
+If a server receives a Find Information Request with the Starting Handle
+parameter greater than the Ending Handle parameter or the Starting Handle
+parameter is 0x0000, an Error Response shall be sent with the «Invalid
+Handle» error code; the Attribute Handle In Error parameter shall be set to the
+Starting Handle parameter. The server shall not respond to the Find Information Request 
+with an Error Response with the «Insufficient Authentication», «Insufficient Authorization»,
+«Insufficient Encryption Key Size» or «Application Error» error code.
+
+The Find Information Response shall have complete handle-UUID pairs. Such
+pairs shall not be split across response packets; this also implies that a handle-
+UUID pair shall fit into a single response packet. The handle-UUID pairs shall
+be returned in ascending order of attribute handles.
+
+The Format parameter can contain one of two possible values.  
+0x01 - A list of 1 or more handles with their 16-bit UUIDs, 2-byte 2-byte list;  
+0x02 - A list of 1 or more handles with their 128-bit UUIDs, 2-byte 16-byte list;  
+
+Note: If sequential attributes have differing UUID sizes, it may happen that a
+Find Information Response is not filled with the maximum possible amount of
+(handle, UUID) pairs. This is because it is not possible to include attributes with
+differing UUID sizes into a single response packet. In that case, the following
+attribute would have to be read using another Find Information Request with its
+starting handle updated.
+
+
+```c
+Find_By_Type_Value_Request, Starting/Ending_Handle, Attribute_Type/Value
+[0x06][0x0000][0x0000][0x0000][0 to ATT_MTU-7]
+Find_By_Type_Value_Response, Handles_Information_List
+[0x07][4 to ATT_MTU-1]
+```
+
+The Find By Type Value Request is used to obtain the handles of attributes that
+have a 16-bit UUID attribute type and attribute value.This allows the range of
+handles associated with a given attribute to be discovered when the attribute
+type determines the grouping of a set of attributes. Note: Generic Attribute
+Profile defines grouping of attributes by attribute type.
+
+Only attributes with attribute handles between and including the Starting
+Handle parameter and the Ending Handle parameter that match the requested
+attribute type and the attribute value that have sufficient permissions to allow
+reading will be returned. To read all attributes, the Starting Handle parameter
+shall be set to 0x0001, and the Ending Handle parameter shall be set to
+0xFFFF. Note: Attribute values will be compared in terms of length and binary
+representation. Note: It is not possible to use this request on an attribute 
+that has a value longer than (ATT_MTU-7).
+
+If no attributes will be returned, an Error Response shall be sent by the server
+with the error code «Attribute Not Found». The Attribute Handle In Error
+parameter shall be set to the starting handle. If one or more handles will be returned, 
+a Find By Type Value Response PDU shall be sent.
+
+If a server receives a Find By Type Value Request with the Starting Handle
+parameter greater than the Ending Handle parameter or the Starting Handle
+parameter is 0x0000, an Error Response shall be sent with the «Invalid
+Handle» error code. The Attribute Handle In Error parameter shall be set to the
+Starting Handle parameter. The server shall not respond to the Find By Type Value 
+Request with an Error Response with the «Insufficient Authentication», 
+«Insufficient Authorization», «Insufficient Encryption Key Size», «Insufficient Encryption» 
+or «Application Error» error code.
+
+The Handles Information List field is a list of one or more Handle Informations.
+The Format of Handle Information: Found_Attribute_Handle 2-Byte, Group_End_Handle 2-Byte.
+
+The Find By Type Value Response shall contain one or more complete
+Handles Information. Such Handles Information shall not be split across
+response packets. The Handles Information List is ordered sequentially based
+on the found attribute handles. If a server receives a Find By Type Value Request, 
+the server shall respond with the Find By Type Value Response containing as many 
+handles for attributes that match the requested attribute type and attribute value 
+that exist in the server that will fit into the maximum PDU size of (ATT_MTU-1).
+
+For each handle that matches the attribute type and attribute value in the Find
+By Type Value Request a Handles Information shall be returned. The Found
+Attribute Handle shall be set to the handle of the attribute that has the exact
+attribute type and attribute value from the Find By Type Value Request . If the
+attribute type in the Find By Type Value Request is a grouping attribute as
+defined by a higher layer specification, the Group End Handle shall be defined
+by that higher layer specification. If the attribute type in the Find By Type Value
+Request is not a grouping attribute as defined by a higher layer specification,
+the Group End Handle shall be equal to the Found Attribute Handle. Note: The Group 
+End Handle may be greater than the Ending Handle in the Find By Type Value Request.
 
