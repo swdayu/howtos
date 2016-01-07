@@ -297,6 +297,8 @@ void skynet_updatetime(void) {
   }
 }
 
+//TI->current_point的初始值是TI创建时的时间
+//
 void timer_update(struct timer* T) {
   SPIN_LOCK(T);
   // try to dispatch timeout 0 (rare condition)
@@ -323,19 +325,27 @@ struct timer {
   uint64_t current_point;            //TODO
 };
 
+void skynet_timer_init(void) {
+	TI = timer_create_timer();
+	uint32_t current = 0;
+	systime(&TI->starttime, &current);
+	TI->current = current;
+	TI->current_point = gettime();
+}
+
 void timer_add(struct timer* T, void* arg, size_t sz, int time) {
   struct timer_node* node = (struct timer_node*)skynet_malloc(sizeof(*node)+sz);
-  memcpy(node+1, arg, sz);    //分配计时器节点timer_node以及额外数据的空间，并初始化额外数据
-  SPIN_LOCK(T);               //线程安全加锁
-  node->expire=time+T->time;  //TODO
-  add_node(T, node);          //添加计时器节点
+  memcpy(node+1, arg, sz);       //分配计时器节点timer_node以及额外数据的空间，并初始化额外数据
+  SPIN_LOCK(T);                  //线程安全加锁
+  node->expire = time + T->time; //TODO
+  add_node(T, node);             //添加计时器节点
   SPIN_UNLOCK(T);
 }
 
 //@[add_node]添加一个计时器节点
 void add_node(struct timer* T,struct timer_node* node) {
   uint32_t time = node->expire;                                     //计时器多久后超时
-  uint32_t current_time = T->time;                                  //当前TI记录的时间，创建时它的值为0
+  uint32_t current_time = T->time;                                  //当前TI记录的时间，创建时它的初始值为0
   if ((time | TIME_NEAR_MASK) == (current_time | TIME_NEAR_MASK)) { //TIME_NEAR_MASK 0xFF
     link(&T->near[time & TIME_NEAR_MASK], node);                    //如果计时器超时的时间与当前记录的时间只有最低字节不同，
   } 　　　　　　　　　　　　　　　　　　　　　                      //将这个计时器节点追加到对应的near[]单链表尾部
