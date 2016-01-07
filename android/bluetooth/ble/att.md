@@ -246,7 +246,6 @@ Resources», with the Attribute Handle In Error set to 0x0000. If a server canno
 process a request because an error was encountered during the processing of this 
 request, then the server shall respond with the Error Response with the Error Code 
 «Unlikely Error», with the Attribute Handle In Error set to 0x0000.
-
 If a server receives a command that it does not support, indicated by the
 Command Flag of the PDU set to one, then the server shall ignore the
 Command.
