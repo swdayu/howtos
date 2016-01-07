@@ -1,6 +1,6 @@
 # Attribute Protocol (ATT)
 
-INTRODUCTION
+**INTRODUCTION**
 
 The attribute protocol allows a device referred to as the server to expose a set
 of attributes and their associated values to a peer device referred to as the
@@ -26,7 +26,7 @@ Note: multiple services may be exposed on a single server by allocating separate
 ranges of handles for each service. The discovery of these handle ranges is defined 
 by a higher layerspecification.
 
-SECURITY CONSIDERATIONS
+**SECURITY CONSIDERATIONS**
 
 The attribute protocol can be used to access information that may require both
 authorization and an authenticated and encrypted physical link before an
@@ -77,13 +77,13 @@ server. Attributes also have a set of permissions that controls whether they can
 be read or written, or whether the attribute value shall be sent over an encrypted
 link.
 
-ATTRIBUTE TYPE
+**ATTRIBUTE TYPE**
 
 A universally unique identifier (UUID) is used to identify every attribute type. A
 UUID is considered unique over all space and time. All 32-bit Attribute UUIDs shall 
 be converted to 128-bit UUIDs when the Attribute UUID is contained in an ATT PDU.
 
-ATTRIBUTE HANDLE
+**ATTRIBUTE HANDLE**
 
 An attribute handle is a 16-bit value that is assigned by each server to its own
 attributes to allow a client to reference those attributes. An attribute handle
@@ -102,7 +102,7 @@ a range of other attributes that are grouped with that attribute, as defined by
 a higher layer specification. Clients can request the first and last handles 
 associated with a group of attributes.
 
-ATTRIBUTE VALUE
+**ATTRIBUTE VALUE**
 
 An attribute value is an octet array that may be either fixed or variable length.
 For example, it can be a one octet value, or a four octet integer, or a variable
@@ -125,7 +125,7 @@ client requests multiple attribute reads. For the client to determine the attrib
 value boundaries, the attribute values must have a fixed size defined by the
 attribute type.
 
-ATTRIBUTE PERMISSIONS
+**ATTRIBUTE PERMISSIONS**
 
 An attribute has a set of permission values associated with it. The permissions
 associated with an attribute specifies that it may be read and/or written, and 
@@ -167,7 +167,7 @@ determine if an authenticated physical link is required before sending a
 notification or indication to a client. Authorization permissions determine if a 
 client needs to be authorized before accessing an attribute value.
 
-CONTROL-POINT ATTRIBUTES
+**CONTROL-POINT ATTRIBUTES**
 
 Attributes that cannot be read, but can only be written, notified or indicated are
 called control-point attributes. These control-point attributes can be used by
@@ -175,7 +175,7 @@ higher layers to enable device specific procedures, for example the writing of a
 command or the indication when a given procedure on a device has
 completed.
 
-ATTRIBUTE MTU
+**ATTRIBUTE MTU**
 
 ATT_MTU is defined as the maximum size of any packet sent between a client
 and a server. A higher layer specification defines the default ATT_MTU value.
@@ -208,7 +208,7 @@ The maximum length of an attribute value shall be 512 octets. Note: The protecti
 of an attribute value changing when reading the value using multiple attribute 
 protocol PDUs is the responsibility of the higher layer.
 
-ATOMIC OPERATIONS
+**ATOMIC OPERATIONS**
 
 The server shall treat each request or command as an atomic operation that
 cannot be affected by another client sending a request or command at the
@@ -250,7 +250,7 @@ If a server receives a command that it does not support, indicated by the
 Command Flag of the PDU set to one, then the server shall ignore the
 Command.
 
-PDU FORMART
+**PDU FORMART**
 
 ```
 LSB
@@ -279,7 +279,7 @@ on an encrypted link. Note: an encrypted link already includes authentication
 data on every packet and therefore adding more authentication data is not
 required.
 
-TRANSACTION
+**TRANSACTION**
 
 Many attribute protocol PDUs use a sequential request-response protocol.
 Once a client sends a request to a server, that client shall send no other
@@ -330,12 +330,10 @@ Note: Each Prepare Write Request is a separate request and is therefore a
 separate transaction. Note: Each Read Blob Request is a separate request and is 
 therefore a separate transaction.
 
-## 1. ERROR HANDLING
+### Error Handling
 
-```c
-Error_Response, Request_Opcode, Attribute_Handle, Error_Code
-[0x01][0x00][0x0000][0x00]
-```
+Error_Response, Request_Opcode, Attribute_Handle, Error_Code  
+[0x01][0x00][0x0000][0x00]  
 
 The Error Response is used to state that a given request cannot be performed,
 and to provide the reason. If there was no attribute handle in the original 
@@ -365,14 +363,12 @@ The Error Code parameter shall be set to one of the following values:
 0x12 - 0x7F, 0xA0 - 0xDF: Reserved for future use  
 
 
-## 2. MTU EXCHANGE
+### MTU Exchange
 
-```c
-Exchange_MTU_Request, Client_Receive_MTU_Size
-[0x02][0x0000]
-Exchange_MTU_Response, Server_Receive_MTU_Size
-[0x03][0x0000]
-```
+Exchange_MTU_Request, Client_Receive_MTU_Size  
+[0x02][0x0000]  
+Exchange_MTU_Response, Server_Receive_MTU_Size  
+[0x03][0x0000]  
 
 This request shall only be sent once during a connection by the client. 
 The Client/Server Rx MTU shall be greater than or equal to the default ATT_MTU.
@@ -391,24 +387,22 @@ This ATT_MTU value shall be applied in the client after this response has been
 received and before any other attribute protocol PDU is sent.
 
 If a device is both a client and a server, the following rules shall apply:  
-\- A device's Exchange MTU Request shall contain the same MTU as the  
+- A device's Exchange MTU Request shall contain the same MTU as the  
   device's Exchange MTU Response (i.e. the MTU shall be symmetric);  
-\- If an Attribute Protocol Request is received after the MTU Exchange  
+- If an Attribute Protocol Request is received after the MTU Exchange  
   Request is sent and before the MTU Exchange Response is received, the  
   associated Attribute Protocol Response shall use the default MTU (23);  
-\- Once the MTU Exchange Request has been sent, the initiating device shall  
+- Once the MTU Exchange Request has been sent, the initiating device shall  
   not send an Attribute Protocol Indication or Notification until after the MTU  
   Exchange Response has been received. Note: This stops the risk of a cross-over  
   condition where the MTU size is unknown for the Indication or Notification;  
 
-## 3. FIND INFORMATION
+### Find Information
 
-```c
-Find_Information_Request, Starting_Handle, Ending_Handle
-[0x04][0x0000][0x0000]
-Find_Information_Response, Format, Infromation_Data
-[0x05][0x01|0x02][4 to ATT_MTU-2]
-```
+Find_Information_Request, Starting_Handle, Ending_Handle  
+[0x04][0x0000][0x0000]  
+Find_Information_Response, Format, Infromation_Data  
+[0x05][0x01|0x02][4 to ATT_MTU-2]  
 
 The Find Information Request is used to obtain the mapping of attribute
 handles with their associated types. This allows a client to discover the list of
@@ -447,12 +441,10 @@ attribute would have to be read using another Find Information Request with its
 starting handle updated.
 
 
-```c
-Find_By_Type_Value_Request, Starting/Ending_Handle, Attribute_Type/Value
-[0x06][0x0000][0x0000][0x0000][0 to ATT_MTU-7]
-Find_By_Type_Value_Response, Handles_Information_List
-[0x07][4 to ATT_MTU-1]
-```
+Find_By_Type_Value_Request, Starting/Ending_Handle, Attribute_Type/Value  
+[0x06][0x0000][0x0000][0x0000][0 to ATT_MTU-7]  
+Find_By_Type_Value_Response, Handles_Information_List  
+[0x07][4 to ATT_MTU-1]  
 
 The Find By Type Value Request is used to obtain the handles of attributes that
 have a 16-bit UUID attribute type and attribute value.This allows the range of
