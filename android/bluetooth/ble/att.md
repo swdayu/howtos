@@ -1,6 +1,6 @@
 # Attribute Protocol (ATT)
 
-1\. INTRODUCTION
+INTRODUCTION
 
 The attribute protocol allows a device referred to as the server to expose a set
 of attributes and their associated values to a peer device referred to as the
@@ -26,7 +26,7 @@ Note: multiple services may be exposed on a single server by allocating separate
 ranges of handles for each service. The discovery of these handle ranges is defined 
 by a higher layerspecification.
 
-2\. SECURITY CONSIDERATIONS
+SECURITY CONSIDERATIONS
 
 The attribute protocol can be used to access information that may require both
 authorization and an authenticated and encrypted physical link before an
@@ -77,13 +77,13 @@ server. Attributes also have a set of permissions that controls whether they can
 be read or written, or whether the attribute value shall be sent over an encrypted
 link.
 
-1\. ATTRIBUTE TYPE
+ATTRIBUTE TYPE
 
 A universally unique identifier (UUID) is used to identify every attribute type. A
 UUID is considered unique over all space and time. All 32-bit Attribute UUIDs shall 
 be converted to 128-bit UUIDs when the Attribute UUID is contained in an ATT PDU.
 
-2\. ATTRIBUTE HANDLE
+ATTRIBUTE HANDLE
 
 An attribute handle is a 16-bit value that is assigned by each server to its own
 attributes to allow a client to reference those attributes. An attribute handle
@@ -102,7 +102,7 @@ a range of other attributes that are grouped with that attribute, as defined by
 a higher layer specification. Clients can request the first and last handles 
 associated with a group of attributes.
 
-3\. ATTRIBUTE VALUE
+ATTRIBUTE VALUE
 
 An attribute value is an octet array that may be either fixed or variable length.
 For example, it can be a one octet value, or a four octet integer, or a variable
@@ -125,7 +125,7 @@ client requests multiple attribute reads. For the client to determine the attrib
 value boundaries, the attribute values must have a fixed size defined by the
 attribute type.
 
-4\. ATTRIBUTE PERMISSIONS
+ATTRIBUTE PERMISSIONS
 
 An attribute has a set of permission values associated with it. The permissions
 associated with an attribute specifies that it may be read and/or written, and 
@@ -167,7 +167,7 @@ determine if an authenticated physical link is required before sending a
 notification or indication to a client. Authorization permissions determine if a 
 client needs to be authorized before accessing an attribute value.
 
-5\. CONTROL-POINT ATTRIBUTES
+CONTROL-POINT ATTRIBUTES
 
 Attributes that cannot be read, but can only be written, notified or indicated are
 called control-point attributes. These control-point attributes can be used by
@@ -175,7 +175,7 @@ higher layers to enable device specific procedures, for example the writing of a
 command or the indication when a given procedure on a device has
 completed.
 
-6\. ATTRIBUTE MTU
+ATTRIBUTE MTU
 
 ATT_MTU is defined as the maximum size of any packet sent between a client
 and a server. A higher layer specification defines the default ATT_MTU value.
@@ -208,7 +208,7 @@ The maximum length of an attribute value shall be 512 octets. Note: The protecti
 of an attribute value changing when reading the value using multiple attribute 
 protocol PDUs is the responsibility of the higher layer.
 
-7\. ATOMIC OPERATIONS
+ATOMIC OPERATIONS
 
 The server shall treat each request or command as an atomic operation that
 cannot be affected by another client sending a request or command at the
@@ -250,11 +250,15 @@ If a server receives a command that it does not support, indicated by the
 Command Flag of the PDU set to one, then the server shall ignore the
 Command.
 
-1\. PDU FORMART
+PDU FORMART
 
+```
+LSB
 Attribute_Opcode: 1-Byte [Method(012345) Command_Flag(6) Authentication_Signature_Flag(7)]  
-Attribute_Parameters: [0, ATT_MTU - 1] bytes or [0, ATT_MTU - 13] bytes  
+Attribute_Parameters: 0 to ATT_MTU-1 Bytes or 0 to ATT_MTU-13 Bytes  
 Authentication_Signature_Flag: 0-Byte or 12-Byte  
+MSB
+```
 
 Multi-octet fields within the attribute protocol shall be sent least significant octet
 first (little endian) with the exception of the Attribute Value field in Attribute Parameters. 
@@ -275,7 +279,7 @@ on an encrypted link. Note: an encrypted link already includes authentication
 data on every packet and therefore adding more authentication data is not
 required.
 
-2\. TRANSACTION
+TRANSACTION
 
 Many attribute protocol PDUs use a sequential request-response protocol.
 Once a client sends a request to a server, that client shall send no other
