@@ -177,6 +177,154 @@ completed.
 
 6\. ATTRIBUTE MTU
 
+ATT_MTU is defined as the maximum size of any packet sent between a client
+and a server. A higher layer specification defines the default ATT_MTU value.
+The client and server may optionally exchange the maximum size of a packet
+that can be received using the Exchange MTU Request and Response PDUs.
+Both devices then use the minimum of these exchanged values for all further
+communication.
 
-## Protocol PDUs
+A device that is acting as a server and client at the same time shall use the
+same value for Client Rx MTU and Server Rx MTU. The ATT_MTU value is a per 
+ATT Bearer value. Note: A device with multiple ATT Bearers may have a different 
+ATT_MTU value for each ATT Bearer.
+
+The longest attribute that can be sent in a single packet is (ATT_MTU-1) octets
+in size. At a minimum, the Attribute Opcode is included in an Attribute PDU.
+An attribute value may be defined to be larger than (ATT_MTU-1) octets in
+size. These attributes are called long attributes. To read the entire value of 
+an attributes larger than (ATT_MTU-1) octets, the read blob request is used. 
+It is possible to read the first (ATT_MTU-1) octets of a long attribute value 
+using the read request.
+
+To write the entire value of an attribute larger than (ATT_MTU-3) octets, the
+prepare write request and execute write request is used. It is possible to write
+the first (ATT_MTU-3) octets of a long attribute value using the write request.
+It is not possible to determine if an attribute value is longer than (ATT_MTU-3)
+octets using this protocol. A higher layer specification will state that a given
+attribute can have a maximum length larger than (ATT_MTU-3) octets.
+
+The maximum length of an attribute value shall be 512 octets. Note: The protection 
+of an attribute value changing when reading the value using multiple attribute 
+protocol PDUs is the responsibility of the higher layer.
+
+7\. ATOMIC OPERATIONS
+
+The server shall treat each request or command as an atomic operation that
+cannot be affected by another client sending a request or command at the
+same time. If a physical link is disconnected for any reason (user action or loss
+of the radio link), the value of any modified attribute is the responsibility of the
+higher layer specification. Long attributes cannot be read or written in a single 
+atomic operation.
+
+
+## Attribute PDU
+
+Attribute PDUs are one of six method types:  
+\- Requests - sent to a server by a client, and invoke responses  
+\- Responses - sent to a client in response to a request to a server  
+\- Commands - sent to a server by a client  
+\- Notifications - sent to a client by a server  
+\- Indications - sent to a client by a server, and invoke confirmations  
+\- Confirmations - sent to a server to confirm receipt of an indication by a client  
+
+A server shall be able to receive and properly respond to the following
+requests: Find Information Request, Read Request. Support for all other PDU types 
+in a server can be specified in a higher layer specification.
+
+If a client sends a request, then the client shall support all possible responses
+PDUs for that request. If a server receives a request that it does not support, then 
+the server shall respond with the Error Response with the Error Code «Request Not
+Supported», with the Attribute Handle In Error set to 0x0000. If the server receives 
+an invalid request - for example, the PDU is the wrong length - then the server shall 
+respond with the Error Response with the Error Code «Invalid PDU», with the Attribute 
+Handle In Error set to 0x0000.
+
+If a server does not have sufficient resources to process a request, then the
+server shall respond with the Error Response with the Error Code «Insufficient
+Resources», with the Attribute Handle In Error set to 0x0000. If a server cannot 
+process a request because an error was encountered during the processing of this 
+request, then the server shall respond with the Error Response with the Error Code 
+«Unlikely Error», with the Attribute Handle In Error set to 0x0000.
+
+If a server receives a command that it does not support, indicated by the
+Command Flag of the PDU set to one, then the server shall ignore the
+Command.
+
+1\. PDU FORMART
+
+Attribute_Opcode: 1-Byte [Method(012345) Command_Flag(6) Authentication_Signature_Flag(7)]  
+Attribute_Parameters: [0, ATT_MTU - 1] bytes or [0, ATT_MTU - 13] bytes  
+Authentication_Signature_Flag: 0-Byte or 12-Byte  
+
+Multi-octet fields within the attribute protocol shall be sent least significant octet
+first (little endian) with the exception of the Attribute Value field in Attribute Parameters. 
+The endian-ness of the Attribute Value field is defined by a higher layer specification.
+
+The Attribute Opcode is composed of three fields, the Authentication Signature
+Flag, the Command Flag, and the Method. The Method is a 6-bit value that
+determines the format and meaning of the Attribute Parameters. If the Command Flag of 
+the Attribute Opcode is set to one, the PDU shall be considered to be a Command.
+
+If the Authentication Signature Flag of the Attribute Opcode is set to one, the
+Authentication Signature value shall be appended to the end of the attribute PDU.
+The Authentication Signature field is calculated as defined in Security Manager.
+This value provides an Authentication Signature for the variable length message (m) 
+consisting of the following values in this order: Attribute Opcode, Attribute Parameters.
+An Attribute PDU that includes an Authentication Signature should not be sent
+on an encrypted link. Note: an encrypted link already includes authentication
+data on every packet and therefore adding more authentication data is not
+required.
+
+2\. TRANSACTION
+
+Many attribute protocol PDUs use a sequential request-response protocol.
+Once a client sends a request to a server, that client shall send no other
+request to the same server until a response PDU has been received.
+Indications sent from a server also use a sequential indication-confirmation
+protocol. No other indications shall be sent to the same client from this server
+until a confirmation PDU has been received. The client, however, is free to
+send commands and requests prior to sending a confirmation.
+
+For notifications, which do not have a response PDU, there is no flow control
+and a notification can be sent at any time. Commands that do not require a response 
+do not have any flow control. Note: a server can be flooded with commands, and a 
+higher layer specification can define how to prevent this from occurring.
+Commands and notifications that are received but cannot be processed, due to
+buffer overflows or other reasons, shall be discarded. Therefore, those PDUs
+must be considered to be unreliable.
+
+Note: Flow control for each client and a server is independent.
+Note: It is possible for a server to receive a request, send notifications or/and 
+receive commands, and then the response to the original request. The flow control 
+of requests is not affected by the transmission of the notifications/commands.
+
+An attribute protocol request and response or indication-confirmation pair is
+considered a single transaction. A transaction shall always be performed on
+one ATT Bearer, and shall not be split over multiple ATT Bearers.
+On the client, a transaction shall start when the request is sent by the client. A
+transaction shall complete when the response is received by the client.
+On a server, a transaction shall start when a request is received by the server.
+A transaction shall complete when the response is sent by the server.
+On a server, a transaction shall start when an indication is sent by the server. A
+transaction shall complete when the confirmation is received by the server.
+On a client, a transaction shall start when an indication is received by the client.
+A transaction shall complete when the confirmation is sent by the client.
+
+A transaction not completed within 30 seconds shall time out. Such a
+transaction shall be considered to have failed and the local higher layers shall
+be informed of this failure. No more attribute protocol requests, commands,
+indications or notifications shall be sent to the target device on this ATT Bearer.
+Note: To send another attribute protocol PDU, a new ATT Bearer must be
+established between these devices. The existing ATT Bearer may need to be
+disconnected or the bearer terminated before the new ATT Bearer is
+established. If the ATT Bearer is disconnected during a transaction, then the 
+transaction shall be considered to be closed, and any values that were being modified 
+on the server will be in an undetermined state, and any queue that was prepared
+by the client using this ATT Bearer shall be cleared.
+
+Note: Each Prepare Write Request is a separate request and is therefore a
+separate transaction. Note: Each Read Blob Request is a separate request and is 
+therefore a separate transaction.
+
 
