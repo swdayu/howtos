@@ -496,10 +496,10 @@ End Handle may be greater than the Ending Handle in the Find By Type Value Reque
 
 ## Reading Attribute
 
-**Read_By_Type_Request**, Starting_Handle, Ending_Handle, Attribute_Type
-[0x08][0x0000][0x0000][0x0000|0x00000000000000000000000000000000]
-**Read By Type Response**, Length, Attribute_Data_List
-[0x09][0x00][2 to ATT_MTU-2]
+**Read_By_Type_Request**, Starting_Handle, Ending_Handle, Attribute_Type  
+[0x08][0x0000][0x0000][0x0000|0x00000000000000000000000000000000]  
+**Read By Type Response**, Length, Attribute_Data_List  
+[0x09][0x00][2 to ATT_MTU-2]  
 
 The Read By Type Request is used to obtain the values of attributes where the
 attribute type is known but the handle is not known. Note: All attribute types 
@@ -559,10 +559,10 @@ smaller, then the first (ATT_MTU - 4) or 253 octets shall be included in this
 response. Note: the Read Blob Request would be used to read the remaining octets of 
 a long attribute value.
 
-**Read_Request**, Attribute_Handle
-[0x0A][0x0000]
-**Read_Response**, Attribute_Value
-[0x0B][0 to ATT_MTU-1]
+**Read_Request**, Attribute_Handle  
+[0x0A][0x0000]  
+**Read_Response**, Attribute_Value  
+[0x0B][0 to ATT_MTU-1]  
 
 The Read Request is used to request the server to read the value of an
 attribute and return its value in a Read Response. The attribute handle parameter 
@@ -583,10 +583,10 @@ Note: the Read Blob Request would be used to read the remaining octets of a
 long attribute value.
 
 
-**Read_Blob_Request**, Attribute_Handle, Value_Offset
-[0x0C][0x0000][0x0000]
-**Read_Blob_Response**, Part_Attribute_Value
-[0x0D][0 to ATT_MTU-1]
+**Read_Blob_Request**, Attribute_Handle, Value_Offset  
+[0x0C][0x0000][0x0000]  
+**Read_Blob_Response**, Part_Attribute_Value  
+[0x0D][0 to ATT_MTU-1]  
 
 The Read Blob Request is used to request the server to read part of the value
 of an attribute at a given offset and return a specific part of the value in a 
@@ -632,10 +632,10 @@ ATT_MTU-1) then (ATT_MTU-1) octets from Value Offset shall be included in
 this response.
 
 
-**Read_Multiple_Request**, Sef_Of_Handles
-[0x0E][4 to ATT_MTU-1]
-**Read_Multiple_Response**, Set_Of_Values
-[0x0F][0 to ATT_MTU-1]
+**Read_Multiple_Request**, Sef_Of_Handles  
+[0x0E][4 to ATT_MTU-1]  
+**Read_Multiple_Response**, Set_Of_Values  
+[0x0F][0 to ATT_MTU-1]  
 
 The Read Multiple Request is used to request the server to read two or more
 values of a set of attributes and return their values in a Read Multiple
@@ -661,9 +661,9 @@ parameter could be (ATT_MTU-1) as it will not be possible to determine if the
 last attribute value is complete, or if it overflowed.
 
 
-**Read_By_Group_Type_Request**, Starting/Ending_Handle, Attribute_Group_Type
-[0x10][0x0000][0x0000][0x0000|0x00000000000000000000000000000000]
-**Read_By_Group_Type_Response**, Length, Attribute_Data_List
+**Read_By_Group_Type_Request**, Starting/Ending_Handle, Attribute_Group_Type  
+[0x10][0x0000][0x0000][0x0000|0x00000000000000000000000000000000]  
+**Read_By_Group_Type_Response**, Length, Attribute_Data_List  
 [0x11][0x00][2 to ATT_MTU-2]
 
 The Read By Group Type Request is used to obtain the values of attributes
