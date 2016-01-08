@@ -723,3 +723,146 @@ the first (ATT_MTU - 6) or 251 octets shall be included in this response.
 Note: the Read Blob Request would be used to read the remaining octets of a
 long attribute value.
 
+## Writing Attributes
+
+**Write_Request**, Attribute_Handle, Attribute_Value  
+[0x12][0x0000][0 to ATT_MTU-3]  
+**Write_Response**  
+[0x13]
+
+The Write Request is used to request the server to write the value of an
+attribute and acknowledge that this has been achieved in a Write Response.
+The Write Response is sent in reply to a valid Write Request and acknowledges 
+that the attribute has been successfully written. The Write Response shall be 
+sent after the attribute value is written.
+
+**Prepare_Write_Request**, Attribute_Handle, Value_Offset, Part_Attribute_Value  
+[0x16][0x0000][0x0000][0 to ATT_MTU-5]  
+**Prepare_Write_Response**, Attribute_Handle, Value_Offset, Part_Attribute_Value  
+[0x17][0x0000][0x0000][0 to ATT_MTU-5]
+
+The Prepare Write Request is used to request the server to prepare to write the
+value of an attribute. The server will respond to this request with a Prepare Write
+Response , so that the client can verify that the value was received correctly.
+A client may send more than one Prepare Write Request to a server. A server may limit 
+the number of prepare write requests that it can accept. A higher layer specification 
+should define this limit.
+
+Each Prepare Write Request will be queued even if the attribute handle is the
+same as a previous Prepare Write Request . These will then be executed in the
+order received, causing multiple writes for this attribute to occur.
+
+Each client’s queued values are separate; the execution of one queue shall not
+affect the preparation or execution of any other client’s queued values.
+If the link is lost while a number of prepared write requests have been queued,
+the queue will be cleared and no writes will be executed.
+
+The Attribute Handle parameter shall be set to a valid handle. The Value Offset parameter 
+shall be set to the offset of the first octet where the Part Attribute Value parameter 
+is to be written within the attribute value. The Value Offset parameter is based from zero; 
+the first octet has an offset of zero, the second octet has an offset of one, etc.
+The server shall respond with a Prepare Write Response if the handle is valid,
+the attribute has sufficient permissions to allow writing at this time, and the
+prepare queue has sufficient space.
+
+The attribute protocol makes no determination on the validity of the Part
+Attribute Value or the Value Offset. A higher layer specification determines the
+meaning of the data. Note: The Attribute Value validation is done when an 
+Execute Write Request is received. Hence, any Invalid Offset or Invalid Attribute 
+Value Length errors are generated when an Execute Write Request is received. 
+The server shall not change the value of the attribute until an Execute Write 
+Request is received.
+
+The Prepare Write Response is sent in response to a received Prepare Write
+Request and acknowledges that the value has been successfully received and
+placed in the prepare write queue. The attribute handle shall be set to the 
+same value as in the corresponding Prepare Write Request. The value offset and 
+part attribute value shall be set to the same values as in the corresponding 
+Prepare Write Request.
+
+**Execute_Write_Request**, Flags  
+[0x18][0x00]  
+**Execute_Write_Response**  
+[0x19]  
+
+The Execute Write Request is used to request the server to write or cancel the
+write of all the prepared values currently held in the prepare queue from this
+client. This request shall be handled by the server as an atomic operation.
+When the flags parameter is set to 0x01, values that were queued by the
+previous prepare write requests shall be written in the order they were received
+in the corresponding Prepare Write Request. The queue shall then be cleared,
+and an Execute Write Response shall be sent. When the flags parameter is set to 
+0x00 all pending prepare write values shall be discarded for this client. The queue 
+shall then be cleared, and an Execute Write Response shall be sent.
+
+If the prepared Attribute Value exceeds the maximum valid length of the
+attribute value then all pending prepare write values shall be discarded for this
+client, the queue shall then be cleared, and an Error Response shall be sent
+with the error code «Invalid Attribute Value Length». If the prepare Value Offset 
+is greater than the current length of the attribute value then all pending 
+prepare write values shall be discarded for this client, the queue shall be 
+cleared and then an Error Response shall be sent with the «Invalid Offset».
+If the prepare write requests cannot be written, due to an application error, the
+queue shall be cleared and then an Error Response shall be sent with a higher
+layer specification defined error code. The Attribute Handle In Error parameter
+shall be set to the attribute handle of the attribute from the prepare queue that
+caused this application error. The state of the attributes that were to be written
+from the prepare queue is not defined in this case.
+
+The Execute Write Response is sent in response to a received Execute Write
+Request. The Execute Write Response shall be sent after the attributes are written.
+
+**Write_Command**, Attribute_Handle, Attribute_Value  
+[0x52][0x0000][0 to ATT_MTU-3]
+
+The Write Command is used to request the server to write the value of an
+attribute, typically into a control-point attribute. The attribute handle parameter 
+shall be set to a valid handle. The attribute value parameter shall be set to the 
+new value of the attribute. No Error Response or Write Response shall be sent in 
+response to this command. If the server cannot write this attribute for any reason 
+the command shall be ignored.
+
+
+**Signed_Write_Command**, Attribute_Handle/Value, Authentication_Signature  
+[0xD2][0x0000][0 to ATT_MTU-15][0x000000000000000000000000]  
+
+The Signed Write Command is used to request the server to write the value of an
+attribute with an authentication signature, typically into a control-point attribute.
+The attribute handle parameter shall be set to a valid handle. The attribute value 
+parameter shall be set to the new value of the attribute. If the authentication signature 
+verification fails, then the server shall ignore the command. No Error Response or Write 
+Response shall be sent in response to this command. If the server cannot write this 
+attribute for any reason the command shall be ignored.
+
+
+## Server Initiated
+
+**Handle_Value_Notification**, Attribute_Handle, Attribute_Value  
+[0x1B][0x0000][0 to ATT_MTU-3]
+
+A server can send a notification of an attribute’s value at any time. The attribute handle 
+shall be set to a valid handle. The attribute value shall be set to the current value of 
+attribute identified by the attribute handle. If the attribute value is longer than 
+(ATT_MTU-3) octets, then only the first (ATT_MTU-3) octets of this attributes value 
+can be sent in a notification. Note: for a client to get a long attribute, it would have 
+to use the Read Blob Request following the receipt of this notification. If the attribute 
+handle or the attribute value is invalid, then this notification shall be ignored upon reception.
+
+**HandleValueIndication**, Attribute_Handle, Attribute_Value  
+[0x1D][0x0000][0 to ATT_MTU-3]  
+**HandleValueConfirmation**  
+[0x1E]
+
+A server can send an indication of an attribute’s value. The attribute handle shall be set to 
+a valid handle. The attribute value shall be set to the current value of attribute identified 
+by the attribute handle. If the attribute value is longer than (ATT_MTU-3) octets, then only 
+the first (ATT_MTU-3) octets of this attributes value can be sent in an indication. Note: For 
+a client to get a long attribute, it would have to use the Read Blob Request following the 
+receipt of this indication.
+
+The client shall send a Handle Value Confirmation in response to a Handle Value Indication. 
+No further indications to this client shall occur until the confirmation has been received by the 
+server. If the attribute handle or the attribute value is invalid, the client shall send a handle 
+value confirmation in response and shall discard the handle and value from the received indication.
+
+
