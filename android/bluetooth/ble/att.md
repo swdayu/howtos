@@ -494,3 +494,232 @@ Request is not a grouping attribute as defined by a higher layer specification,
 the Group End Handle shall be equal to the Found Attribute Handle. Note: The Group 
 End Handle may be greater than the Ending Handle in the Find By Type Value Request.
 
+## Reading Attribute
+
+**Read_By_Type_Request**, Starting_Handle, Ending_Handle, Attribute_Type
+[0x08][0x0000][0x0000][0x0000|0x00000000000000000000000000000000]
+**Read By Type Response**, Length, Attribute_Data_List
+[0x09][0x00][2 to ATT_MTU-2]
+
+The Read By Type Request is used to obtain the values of attributes where the
+attribute type is known but the handle is not known. Note: All attribute types 
+are effectively compared as 128-bit UUIDs, even if a 16-bit UUID is provided 
+in this request or defined for an attribute. If no attribute with the given type 
+exists within the handle range, then no attribute handle and value will be 
+returned, and an Error Response shall be sent with the error code 
+«Attribute Not Found». The Attribute Handle In Error parameter shall be set to 
+the starting handle.
+
+The attributes returned shall be the attributes with the lowest handles within the
+handle range. These are known as the requested attributes. If the attributes with 
+the requested type within the handle range have attribute values that have the same 
+length, then these attributes can all be read in a single request. The attribute 
+server shall include as many attributes as possible in the response in order to 
+minimize the number of PDUs required to read attributes of the same type.
+
+Note: If the attributes with the requested type within the handle range have
+attribute values with different lengths, then multiple Read By Type Request s
+must be made.
+
+When multiple attributes match, then the rules below shall be applied to each in turn.
+- Only attributes that can be read shall be returned in a Read By Type Response;
+- If an attribute in the set of requested attributes would cause an Error Response 
+  then this attribute cannot be included in a Read By Type Response and the attributes 
+  before this attribute shall be returned;
+- If the first attribute in the set of requested attributes would cause an Error Response 
+  then no other attributes in the requested attributes can be considered;
+
+The server shall respond with a Read By Type Response if the requested
+attributes have sufficient permissions to allow reading. If the client has insufficient 
+authorization/security/encryption key size to read the requested attribute, or has not 
+enabled encryption and encryption is required to read the requested attribute, then an 
+Error Response shall be sent with the related error code. If the requested attribute’s 
+value cannot be read due to permissions then an Error Response shall be sent with the 
+error code «Read Not Permitted». The Attribute Handle In Error parameter shall be set 
+to the handle of the attribute causing the error.
+
+Note: if there are multiple attributes with the requested type within the handle
+range, and the client would like to get the next attribute with the requested type,
+it would have to issue another Read By Type Request with its starting handle
+updated. The client can be sure there are no more such attributes remaining
+once it gets an Error Response with the error code «Attribute Not Found».
+
+The Read By Type Response shall contain complete handle-value pairs. Such
+pairs shall not be split across response packets. The handle-value pairs shall
+be returned sequentially based on the attribute handle. The Length parameter shall 
+be set to the size of one attribute handle-value pair.
+The maximum length of an attribute handle-value pair is 255 octets, bounded
+by the Length parameter that is one octet. Therefore, the maximum length of
+an attribute value returned in this response is (Length – 2) = 253 octets.
+
+The attribute handle-value pairs shall be set to the value of the attributes
+identified by the attribute type within the handle range within the request. If the
+attribute value is longer than (ATT_MTU - 4) or 253 octets, whichever is
+smaller, then the first (ATT_MTU - 4) or 253 octets shall be included in this
+response. Note: the Read Blob Request would be used to read the remaining octets of 
+a long attribute value.
+
+**Read_Request**, Attribute_Handle
+[0x0A][0x0000]
+**Read_Response**, Attribute_Value
+[0x0B][0 to ATT_MTU-1]
+
+The Read Request is used to request the server to read the value of an
+attribute and return its value in a Read Response. The attribute handle parameter 
+shall be set to a valid handle. The server shall respond with a Read Response 
+if the handle is valid and the attribute has sufficient permissions to allow reading.
+If the handle is invalid, then an Error Response shall be sent with the error
+code «Invalid Handle». If the attribute value cannot be read due to permissions then 
+an Error Response shall be sent with the error code «Read Not Permitted».
+
+if the client has insufficient authorization/security/encryption key size to read the 
+requested attribute, or not enabled encryption and encryption is required to read the
+requested attribute, then an Error Response shall be sent with the related error code.
+
+The attribute value shall be set to the value of the attribute identified by the
+attribute handle in the request. If the attribute value is longer than (ATT_MTU-1) 
+then the first (ATT_MTU-1) octets shall be included in this response.
+Note: the Read Blob Request would be used to read the remaining octets of a
+long attribute value.
+
+
+**Read_Blob_Request**, Attribute_Handle, Value_Offset
+[0x0C][0x0000][0x0000]
+**Read_Blob_Response**, Part_Attribute_Value
+[0x0D][0 to ATT_MTU-1]
+
+The Read Blob Request is used to request the server to read part of the value
+of an attribute at a given offset and return a specific part of the value in a 
+Read Blob Response. The attribute handle parameter shall be set to a valid handle.
+The value offset parameter is based from zero; the first value octet has an
+offset of zero, the second octet has a value offset of one, etc.
+If the value offset of the Read Blob Request is equal to the length of the
+attribute value, then the length of the part attribute value in the response shall
+be zero. The server shall respond with a Read Blob Response if the handle is valid 
+and the attribute and value offset is not greater than the length of the attribute
+value and has sufficient permissions to allow reading.
+
+if the client has insufficient authorization/security/encryption key size to read the 
+requested attribute, or not enabled encryption and encryption is required to read the
+requested attribute, then an Error Response shall be sent with the related error code.
+
+If the handle is invalid, then an Error Response shall be sent with the error
+code «Invalid Handle». If the attribute value cannot be read due to permissions then 
+an Error Response shall be sent with the error code «Read Not Permitted». If the value 
+offset of the Read Blob Request is greater than the length of the attribute value, 
+an Error Response shall be sent with the error code «Invalid Offset».
+If the attribute value has a fixed length that is less than or equal to
+(ATT_MTU - 3) octets in length, then an Error Response can be sent with the
+error code «Attribute Not Long».
+
+Note: if the attribute is longer than (ATT_MTU-1) octets, the Read Blob
+Request is the only way to read the additional octets of a long attribute. The
+first (ATT_MTU-1) octets may be read using a Read Request , an Handle Value
+Notification or an Handle Value Indication. Note: Long attributes may or may 
+not have their length specified by a higher layer specification. If the long 
+attribute has a variable length, the only way to get to the end of it is to 
+read it part by part until the value in the Read Blob Response has a length 
+shorter than (ATT_MTU-1) or an Error Response with the error code «Invalid Offset».
+Note: the value of a Long Attribute may change between one Read Blob
+Request and the next Read Blob Request. A higher layer specification should
+be aware of this and define appropriate behavior.
+
+The part attribute value shall be set to part of the value of the attribute identified
+by the attribute handle and the value offset in the request. If the value offset is
+equal to the length of the attribute value, then the length of the part attribute
+value shall be zero. If the attribute value is longer than (Value_Offset +
+ATT_MTU-1) then (ATT_MTU-1) octets from Value Offset shall be included in
+this response.
+
+
+**Read_Multiple_Request**, Sef_Of_Handles
+[0x0E][4 to ATT_MTU-1]
+**Read_Multiple_Response**, Set_Of_Values
+[0x0F][0 to ATT_MTU-1]
+
+The Read Multiple Request is used to request the server to read two or more
+values of a set of attributes and return their values in a Read Multiple
+Response. Only values that have a known fixed size can be read, with the
+exception of the last value that can have a variable length. The knowledge of
+whether attributes have a known fixed size is defined in a higher layer
+specification. 
+
+The attribute handles in the Set Of Handles parameter shall be valid handles.
+The server shall respond with a Read Multiple Response if all the handles are
+valid and all attributes have sufficient permissions to allow reading.
+Note: The attribute values for the attributes in the Set Of Handles parameters
+do not have to all be the same size. Note: The attribute handles in the 
+Set Of Handles parameter do not have to be in attribute handle order; they are 
+in the order that the values are required in the response.
+
+The Set Of Values parameter shall be a concatenation of attribute values for
+each of the attribute handles in the request in the order that they were
+requested. If the Set Of Values parameter is longer than (ATT_MTU-1) then
+only the first (ATT_MTU-1) octets shall be included in this response.
+Note: a client should not use this request for attributes when the Set Of Values
+parameter could be (ATT_MTU-1) as it will not be possible to determine if the
+last attribute value is complete, or if it overflowed.
+
+
+**Read_By_Group_Type_Request**, Starting/Ending_Handle, Attribute_Group_Type
+[0x10][0x0000][0x0000][0x0000|0x00000000000000000000000000000000]
+**Read_By_Group_Type_Response**, Length, Attribute_Data_List
+[0x11][0x00][2 to ATT_MTU-2]
+
+The Read By Group Type Request is used to obtain the values of attributes
+where the attribute type is known, the type of a grouping attribute as defined by
+a higher layer specification, but the handle is not known. Only the attributes with 
+attribute handles between and including the Starting Handle and the Ending Handle 
+with the attribute type that is the same as the Attribute Group Type given will be 
+returned. To search through all attributes, the starting handle shall be set to 
+0x0001 and the ending handle shall be set to 0xFFFF. Note: All attribute types are 
+effectively compared as 128-bit UUIDs, even if a 16-bit UUID is provided in this 
+request or defined for an attribute.
+
+The starting handle shall be less than or equal to the ending handle. If a server
+receives a Read By Group Type Request with the Starting Handle parameter
+greater than the Ending Handle parameter or the Starting Handle parameter is 0x0000, 
+an Error Response shall be sent with the «Invalid Handle» error code;
+The Attribute Handle In Error parameter shall be set to the Starting Handle parameter.
+If the Attribute Group Type is not a supported grouping attribute as defined by a
+higher layer specification then an Error Response shall be sent with the error
+code «Unsupported Group Type». The Attribute Handle In Error parameter
+shall be set to the Starting Handle. If no attribute with the given type exists 
+within the handle range, then no attribute handle and value will be returned, 
+and an Error Response shall be sent with the error code «Attribute Not Found». 
+The Attribute Handle In Error parameter shall be set to the starting handle.
+
+The attributes returned shall be the attributes with the lowest handles within the
+handle range. These are known as the requested attributes. If the attributes with 
+the requested type within the handle range have attribute values that have the same 
+length, then these attributes can all be read in a single request.
+The attribute server shall include as many attributes as possible in the
+response in order to minimize the number of PDUs required to read attributes
+of the same type. Note: If the attributes with the requested type within the 
+handle range have attribute values with different lengths, then multiple 
+Read By Group Type Request s must be made.
+
+When multiple attributes match, then the rules below shall be applied to each in turn.
+- Only attributes that can be read shall be returned in a Read By Group Type Response;
+- If an attribute in the set of requested attributes would cause an Error
+  Response then this attribute cannot be included in a Read By Group Type
+  Response and the attributes before this attribute shall be returned;
+- If the first attribute in the set of requested attributes would cause an Error
+  Response then no other attributes in the requested attributes can be considered;
+
+The Read By Group Type Response shall contain complete Attribute Data. An
+Attribute Data shall not be split across response packets. The Attribute Data
+List is ordered sequentially based on the attribute handles
+The Length parameter shall be set to the size of the one Attribute Data.
+The format of Attribute Data: Attribute_Handle 2-Byte, End_Group_Handle 2-Byte,
+Attribute_Value Length-4 Bytes. The maximum length of an Attribute Data is 255 octets, 
+bounded by the Length parameter that is one octet. Therefore, the maximum length of 
+an attribute value returned in this response is (Length – 4) = 251 octets.
+
+The Attribute Data List shall be set to the value of the attributes identified by
+the attribute type within the handle range within the request. If the attribute
+value is longer than (ATT_MTU - 6) or 251 octets, whichever is smaller, then
+the first (ATT_MTU - 6) or 251 octets shall be included in this response.
+Note: the Read Blob Request would be used to read the remaining octets of a
+long attribute value.
+
