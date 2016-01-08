@@ -384,16 +384,16 @@ been sent and before any other attribute protocol PDU is sent.
 This ATT_MTU value shall be applied in the client after this response has been
 received and before any other attribute protocol PDU is sent.
 
-If a device is both a client and a server, the following rules shall apply:  
-- A device's Exchange MTU Request shall contain the same MTU as the  
-  device's Exchange MTU Response (i.e. the MTU shall be symmetric);  
-- If an Attribute Protocol Request is received after the MTU Exchange  
-  Request is sent and before the MTU Exchange Response is received, the  
-  associated Attribute Protocol Response shall use the default MTU (23);  
-- Once the MTU Exchange Request has been sent, the initiating device shall  
-  not send an Attribute Protocol Indication or Notification until after the MTU  
-  Exchange Response has been received. Note: This stops the risk of a cross-over  
-  condition where the MTU size is unknown for the Indication or Notification;  
+If a device is both a client and a server, the following rules shall apply:
+- A device's Exchange MTU Request shall contain the same MTU as the
+  device's Exchange MTU Response (i.e. the MTU shall be symmetric);
+- If an Attribute Protocol Request is received after the MTU Exchange
+  Request is sent and before the MTU Exchange Response is received, the
+  associated Attribute Protocol Response shall use the default MTU (23);
+- Once the MTU Exchange Request has been sent, the initiating device shall
+  not send an Attribute Protocol Indication or Notification until after the MTU
+  Exchange Response has been received. Note: This stops the risk of a cross-over
+  condition where the MTU size is unknown for the Indication or Notification;
 
 ## Find Information
 
