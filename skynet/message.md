@@ -34,6 +34,14 @@ struct message_queue* skynet_mq_create(uint32_t handle) { //传入对应服务�
   return q;                                               //返回新创建的消息队列
 }
 
+//@[skynet_message]Skynet消息结构体
+struct skynet_message {
+	uint32_t source; //发送消息的服务handle
+	int session;     //TODO
+	void* data;      //消息的数据
+	size_t sz;       //数据的长度，以及消息的类型（高8位）
+};
+
 //@[skynet_mq_push]将一个消息放入消息队列中
 void skynet_mq_push(struct message_queue* q, struct skynet_message* message) {
   assert(message);
