@@ -246,7 +246,7 @@ struct timer_node {        //该结构体只提供必要信息：
 };                         //更多的数据可以在动态分配时追加在这个结构体之后
 
 //@[link_list]计时器节点单链表
-struct link_list {         //链表结构：head.next->[1st timer]-> ... ->[tail timer]->NULL, tail->[tail timer]
+struct link_list {         //链表结构：head.next->[1st timer]->...->[tail timer]->NULL, tail->[tail timer]
   struct timer_node head;  //链表头节点，实际链表第一个节点为head.next
   struct timer_node *tail; //尾节点指针，指向链表最后一个计时器节点
 };
