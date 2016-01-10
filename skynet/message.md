@@ -283,14 +283,14 @@ void link(struct link_list* list, struct timer_node* node) {
 //@[timer_create_timer]分配timer结构体并进行初始化
 struct timer* timer_create_timer() {
   struct timer* r = (struct timer*)skynet_malloc(sizeof(struct timer));
-  memset(r, 0, sizeof(*r));        //分配结构体内存，并将内容清为0
+  memset(r, 0, sizeof(*r));            //分配结构体内存，并将内容清为0
   int i, j;
-  for (i=0; i<TIME_NEAR; i++) {    //对256个单链表
-    link_clear(&r->near[i]);       //清除链表，使单链表head.next指向0，tail指向头节点
+  for (i = 0; i < TIME_NEAR; i++) {    //对256个单链表
+    link_clear(&r->near[i]);           //清除链表，使单链表head.next指向0，tail指向头节点
   }
-  for (i=0; i<4; i++) {
-    for (j=0; j<TIME_LEVEL; j++) { //对4x64个单链表
-      link_clear(&r->t[i][j]);     //清除链表，使单链表head.next指向0，tail指向头节点
+  for (i = 0; i < 4; i++) {
+    for (j = 0; j < TIME_LEVEL; j++) { //对4x64个单链表
+      link_clear(&r->t[i][j]);         //清除链表，使单链表head.next指向0，tail指向头节点
     }
   }
   SPIN_INIT(r)
@@ -400,7 +400,7 @@ void timer_add(struct timer* T, void* arg, size_t sz, int time) {
 //以10ms为单位，无符号8-bit能表示2.5秒，14-bit 2.7分钟，20-bit 2.9小时，26-bit 7.7天，32-bit 497.1天
 void add_node(struct timer* T,struct timer_node* node) {
   uint32_t time = node->expire;                    //计时器的超时时间点
-  uint32_t current_time = T->time;                 //计时器的基准时间，其初始值为0，然后Skynet大概每10ms为这个值加1
+  uint32_t current_time = T->time;                 //计时器的基准时间，初始值为0，然后Skynet大概每10ms加1
   if ((time | TIME_NEAR_MASK) == (current_time | TIME_NEAR_MASK)) { //TIME_NEAR_MASK 0xFF
     link(&T->near[time & TIME_NEAR_MASK], node);   //如果计时器超时时间点与当前基准时间只有最低8-bit不同，
   }                                                //将这个计时器节点追加到near[time&0xFF]单链表尾部
@@ -502,8 +502,7 @@ void timer_execute(struct timer* T) {
   int idx = T->time & TIME_NEAR_MASK;
   while (T->near[idx].head.next) {
     struct timer_node *current = link_clear(&T->near[idx]);
-    SPIN_UNLOCK(T);
-    // dispatch_list don't need lock T
+    SPIN_UNLOCK(T); // dispatch_list don't need lock T
     dispatch_list(current);
     SPIN_LOCK(T);
   }
@@ -513,11 +512,11 @@ void timer_execute(struct timer* T) {
 void dispatch_list(struct timer_node* current) {
   do {
     struct timer_event* event = (struct timer_event*)(current+1);
-    struct skynet_message message;
-    message.source = 0;
+    struct skynet_message message;                //获取计时器结构体尾部的额外数据timer_event
+    message.source = 0;                           //初始化一个skynet_message
     message.session = event->session;
-    message.data = NULL;
-    message.sz = (size_t)PTYPE_RESPONSE << MESSAGE_TYPE_SHIFT; //消息长度为0，高8-bit保存消息类型
+    message.data = NULL;                          //消息数据长度为0，高8-bit保存消息类型
+    message.sz = (size_t)PTYPE_RESPONSE << MESSAGE_TYPE_SHIFT;
     skynet_context_push(event->handle, &message); //将这个计时器超时消息发送到handle对应得服务消息队列中
     struct timer_node* temp = current;            //释放当前计时器节点，然后继续链表中下一个计时器节点
     current = current->next;                      //直到链表为空
