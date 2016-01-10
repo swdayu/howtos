@@ -462,15 +462,16 @@ void skynet_updatetime(void) {
 static void timer_update(struct timer* T) {
   SPIN_LOCK(T);
   // try to dispatch timeout 0 (rare condition)
-  timer_execute(T); //使用旧的基准时间派发计时器超时消息
-  timer_shift(T);   //更新计时器基准时间，并根据新基准时间调整链表中的计时器
-  timer_execute(T); //使用新的基准时间派发计时器超时消息
+  timer_execute(T); //使用旧的基准时间，派送链表near[time&0xFF]中计时器的超时消息
+  timer_shift(T);   //更新计时器基准时间，并根据新基准时间重新添加链表t[i][j]中的计时器
+  timer_execute(T); //使用新的基准时间，派送链表near[time&0xFF]中计时器的超时消息
   SPIN_UNLOCK(T);
 }
 
+//@[timer_execute]为链表near[time&0xFF]中的计时器派送超时消息
 static void timer_execute(struct timer* T) {
-  int idx = T->time & TIME_NEAR_MASK; //基准时间的低8位，当基准时间T->time更新时都会执行timer_execute
-  while (T->near[idx].head.next) {    //如果当前的时间单位对应的链表中有计时器
+  int idx = T->time & TIME_NEAR_MASK; //基准时间的低8位，基准时间更新时都会执行timer_execute
+  while (T->near[idx].head.next) {    //如果当前时间单位对应的链表中有计时器
     struct timer_node* current = link_clear(&T->near[idx]);
     SPIN_UNLOCK(T);                   //清空这个链表，link_clear会返回原链表中的所有计时器
     dispatch_list(current);           //对每个计时器派发超时消息
@@ -494,20 +495,21 @@ static void dispatch_list(struct timer_node* current) {
   } while (current);
 }
 
+//@[timer_shift]该函数每个时间单位（10ms）执行一次
 static void timer_shift(struct timer* T) {
-  int mask = TIME_NEAR;
-  uint32_t ct = ++T->time;
-  if (ct == 0) {
-    move_list(T, 3, 0);
+  int mask = TIME_NEAR;                 //mask 256, mask-1 0xFF
+  uint32_t ct = ++T->time;              //基准时间加1
+  if (ct == 0) {                        //如果基准时间低32位变成了0：
+    move_list(T, 3, 0);                 //TODO
   } 
-  else {
+  else {                              
     uint32_t time = ct >> TIME_NEAR_SHIFT;
     int i = 0;
-    while ((ct & (mask-1)) == 0) {
-      int idx = time & TIME_LEVEL_MASK;
-      if (idx != 0) {
-        move_list(T, i, idx);
-        break;
+    while ((ct & (mask-1)) == 0) {      //如果基准时间低8位变成了0：重新添加t[0][[9,14]!=0]中的计时器并退出循环
+      int idx = time & TIME_LEVEL_MASK; //如果基准时间低14位变成了0：重新添加t[1][[15,20]!=0]中的计时器并退出循环
+      if (idx != 0) {                   //如果基准时间低20位变成了0：重新添加t[2][[21,26]!=0]中的计时器并退出循环
+        move_list(T, i, idx);           //如果基准时间低26位变成了0：重新添加t[3][[27,32]!=0]中的计时器并退出循环
+        break;                             
       }
       mask <<= TIME_LEVEL_SHIFT;
       time >>= TIME_LEVEL_SHIFT;
@@ -516,6 +518,7 @@ static void timer_shift(struct timer* T) {
   }
 }
 
+//@[move_list]清除链表t[level][idx]，并重新添加这个链表中的所有计时器节点
 static void move_list(struct timer* T, int level, int idx) {
   struct timer_node* current = link_clear(&T->t[level][idx]);
   while (current) {
