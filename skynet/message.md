@@ -440,6 +440,7 @@ void* thread_timer(void* p) {
   return NULL;
 }
 
+//@[skynet_updatetime]该函数每>2.5ms执行一次
 void skynet_updatetime(void) {
   uint64_t cp = gettime();            //获取当前时间，这个时间可能受系统调时、adjtime或网络对时NTP影响
   if(cp < TI->current_point) {        //如果TI保存的当前时间比获取的当前时间还大（例如网络对时校准后比原来时间小）
@@ -457,6 +458,7 @@ void skynet_updatetime(void) {
   }                                   //如果获取的当前时间与TI记录的当前时间相等，这个函数不会做任何事情
 }
 
+//@[timer_update]该函数每个时间单位（10ms）都会执行一次
 void timer_update(struct timer* T) {
   SPIN_LOCK(T);
   // try to dispatch timeout 0 (rare condition)
@@ -464,6 +466,32 @@ void timer_update(struct timer* T) {
   timer_shift(T);   //更新计时器基准时间，并根据新基准时间调整链表中的计时器
   timer_execute(T); //使用新的基准时间派发计时器超时消息
   SPIN_UNLOCK(T);
+}
+
+void timer_execute(struct timer* T) {
+  int idx = T->time & TIME_NEAR_MASK; //基准时间的低8位，当基准时间T->time更新时都会执行timer_execute
+  while (T->near[idx].head.next) {    //如果当前的时间单位对应的链表中有计时器
+    struct timer_node* current = link_clear(&T->near[idx]);
+    SPIN_UNLOCK(T);                   //清空这个链表，link_clear会返回原链表中的所有计时器
+    dispatch_list(current);           //对每个计时器派发超时消息
+    SPIN_LOCK(T);
+  }
+}
+
+//@[dispatch_list]释放这个链表的所有计时器，并将这些计时器对应的超时消息发送到对应服务的消息队列
+void dispatch_list(struct timer_node* current) {
+  do {
+    struct timer_event* event = (struct timer_event*)(current+1);
+    struct skynet_message message;                //获取计时器结构体尾部的额外数据timer_event
+    message.source = 0;                           //初始化一个skynet_message
+    message.session = event->session;
+    message.data = NULL;                          //消息数据长度为0，高8-bit保存消息类型
+    message.sz = (size_t)PTYPE_RESPONSE << MESSAGE_TYPE_SHIFT;
+    skynet_context_push(event->handle, &message); //将这个计时器超时消息发送到handle对应得服务消息队列中
+    struct timer_node* temp = current;            //释放当前计时器节点，然后继续链表中下一个计时器节点
+    current = current->next;                      //直到链表为空
+    skynet_free(temp);	
+  } while (current);
 }
 
 void timer_shift(struct timer* T) {
@@ -495,31 +523,5 @@ void move_list(struct timer* T, int level, int idx) {
     add_node(T, current);
     current = temp;
   }
-}
-
-void timer_execute(struct timer* T) {
-  int idx = T->time & TIME_NEAR_MASK; //基准时间的低8位，当基准时间T->time更新时都会执行timer_execute
-  while (T->near[idx].head.next) {    //如果当前的时间单位对应的链表中有计时器
-    struct timer_node* current = link_clear(&T->near[idx]);
-    SPIN_UNLOCK(T);                   //清空这个链表，link_clear会返回原链表中的所有计时器
-    dispatch_list(current);           //对每个计时器派发超时消息
-    SPIN_LOCK(T);
-  }
-}
-
-//@[dispatch_list]释放这个链表的所有计时器，并将这些计时器对应的超时消息发送到对应服务的消息队列
-void dispatch_list(struct timer_node* current) {
-  do {
-    struct timer_event* event = (struct timer_event*)(current+1);
-    struct skynet_message message;                //获取计时器结构体尾部的额外数据timer_event
-    message.source = 0;                           //初始化一个skynet_message
-    message.session = event->session;
-    message.data = NULL;                          //消息数据长度为0，高8-bit保存消息类型
-    message.sz = (size_t)PTYPE_RESPONSE << MESSAGE_TYPE_SHIFT;
-    skynet_context_push(event->handle, &message); //将这个计时器超时消息发送到handle对应得服务消息队列中
-    struct timer_node* temp = current;            //释放当前计时器节点，然后继续链表中下一个计时器节点
-    current = current->next;                      //直到链表为空
-    skynet_free(temp);	
-  } while (current);
 }
 ```
