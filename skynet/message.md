@@ -242,21 +242,21 @@ void skynet_error(struct skynet_context* context, const char* msg, ...) {
 //@[timer_node]计时器节点通用数据头部
 struct timer_node {        //该结构体只提供必要信息：
   struct timer_node *next; //单链表链接指针，以及
-  uint32_t expire;         //该计时器创建后多久超时；
+  uint32_t expire;         //计时器节点创建后多久超时；
 };                         //更多的数据可以在动态分配时追加在这个结构体之后
 
 //@[link_list]计时器节点单链表
-struct link_list {         //head.next->[1st timer]-> ... -> [tail timer] -> NULL; tail->[tail timer]
-  struct timer_node head;  //头节点，实际的第1个计时器为head.next
-  struct timer_node *tail; //尾节点指针，最后一个计时器节点的指针
+struct link_list {         //这个单链表的结构：head.next->[1st timer]-> ... ->[tail timer]->NULL, tail->[tail timer]
+  struct timer_node head;  //链表头节点，head.next指向链表第一个节点
+  struct timer_node *tail; //尾节点指针，指向链表最后一个计时器节点
 };
 
 //@[timer]计时器管理全局变量TI对应的结构体
 struct timer {                       //TIME_NEAR 256, TIME_LEVEL 64
-  struct link_list near[TIME_NEAR];  //near中的所有单链表保存的计时器超时时间点与TI->time比只有低8位不同
-                                     //每个单链表保存着超时时间点相同的计时器
-  struct link_list t[4][TIME_LEVEL]; //t[0]中的所有单链表保存的计时器超时时间点与TI->time比只有低14位不同
-                                     //t[1]只有低20位不同，t[2]只有低24位不同，t[3]只有低32位不同
+  struct link_list near[TIME_NEAR];  //near中的所有单链表中的计时器节点的超时时间点与TI->time比只有低8位不同
+                                     //每个单链表保存着超时时间点相同的计时器节点
+  struct link_list t[4][TIME_LEVEL]; //t[0]中的所有单链表中的计时器节点的超时时间点与TI->time比只有低14位不同
+                                     //t[1]只有低20位不同，t[2]只有低26位不同，t[3]只有低32位不同
   struct spinlock lock;              //线程安全锁
   uint32_t time;                     //TODO
   uint32_t starttime;                //TODO
@@ -264,31 +264,31 @@ struct timer {                       //TIME_NEAR 256, TIME_LEVEL 64
   uint64_t current_point;            //TODO
 };
 
-//@[link_clear]清除link_list中的所有计时器节点，返回这些计时器节点组成的单链表
+//@[link_clear]清除link_list中的所有节点，并返回这些节点组成的单链表
 struct timer_node* link_clear(struct link_list* list) {
-  struct timer_node* ret = list->head.next; //要返回的第一个计时器节点指针
-  list->head.next = 0;                      //将指向第一个节点的指针清为0
-  list->tail = &(list->head);               //将最后一个节点指针指向头节点
-  return ret;                               //返回单链表的第一个节点的指针
+  struct timer_node* ret = list->head.next; //返回的单链表的第一个节点指针
+  list->head.next = 0;                      //将指向第一个节点指针清为0
+  list->tail = &(list->head);               //将尾节点指针指向头节点
+  return ret;                               //返回单链表第一个节点的指针
 }
 
-//@[link_clear]将计时器节点添加到link_list的尾部
+//@[link]将计时器节点添加到link_list的尾部
 void link(struct link_list* list, struct timer_node* node) {
   list->tail->next = node; //将节点添加到尾节点之后
-  list->tail = node;       //将尾节点指针指向新加入的这个节点
-  node->next = 0;          //将尾节点的下一个节点指针清为0
+  list->tail = node;       //将为节点指针指向新加入的节点
+  node->next = 0;          //将尾节点的下一节点指针清为0
 }
 
-//@[timer_create_timer]分配一个timer结构体，并进行初始化
+//@[timer_create_timer]分配timer结构体并进行初始化
 struct timer* timer_create_timer() {
   struct timer* r = (struct timer*)skynet_malloc(sizeof(struct timer));
-  memset(r, 0, sizeof(*r));         //分配结构体内存，并将内容清为0
+  memset(r, 0, sizeof(*r));
   int i, j;
-  for (i=0; i<TIME_NEAR; i++) {     //对256个near[i]单链表
-    link_clear(&r->near[i]);        //清除链表，使单链表head.next指向0，tail
+  for (i=0; i<TIME_NEAR; i++) {
+    link_clear(&r->near[i]);
   }
   for (i=0; i<4; i++) {
-    for (j=0; j<TIME_LEVEL; j++) { //
+    for (j=0; j<TIME_LEVEL; j++) {
       link_clear(&r->t[i][j]);
     }
   }
@@ -297,7 +297,7 @@ struct timer* timer_create_timer() {
   return r;
 }
 
-//@[skynet_timer_init]创建并初始化全局变量TI
+//@[skynet_timer_init]分配并初始化全局变量TI
 void skynet_timer_init(void) {
   TI = timer_create_timer();
   uint32_t current = 0;
@@ -308,7 +308,7 @@ void skynet_timer_init(void) {
 ```
 
 在Lua中调用skynet.timeout(time, func), skynet.sleep(time)可以添加一个计时器，
-最终调用C函数skynet_timeout将计时器添加到全局变量TI中，或立即超时：
+最终调用C函数skynet_timeout将计时器添加到全局变量TI中，或立即超时:
 ```c
 int skynet_timeout(uint32_t handle, int time, int session) {
   if (time <= 0) {
@@ -319,19 +319,18 @@ int skynet_timeout(uint32_t handle, int time, int session) {
     message.data = NULL; //消息的类型编码在sz的高8位
     message.sz = (size_t)PTYPE_RESPONSE << MESSAGE_TYPE_SHIFT;
     if (skynet_context_push(handle, &message)) {
-      return -1;        //如果发送失败返回-1
+      return -1;         //如果发送失败则返回-1
     }
   } 
-  else {                //否则添加一个计时器事件到全局变量TI中
+  else {                 //否则添加一个计时器事件到全局变量TI中
     struct timer_event event;
     event.handle = handle;
     event.session = session;
     timer_add(TI, &event, sizeof(event), time);
   }
-  return session;       //返回session表示没有错误发生
+  return session;        //返回session表示没有错误发生
 }
 
-//@[timer_add]分配计时器节点并添加
 void timer_add(struct timer* T, void* arg, size_t sz, int time) {
   struct timer_node* node = (struct timer_node*)skynet_malloc(sizeof(*node)+sz);
   memcpy(node+1, arg, sz);       //分配计时器节点timer_node以及额外数据的空间，并初始化额外数据
@@ -438,8 +437,9 @@ void dispatch_list(struct timer_node* current) {
     current=current->next;                        //直到链表为空
     skynet_free(temp);	
   } while (current);
-  
-  void timer_shift(struct timer* T) {
+}
+
+void timer_shift(struct timer* T) {
   int mask = TIME_NEAR;
   uint32_t ct = ++T->time;
   if (ct == 0) {
