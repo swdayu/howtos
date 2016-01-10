@@ -266,7 +266,7 @@ struct timer {                       //TIME_NEAR 256, TIME_LEVEL 64
 };
 
 //@[link_clear]清除link_list中的所有节点，并返回这些节点组成的单链表
-struct timer_node* link_clear(struct link_list* list) {
+static struct timer_node* link_clear(struct link_list* list) {
   struct timer_node* ret = list->head.next; //要返回的第一个计时器节点指针
   list->head.next = 0;                      //将指向第一个节点的指针清为0
   list->tail = &(list->head);               //将尾节点指针指向头节点
@@ -274,14 +274,14 @@ struct timer_node* link_clear(struct link_list* list) {
 }
 
 //@[link]将计时器节点添加到link_list的尾部
-void link(struct link_list* list, struct timer_node* node) {
+static void link(struct link_list* list, struct timer_node* node) {
   list->tail->next = node; //将节点添加到尾节点之后
   list->tail = node;       //将尾节点指针指向新加入的节点
   node->next = 0;          //将尾节点的下一节点指针清为0
 }
 
 //@[timer_create_timer]分配timer结构体并进行初始化
-struct timer* timer_create_timer() {
+static struct timer* timer_create_timer() {
   struct timer* r = (struct timer*)skynet_malloc(sizeof(struct timer));
   memset(r, 0, sizeof(*r));            //分配结构体内存，并将内容清为0
   int i, j;
@@ -307,7 +307,7 @@ void skynet_timer_init(void) {
   TI->current_point = gettime();     //初始化当前时间current_point，单位位10ms
 }
 
-void systime(uint32_t* sec, uint32_t* cs) { //百分之一秒或10毫秒（centisecond）
+static void systime(uint32_t* sec, uint32_t* cs) { //百分之一秒或10毫秒（centisecond）
 #if !defined(__APPLE__)                     //非苹果Linux平台
   struct timespec ti;                       //精度为纳秒（nanoseconds）
   clock_gettime(CLOCK_REALTIME, &ti);       //获取当前时间，受系统调时影响
@@ -321,7 +321,7 @@ void systime(uint32_t* sec, uint32_t* cs) { //百分之一秒或10毫秒（centi
 #endif
 }
 
-uint64_t gettime() {
+static uint64_t gettime() {
   uint64_t t;
 #if !defined(__APPLE__)
   struct timespec ti;                  //非苹果平台
@@ -386,7 +386,7 @@ int skynet_timeout(uint32_t handle, int time, int session) {
   return session;        //返回session表示没有错误发生
 }
 
-void timer_add(struct timer* T, void* arg, size_t sz, int time) {
+static void timer_add(struct timer* T, void* arg, size_t sz, int time) {
   struct timer_node* node = (struct timer_node*)skynet_malloc(sizeof(*node)+sz);
   memcpy(node+1, arg, sz);       //分配计时器节点timer_node以及额外数据的空间，并初始化额外数据
   SPIN_LOCK(T);                  //线程安全加锁
@@ -398,7 +398,7 @@ void timer_add(struct timer* T, void* arg, size_t sz, int time) {
 //@[add_node]添加一个计时器节点
 //保存在near中的计时器会最早超时，然后依次是t[0]、t[1]、t[2]、t[3]中的计时器
 //以10ms为单位，无符号8-bit能表示2.5秒，14-bit 2.7分钟，20-bit 2.9小时，26-bit 7.7天，32-bit 497.1天
-void add_node(struct timer* T,struct timer_node* node) {
+static void add_node(struct timer* T,struct timer_node* node) {
   uint32_t time = node->expire;                    //计时器的超时时间点
   uint32_t current_time = T->time;                 //计时器的基准时间，初始值为0，然后Skynet大概每10ms加1
   if ((time | TIME_NEAR_MASK) == (current_time | TIME_NEAR_MASK)) { //TIME_NEAR_MASK 0xFF
@@ -421,7 +421,7 @@ void add_node(struct timer* T,struct timer_node* node) {
 全局变量TI中的计时器处理流程：
 ```c
 //@[thread_timer]计时器处理线程
-void* thread_timer(void* p) {
+static void* thread_timer(void* p) {
   struct monitor* m = p;             //TODO
   skynet_initthread(THREAD_TIMER);   //将(-THREAD_TIMER)保存到G_NODE.handle_key对应的thread local变量中
   for (;;) {
@@ -459,7 +459,7 @@ void skynet_updatetime(void) {
 }
 
 //@[timer_update]该函数每个时间单位（10ms）都会执行一次
-void timer_update(struct timer* T) {
+static void timer_update(struct timer* T) {
   SPIN_LOCK(T);
   // try to dispatch timeout 0 (rare condition)
   timer_execute(T); //使用旧的基准时间派发计时器超时消息
@@ -468,7 +468,7 @@ void timer_update(struct timer* T) {
   SPIN_UNLOCK(T);
 }
 
-void timer_execute(struct timer* T) {
+static void timer_execute(struct timer* T) {
   int idx = T->time & TIME_NEAR_MASK; //基准时间的低8位，当基准时间T->time更新时都会执行timer_execute
   while (T->near[idx].head.next) {    //如果当前的时间单位对应的链表中有计时器
     struct timer_node* current = link_clear(&T->near[idx]);
@@ -479,7 +479,7 @@ void timer_execute(struct timer* T) {
 }
 
 //@[dispatch_list]释放这个链表的所有计时器，并将这些计时器对应的超时消息发送到对应服务的消息队列
-void dispatch_list(struct timer_node* current) {
+static void dispatch_list(struct timer_node* current) {
   do {
     struct timer_event* event = (struct timer_event*)(current+1);
     struct skynet_message message;                //获取计时器结构体尾部的额外数据timer_event
@@ -494,7 +494,7 @@ void dispatch_list(struct timer_node* current) {
   } while (current);
 }
 
-void timer_shift(struct timer* T) {
+static void timer_shift(struct timer* T) {
   int mask = TIME_NEAR;
   uint32_t ct = ++T->time;
   if (ct == 0) {
@@ -516,7 +516,7 @@ void timer_shift(struct timer* T) {
   }
 }
 
-void move_list(struct timer* T, int level, int idx) {
+static void move_list(struct timer* T, int level, int idx) {
   struct timer_node* current = link_clear(&T->t[level][idx]);
   while (current) {
     struct timer_node* temp = current->next;
