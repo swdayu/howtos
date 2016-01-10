@@ -447,9 +447,9 @@ void skynet_updatetime(void) {
     TI->current_point = cp;           //发送一个错误消息，并把TI记录的当前时间调小到获取的当前时间
   } 
   else if (cp != TI->current_point) { //如果获取的当前时间大于TI记录的当前时间
-    uint32_t diff = (uint32_t)(cp - TI->current_point);
+    uint32_t diff = (uint32_t)(cp - TI->current_point); //无符号32位整数可以表示497.1天的时间（以10ms为单位）
     TI->current_point = cp;           //更新TI记录的当前时间
-    TI->current += diff;              //更新TI已创建的时间，无符号32位整数的diff可以表示497.1天的时间（以10ms为单位）
+    TI->current += diff;              //更新TI已创建的时间
     int i;
     for (i = 0; i < diff; i++) {      //对每一个超出的时间单位（diff个10ms）都更新一次计时器
       timer_update(TI);               //由于skynet_updatetime最短睡2.5ms运行一次，这个循环运行的次数应该不会过多
@@ -460,10 +460,9 @@ void skynet_updatetime(void) {
 void timer_update(struct timer* T) {
   SPIN_LOCK(T);
   // try to dispatch timeout 0 (rare condition)
-  timer_execute(T);
-  // shift time first, and then dispatch timer message
-  timer_shift(T);
-  timer_execute(T);
+  timer_execute(T); //使用旧的基准时间派发计时器超时消息
+  timer_shift(T);   //更新计时器基准时间，并根据新基准时间调整链表中的计时器
+  timer_execute(T); //使用新的基准时间派发计时器超时消息
   SPIN_UNLOCK(T);
 }
 
@@ -499,11 +498,11 @@ void move_list(struct timer* T, int level, int idx) {
 }
 
 void timer_execute(struct timer* T) {
-  int idx = T->time & TIME_NEAR_MASK;
-  while (T->near[idx].head.next) {
-    struct timer_node *current = link_clear(&T->near[idx]);
-    SPIN_UNLOCK(T); // dispatch_list don't need lock T
-    dispatch_list(current);
+  int idx = T->time & TIME_NEAR_MASK; //基准时间的低8位，当基准时间T->time更新时都会执行timer_execute
+  while (T->near[idx].head.next) {    //如果当前的时间单位对应的链表中有计时器
+    struct timer_node* current = link_clear(&T->near[idx]);
+    SPIN_UNLOCK(T);                   //清空这个链表，link_clear会返回原链表中的所有计时器
+    dispatch_list(current);           //对每个计时器派发超时消息
     SPIN_LOCK(T);
   }
 }
