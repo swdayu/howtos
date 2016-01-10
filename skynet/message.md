@@ -259,9 +259,9 @@ struct timer {                       //TIME_NEAR 256, TIME_LEVEL 64
                                      //t[1]只有低20位不同，t[2]只有低26位不同，t[3]只有低32位不同
   struct spinlock lock;              //线程安全锁
   uint32_t time;                     //TODO
-  uint32_t starttime;                //全局变量TI创建时的时间，单位为秒
-  uint64_t current;                  //单位为10毫秒 //TODO
-  uint64_t current_point;            //单位为10毫秒 //TODO
+  uint32_t starttime;                //TI创建的时间：变量TI创建时的时间，单位为秒
+  uint64_t current;                  //TI已经创建的时间：变量TI创建后到现在有多久，单位为10毫秒
+  uint64_t current_point;            //当前时间：从1970.1.1零点到现在有多久，单位为10毫秒
 };
 
 //@[link_clear]清除link_list中的所有节点，并返回这些节点组成的单链表
@@ -301,39 +301,39 @@ struct timer* timer_create_timer() {
 void skynet_timer_init(void) {
   TI = timer_create_timer();
   uint32_t current = 0;
-  systime(&TI->starttime, &current);
-  TI->current = current;
-  TI->current_point = gettime();
+  systime(&TI->starttime, &current); //用当前系统时间初始化TI的创建时间startime，单位为秒
+  TI->current = current;             //初始化TI已经创建的时间current，单位为10ms
+  TI->current_point = gettime();     //初始化当前时间current_point，单位位10ms
 }
 
-void systime(uint32_t* sec, uint32_t* cs) { //centisecond: 1/100 second
-#if !defined(__APPLE__)
-	struct timespec ti;
-	clock_gettime(CLOCK_REALTIME, &ti);
-	*sec = (uint32_t)ti.tv_sec;
-	*cs = (uint32_t)(ti.tv_nsec / 10000000);
-#else
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	*sec = tv.tv_sec;
-	*cs = tv.tv_usec / 10000;
+void systime(uint32_t* sec, uint32_t* cs) { //百分之一秒或10毫秒（centisecond）
+#if !defined(__APPLE__)                     //非苹果Linux平台
+  struct timespec ti;                       //精度位纳秒{time_t tv_sec; long tv_nsec; /*nanoseconds*/}
+  clock_gettime(CLOCK_REALTIME, &ti);       //获取当前时间，受系统调时影响
+  *sec = (uint32_t)ti.tv_sec;               //秒
+  *cs = (uint32_t)(ti.tv_nsec / 10000000);  //将纳秒转换成10毫秒
+#else                                       //苹果平台
+  struct timeval tv;                        //精度位微秒{time_t tv_sec; suseconds_t tv_usec; /*microseconds*/}
+  gettimeofday(&tv, NULL);                  //获取当前时间，受系统调时影响
+  *sec = tv.tv_sec;                         //秒
+  *cs = tv.tv_usec / 10000;                 //将微秒转换成10毫秒
 #endif
 }
 
 uint64_t gettime() {
-	uint64_t t;
+  uint64_t t;
 #if !defined(__APPLE__)
-	struct timespec ti;
-	clock_gettime(CLOCK_MONOTONIC, &ti);
-	t = (uint64_t)ti.tv_sec * 100;
-	t += ti.tv_nsec / 10000000;
+  struct timespec ti;                  //非苹果平台
+  clock_gettime(CLOCK_MONOTONIC, &ti); //获取当前时间，不受系统调时影响（但受adjtime和NTP的影响）
+  t = (uint64_t)ti.tv_sec * 100;       //将秒转换成10毫秒
+  t += ti.tv_nsec / 10000000;          //将纳秒转换成10毫秒
 #else
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	t = (uint64_t)tv.tv_sec * 100;
-	t += tv.tv_usec / 10000;
+  struct timeval tv;                   //苹果平台
+  gettimeofday(&tv, NULL);             //获取当前时间，受系统调时影响
+  t = (uint64_t)tv.tv_sec * 100;       //将秒转换成10毫秒
+  t += tv.tv_usec / 10000;             //将微秒转换成10毫秒
 #endif
-	return t;
+  return t;
 }
 
 //@[clock_gettime]retrieve the time of the specified clock clk_id, return 0 for success
@@ -425,7 +425,7 @@ void* thread_timer(void* p) {
     skynet_updatetime();             //更新时间以及检查计时器是否超时
     CHECK_ABORT                      //如服务个数为0退出线程
     wakeup(m, m->count-1);           //TODO
-    usleep(2500);                    //TODO
+    usleep(2500);                    //睡2500微秒（2.5毫秒）
   }
   // wakeup socket thread
   skynet_socket_exit();              //TODO
@@ -438,20 +438,20 @@ void* thread_timer(void* p) {
 }
 
 void skynet_updatetime(void) {
-  uint64_t cp = gettime();                               //获取当前时间
-  if(cp < TI->current_point) {                           //TI记录的时间不能比当前时间还大
+  uint64_t cp = gettime();            //获取当前时间，这个时间可能受系统调时、adjtime或网络对时NTP影响
+  if(cp < TI->current_point) {        //如果TI保存的当前时间比获取的当前时间还大（例如网络对时校准后比原来时间小）
     skynet_error(NULL, "time diff error: change from %lld to %lld", cp, TI->current_point);
-    TI->current_point = cp;                              //否则报错并把TI记录的时间调小到当前时间
+    TI->current_point = cp;           //发送一个错误消息，并把TI记录的当前时间调小到获取的当前时间
   } 
-  else if (cp != TI->current_point) {                    //如果当前时间大于TI记录的时间
-    uint32_t diff = (uint32_t)(cp - TI->current_point);  //计算当前时间超出的时间单位
-    TI->current_point = cp;                              //更新TI记录的时间
-    TI->current += diff;                                 //TODO
+  else if (cp != TI->current_point) { //如果获取的当前时间大于TI记录的当前时间
+    uint32_t diff = (uint32_t)(cp - TI->current_point);
+    TI->current_point = cp;           //更新TI记录的当前时间
+    TI->current += diff;              //更新TI已创建的时间，无符号32位整数的diff可以表示497.1天的时间（以10ms为单位）
     int i;
-    for (i=0;i<diff;i++) {                               //对每一个超出的时间单位
-      timer_update(TI);                                  //更新一次计时器
+    for (i = 0; i < diff; i++) {      //对每一个超出的时间单位（diff个10ms）都更新一次计时器
+      timer_update(TI);               //由于skynet_updatetime最短睡2.5ms运行一次，这个循环运行的次数应该不会过多
     }
-  }
+  }                                   //如果获取的当前时间与TI记录的当前时间相等，这个函数不会做任何事情
 }
 
 //TI->current_point的初始值是TI创建时的时间
