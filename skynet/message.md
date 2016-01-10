@@ -259,23 +259,23 @@ struct timer {                       //TIME_NEAR 256, TIME_LEVEL 64
                                      //t[1]只有低20位不同，t[2]只有低26位不同，t[3]只有低32位不同
   struct spinlock lock;              //线程安全锁
   uint32_t time;                     //TODO
-  uint32_t starttime;                //TODO
-  uint64_t current;                  //TODO
-  uint64_t current_point;            //TODO
+  uint32_t starttime;                //全局变量TI创建时的时间，单位为秒
+  uint64_t current;                  //单位为10毫秒 //TODO
+  uint64_t current_point;            //单位为10毫秒 //TODO
 };
 
 //@[link_clear]清除link_list中的所有节点，并返回这些节点组成的单链表
 struct timer_node* link_clear(struct link_list* list) {
   struct timer_node* ret = list->head.next; //要返回的第一个计时器节点指针
   list->head.next = 0;                      //将指向第一个节点的指针清为0
-  list->tail = &(list->head);               //将最后一个节点指针指向头节点
+  list->tail = &(list->head);               //将尾节点指针指向头节点
   return ret;                               //返回单链表的第一个节点的指针
 }
 
 //@[link]将计时器节点添加到link_list的尾部
 void link(struct link_list* list, struct timer_node* node) {
   list->tail->next = node; //将节点添加到尾节点之后
-  list->tail = node;       //将为节点指针指向新加入的节点
+  list->tail = node;       //将尾节点指针指向新加入的节点
   node->next = 0;          //将尾节点的下一节点指针清为0
 }
 
@@ -305,6 +305,60 @@ void skynet_timer_init(void) {
   TI->current = current;
   TI->current_point = gettime();
 }
+
+void systime(uint32_t* sec, uint32_t* cs) { //centisecond: 1/100 second
+#if !defined(__APPLE__)
+	struct timespec ti;
+	clock_gettime(CLOCK_REALTIME, &ti);
+	*sec = (uint32_t)ti.tv_sec;
+	*cs = (uint32_t)(ti.tv_nsec / 10000000);
+#else
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	*sec = tv.tv_sec;
+	*cs = tv.tv_usec / 10000;
+#endif
+}
+
+uint64_t gettime() {
+	uint64_t t;
+#if !defined(__APPLE__)
+	struct timespec ti;
+	clock_gettime(CLOCK_MONOTONIC, &ti);
+	t = (uint64_t)ti.tv_sec * 100;
+	t += ti.tv_nsec / 10000000;
+#else
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	t = (uint64_t)tv.tv_sec * 100;
+	t += tv.tv_usec / 10000;
+#endif
+	return t;
+}
+
+//@[clock_gettime]retrieve the time of the specified clock clk_id, return 0 for success
+//the timespec is defined in time.h: { time_t tv_sec; long tv_nsec; /* nanoseconds */ }
+//a clock may be system-wide and hence visible for all processes, or per-process if 
+//  it measures time only within a single process.
+//CLOCK_REALTIME: all implemenations support this system-wide realtime clock;
+//  its time represents seconds and nanoseconds since the Epoch (1970-01-01 00:00:00 UTC).
+//  setting this clock requires appropriate privileges. this clock is affected by discontinuous 
+//  jumps in the system time (e.g., if the system administrator manually changes the clock), 
+//  and by the incremental adjustments performed by adjtime(3) and NTP.
+//CLOCK_MONOTONIC: clock that cannot be set and represents monotonic time since some 
+//  unspecified starting point. this clock is not affected by discontinuous jumps in the 
+//  system time (e.g., if the system administrator manually changes the clock), but is affected 
+//  by the incremental adjustments performed by adjtime(3) and NTP.
+int clock_gettime(clockid_t clk_id, struct timespec* tp);
+
+//@[gettimeofday]get the time as wall as a timezone, return 0 for success
+//struct timeval is defined in sys/time.h: { time_t tv_sec; suseconds_t tv_usec; /* microseconds */ }
+//  retrieve the number of seconds and microseconds since the Epoch (1970-01-01 00:00:00 UTC)
+//the use of timezone is obsolete, the tz argument should normally be specified as NULL
+//note: the time returned by gettimeofday() is affected by discontinuous jumps in the system time 
+//  (e.g., if the system administrator manually changes the system time). if you need a monotonically 
+//  increasing clock, see clock_gettime.
+int gettimeofday(struct timeval* tv, struct timezone* tz);
 ```
 
 在Lua中调用skynet.timeout(time, func), skynet.sleep(time)可以添加一个计时器，
@@ -355,7 +409,7 @@ void add_node(struct timer* T,struct timer_node* node) {
         break;                                     //再判断是否只有低32-bit不同
       }                                            //如果是就结束判断
       mask <<= TIME_LEVEL_SHIFT;                   //将计时器节点追加到对应的t[i][]单链表尾部
-    }              //因此near中保存的计时器会最早超时，然后依次是t[0], t[1], t[2], 最后是t[3]
+    }              //因此near中保存的计时器会最早超时，然后依次是t[0]、t[1]、t[2]、最后是t[3]
     link(&T->t[i][((time >> (TIME_NEAR_SHIFT + i * TIME_LEVEL_SHIFT)) & TIME_LEVEL_MASK)], node);	
   }
 }
@@ -434,7 +488,7 @@ void dispatch_list(struct timer_node* current) {
     message.sz = (size_t)PTYPE_RESPONSE << MESSAGE_TYPE_SHIFT; //消息长度为0，高8-bit保存消息类型
     skynet_context_push(event->handle, &message); //将这个计时器超时消息发送到handle对应得服务消息队列中
     struct timer_node* temp = current;            //释放当前计时器节点，然后继续链表中下一个计时器节点
-    current=current->next;                        //直到链表为空
+    current = current->next;                      //直到链表为空
     skynet_free(temp);	
   } while (current);
 }
@@ -447,10 +501,10 @@ void timer_shift(struct timer* T) {
   } 
   else {
     uint32_t time = ct >> TIME_NEAR_SHIFT;
-    int i=0;
-    while ((ct & (mask-1))==0) {
-      int idx=time & TIME_LEVEL_MASK;
-      if (idx!=0) {
+    int i = 0;
+    while ((ct & (mask-1)) == 0) {
+      int idx = time & TIME_LEVEL_MASK;
+      if (idx != 0) {
         move_list(T, i, idx);
         break;
       }
