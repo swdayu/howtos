@@ -388,20 +388,20 @@ void timer_add(struct timer* T, void* arg, size_t sz, int time) {
 
 //@[add_node]添加一个计时器节点
 void add_node(struct timer* T,struct timer_node* node) {
-  uint32_t time = node->expire;                                     //计时器多久后超时
-  uint32_t current_time = T->time;                                  //当前TI记录的时间，创建时它的初始值为0
+  uint32_t time = node->expire;                    //计时器多久后超时
+  uint32_t current_time = T->time;                 //当前TI记录的时间，创建时它的初始值为0
   if ((time | TIME_NEAR_MASK) == (current_time | TIME_NEAR_MASK)) { //TIME_NEAR_MASK 0xFF
-    link(&T->near[time & TIME_NEAR_MASK], node);                    //如果计时器超时的时间与当前记录的时间只有最低字节不同，
-  } 　　　　　　　　　　　　　　　　　　　　　                      //将这个计时器节点追加到对应的near[]单链表尾部
-  else {                                                            //如果时间差更大
-    int i;                                                          //TIME_NEAR 2^8, TIME_LEVEL_SHIFT 6 
-    uint32_t mask = TIME_NEAR << TIME_LEVEL_SHIFT;                  //再判断是否只有低14-bit不同，或
-    for (i = 0; i < 3; i++) {                                       //再判断是否只有低20-bit不同，或
-      if ((time | (mask - 1)) == (current_time | (mask - 1))) {     //再判断是否只有低26-bit不同，或
-        break;                                                      //再判断是否只有低32-bit不同
-      }                                                             //如果是就结束判断
-      mask <<= TIME_LEVEL_SHIFT;                                    //将计时器节点追加到对应的t[i][]单链表尾部
-    }                               //因此near中保存的计时器会最早超时，然后依次是t[0], t[1], t[2], 最后是t[3]
+    link(&T->near[time & TIME_NEAR_MASK], node);   //如果计时器超时的时间与当前记录的时间只有最低字节不同，
+  }                                                //将这个计时器节点追加到对应的near[]单链表尾部
+  else {                                           //如果时间差更大（TIME_NEAR 2^8, TIME_LEVEL_SHIFT 6）
+    int i;                                         //再判断是否只有低14-bit不同，或
+    uint32_t mask = TIME_NEAR << TIME_LEVEL_SHIFT; //再判断是否只有低20-bit不同，或
+    for (i = 0; i < 3; i++) {                      //再判断是否只有低26-bit不同，或
+      if ((time | (mask - 1)) == (current_time | (mask - 1))) {
+        break;                                     //再判断是否只有低32-bit不同
+      }                                            //如果是就结束判断
+      mask <<= TIME_LEVEL_SHIFT;                   //将计时器节点追加到对应的t[i][]单链表尾部
+    }              //因此near中保存的计时器会最早超时，然后依次是t[0], t[1], t[2], 最后是t[3]
     link(&T->t[i][((time >> (TIME_NEAR_SHIFT + i * TIME_LEVEL_SHIFT)) & TIME_LEVEL_MASK)], node);	
   }
 }
@@ -448,9 +448,9 @@ void dispatch_list(struct timer_node* current) {
     message.session = event->session;
     message.data = NULL;
     message.sz = (size_t)PTYPE_RESPONSE << MESSAGE_TYPE_SHIFT; //消息长度为0，高8-bit保存消息类型
-    skynet_context_push(event->handle, &message);              //将这个计时器超时消息发送到handle对应得服务消息队列中
-    struct timer_node* temp = current;                         //释放当前计时器节点，然后继续链表中下一个计时器节点
-    current=current->next;                                     //直到链表为空
+    skynet_context_push(event->handle, &message); //将这个计时器超时消息发送到handle对应得服务消息队列中
+    struct timer_node* temp = current;            //释放当前计时器节点，然后继续链表中下一个计时器节点
+    current=current->next;                        //直到链表为空
     skynet_free(temp);	
   } while (current);
 ```
