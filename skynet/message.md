@@ -308,12 +308,12 @@ void skynet_timer_init(void) {
 
 void systime(uint32_t* sec, uint32_t* cs) { //百分之一秒或10毫秒（centisecond）
 #if !defined(__APPLE__)                     //非苹果Linux平台
-  struct timespec ti;                       //精度位纳秒{time_t tv_sec; long tv_nsec; /*nanoseconds*/}
+  struct timespec ti;                       //精度位纳秒（nanoseconds）
   clock_gettime(CLOCK_REALTIME, &ti);       //获取当前时间，受系统调时影响
   *sec = (uint32_t)ti.tv_sec;               //秒
   *cs = (uint32_t)(ti.tv_nsec / 10000000);  //将纳秒转换成10毫秒
 #else                                       //苹果平台
-  struct timeval tv;                        //精度位微秒{time_t tv_sec; suseconds_t tv_usec; /*microseconds*/}
+  struct timeval tv;                        //精度位微秒（microseconds）
   gettimeofday(&tv, NULL);                  //获取当前时间，受系统调时影响
   *sec = tv.tv_sec;                         //秒
   *cs = tv.tv_usec / 10000;                 //将微秒转换成10毫秒
@@ -466,33 +466,6 @@ void timer_update(struct timer* T) {
   SPIN_UNLOCK(T);
 }
 
-void timer_execute(struct timer* T) {
-  int idx = T->time & TIME_NEAR_MASK;
-  while (T->near[idx].head.next) {
-    struct timer_node *current = link_clear(&T->near[idx]);
-    SPIN_UNLOCK(T);
-    // dispatch_list don't need lock T
-    dispatch_list(current);
-    SPIN_LOCK(T);
-  }
-}
-
-//@[dispatch_list]释放这个链表的所有计时器，并将这些计时器对应的超时消息发送到对应服务的消息队列
-void dispatch_list(struct timer_node* current) {
-  do {
-    struct timer_event* event = (struct timer_event*)(current+1);
-    struct skynet_message message;
-    message.source = 0;
-    message.session = event->session;
-    message.data = NULL;
-    message.sz = (size_t)PTYPE_RESPONSE << MESSAGE_TYPE_SHIFT; //消息长度为0，高8-bit保存消息类型
-    skynet_context_push(event->handle, &message); //将这个计时器超时消息发送到handle对应得服务消息队列中
-    struct timer_node* temp = current;            //释放当前计时器节点，然后继续链表中下一个计时器节点
-    current = current->next;                      //直到链表为空
-    skynet_free(temp);	
-  } while (current);
-}
-
 void timer_shift(struct timer* T) {
   int mask = TIME_NEAR;
   uint32_t ct = ++T->time;
@@ -522,5 +495,32 @@ void move_list(struct timer* T, int level, int idx) {
     add_node(T, current);
     current = temp;
   }
+}
+
+void timer_execute(struct timer* T) {
+  int idx = T->time & TIME_NEAR_MASK;
+  while (T->near[idx].head.next) {
+    struct timer_node *current = link_clear(&T->near[idx]);
+    SPIN_UNLOCK(T);
+    // dispatch_list don't need lock T
+    dispatch_list(current);
+    SPIN_LOCK(T);
+  }
+}
+
+//@[dispatch_list]释放这个链表的所有计时器，并将这些计时器对应的超时消息发送到对应服务的消息队列
+void dispatch_list(struct timer_node* current) {
+  do {
+    struct timer_event* event = (struct timer_event*)(current+1);
+    struct skynet_message message;
+    message.source = 0;
+    message.session = event->session;
+    message.data = NULL;
+    message.sz = (size_t)PTYPE_RESPONSE << MESSAGE_TYPE_SHIFT; //消息长度为0，高8-bit保存消息类型
+    skynet_context_push(event->handle, &message); //将这个计时器超时消息发送到handle对应得服务消息队列中
+    struct timer_node* temp = current;            //释放当前计时器节点，然后继续链表中下一个计时器节点
+    current = current->next;                      //直到链表为空
+    skynet_free(temp);	
+  } while (current);
 }
 ```
