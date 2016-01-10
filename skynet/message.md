@@ -309,12 +309,12 @@ void skynet_timer_init(void) {
 
 void systime(uint32_t* sec, uint32_t* cs) { //百分之一秒或10毫秒（centisecond）
 #if !defined(__APPLE__)                     //非苹果Linux平台
-  struct timespec ti;                       //精度位纳秒（nanoseconds）
+  struct timespec ti;                       //精度为纳秒（nanoseconds）
   clock_gettime(CLOCK_REALTIME, &ti);       //获取当前时间，受系统调时影响
   *sec = (uint32_t)ti.tv_sec;               //秒
   *cs = (uint32_t)(ti.tv_nsec / 10000000);  //将纳秒转换成10毫秒
 #else                                       //苹果平台
-  struct timeval tv;                        //精度位微秒（microseconds）
+  struct timeval tv;                        //精度为微秒（microseconds）
   gettimeofday(&tv, NULL);                  //获取当前时间，受系统调时影响
   *sec = tv.tv_sec;                         //秒
   *cs = tv.tv_usec / 10000;                 //将微秒转换成10毫秒
