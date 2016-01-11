@@ -1,7 +1,7 @@
 
 ```c
 int luaopen_skynet_core(lua_State* L) {
-  luaL_checkversion(L); //检查创建Lua状态的Lua版本是否一致，且在相同的地址空间中
+  luaL_checkversion(L); //检查创建Lua状态的Lua版本与调用该函数的Lua版本是否一致，且是否在相同的地址空间中
   luaL_Reg l[] = {
     { "send" , _send },
     { "genid", _genid },
