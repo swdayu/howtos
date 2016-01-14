@@ -18,7 +18,7 @@ int luaopen_coroutine (lua_State* L) {
   return 1;                 //返回结果个数
 }
 
-//@[local co = coroutine.create(luafn)]传入Lua函数，返回新创建的协程
+//@[local co = coroutine.create(luafn)]传入Lua函数，返回新创建的协程（其类型为"thread"）
 static int luaB_cocreate(lua_State* L) {
   lua_State* NL;
   luaL_checktype(L, 1, LUA_TFUNCTION); //传入的参数必须是Lua函数
