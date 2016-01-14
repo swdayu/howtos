@@ -29,11 +29,14 @@ static int luaB_cocreate(lua_State* L) {
 }
 
 //@[coroutine.resume(co [, val1, ...])]
-//如果协程第一次运行，则运行协程对应的Lua函数，将val1,...传入作为Lua函数的参数
-//If the coroutine runs without any errors, resume returns true plus any values passed to yield 
-//(when the coroutine yields) or any values returned by the body function (when the coroutine terminates). 
-//If there is any error, resume returns false plus the error message.
-//如果协程处于yield状态，则恢复到原来yield的位置继续执行，传入的参数val1,...会作为yield函数的返回结果
+//如果协程第一次或重新从头开始运行，协程对应的Lua函数会被调用，并将val1,...传入作为Lua函数的参数
+//- 如果执行过程中没有发生错误，Lua函数要么执行完要么被yield
+//  - 如果Lua函数成功执行完，函数resume返回true以及Lua函数返回的所有返回值
+//  - 如果Lua函数执行过程中被yield，函数resume返回true以及所有传入yield的参数
+//- 如果执行过程中发生错误，函数resume返回false以及一个错误消息
+//如果协程处于yield状态，Lua函数会回到原来yield的代码位置，该处的yield函数会返回，
+//并将参数val1,...作为它的返回结果，然后Lua函数继续执行
+//- 如果执行过程中没有发生错误，Lua函数要么执行完要么被yield，流程与上面一样
 static int luaB_coresume(lua_State* L) {
   lua_State* co = getco(L);
   int r = auxresume(L, co, lua_gettop(L) - 1);
