@@ -38,8 +38,8 @@ static int luaB_cocreate(lua_State* L) {
 //该处的yield函数会返回，并将参数val1,...作为它的返回结果，然后Lua函数继续执行
 //--如果执行过程中没有发生错误，Lua函数要么执行完要么被yield，流程与上面一样
 static int luaB_coresume(lua_State* L) {
-  lua_State* co = getco(L);
-  int r = auxresume(L, co, lua_gettop(L) - 1);
+  lua_State* co = getco(L);                    //获取第一个参数co
+  int r = auxresume(L, co, lua_gettop(L) - 1); //执行resume操作，`lua_gettop(L)-1`表示val1,...参数个数
   if (r < 0) {
     lua_pushboolean(L, 0);
     lua_insert(L, -2);
