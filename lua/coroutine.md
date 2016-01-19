@@ -193,7 +193,7 @@ l_noret luaD_throw (lua_State *L, int errcode) {
 }
 ```
 
-## coresume = coroutine.wrap(luafn); res1, ... = coresume([val1, ...])
+## resumef = coroutine.wrap(luafn); res1, ... = resumef([val1, ...])
 ```c
 //@[coresume = coroutine.wrap(luafn), coresume([val1, ...])]
 //返回一个函数，用于resume在wrap中创建的协程
