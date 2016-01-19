@@ -1,5 +1,74 @@
 
-# 协程
+# Lua协程
+
+```c
+typedef struct lua_State lua_State;
+```
+An opaque structure that points to a thread and indirectly (through the thread) to the 
+whole state of a Lua interpreter. The Lua library is fully reentrant: it has no global 
+variables. All information about a state is accessible through this structure.
+A pointer to this structure must be passed as the first argument to every function in 
+the library, except to lua_newstate, which creates a Lua state from scratch.
+
+Lua支持协程（也称为协作多线程，collaborative multithreading），每个协程像系统线程一样是独立运行的。
+不同于系统线程的自动调度，Lua协程要手动调用yield和resume来挂起和恢复。
+
+可以使用coroutine.create创建一个新协程，传入协程的主函数作为参数。
+这个函数仅仅创建和返回协程对象，并不启动协程。要启动协程，必须手动调用coroutine.resume。
+协程启动后，协程的主函数会被执行，主函数的参数通过resume传入。
+协程启动后会一直执行，直到主函数执行完毕、或主函数进入挂起状态、或发生错误。
+当主函数进入挂起状态，再次调用resume会使主函数恢复到原来挂起的位置继续执行。
+另外coroutine.wrap也用于创建新协程，不同的它返回用于resume协程的函数。
+更详细的信息参考下面的代码分析。
+
+一个关于Lua协程的例子如下：
+```lua
+function foo(a)
+  print("foo", a)
+  return coroutine.yield(2*a)
+end
+
+co = coroutine.create(function(a, b)
+  print("co-body", a, b)
+  local r = foo(a+1)
+  print("co-body", r)
+  local r, s = coroutine.yield(a+b, a-b)
+  print("co-body", r, s)
+  return b, "end"
+end)
+
+print("main", coroutine.resume(co, 1, 10))
+print("main", coroutine.resume(co, "r"))
+print("main", coroutine.resume(co, "x", "y"))
+print("main", coroutine.resume(co, "x", "y"))
+```
+它的执行流程：
+```
+RESUME(1, 10)
+print("co-body", 1, 10)         ==> co-body  1      10
+local r = foo(1 + 1)
+  print("foo", 2)               ==> foo      2
+  return YIELD(4)
+
+print("main", true, 4)          ==> main     true   4 
+
+  RESUME("r")
+  return "r"
+r = "r"
+print("co-body", r)             ==> co-body  r
+local r, s = YIELD(11, -9)
+
+print("main", true, 11, -9)     ==> main     true   11     -9
+
+RESUME("x", "y")
+r, s = "x", "y"
+print("co-body", r, s)          ==> co-body  x      y
+return 10, "end"
+
+print("main", true, 10, "end")  ==> main     true   10     end
+
+print("main", RESUME("x", "y")) ==> main     false  cannot resume dead coroutine
+```
 
 ## coroutine = require "coroutine"
 ```c
@@ -202,7 +271,7 @@ static int luaB_cowrap(lua_State* L) {
   lua_pushcclosure(L, luaB_auxwrap, 1); //移除栈顶协程并将它设置作为luaB_auxwrap的上值，将最终的C函数入栈
   return 1;                             //返回结果个数1
 }
-static int luaB_auxwrap(lua_State* L) {
+static int luaB_auxwrap(lua_State* L) {    //注意这种方式遇到错误会抛出异常，而不像resume那样返回错误对象
   lua_State* co = lua_tothread(L, lua_upvalueindex(1)); //获取保存在上值中的协程
   int r = auxresume(L, co, lua_gettop(L)); //执行resume操作，`lua_gettop(L)`表示传入的参数个数（val1,...）
   if (r < 0) {                             //执行失败此时L中的元素为[error_msg]
@@ -287,3 +356,12 @@ static int luaB_costatus(lua_State* L) {
   return 1;
 }
 ```
+
+## 通过C API使用协程
+
+```c
+lua_newthread
+lua_resume
+lua_yield
+```
+
