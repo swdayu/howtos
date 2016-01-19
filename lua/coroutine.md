@@ -22,28 +22,28 @@ int luaopen_coroutine (lua_State* L) {
 
 ## co = coroutine.create(luafn)
 ```c
-//@[local co = coroutine.create(luafn)]传入Lua函数，返回新创建的协程（其类型为"thread"）
+//@[local co = coroutine.create(luafn)]传入Lua函数作为主函数，返回新创建的协程（其类型为"thread"）
 static int luaB_cocreate(lua_State* L) {
   lua_State* NL;
   luaL_checktype(L, 1, LUA_TFUNCTION); //传入的参数必须是Lua函数
-  NL = lua_newthread(L);               //创建线程压入L的栈中，NL共享L的全局状态但拥有自己独立的Lua栈
-  lua_pushvalue(L, 1);                 //将传入的Lua函数拷贝一份压入L栈顶
-  lua_xmove(L, NL, 1);                 //将L栈顶的Lua函数移除，并将它压入NL栈顶
-  return 1;                            //此时L栈顶元素为新分配的NL，将它最为结果，返回结果个数1
+  NL = lua_newthread(L);               //创建新协程压入L栈顶，NL共享L的全局状态但拥有自己独立的Lua栈
+  lua_pushvalue(L, 1);                 //将主函数拷贝一份压入L栈顶
+  lua_xmove(L, NL, 1);                 //将L栈顶的主函数移除，并将它压入NL栈顶
+  return 1;                            //此时L栈顶元素为新分配的NL，将它作为结果，返回结果个数1
 }
 ```
 
 ## success, res1, ... = coroutine.resume(co [, val1, ...])
 ```c
 //@[coroutine.resume(co [, val1, ...])]
-//如果协程第一次或重新从头开始运行，协程对应的Lua函数会被调用，并将val1,...传入作为Lua函数的参数
-//--如果执行过程中没有发生错误，Lua函数要么执行完要么被yield
-//  如果Lua函数成功执行完，函数resume返回true以及Lua函数返回的所有返回值
-//  如果Lua函数执行过程中被yield，函数resume返回true以及所有传入yield的参数
-//--如果执行过程中发生错误，函数resume返回false以及一个错误消息
-//如果协程处于yield状态，Lua函数会回到原来yield的代码位置，
-//该处的yield函数会返回，并将参数val1,...作为它的返回结果，然后Lua函数继续执行
-//--如果执行过程中没有发生错误，Lua函数要么执行完要么被yield，流程与上面一样
+//如果协程第一次或重新从头开始执行，会调用协程的主函数，并传入val1,...作为主函数的参数
+//--如果执行过程中没有发生错误，主函数要么执行完要么进入yield状态
+//  如果成功执行完，函数resume会返回true以及主函数的所有返回值
+//  如果进入yield状态，函数resume会返回true以及yield时传入yield函数的参数
+//--如果执行过程中发生错误，函数resume会返回false以及一个错误消息
+//如果协程处于yield状态，主函数会恢复到原来挂起的代码位置，
+//该处的yield函数会返回，并将resume中传入的参数val1,...作为它的返回结果，然后主函数继续执行
+//--直到主函数执行完毕、再次进入yield状态、或运行错误返回
 static int luaB_coresume(lua_State* L) {
   lua_State* co = getco(L);                    //获取第一个参数[co, va1, ...]
   int r = auxresume(L, co, lua_gettop(L) - 1); //执行resume操作，`lua_gettop(L)-1`表示val1,...参数个数
