@@ -130,31 +130,31 @@ static int luaB_yield(lua_State* L) {
 #define lua_yield(L,n) lua_yieldk(L, (n), 0, NULL)
 int lua_yieldk(lua_State* L, int nresults, lua_KContext ctx, lua_KFunction k) {
   CallInfo* ci = L->ci;
-  luai_userstateyield(L, nresults);          //可以为LUAI_EXTRASPACE数据自定义resume行为
+  luai_userstateyield(L, nresults);       //可以为LUAI_EXTRASPACE数据自定义resume行为
   lua_lock(L);
-  api_checknelems(L, nresults);              //TODO
-  if (L->nny > 0) {                          //不能在non-yieldable调用链中进行yield，要进行yield值L->nny必须为0
-    if (L != G(L)->mainthread)               //否则报运行时错误
+  api_checknelems(L, nresults);           //TODO
+  if (L->nny > 0) {                       //不能在non-yieldable调用链中进行yield，值L->nny必须为0
+    if (L != G(L)->mainthread)            //否则报运行时错误
       luaG_runerror(L, "attempt to " 
       "yield across a C-call boundary");
     else
       luaG_runerror(L, "attempt to " 
       "yield from outside a coroutine");
   }
-  L->status = LUA_YIELD;                     //Lua线程标记成进入yield状态
-  ci->extra = savestack(L, ci->func);        //保存当前函数在栈中的绝对索引值
-  if (isLua(ci)) {  /* inside a hook? */     //如果当前调用的是Lua函数，用于C使用的k函数必须为NULL
-    api_check(L, k == NULL,                  //TODO: 在Lua函数中yield不需要longjmp???
-    "hooks cannot continue after yielding");
+  L->status = LUA_YIELD;                  //Lua线程标记成进入yield状态
+  ci->extra = savestack(L, ci->func);     //保存当前函数在栈中的绝对索引值
+  if (isLua(ci)) {  /* inside a hook? */  //如果当前调用的是Lua函数，用于C使用的k函数必须为NULL
+    api_check(L, k == NULL, "hooks "      //TODO: 在Lua函数中yield不需要longjmp???
+    "cannot continue after yielding");
   }
-  else {                                     //如果调用的是C函数
-    if ((ci->u.c.k = k) != NULL)             //如果提供了k函数
-      ci->u.c.ctx = ctx;  /* save context */ //将k函数和ctx值保存当前调用信息中
+  else {                                  //如果调用的是C函数
+    if ((ci->u.c.k = k) != NULL)          //如果提供了k函数
+      ci->u.c.ctx = ctx;                  //将k函数和ctx值保存当前调用信息中
     /* protect stack below results */
-    ci->func = L->top - nresults - 1;        //TODO ???
-    luaD_throw(L, LUA_YIELD);                //挂起当前线程并跳转返回到resume函数中
-  }                                          //函数luaD_throw会在resume返回后继续resume才会返回执行下面的代码
-  lua_assert(ci->callstatus & CIST_HOOKED);  //TODO: must be inside a hook
+    ci->func = L->top - nresults - 1;     //TODO ???
+    luaD_throw(L, LUA_YIELD);             //挂起当前线程并跳转返回到resume函数中
+  }                                       //函数luaD_throw会在resume返回后继续resume才会返回执行下面的代码
+  lua_assert(ci->callstatus&CIST_HOOKED); //TODO: must be inside a hook
   lua_unlock(L);
   return 0;  /* return to 'luaD_hook' */
 }
@@ -187,24 +187,24 @@ l_noret luaD_throw (lua_State *L, int errcode) {
 //返回一个函数，用于resume在wrap中创建的协程
 static int luaB_cowrap(lua_State* L) {
   luaB_cocreate(L);                     //创建新协程并压入L栈顶
-  lua_pushcclosure(L, luaB_auxwrap, 1); //移除栈顶新协程并将它设置为C函数luaB_auxwrap的上值，将最终的C函数压入栈中
+  lua_pushcclosure(L, luaB_auxwrap, 1); //移除栈顶协程并将它设置作为luaB_auxwrap的上值，将最终的C函数入栈
   return 1;                             //返回结果个数1
 }
 static int luaB_auxwrap(lua_State* L) {
   lua_State* co = lua_tothread(L, lua_upvalueindex(1)); //获取保存在上值中的协程
-  int r = auxresume(L, co, lua_gettop(L));              //执行resume操作，`lua_gettop(L)`表示传入的参数个数（val1,...）
-  if (r < 0) {                                          //执行失败此时L中的元素为[error_msg]
-    if (lua_isstring(L, -1)) {                          //如果栈顶的错误消息为字符串类型
-      luaL_where(L, 1);  /* add extra info */           //产生额外信息字符串"chunkname:currentline:"并压入栈顶
-      lua_insert(L, -2);                                //将额外的字符串信息插入到倒数第2个元素位置
-      lua_concat(L, 2);                                 //此时L中的元素为[extra_str, error_msg], 
-    }                                                   //将这两个字符串连接变成一个元素[extra_str+error_msg]
-    return lua_error(L);  /* propagate error */         //将执行失败产生的异常或加入了额外错误信息的异常抛出
+  int r = auxresume(L, co, lua_gettop(L)); //执行resume操作，`lua_gettop(L)`表示传入的参数个数（val1,...）
+  if (r < 0) {                             //执行失败此时L中的元素为[error_msg]
+    if (lua_isstring(L, -1)) {             //如果栈顶的错误消息为字符串类型
+      luaL_where(L, 1);                    //产生额外信息字符串"chunkname:currentline:"并压入栈顶
+      lua_insert(L, -2);                   //将额外的字符串信息插入到倒数第2个元素位置
+      lua_concat(L, 2);                    //此时L中的元素为[extra_str, error_msg], 
+    }                                      //将这两个字符串连接变成一个元素[extra_str+error_msg]
+    return lua_error(L);                   //将执行失败产生的异常或加入了额外错误信息的异常抛出
   }
-  return r;                                             //否则执行成功，返回结果个数r
+  return r;                                //否则执行成功，返回结果个数r
 }
-void luaL_where(lua_State* L, int level) {              //获取Lua状态调用链ci中Level 1层次上的函数的额外信息
-  lua_Debug ar;                                         //层次Level 0表示当前运行函数（ci），Level 1表示调用当前函数的函数（ci->previous）
+void luaL_where(lua_State* L, int level) { //获取Lua状态调用链ci中Level 1层次上的函数的额外信息
+  lua_Debug ar;                            //层次Level 0表示当前运行函数（ci），Level 1表示调用当前函数的函数（ci->previous）
   if (lua_getstack(L, level, &ar)) {  /* check function at level */
     lua_getinfo(L, "Sl", &ar);  /* get info about it */
     if (ar.currentline > 0) {  /* is there info? */
