@@ -21,55 +21,6 @@ Lua支持协程（也称为协作多线程，collaborative multithreading），�
 另外coroutine.wrap也用于创建新协程，不同的它返回用于resume协程的函数。
 更详细的信息参考下面的代码分析。
 
-一个关于Lua协程的例子如下：
-```lua
-function foo(a)
-  print("foo", a)
-  return coroutine.yield(2*a)
-end
-
-co = coroutine.create(function(a, b)
-  print("co-body", a, b)
-  local r = foo(a+1)
-  print("co-body", r)
-  local r, s = coroutine.yield(a+b, a-b)
-  print("co-body", r, s)
-  return b, "end"
-end)
-
-print("main", coroutine.resume(co, 1, 10))
-print("main", coroutine.resume(co, "r"))
-print("main", coroutine.resume(co, "x", "y"))
-print("main", coroutine.resume(co, "x", "y"))
-```
-它的执行流程：
-```
-RESUME(1, 10)
-print("co-body", 1, 10)         ==> co-body  1      10
-local r = foo(1 + 1)
-  print("foo", 2)               ==> foo      2
-  return YIELD(4)
-
-print("main", true, 4)          ==> main     true   4 
-
-  RESUME("r")
-  return "r"
-r = "r"
-print("co-body", r)             ==> co-body  r
-local r, s = YIELD(11, -9)
-
-print("main", true, 11, -9)     ==> main     true   11     -9
-
-RESUME("x", "y")
-r, s = "x", "y"
-print("co-body", r, s)          ==> co-body  x      y
-return 10, "end"
-
-print("main", true, 10, "end")  ==> main     true   10     end
-
-print("main", RESUME("x", "y")) ==> main     false  cannot resume dead coroutine
-```
-
 ## coroutine = require "coroutine"
 ```c
 //@[local coroutine = require "coroutine"]
@@ -355,6 +306,55 @@ static int luaB_costatus(lua_State* L) {
   }
   return 1;
 }
+```
+
+## 考虑下面的例子
+```lua
+function foo(a)
+  print("foo", a)
+  return coroutine.yield(2*a)
+end
+
+co = coroutine.create(function(a, b)
+  print("co-body", a, b)
+  local r = foo(a+1)
+  print("co-body", r)
+  local r, s = coroutine.yield(a+b, a-b)
+  print("co-body", r, s)
+  return b, "end"
+end)
+
+print("main", coroutine.resume(co, 1, 10))
+print("main", coroutine.resume(co, "r"))
+print("main", coroutine.resume(co, "x", "y"))
+print("main", coroutine.resume(co, "x", "y"))
+```
+它的执行流程为：
+```
+RESUME(1, 10)
+print("co-body", 1, 10)         ==> co-body  1      10
+local r = foo(1 + 1)
+  print("foo", 2)               ==> foo      2
+  return YIELD(4)
+
+print("main", true, 4)          ==> main     true   4 
+
+  RESUME("r")
+  return "r"
+r = "r"
+print("co-body", r)             ==> co-body  r
+local r, s = YIELD(11, -9)
+
+print("main", true, 11, -9)     ==> main     true   11     -9
+
+RESUME("x", "y")
+r, s = "x", "y"
+print("co-body", r, s)          ==> co-body  x      y
+return 10, "end"
+
+print("main", true, 10, "end")  ==> main     true   10     end
+
+print("main", RESUME("x", "y")) ==> main     false  cannot resume dead coroutine
 ```
 
 ## 通过C API使用协程
