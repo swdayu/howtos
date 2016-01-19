@@ -28,6 +28,7 @@ static int luaB_cocreate(lua_State* L) {
   return 1;                            //此时L栈顶元素为新分配的NL，将它最为结果，返回结果个数1
 }
 
+
 //@[coroutine.resume(co [, val1, ...])]
 //如果协程第一次或重新从头开始运行，协程对应的Lua函数会被调用，并将val1,...传入作为Lua函数的参数
 //--如果执行过程中没有发生错误，Lua函数要么执行完要么被yield
@@ -180,5 +181,88 @@ l_noret luaD_throw (lua_State *L, int errcode) {
       abort();
     }
   }
+}
+
+//@[coresume = coroutine.wrap(luafn), coresume([val1, ...])]
+//返回一个函数，用于resume在wrap中创建的协程
+static int luaB_cowrap(lua_State* L) {
+  luaB_cocreate(L);                     //创建新协程并压入L栈顶
+  lua_pushcclosure(L, luaB_auxwrap, 1); //移除栈顶新协程并将它设置为C函数luaB_auxwrap的上值，将最终的C函数压入栈中
+  return 1;                             //返回结果个数1
+}
+static int luaB_auxwrap(lua_State* L) {
+  lua_State* co = lua_tothread(L, lua_upvalueindex(1)); //获取保存在上值中的协程
+  int r = auxresume(L, co, lua_gettop(L));              //执行resume操作，`lua_gettop(L)`表示传入的参数个数（val1,...）
+  if (r < 0) {                                          //执行失败此时L中的元素为[error_msg]
+    if (lua_isstring(L, -1)) {                          //如果栈顶的错误消息为字符串类型
+      luaL_where(L, 1);  /* add extra info */           //产生额外信息字符串"chunkname:currentline:"并压入栈顶
+      lua_insert(L, -2);                                //将额外的字符串信息插入到倒数第2个元素位置
+      lua_concat(L, 2);                                 //此时L中的元素为[extra_str, error_msg], 
+    }                                                   //将这两个字符串连接变成一个元素[extra_str+error_msg]
+    return lua_error(L);  /* propagate error */         //将执行失败产生的异常或加入了额外错误信息的异常抛出
+  }
+  return r;                                             //否则执行成功，返回结果个数r
+}
+void luaL_where(lua_State* L, int level) {              //获取Lua状态调用链ci中Level 1层次上的函数的额外信息
+  lua_Debug ar;                                         //层次Level 0表示当前运行函数（ci），Level 1表示调用当前函数的函数（ci->previous）
+  if (lua_getstack(L, level, &ar)) {  /* check function at level */
+    lua_getinfo(L, "Sl", &ar);  /* get info about it */
+    if (ar.currentline > 0) {  /* is there info? */
+      lua_pushfstring(L, "%s:%d: ", ar.short_src, ar.currentline);
+      return;
+    }
+  }
+  lua_pushliteral(L, "");  /* else, no information available... */
+}
+
+//@[coroutine.isyieldable()]判断当前运行协程是否能yield
+//只要当前运行协程不是主线程，而且没有运行在non-yieldable调用链中，就能够yield
+//> A running coroutine is yieldable if it is not the main thread 
+//> and it is not inside a non-yieldable C function.
+static int luaB_yieldable(lua_State* L) {
+  lua_pushboolean(L, lua_isyieldable(L));
+  return 1;
+}
+int lua_isyieldable(lua_State* L) {
+  return (L->nny == 0);
+}
+
+//@[coroutine.running()]返回当前运行的协程和一个布尔值表示当前运行的协程是否是主线程
+//> Returns the running coroutine plus a boolean, true when the running coroutine is the main one.
+static int luaB_corunning(lua_State* L) {
+  int ismain = lua_pushthread(L); //将当前L状态对应的线程压入栈顶，并返回一个整数表示这个线程是否是主线程
+  lua_pushboolean(L, ismain);     //将表示是否时主线程的整数当做布尔值压入栈顶
+  return 2;                       //返回结果个数2
+}
+
+//@[coroutine.status(co)]以字符串方式返回协程co当前的状态
+//"running", if the coroutine is running, the coroutine that called this status function
+//"suspended", if the coroutine is suspended in a call to yield, or if it has not started running yet
+//"normal", if the coroutine is active but not running (that is, it has resumed another coroutine)
+//"dead", if the coroutine has finished its body function, or if it has stopped with an error
+static int luaB_costatus(lua_State* L) {
+  lua_State* co = getco(L);
+  if (L == co) lua_pushliteral(L, "running");
+  else {
+    switch (lua_status(co)) {
+    case LUA_YIELD:
+      lua_pushliteral(L, "suspended");
+      break;
+    case LUA_OK: {
+      lua_Debug ar;
+      if (lua_getstack(co, 0, &ar) > 0)  /* does it have frames? */
+        lua_pushliteral(L, "normal");  /* it is running */
+      else if (lua_gettop(co) == 0)
+        lua_pushliteral(L, "dead");
+      else
+        lua_pushliteral(L, "suspended");  /* initial state */
+      break;
+    }
+    default:  /* some error occurred */
+      lua_pushliteral(L, "dead");
+      break;
+    }
+  }
+  return 1;
 }
 ```
