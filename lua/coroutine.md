@@ -120,4 +120,65 @@ int lua_resume(lua_State* co, lua_State* from, int nargs) {
   lua_unlock(co);
   return status;
 }
+
+//@[coroutine.yield(...)]
+//挂起当前执行的协程，传入的参数都返回给resume函数
+static int luaB_yield(lua_State* L) {
+  return lua_yield(L, lua_gettop(L));
+}
+#define lua_yield(L,n) lua_yieldk(L, (n), 0, NULL)
+int lua_yieldk(lua_State* L, int nresults, lua_KContext ctx, lua_KFunction k) {
+  CallInfo* ci = L->ci;
+  luai_userstateyield(L, nresults);          //可以为LUAI_EXTRASPACE数据自定义resume行为
+  lua_lock(L);
+  api_checknelems(L, nresults);              //TODO
+  if (L->nny > 0) {                          //不能在non-yieldable调用链中进行yield，要进行yield值L->nny必须为0
+    if (L != G(L)->mainthread)               //否则报运行时错误
+      luaG_runerror(L, "attempt to " 
+      "yield across a C-call boundary");
+    else
+      luaG_runerror(L, "attempt to " 
+      "yield from outside a coroutine");
+  }
+  L->status = LUA_YIELD;                     //Lua线程标记成进入yield状态
+  ci->extra = savestack(L, ci->func);        //保存当前函数在栈中的绝对索引值
+  if (isLua(ci)) {  /* inside a hook? */     //如果当前调用的是Lua函数，用于C使用的k函数必须为NULL
+    api_check(L, k == NULL,                  //TODO: 在Lua函数中yield不需要longjmp???
+    "hooks cannot continue after yielding");
+  }
+  else {                                     //如果调用的是C函数
+    if ((ci->u.c.k = k) != NULL)             //如果提供了k函数
+      ci->u.c.ctx = ctx;  /* save context */ //将k函数和ctx值保存当前调用信息中
+    /* protect stack below results */
+    ci->func = L->top - nresults - 1;        //TODO ???
+    luaD_throw(L, LUA_YIELD);                //挂起当前线程并跳转返回到resume函数中
+  }                                          //函数luaD_throw会在resume返回后继续resume才会返回执行下面的代码
+  lua_assert(ci->callstatus & CIST_HOOKED);  //TODO: must be inside a hook
+  lua_unlock(L);
+  return 0;  /* return to 'luaD_hook' */
+}
+l_noret luaD_throw (lua_State *L, int errcode) {
+  if (L->errorJmp) {  /* thread has an error handler? */
+    L->errorJmp->status = errcode;  /* set status */
+    LUAI_THROW(L, L->errorJmp);  /* jump to it */
+  }
+  else {  /* thread has no error handler */
+    global_State *g = G(L);
+    L->status = cast_byte(errcode);  /* mark it as dead */
+    if (g->mainthread->errorJmp) {  /* main thread has a handler? */
+      setobjs2s(L, g->mainthread->top++, L->top - 1);  /* copy error obj. */
+      luaD_throw(g->mainthread, errcode);  /* re-throw in main thread */
+    }
+    else {  /* no handler at all; abort */
+      if (g->panic) {  /* panic function? */
+        seterrorobj(L, errcode, L->top);  /* assume EXTRA_STACK */
+        if (L->ci->top < L->top)
+          L->ci->top = L->top;  /* pushing msg. can break this invariant */
+        lua_unlock(L);
+        g->panic(L);  /* call panic function (last chance to jump out) */
+      }
+      abort();
+    }
+  }
+}
 ```
