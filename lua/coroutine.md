@@ -390,4 +390,99 @@ struct lua_State {
 };
 ```
 
+### 分配lua_State
+
+```c
+//@[lua_newstate]使用指定分配函数分配lua_State，参数ud是传给分配函数的参数
+lua_State* lua_newstate(lua_Alloc f, void* ud) {
+  int i;
+  lua_State *L;
+  global_State *g;
+  // alloc a LG struct: LG { LX { lu_byte [4]; lua_State l; }; global_State g; }
+  LG *l = cast(LG *, (*f)(ud, NULL, LUA_TTHREAD, sizeof(LG)));
+  if (l == NULL) return NULL;
+  L = &l->l.l;
+  g = &l->g;
+  L->next = NULL;
+  L->tt = LUA_TTHREAD;
+  g->currentwhite = bitmask(WHITE0BIT); 
+  L->marked = luaC_white(g);
+  // preinit_thread continue set lua state:
+  // 1. set L->l_G or G(L) pointer to global_State g
+  // 2. L->twups = L
+  // 3. L->allowhook = 1
+  // 4. L->nny = 1
+  // 5. L->status = LUA_OK
+  // 6. all others zero
+  preinit_thread(L, g);
+  g->frealloc = f;
+  g->ud = ud;
+  g->mainthread = L;
+  g->seed = makeseed(L);
+  g->gcrunning = 0;  /* no GC while building state */
+  g->GCestimate = 0;
+  g->strt.size = g->strt.nuse = 0;
+  g->strt.hash = NULL;
+  setnilvalue(&g->l_registry);
+  g->panic = NULL;
+  g->version = NULL;
+  g->gcstate = GCSpause;
+  g->gckind = KGC_NORMAL;
+  g->allgc = g->finobj = g->tobefnz = g->fixedgc = NULL;
+  g->sweepgc = NULL;
+  g->gray = g->grayagain = NULL;
+  g->weak = g->ephemeron = g->allweak = NULL;
+  g->twups = NULL;
+  g->totalbytes = sizeof(LG);
+  g->GCdebt = 0;
+  g->gcfinnum = 0;
+  g->gcpause = LUAI_GCPAUSE;
+  g->gcstepmul = LUAI_GCMUL;
+  for (i=0; i < LUA_NUMTAGS; i++) g->mt[i] = NULL;
+  // protected run f_luaopen(L, NULL)
+  if (luaD_rawrunprotected(L, f_luaopen, NULL) != LUA_OK) {
+    /* memory allocation error: free partial state */
+    close_state(L);
+    L = NULL;
+  }
+  // return new created lua state
+  return L;
+}
+lua_State* luaL_newstate(void) {
+  lua_State* L = lua_newstate(l_alloc, NULL); //使用默认分配函数分配lua_State
+  if (L) lua_atpanic(L, &panic);              //设置默认错误处理函数，错误发生时将错误信息打印到标准错误输出
+  return L;                                   //返回新分配的lua_State，分配失败则返回NULL
+}
+
+//@[lua_newthread]
+lua_State* lua_newthread (lua_State* L) {
+  global_State *g = G(L);
+  lua_State *L1;
+  lua_lock(L);
+  luaC_checkGC(L);
+  /* create new thread */
+  L1 = &cast(LX *, luaM_newobject(L, LUA_TTHREAD, sizeof(LX)))->l;
+  L1->marked = luaC_white(g);
+  L1->tt = LUA_TTHREAD;
+  /* link it on list 'allgc' */
+  L1->next = g->allgc;
+  g->allgc = obj2gco(L1);
+  /* anchor it on L stack */
+  setthvalue(L, L->top, L1);
+  api_incr_top(L);
+  preinit_thread(L1, g);
+  L1->hookmask = L->hookmask;
+  L1->basehookcount = L->basehookcount;
+  L1->hook = L->hook;
+  resethookcount(L1);
+  /* initialize L1 extra space */
+  memcpy(lua_getextraspace(L1), lua_getextraspace(g->mainthread),
+         LUA_EXTRASPACE);
+  luai_userstatethread(L, L1);
+  stack_init(L1, L);  /* init stack */
+  lua_unlock(L);
+  return L1;
+}
+```
+
 
