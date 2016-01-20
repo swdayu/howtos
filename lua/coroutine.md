@@ -351,14 +351,6 @@ print("main", true, 10, "end")  ==> main     true   10     end
 print("main", RESUME("x", "y")) ==> main     false  cannot resume dead coroutine
 ```
 
-## 通过C API使用协程
-
-```c
-lua_newthread
-lua_resume
-lua_yield
-```
-
 ## 协程结构体详解
 
 Lua中协程的类型是"thread"，因此Lua协程也称为线程，为避免混淆这里都称为协程。
