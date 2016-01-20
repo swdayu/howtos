@@ -361,4 +361,43 @@ lua_yield
 
 ## 协程结构体详解
 
+Lua中协程的类型是"thread"，因此Lua中协程也称为线程，它使用结构体lua_State进行表示。
+为避免混淆，这里一概称为协程，另外不翻译lua_State直接使用这个英文名称。
+
+结构体lua_State用于表示一个协程，并间接表示Lua解释器的整体状态。
+Lua提供的C函数都是可重入的，它没有全局变量，所有的信息都通过这个结构体访问。
+> An opaque structure that points to a thread and indirectly (through the thread) to the whole state of a Lua interpreter. 
+The Lua library is fully reentrant: it has no global variables. 
+All information about a state is accessible through this structure.
+
+```c
+//@[lua_State]
+typedef struct lua_State lua_State;
+struct lua_State {
+  CommonHeader;                  //可回收对象（GC对象）共用头部
+  unsigned short nci;            //调用信息链表（ci）元素个数
+  lu_byte status;                //当前协程状态
+  StkId top;                     //栈顶元素，栈第一个可用元素
+  global_State* l_G;             //指向协程共享的全局状态
+  CallInfo* ci;                  //当前函数的调用信息
+  const Instruction* oldpc;      //上次执行的最后一条指令
+  StkId stack_last;              //保留给Lua使用的额外空间[stack_last, stack+stacksize)
+  StkId stack;                   //栈首地址，可用栈空间[stack, stack_last) or ] ??? TODO
+  UpVal* openupval;              //栈中open上值列表
+  GCObject* gclist;
+  struct lua_State* twups;       //拥有open上值的协程列表
+  struct lua_longjmp* errorJmp;  //当前错误恢复点（error recover point）
+  CallInfo base_ci;              //TODO: CallInfo for first level (C calling Lua)
+  lua_Hook hook;
+  ptrdiff_t errfunc;             //当前错误处理函数的栈索引
+  int stacksize;                 //栈最大元素个数
+  int basehookcount;
+  int hookcount;
+  unsigned short nny;            //栈中non-yieldable调用深度
+  unsigned short nCcalls;        //栈中函数调用深度（函数调用包含non-yieldable调用，nCcalls >= nny）
+  lu_byte hookmask;
+  lu_byte allowhook;
+};
+```
+
 
