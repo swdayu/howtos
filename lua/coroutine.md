@@ -361,10 +361,8 @@ lua_yield
 
 ## 协程结构体详解
 
-Lua中协程的类型是"thread"，因此Lua中协程也称为线程，它使用结构体lua_State进行表示。
-为避免混淆，这里一概称为协程，另外不翻译lua_State直接使用这个英文名称。
-
-结构体lua_State用于表示一个协程，并间接表示Lua解释器的整体状态。
+Lua中协程的类型是"thread"，因此Lua协程也称为线程，为避免混淆这里都称为协程。
+结构体lua_State用于表示协程，并间接表示Lua解释器的整体状态。
 Lua提供的C函数都是可重入的，它没有全局变量，所有的信息都通过这个结构体访问。
 > An opaque structure that points to a thread and indirectly (through the thread) to the whole state of a Lua interpreter. 
 The Lua library is fully reentrant: it has no global variables. 
