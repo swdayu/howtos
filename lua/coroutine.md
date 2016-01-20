@@ -1,14 +1,5 @@
 
-# Lua协程
-
-```c
-typedef struct lua_State lua_State;
-```
-An opaque structure that points to a thread and indirectly (through the thread) to the 
-whole state of a Lua interpreter. The Lua library is fully reentrant: it has no global 
-variables. All information about a state is accessible through this structure.
-A pointer to this structure must be passed as the first argument to every function in 
-the library, except to lua_newstate, which creates a Lua state from scratch.
+# 协程
 
 Lua支持协程（也称为协作多线程，collaborative multithreading），每个协程像系统线程一样是独立运行的。
 不同于系统线程的自动调度，Lua协程要手动调用yield和resume来挂起和恢复。
@@ -21,7 +12,9 @@ Lua支持协程（也称为协作多线程，collaborative multithreading），�
 另外coroutine.wrap也用于创建新协程，不同的它返回用于resume协程的函数。
 更详细的信息参考下面的代码分析。
 
-## coroutine = require "coroutine"
+## 创建协程
+**coroutine = require "coroutine"**  
+**co = coroutine.create(luafn)**
 ```c
 //@[local coroutine = require "coroutine"]
 static const luaL_Reg co_funcs[] = {
@@ -38,10 +31,7 @@ int luaopen_coroutine (lua_State* L) {
   luaL_newlib(L, co_funcs); //创建并注册函数到新table中，保留table在栈顶作为结果
   return 1;                 //返回结果个数
 }
-```
 
-## co = coroutine.create(luafn)
-```c
 //@[local co = coroutine.create(luafn)]传入Lua函数作为主函数，返回新创建的协程（其类型为"thread"）
 static int luaB_cocreate(lua_State* L) {
   lua_State* NL;
@@ -53,7 +43,8 @@ static int luaB_cocreate(lua_State* L) {
 }
 ```
 
-## success, res1, ... = coroutine.resume(co [, val1, ...])
+## 启动协程
+**success, res1, ... = coroutine.resume(co [, val1, ...])**
 ```c
 //@[coroutine.resume(co [, val1, ...])]
 //如果协程第一次或重新从头开始执行，会调用协程的主函数，并传入val1,...作为主函数的参数
@@ -149,7 +140,8 @@ int lua_resume(lua_State* co, lua_State* from, int nargs) {
 }
 ```
 
-## val1, ... = coroutine.yield([res1, ...])
+## 挂起协程
+**val1, ... = coroutine.yield([res1, ...])**
 ```c
 //@[coroutine.yield([res1, ...])]
 //挂起当前执行的协程，传入的参数都返回给resume函数
@@ -213,7 +205,9 @@ l_noret luaD_throw (lua_State *L, int errcode) {
 }
 ```
 
-## resumef = coroutine.wrap(luafn); res1, ... = resumef([val1, ...])
+## 创建协程二
+**resumef = coroutine.wrap(luafn)**  
+**res1, ... = resumef([val1, ...])**
 ```c
 //@[coresume = coroutine.wrap(luafn), coresume([val1, ...])]
 //返回一个函数，用于resume在wrap中创建的协程
@@ -248,7 +242,21 @@ void luaL_where(lua_State* L, int level) { //获取Lua状态调用链ci中Level 
 }
 ```
 
-## yieldable = coroutine.isyieldable()
+## 获取当前运行协程
+**co, ismain = coroutine.running()**
+```c
+//@[coroutine.running()]返回当前运行的协程和一个布尔值表示当前运行的协程是否是主线程
+//> Returns the running coroutine plus a boolean, true when the running coroutine is the main one.
+static int luaB_corunning(lua_State* L) {
+  int ismain = lua_pushthread(L); //将当前L状态对应的线程压入栈顶，并返回一个整数表示这个线程是否是主线程
+  lua_pushboolean(L, ismain);     //将表示是否时主线程的整数当做布尔值压入栈顶
+  return 2;                       //返回结果个数2
+}
+```
+
+## 获取协程状态
+**yieldable = coroutine.isyieldable()**  
+**status_str = coroutine.status(co)**
 ```c
 //@[coroutine.isyieldable()]判断当前运行协程是否能yield
 //只要当前运行协程不是主线程，而且没有运行在non-yieldable调用链中，就能够yield
@@ -261,21 +269,7 @@ static int luaB_yieldable(lua_State* L) {
 int lua_isyieldable(lua_State* L) {
   return (L->nny == 0);
 }
-```
 
-## co, ismain = coroutine.running()
-```c
-//@[coroutine.running()]返回当前运行的协程和一个布尔值表示当前运行的协程是否是主线程
-//> Returns the running coroutine plus a boolean, true when the running coroutine is the main one.
-static int luaB_corunning(lua_State* L) {
-  int ismain = lua_pushthread(L); //将当前L状态对应的线程压入栈顶，并返回一个整数表示这个线程是否是主线程
-  lua_pushboolean(L, ismain);     //将表示是否时主线程的整数当做布尔值压入栈顶
-  return 2;                       //返回结果个数2
-}
-```
-
-## status_str = coroutine.status(co)
-```c
 //@[coroutine.status(co)]以字符串方式返回协程co当前的状态
 //"running", if the coroutine is running, the coroutine that called this status function
 //"suspended", if the coroutine is suspended in a call to yield, or if it has not started running yet
@@ -308,7 +302,7 @@ static int luaB_costatus(lua_State* L) {
 }
 ```
 
-## 考虑下面的例子
+## 协程示例
 ```lua
 function foo(a)
   print("foo", a)
@@ -364,4 +358,7 @@ lua_newthread
 lua_resume
 lua_yield
 ```
+
+## 协程结构体详解
+
 
