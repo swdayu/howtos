@@ -68,8 +68,7 @@ $ adb shell sendevent [device_path] [event_type] [event_code] [event_value]
 
 ```
 [Linux Kernel] --> [/dev/input/event0~n] -->
-
-            [InputManagerService]                   [WMS]
+    [IMS]                                        [WMS]
     ----------------------------------------     ----------                        [View 1]
 --> [EventHub][InputReader][InputDispatcher] --> [Window 1] --> [ViewRootImpl] --> [View 2]
                   /|            /|                  ...                              ...
