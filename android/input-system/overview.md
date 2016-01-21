@@ -73,7 +73,7 @@ $ adb shell sendevent [device_path] [event_type] [event_code] [event_value]
 ```
 [Linux Kernel] --> [/dev/input/event0~n] -->
 
-            [InputManageService]                   [WMS]
+            [InputManagerService]                   [WMS]
     ----------------------------------------     ----------                        [View 1]
 --> [EventHub][InputReader][InputDispatcher] --> [Window 1] --> [ViewRootImpl] --> [View 2]
                   /|            /|                  ...                              ...
@@ -97,3 +97,14 @@ InputDispatcher是IMS中的另一个关键组件，它也运行在一个独立�
 HOME键被InputDispatcherPolicy截取到PhoneWindowManager中进行处理，并阻止窗口收到HOME
 键的按键事件。
 
+窗口管理服务（WMS）虽然不是输入系统的一部分，但它对InputDispatcher的正常工作起到了至关重要的作用。
+当新窗口创建时，WMS为新窗口和IMS创建了事件传递所用的通道。另外，WMS还将所有窗口的信息，包括窗口的
+可点击区域、焦点窗口等信息，实时地更新到IMS的InputDispatcher中，使得InputDispatcher可以正确地将
+事件派发到指定的窗口。对某些窗口，如壁纸窗口、SurfaceView的窗口，窗口就是输入事件派发的终点。而对
+其他如Activity、对话框等使用了Android控件系统的窗口来说，输入事件的终点是控件（View）。ViewRootImpl
+将窗口所接收的输入事件沿着控件树将事件派发给感兴趣的控件。
+
+简单的说，InputReader的线程不断的从EventHub中抽取原始输入事件进行加工处理，然后将处理好的事件放入
+InputDispatcher的派发队列中。InputDispatcher则在其线程循环中将派发队列中的事迹取出，查找合适的窗口，
+将事件写入窗口的事件接收管道中。窗口事件接收线程的Looper从管道中将事件取出，交由事件处理函数进行事件
+响应。整个过程共有三个线程首尾相接，像三台水泵一样一层层地将事件交付给事件处理函数。
