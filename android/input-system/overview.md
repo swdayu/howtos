@@ -1,5 +1,9 @@
 
 ## Android输入系统
+- https://www.kernel.org/doc/Documentation/hid/uhid.txt
+- https://www.kernel.org/doc/Documentation/input/input.txt
+- https://source.android.com/devices/input/overview.html
+- https://dvdhrm.wordpress.com/2012/07/16/uhid-user-space-hid-io-drivers/
 
 所涉及的源代码文件
 - SystemServer.java
