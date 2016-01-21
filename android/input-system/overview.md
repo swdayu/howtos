@@ -1,5 +1,5 @@
 
-## 深入理解Android输入系统
+## Android输入系统
 
 所涉及的源代码文件
 - SystemServer.java
