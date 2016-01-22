@@ -8,7 +8,7 @@ struct skynet_module {
   const char* name;          //服务的名称
   void* module;              //服务对应的动态库加载后的句柄
   skynet_dl_create create;   //用于创建服务实例：void* (*)(void)
-  skynet_dl_init init;       //用于初始化服务实例：int (*)(void* inst, skynet_context* ctx, const char* parm)
+  skynet_dl_init init;       //用于初始化服务实例：int (*)(void* inst, skynet_context* ctx, parm)
   skynet_dl_release release; //用于释放服务实例：void (*)(void* inst)
   skynet_dl_signal signal;   //用于发送signal：void (*)(void* inst, int signal)
 };
