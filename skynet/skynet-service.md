@@ -24,3 +24,13 @@ init函数来创建和初始化服务实例，另外与服务对应的模块、�
 
 Skynet为服务的定义提供了最底层的基础设施，这些基础设施都定义在skynet_server.c源文件中。
 
+调用skynet_callback(ctx, ud, cb)可以设置服务的消息处理函数和处理函数的参数，当工作线程处理所有消息队列中的
+消息时，会调用对应服务的消息处理函数，将发给该服务的消息传递给服务处理，参见dispatch_message函数中调用：
+`ctx->cb(ctx, ctx->cb_ud, type, msg->session, msg->source, msg->data, sz)`。
+```c
+void skynet_callback(struct skynet_context* context, void* ud, skynet_cb cb) {
+	context->cb = cb;    //设置服务的消息处理函数
+	context->cb_ud = ud; //设置服务消息处理函数的参数
+}
+```
+
