@@ -32,3 +32,15 @@ Epoll机制的接口只有三个函数，十分简单。epoll_create(max_fds)创
 epoll对象可以监听的描述符的最大数量。epoll_ctl(epfd, op, fd, *event)用于添加/删除/修改要监听的描述符。
 epoll_wait(epfd, *events, maxevents, timeout)用于等待事件到来，当此函数返回时，events数组中将会包含
 产生事件的文件描述符。
+
+
+## 基本流程
+
+InputReader被InputManager创建后就运行于InputReaderThread线程中。InputReader的一次线程循环的工作非常清晰，
+一共三步：首先从EventHub中抽取未处理的事件列表，这些事件分为两类，一类是从设备节点中读取原始输入事件，另一
+类则是输入设备可用性变化事件，成为设备事件；通过processEventsLocked对事件进行处理，对于设备事件此函数根据
+设备的可用性加载或删除设备对应的配置信息。对于原始输入事件，则在转译、封装与加工后将结果暂存到mQueueLinstener中；
+所有事件处理完毕后，调用mQueueListener.flush将所有暂存的输入事件一次性地交付给InputDispatcher。
+
+EventHub是输入系统最底层的一个组件，它基于INotify和Epoll实现。在EventHub的构造函数中，通过INotify与Epoll
+机制建立起对设备节点增删事件以及可读状态的监听。
