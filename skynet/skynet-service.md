@@ -65,5 +65,34 @@ static const char* cmd_timeout(skynet_context* context, const char* param) {
   sprintf(context->result, "%d", session);
   return context->result;
 }
-```
 
+//@[cmd_reg]为服务注册一个名称：如果传入的名称param为空，则注册名称":hex_str_of_service_handle"到ctx->result中；
+//如果名称以字符点（.）开头，表示该服务名称属于当前skynet节点，最后服务的handle-name对被添加到数组H->name中；
+//否则报错，不能C中注册一个全局名称；最后返回注册后的名称或NULL
+static const char* cmd_reg(skynet_context* context, const char* param) {
+  if (param == NULL || param[0] == '\0') {
+    sprintf(context->result, ":%x", context->handle);
+    return context->result;
+  } else if (param[0] == '.') {
+    return skynet_handle_namehandle(context->handle, param + 1);
+  } else {
+    skynet_error(context, "Can't register global name %s in C", param);
+    return NULL;
+  }
+}
+
+//@[cmd_query]查找名称为param的服务的handle，并将字符串":hex_str_of_service_handle"注册到ctx->result中；
+//传入的param必须以字符点（.）开头，对应名称的服务必须存在；最后返回注册的字符串或NULL
+static const char* cmd_query(skynet_context* context, const char* param) {
+  if (param[0] == '.') {
+    uint32_t handle = skynet_handle_findname(param+1);
+    if (handle) {
+      sprintf(context->result, ":%x", handle);
+      return context->result;
+    }
+  }
+  return NULL;
+}
+
+
+```
