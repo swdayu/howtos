@@ -94,5 +94,59 @@ static const char* cmd_query(skynet_context* context, const char* param) {
   return NULL;
 }
 
+//@[cmd_name]将param里面的name-handle对".service_name :hex_str_of_service_handle"注册到数组H->name中；
+//最后返回注册后的名称".service_name"，或传入param的格式不对则返回NULL
+static const char* cmd_name(skynet_context* context, const char* param) {
+  int size = strlen(param);
+  char name[size+1];
+  char handle[size+1];
+  sscanf(param,"%s %s",name,handle);
+  if (handle[0] != ':') {
+    return NULL;
+  }
+  uint32_t handle_id = strtoul(handle+1, NULL, 16);
+  if (handle_id == 0) {
+    return NULL;
+  }
+  if (name[0] == '.') {
+    return skynet_handle_namehandle(handle_id, name + 1);
+  } else {
+    skynet_error(context, "Can't set global name %s in C", name);
+  }
+  return NULL;
+}
 
+//@[cmd_kill]杀掉指定名称的服务，传入的名称param可以是形如":hex_str_of_service_handle"或".service_name"的字符串
+static const char* cmd_kill(skynet_context* context, const char* param) {
+  uint32_t handle = tohandle(context, param);
+  if (handle) {
+    handle_exit(context, handle);
+  }
+  return NULL;
+}
+
+//@[cmd_exit]杀掉服务context自身，参数param没有使用
+static const char* cmd_exit(skynet_context* context, const char* param) {
+  handle_exit(context, 0);
+  return NULL;
+}
+
+//@[cmd_launch]创建一个制定名称的服务实例，参数param的格式为"service_name init_args"，
+//用于传入服务的名称以及传递给服务初始化函数init的参数，如果创建失败则返回NULL；
+//如果创建成功，将字符串":hex_str_of_service_handle"注册到context->result，最后返回注册的字符串
+static const char* cmd_launch(skynet_context* context, const char* param) {
+  size_t sz = strlen(param);
+  char tmp[sz+1];
+  strcpy(tmp, param);
+  char* args = tmp;
+  char* mod = strsep(&args, " \t\r\n");
+  args = strsep(&args, "\r\n");
+  struct skynet_context* inst = skynet_context_new(mod, args);
+  if (inst == NULL) {
+    return NULL;
+  } else {
+    id_to_hex(context->result, inst->handle);
+    return context->result;
+  }
+}
 ```
