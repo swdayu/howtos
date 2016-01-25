@@ -54,6 +54,7 @@ ctx->cb(ctx, ctx->cb_ud, type, msg->session, msg->source, msg->data, sz);
 
 ## 服务命令
 
+```c
 //@[cmd_timeout]添加一个context服务的计时器，返回消息session号对应的字符串
 //计时器的超时时间通过字符串param传入，当计时器超时后，框架会发送一条消息给context对应的服务
 static const char* cmd_timeout(skynet_context* context, const char* param) {
@@ -64,3 +65,5 @@ static const char* cmd_timeout(skynet_context* context, const char* param) {
   sprintf(context->result, "%d", session);
   return context->result;
 }
+```
+
