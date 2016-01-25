@@ -116,21 +116,6 @@ static const char* cmd_name(skynet_context* context, const char* param) {
   return NULL;
 }
 
-//@[cmd_kill]杀掉指定名称的服务，传入的名称param可以是形如":hex_str_of_service_handle"或".service_name"的字符串
-static const char* cmd_kill(skynet_context* context, const char* param) {
-  uint32_t handle = tohandle(context, param);
-  if (handle) {
-    handle_exit(context, handle);
-  }
-  return NULL;
-}
-
-//@[cmd_exit]杀掉服务context自身，参数param没有使用
-static const char* cmd_exit(skynet_context* context, const char* param) {
-  handle_exit(context, 0);
-  return NULL;
-}
-
 //@[cmd_launch]创建一个制定名称的服务实例，参数param的格式为"service_name init_args"，
 //用于传入服务的名称以及传递给服务初始化函数init的参数，如果创建失败则返回NULL；
 //如果创建成功，将字符串":hex_str_of_service_handle"注册到context->result，最后返回注册的字符串
@@ -148,5 +133,88 @@ static const char* cmd_launch(skynet_context* context, const char* param) {
     id_to_hex(context->result, inst->handle);
     return context->result;
   }
+}
+
+//@[cmd_getenv]获取环境变量字符串对应的值，这些环境变量保存在skynet的全局环境中的lua_State（E->L）的全局变量中
+static const char* cmd_getenv(skynet_context* context, const char* param) {
+  return skynet_getenv(param);
+}
+
+//@[cmd_setenv]设置环境变量键值对设置到skynet的全局环境中（E->L），传入的参数param的格式为"key value"
+static const char* cmd_setenv(skynet_context* context, const char* param) {
+  size_t sz = strlen(param);
+  char key[sz+1];
+  int i;
+  for (i=0; param[i] != ' ' && param[i]; i++) {
+    key[i] = param[i];
+  }
+  if (param[i] == '\0')
+    return NULL;
+  key[i] = '\0';
+  param += i+1;
+  skynet_setenv(key, param);
+  return NULL;
+}
+
+//@[cmd_starttime]获取skynet启动的时间，以秒为单位，返回的结果保存在context->result字符中
+static const char* cmd_starttime(skynet_context* context, const char* param) {
+  uint32_t sec = skynet_starttime();
+  sprintf(context->result, "%u", sec);
+  return context->result;
+}
+
+//@[cmd_endless]获取当前的服务是否为endless，返回的结果保存在context->result中
+//如果当前服务为endless则获取后将endless设为false，如果当前服务不处于endless状态则返回NULL
+static const char* cmd_endless(skynet_context* context, const char* param) {
+  if (context->endless) {
+    strcpy(context->result, "1");
+    context->endless = false;
+    return context->result;
+  }
+  return NULL;
+}
+
+//@[cmd_kill]杀掉指定名称的服务，传入的名称param可以是形如":hex_str_of_service_handle"或".service_name"的字符串
+static const char* cmd_kill(skynet_context* context, const char* param) {
+  uint32_t handle = tohandle(context, param);
+  if (handle) {
+    handle_exit(context, handle);
+  }
+  return NULL;
+}
+
+//@[cmd_exit]杀掉服务context自身，参数param没有使用
+static const char* cmd_exit(skynet_context* context, const char* param) {
+  handle_exit(context, 0);
+  return NULL;
+}
+
+//@[cmd_abort]杀死当前skynet节点所有的服务
+static const char* cmd_abort(skynet_context* context, const char* param) {
+  skynet_handle_retireall();
+  return NULL;
+}
+
+//@[cmd_mqlen]获取服务消息队列中的消息个数，返回的结果保存在context->result中
+static const char* cmd_mqlen(skynet_context* context, const char* param) {
+  int len = skynet_mq_length(context->queue);
+  sprintf(context->result, "%d", len);
+  return context->result;
+}
+
+static const char* cmd_monitor(skynet_context* context, const char* param) {
+  uint32_t handle=0;
+  if (param == NULL || param[0] == '\0') {
+    if (G_NODE.monitor_exit) {
+      // return current monitor serivce
+      sprintf(context->result, ":%x", G_NODE.monitor_exit);
+      return context->result;
+    }
+    return NULL;
+  } else {
+    handle = tohandle(context, param);
+  }
+  G_NODE.monitor_exit = handle;
+  return NULL;
 }
 ```
