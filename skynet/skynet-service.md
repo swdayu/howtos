@@ -24,11 +24,22 @@ init函数来创建和初始化服务实例，另外与服务对应的模块、�
 
 Skynet为服务的定义提供了最底层的基础设施，这些基础设施都定义在skynet_server.c源文件中。
 
-## 消息发送
+## 发送消息
 
-## 消息处理
+通过调用函数skynet_send或skynet_sendname，一个服务可以发送一条消息给另一个服务。
+发送消息的一方称为源服务，即src_hdl对应的服务，如果src_hdl为0则源服务是ctx服务自身；
+接收消息的一方称为目标服务，即dest_hdl或dest_name对应的服务，目标服务的句柄和名称不能为0，否则会错误返回不发送消息。
+消息的内容包括消息的类型msg_type、消息会话msg_session、消息数据msg_data、以及消息的长度msg_sz。
+其中session是发送方对消息的唯一标识，接收方收到消息后响应这条消息必须将session带回，使发送方知道响应的是哪条消息。
+Session是一个非负整数，当服务的消息不需要回复时，可以使用0作为消息的session号。
+```c
+int skynet_send(skynet_context* ctx, src_hdl, dest_hdl, msg_type, msg_session, msg_data, msg_sz);
+int skynet_sendname(skynet_context* ctx, src_hdl, dest_name, msg_type, msg_session, msg_data, msg_sz);
+```
 
-调用skynet_callback(ctx, ud, cb)可以设置服务的消息处理函数和处理函数的参数。
+## 处理消息
+
+调用skynet_callback(ctx, ud, cb)可以设置服务的消息处理函数和参数。
 ```c
 void skynet_callback(struct skynet_context* context, void* ud, skynet_cb cb) {
 	context->cb = cb;    //设置服务的消息处理函数
@@ -40,3 +51,16 @@ void skynet_callback(struct skynet_context* context, void* ud, skynet_cb cb) {
 ```c
 ctx->cb(ctx, ctx->cb_ud, type, msg->session, msg->source, msg->data, sz);
 ```
+
+## 服务命令
+
+//@[cmd_timeout]添加一个context服务的计时器，返回消息session号对应的字符串
+//计时器的超时时间通过字符串param传入，当计时器超时后，框架会发送一条消息给context对应的服务
+static const char* cmd_timeout(skynet_context* context, const char* param) {
+  char* session_ptr = NULL;
+  int ti = strtol(param, &session_ptr, 10);
+  int session = skynet_context_newsession(context);
+  skynet_timeout(context->handle, ti, session);
+  sprintf(context->result, "%d", session);
+  return context->result;
+}
