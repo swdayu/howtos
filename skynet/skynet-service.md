@@ -217,4 +217,62 @@ static const char* cmd_monitor(skynet_context* context, const char* param) {
   G_NODE.monitor_exit = handle;
   return NULL;
 }
+
+static const char* cmd_logon(skynet_context* context, const char* param) {
+  uint32_t handle = tohandle(context, param);
+  if (handle == 0)
+    return NULL;
+  struct skynet_context* ctx = skynet_handle_grab(handle);
+  if (ctx == NULL)
+    return NULL;
+  FILE* f = NULL;
+  FILE* lastf = ctx->logfile;
+  if (lastf == NULL) {
+    f = skynet_log_open(context, handle);
+    if (f) {
+      if (!ATOM_CAS_POINTER(&ctx->logfile, NULL, f)) {
+        // logfile opens in other thread, close this one.
+        fclose(f);
+      }
+    }
+  }
+  skynet_context_release(ctx);
+  return NULL;
+}
+
+static const char* cmd_logoff(skynet_context* context, const char* param) {
+  uint32_t handle = tohandle(context, param);
+  if (handle == 0)
+    return NULL;
+  struct skynet_context * ctx = skynet_handle_grab(handle);
+  if (ctx == NULL)
+    return NULL;
+  FILE* f = ctx->logfile;
+  if (f) {
+    // logfile may close in other thread
+    if (ATOM_CAS_POINTER(&ctx->logfile, f, NULL)) {
+      skynet_log_close(context, f, handle);
+    }
+  }
+  skynet_context_release(ctx);
+  return NULL;
+}
+
+static const char* cmd_signal(skynet_context* context, const char* param) {
+  uint32_t handle = tohandle(context, param);
+  if (handle == 0)
+    return NULL;
+  struct skynet_context* ctx = skynet_handle_grab(handle);
+  if (ctx == NULL)
+    return NULL;
+  param = strchr(param, ' ');
+  int sig = 0;
+  if (param) {
+    sig = strtol(param, NULL, 0);
+  }
+  // NOTICE: the signal function should be thread safe.
+  skynet_module_instance_signal(ctx->mod, ctx->instance, sig);
+  skynet_context_release(ctx);
+  return NULL;
+}
 ```
