@@ -1,4 +1,75 @@
 
+# 调用转换
+
+Lua定义了一套规则完成Lua函数到C的调用，它首先将要调用的C函数放入栈中，并将C函数的参数
+也依次放入栈中，然后执行C函数，C函数执行完后返回的结果也通过栈传递给Lua。也可以说Lua只
+能调用满足规则的C函数，要在Lua中调到普通C函数，它们之间必须经过一次调用转换。首先在Lua
+中调用满足规则的C函数，然后这些C函数再去调用普通C函数。
+
+要在Lua中使用skynet的功能，需要先定义一个中间层完成调用转换，源文件lua-skynet.c即完成
+这个功能，它定义一组满足规则的C函数，然后打包成Lua可以访问的动态库模块给Lua使用。
+这些C函数专供Lua调用，并在函数内部调用底层普通的C函数完成实际的功能。
+
+```c
+//@[_send]给指定服务发送消息
+static int _send(lua_State *L) {
+  struct skynet_context * context = lua_touserdata(L, lua_upvalueindex(1));
+  uint32_t dest = (uint32_t)lua_tointeger(L, 1);
+  const char * dest_string = NULL;
+  if (dest == 0) {
+    if (lua_type(L,1) == LUA_TNUMBER) {
+      return luaL_error(L, "Invalid service address 0");
+    }
+    dest_string = get_dest_string(L, 1);
+  }
+  int type = luaL_checkinteger(L, 2);
+  int session = 0;
+  if (lua_isnil(L,3)) {
+    type |= PTYPE_TAG_ALLOCSESSION;
+  } else {
+    session = luaL_checkinteger(L,3);
+  }
+  int mtype = lua_type(L,4);
+  switch (mtype) {
+  case LUA_TSTRING: {
+    size_t len = 0;
+    void * msg = (void *)lua_tolstring(L,4,&len);
+    if (len == 0) {
+      msg = NULL;
+    }
+    if (dest_string) {
+      session = skynet_sendname(context, 0, dest_string, type, session , msg, len);
+    } else {
+      session = skynet_send(context, 0, dest, type, session , msg, len);
+    }
+    break;
+  }
+  case LUA_TLIGHTUSERDATA: {
+    void * msg = lua_touserdata(L,4);
+    int size = luaL_checkinteger(L,5);
+    if (dest_string) {
+      session = skynet_sendname(context, 0, dest_string, type | PTYPE_TAG_DONTCOPY, session, msg, size);
+    } else {
+      session = skynet_send(context, 0, dest, type | PTYPE_TAG_DONTCOPY, session, msg, size);
+    }
+    break;
+  }
+  default:
+    luaL_error(L, "skynet.send invalid param %s", lua_typename(L, lua_type(L,4)));
+  }
+  if (session < 0) {
+    // send to invalid address
+    // todo: maybe throw an error would be better
+    return 0;
+  }
+  lua_pushinteger(L,session);
+  return 1;
+}
+```
+
+
+
+
 ```c
 //@[luaopen_skynet_core] skynet.core open function defined in lua-skynet.c
 int luaopen_skynet_core(lua_State* L) {
