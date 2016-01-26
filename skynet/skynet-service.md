@@ -316,3 +316,57 @@ const char* skynet_command(skynet_context* context, const char* cmd, const char*
   return NULL;
 }
 ```
+
+# Logger服务
+
+Logger服务是skynet节点启动的第一个服务，用于接收和处理服务发给它的skynet_error信息。
+Logger服务定义在service_logger.c源文件中，服务的定义必须实现skynet_module定义的相关函数接口。
+
+Logger服务的创建
+```c
+//@[logger_create]分配并初始化Logger服务的结构体
+struct logger* logger_create(void) {
+  struct logger* inst = skynet_malloc(sizeof(*inst));
+  inst->handle = NULL;
+  inst->close = 0;
+  return inst;
+}
+```
+
+Logger服务的初始化
+```c
+//@[logger_init]传给init函数的参数parm必须是一个文件路径或为空
+//根据传入的log文件路径，打开log文件或将log输出到标准输出
+//为Logger服务设置消息处理函数_logger，并为Logger服务注册一个名称".looger"
+//消息处理函数_logger将指定消息打印到log文件中或标准输出
+//函数如果执行成功则返回0，否则返回1
+int logger_init(struct logger* inst, skynet_context* ctx, const char* parm) {
+  if (parm) {
+    inst->handle = fopen(parm, "w");
+    if (inst->handle == NULL) {
+      return 1;
+    }
+    inst->close = 1;
+  } else {
+    inst->handle = stdout;
+  }
+  if (inst->handle) {
+    skynet_callback(ctx, inst, _logger);
+    skynet_command(ctx, "REG", ".logger");
+    return 0;
+  }
+  return 1;
+}
+```
+
+Logger服务的释放
+```c
+void logger_release(struct logger* inst) {
+  if (inst->close) {
+    fclose(inst->handle);
+  }
+  skynet_free(inst);
+}
+```
+
+
