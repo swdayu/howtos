@@ -202,6 +202,10 @@ static const char* cmd_mqlen(skynet_context* context, const char* param) {
   return context->result;
 }
 
+//@[cmd_monitor]将指定服务名称的handle设置到G_NODE.monitor_exit，或获取当前的monitor_exit
+//如果param为空，monitor_exit已经设置的话将结果保存在context->result中返回，否则返回NULL；
+//如果param指定了形如":hex_str_of_service_handle"或".service_name"的服务名称，
+//找到对应服务的handle赋给monitor_exit并返回NULL
 static const char* cmd_monitor(skynet_context* context, const char* param) {
   uint32_t handle=0;
   if (param == NULL || param[0] == '\0') {
@@ -218,6 +222,7 @@ static const char* cmd_monitor(skynet_context* context, const char* param) {
   return NULL;
 }
 
+//@[cmd_logon]将指定服务名称的logfile打开
 static const char* cmd_logon(skynet_context* context, const char* param) {
   uint32_t handle = tohandle(context, param);
   if (handle == 0)
@@ -240,6 +245,7 @@ static const char* cmd_logon(skynet_context* context, const char* param) {
   return NULL;
 }
 
+//@[cmd_logoff]关闭指定服务名称的logfile
 static const char* cmd_logoff(skynet_context* context, const char* param) {
   uint32_t handle = tohandle(context, param);
   if (handle == 0)
@@ -258,6 +264,8 @@ static const char* cmd_logoff(skynet_context* context, const char* param) {
   return NULL;
 }
 
+//@[cmd_signal]调用服务定义的signal函数发送指定的signal
+//传入的param的参数格式为":hex_str_of_service_handle signal_number"或者".service_name signal_number"
 static const char* cmd_signal(skynet_context* context, const char* param) {
   uint32_t handle = tohandle(context, param);
   if (handle == 0)
