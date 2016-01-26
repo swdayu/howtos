@@ -68,6 +68,17 @@ static int _send(lua_State *L) {
   lua_pushinteger(L,session);                 //否则将消息session号压入栈中，并返回1表示该函数返回一个结果
   return 1;
 }
+
+
+//@[_genid]生成一个消息session号并返回
+static int _genid(lua_State* L) {
+	struct skynet_context* context = lua_touserdata(L, lua_upvalueindex(1));
+	int session = skynet_send(context, 0, 0, PTYPE_TAG_ALLOCSESSION , 0 , NULL, 0);
+	lua_pushinteger(L, session); //将生成的session好压入栈中
+	return 1;                    //返回1表示有一个结果返回
+}
+
+
 ```
 
 
