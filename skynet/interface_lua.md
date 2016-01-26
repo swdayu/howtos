@@ -27,7 +27,7 @@ static int _send(lua_State *L) {
   }
   int type = luaL_checkinteger(L, 2);           //获取消息的类型
   int session = 0;
-  if (lua_isnil(L,3)) {                         //如果没有指定消息的session号
+  if (lua_isnil(L,3)) {                         //如果传入的session为nil
     type |= PTYPE_TAG_ALLOCSESSION;             //则设置一个标记表示自动分配session号
   } else {
     session = luaL_checkinteger(L,3);           //否则以整数的形式获取到消息的session好
@@ -69,6 +69,49 @@ static int _send(lua_State *L) {
   return 1;
 }
 
+//@[_redirect]从源服务发送指定消息给目标服务
+//栈中的参数：src_hdl dest_hdl type session content_type (msg_string | msg_data msg_sz)
+//另外与_send不同的是，该函数不会自动生成消息session号，需要明确指定
+static int _redirect(lua_State* L) {
+	struct skynet_context* context = lua_touserdata(L, lua_upvalueindex(1));
+	uint32_t dest = (uint32_t)lua_tointeger(L,1);
+	const char* dest_string = NULL;
+	if (dest == 0) {
+	  dest_string = get_dest_string(L, 1);
+	}
+	uint32_t source = (uint32_t)luaL_checkinteger(L,2);
+	int type = luaL_checkinteger(L,3);
+	int session = luaL_checkinteger(L,4);
+	int mtype = lua_type(L,5);
+	switch (mtype) {
+	case LUA_TSTRING: {
+	  size_t len = 0;
+	  void * msg = (void *)lua_tolstring(L,5,&len);
+	  if (len == 0) {
+	    msg = NULL;
+	  }
+	  if (dest_string) {
+	    session = skynet_sendname(context, source, dest_string, type, session , msg, len);
+	  } else {
+	    session = skynet_send(context, source, dest, type, session , msg, len);
+	  }
+	  break;
+	}
+	case LUA_TLIGHTUSERDATA: {
+	  void * msg = lua_touserdata(L,5);
+	  int size = luaL_checkinteger(L,6);
+	  if (dest_string) {
+	    session = skynet_sendname(context, source, dest_string, type | PTYPE_TAG_DONTCOPY, session, msg, size);
+	  } else {
+	    session = skynet_send(context, source, dest, type | PTYPE_TAG_DONTCOPY, session, msg, size);
+	  }
+	  break;
+	}
+	default:
+	  luaL_error(L, "skynet.redirect invalid param %s", lua_typename(L,mtype));
+	}
+	return 0;
+}
 
 //@[_genid]生成一个消息session号并返回
 static int _genid(lua_State* L) {
