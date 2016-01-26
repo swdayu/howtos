@@ -12,64 +12,60 @@ Lua定义了一套规则完成Lua函数到C的调用，它首先将要调用的C
 
 ```c
 //@[_send]给指定服务发送消息
+//栈中的参数：dest_hdl type session content_type (msg_string | msg_data msg_sz)
 static int _send(lua_State *L) {
-  struct skynet_context * context = 
-    lua_touserdata(L, lua_upvalueindex(1));
-  uint32_t dest = (uint32_t)lua_tointeger(L, 1);
+  struct skynet_context* context = 
+    lua_touserdata(L, lua_upvalueindex(1));      //TODO 获取当前服务的context
+  uint32_t dest = (uint32_t)lua_tointeger(L, 1); //以整数形式获取目标服务的句柄
   const char* dest_str = NULL;
-  if (dest == 0) {
-    if (lua_type(L,1) == LUA_TNUMBER) {
+  if (dest == 0) {                               //如果目标服务的句柄获取失败
+    if (lua_type(L,1) == LUA_TNUMBER) {          //且它的类型为整型，则报错并返回
       return luaL_error(L, 
         "Invalid service address 0");
     }
-    dest_str = get_dest_string(L, 1);
+    dest_str = get_dest_string(L, 1);           //否则以字符串的形式获取目标服务的句柄
   }
-  int type = luaL_checkinteger(L, 2);
+  int type = luaL_checkinteger(L, 2);           //获取消息的类型
   int session = 0;
-  if (lua_isnil(L,3)) {
-    type |= PTYPE_TAG_ALLOCSESSION;
+  if (lua_isnil(L,3)) {                         //如果没有指定消息的session号
+    type |= PTYPE_TAG_ALLOCSESSION;             //则设置一个标记表示自动分配session号
   } else {
-    session = luaL_checkinteger(L,3);
+    session = luaL_checkinteger(L,3);           //否则以整数的形式获取到消息的session好
   }
-  int mtype = lua_type(L,4);
+  int mtype = lua_type(L,4);                    //获取消息内容的类型
   switch (mtype) {
-  case LUA_TSTRING: {
+  case LUA_TSTRING: {                           //如果消息的内容是字符串
     size_t len = 0;
-    void * msg = (void *)lua_tolstring(L,4,&len);
-    if (len == 0) {
+    void* msg = (void*)lua_tolstring(L,4,&len); //获取这个字符串以及长度
+    if (len == 0) {                             //如果自负长长度为0，则将字符串设为空
       msg = NULL;
     }
-    if (dest_str) {
-      session = skynet_sendname(context, 0, 
-        dest_str, type, session , msg, len);
-    } else {
-      session = skynet_send(context, 0, 
-        dest, type, session , msg, len);
+    if (dest_str) {                             //如果目标服务句柄以字符串形式给出则调用skynet_sendname发送消息
+      session = skynet_sendname(context, 0, dest_str, type, session , msg, len);
+    } else {                                    //否则调用skynet_send发送这个消息
+      session = skynet_send(context, 0, dest, type, session , msg, len);
     }
     break;
   }
-  case LUA_TLIGHTUSERDATA: {
-    void * msg = lua_touserdata(L,4);
-    int size = luaL_checkinteger(L,5);
-    if (dest_str) {
-      session = skynet_sendname(context, 0, dest_str, 
-      type | PTYPE_TAG_DONTCOPY, session, msg, size);
-    } else {
-      session = skynet_send(context, 0, dest, 
-      type | PTYPE_TAG_DONTCOPY, session, msg, size);
+  case LUA_TLIGHTUSERDATA: {                   //如果消息的内容为轻量用户数据
+    void* msg = lua_touserdata(L,4);           //获取这个消息的数据指针
+    int size = luaL_checkinteger(L,5);         //获取消息内容的长度
+    if (dest_str) {                            //如果目标服务句柄以字符串的形式给出则调用skynet_sendname发送消息
+      session = skynet_sendname(context, 0, dest_str, type | PTYPE_TAG_DONTCOPY, session, msg, size);
+    } else {                                   //否则调用skynet_send发送消息
+      session = skynet_send(context, 0, dest, type | PTYPE_TAG_DONTCOPY, session, msg, size);
     }
     break;
   }
-  default:
-    luaL_error(L, "skynet.send invalid param %s", 
-      lua_typename(L, lua_type(L,4)));
+  default:                                     //否则消息内容的类型错误，抛出异常
+    luaL_error(L, "skynet.send invalid param %s", lua_typename(L, lua_type(L,4)));
   }
-  if (session < 0) {
+  if (session < 0) {                           //如果消息发送出错，则返回0表示该函数的没有结果返回
     // send to invalid address
     // todo: maybe throw an error would be better
     return 0;
   }
-  lua_pushinteger(L,session);
+  lua_pushinteger(L,session);                 //否则将消息session号压入栈中，并返回1表示该函数返回一个结果
   return 1;
 }
 ```
