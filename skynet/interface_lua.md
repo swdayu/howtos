@@ -13,14 +13,16 @@ Lua定义了一套规则完成Lua函数到C的调用，它首先将要调用的C
 ```c
 //@[_send]给指定服务发送消息
 static int _send(lua_State *L) {
-  struct skynet_context * context = lua_touserdata(L, lua_upvalueindex(1));
+  struct skynet_context * context = 
+    lua_touserdata(L, lua_upvalueindex(1));
   uint32_t dest = (uint32_t)lua_tointeger(L, 1);
-  const char * dest_string = NULL;
+  const char* dest_str = NULL;
   if (dest == 0) {
     if (lua_type(L,1) == LUA_TNUMBER) {
-      return luaL_error(L, "Invalid service address 0");
+      return luaL_error(L, 
+        "Invalid service address 0");
     }
-    dest_string = get_dest_string(L, 1);
+    dest_str = get_dest_string(L, 1);
   }
   int type = luaL_checkinteger(L, 2);
   int session = 0;
@@ -37,25 +39,30 @@ static int _send(lua_State *L) {
     if (len == 0) {
       msg = NULL;
     }
-    if (dest_string) {
-      session = skynet_sendname(context, 0, dest_string, type, session , msg, len);
+    if (dest_str) {
+      session = skynet_sendname(context, 0, 
+        dest_str, type, session , msg, len);
     } else {
-      session = skynet_send(context, 0, dest, type, session , msg, len);
+      session = skynet_send(context, 0, 
+        dest, type, session , msg, len);
     }
     break;
   }
   case LUA_TLIGHTUSERDATA: {
     void * msg = lua_touserdata(L,4);
     int size = luaL_checkinteger(L,5);
-    if (dest_string) {
-      session = skynet_sendname(context, 0, dest_string, type | PTYPE_TAG_DONTCOPY, session, msg, size);
+    if (dest_str) {
+      session = skynet_sendname(context, 0, dest_str, 
+      type | PTYPE_TAG_DONTCOPY, session, msg, size);
     } else {
-      session = skynet_send(context, 0, dest, type | PTYPE_TAG_DONTCOPY, session, msg, size);
+      session = skynet_send(context, 0, dest, 
+      type | PTYPE_TAG_DONTCOPY, session, msg, size);
     }
     break;
   }
   default:
-    luaL_error(L, "skynet.send invalid param %s", lua_typename(L, lua_type(L,4)));
+    luaL_error(L, "skynet.send invalid param %s", 
+      lua_typename(L, lua_type(L,4)));
   }
   if (session < 0) {
     // send to invalid address
