@@ -373,7 +373,7 @@ void logger_release(struct logger* inst) {
 
 Snlua服务定义在service_snlua.c源文件中，用于加载Lua服务。
 使用Lua编写的skynet服务都需要通过snlua服务来加载和运行。
-Skynet节点启动的第二个服务是通过nlua服务加载和运行的bootstrap.lua服务。
+Skynet节点启动的第二个服务是通过snlua服务加载和运行的bootstrap.lua服务。
 这个Lua服务用于配置skynet节点的参数。另外，加载和运行一个Lua服务都会创建一个新的snlua服务实例。
 
 Snlua服务的创建
