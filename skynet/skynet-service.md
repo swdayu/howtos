@@ -369,4 +369,130 @@ void logger_release(struct logger* inst) {
 }
 ```
 
+# Snlua服务
 
+Snlua服务定义在service_snlua.c源文件中，用于加载Lua定义的服务。
+使用Lua编写的skynet服务都需要通过Snlua服务来加载和运行。
+
+Snlua服务的创建
+```c
+//@[snlua_create]分配snlua结构体并创建一个全新的lua_State
+struct snlua* snlua_create(void) {
+  struct snlua* l = skynet_malloc(sizeof(*l));
+  memset(l, 0, sizeof(*l));
+  l->L = lua_newstate(skynet_lalloc, NULL);
+  return l;
+}
+```
+
+Snlua服务的释放
+```c
+//@[snlua_release]关闭lua_State并释放snlua
+void snlua_release(struct snlua* l) {
+  lua_close(l->L);
+  skynet_free(l);
+}
+```
+
+Snlua服务的signal函数
+```c
+//@[snlua_signal]仅仅发送一个错误消息
+void snlua_signal(struct snlua* l, int signal) {
+  skynet_error(l->ctx, "recv a signal %d", signal);
+#ifdef lua_checksig
+  // If our lua support signal (modified lua version by skynet), trigger it.
+  skynet_sig_L = l->L;
+#endif
+}
+```
+
+Snlua服务的init函数
+```c
+//@[snlua_init]设置消息处理函数，并发给自己发送一条消息，使用传入的参数作为消息的内容
+int snlua_init(struct snlua* l, skynet_context* ctx, const char* args) {
+  int sz = strlen(args);
+  char* tmp = skynet_malloc(sz);
+  memcpy(tmp, args, sz);
+  skynet_callback(ctx, l , _launch);                   //设置snlua服务的消息处理函数为_launch
+  const char* self = skynet_command(ctx, "REG", NULL); //获取服务的handle字符串
+  uint32_t handle_id = strtoul(self+1, NULL, 16);      //从字符串中获取handle
+  // it must be first message                          //给自己发送一条消息，将init的参数作为消息的内容
+  skynet_send(ctx, 0, handle_id, PTYPE_TAG_DONTCOPY, 0, tmp, sz);
+  return 0;
+}
+//@[_launch]清除Snlua服务的消息处理函数并初始化对应的Lua服务
+static int _launch(skynet_context* context, void* ud, type, session, source, msg, sz) {
+  assert(type == 0 && session == 0);
+  struct snlua *l = ud;
+  skynet_callback(context, NULL, NULL);    //清除snlua服务的消息处理函数
+  int err = _init(l, context, msg, sz);    //初始化使用Lua编写的skynet服务
+  if (err) {                               //如果发生错误，杀掉snlua服务
+    skynet_command(context, "EXIT", NULL);
+  }
+  return 0;
+}
+//@[_init]加载并执行相应的Lua服务，字符串args中包含Lua服务的名称及参数
+static int _init(struct snlua* l, skynet_context* ctx, const char* args, size_t sz) {
+  lua_State *L = l->L;
+  l->ctx = ctx;
+  lua_gc(L, LUA_GCSTOP, 0);                     //暂停垃圾收集器
+  lua_pushboolean(L, 1);  /* signal for libraries to ignore env. vars. */
+  lua_setfield(L,                               //设置register_table["LUA_NOENV"]=true
+    LUA_REGISTRYINDEX, "LUA_NOENV");
+  luaL_openlibs(L);                             //为Snlua对应的lua_State打开所有标准库
+  lua_pushlightuserdata(L, ctx);
+  lua_setfield(L,                               //设置register_table["skynet_context"]=ctx
+    LUA_REGISTRYINDEX, "skynet_context");
+  luaL_requiref(L,                              //使用codecache函数加载skynet.codecache模块
+    "skynet.codecache", codecache , 0);         //加载后的模块会设置到package.loaded[modname]中，并会拷贝一份放在栈顶
+  lua_pop(L, 1);                                //移除栈顶的加载的模块
+  const char *path = optstring(ctx, "lua_path", //设置L全局变量LUA_PATH的值为Lua库所在路径
+    "./lualib/?.lua;./lualib/?/init.lua");
+  lua_pushstring(L, path);
+  lua_setglobal(L, "LUA_PATH");
+  const char *cpath = optstring(ctx,            //设置L全局变量LUA_CPATH的值为C服务动态库所在路径
+    "lua_cpath", "./luaclib/?.so");
+  lua_pushstring(L, cpath);
+  lua_setglobal(L, "LUA_CPATH");
+  const char *service = optstring(ctx,          //设置L全局变量LUA_SERVICE的值为Lua服务所在路径
+    "luaservice", "./service/?.lua");
+  lua_pushstring(L, service);
+  lua_setglobal(L, "LUA_SERVICE");
+  const char* preload =                         //设置L全局变量LUA_PRELOAD的值为skynet环境变量preload对应的值
+    skynet_command(ctx, "GETENV", "preload");
+  lua_pushstring(L, preload);
+  lua_setglobal(L, "LUA_PRELOAD");
+  lua_pushcfunction(L, traceback);              //将C函数traceback压入栈中
+  assert(lua_gettop(L) == 1);
+  const char * loader = optstring(ctx, 
+    "lualoader", "./lualib/loader.lua");
+  int r = luaL_loadfile(L, loader);             //将loader.lua文件中的Lua函数加载到栈中
+  if (r != LUA_OK) {                            //如果加载失败报告错误并返回
+    skynet_error(ctx, "Can't load %s : %s",     //文件loader.lua中定义的函数的作用：TODO
+      loader, lua_tostring(L, -1));
+    _report_launcher_error(ctx);
+    return 1;
+  }
+  lua_pushlstring(L, args, sz);                 //将参数args压入栈中
+  r = lua_pcall(L, 1, 0, 1);                    //调用加载后的Lua函数，参数1个，不需要返回结果，错误处理函数为traceback
+  if (r != LUA_OK) {                            //如果调用失败则报告错误并返回
+    skynet_error(ctx, "lua loader error : %s",
+      lua_tostring(L, -1));
+    _report_launcher_error(ctx);
+    return 1;
+  }
+  lua_settop(L,0);                               //清除栈中的参数
+  lua_gc(L, LUA_GCRESTART, 0);                   //重新开启垃圾回收
+  return 0;
+}
+//@[traceback]_init过程中的错误处理函数
+static int traceback(lua_State *L) {
+  const char* msg = lua_tostring(L, 1);
+  if (msg)
+    luaL_traceback(L, L, msg, 1);
+  else {
+    lua_pushliteral(L, "(no error message)");
+  }
+  return 1;
+}
+```
