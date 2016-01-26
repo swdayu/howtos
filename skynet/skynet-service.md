@@ -283,4 +283,36 @@ static const char* cmd_signal(skynet_context* context, const char* param) {
   skynet_context_release(ctx);
   return NULL;
 }
+
+static struct command_func cmd_funcs[] = {
+  { "TIMEOUT", cmd_timeout },
+  { "REG", cmd_reg },
+  { "QUERY", cmd_query },
+  { "NAME", cmd_name },
+  { "EXIT", cmd_exit },
+  { "KILL", cmd_kill },
+  { "LAUNCH", cmd_launch },
+  { "GETENV", cmd_getenv },
+  { "SETENV", cmd_setenv },
+  { "STARTTIME", cmd_starttime },
+  { "ENDLESS", cmd_endless },
+  { "ABORT", cmd_abort },
+  { "MONITOR", cmd_monitor },
+  { "MQLEN", cmd_mqlen },
+  { "LOGON", cmd_logon },
+  { "LOGOFF", cmd_logoff },
+  { "SIGNAL", cmd_signal },
+  { NULL, NULL },
+};
+//@[skynet_command]执行指定的服务命令
+const char* skynet_command(skynet_context* context, const char* cmd, const char* param) {
+  struct command_func* method = &cmd_funcs[0];
+  while(method->name) {
+    if (strcmp(cmd, method->name) == 0) {
+      return method->func(context, param);
+    }
+    ++method;
+  }
+  return NULL;
+}
 ```
