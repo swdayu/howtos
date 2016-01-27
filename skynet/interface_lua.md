@@ -101,7 +101,8 @@ static int _redirect(lua_State* L) {
 	  void * msg = lua_touserdata(L,5);
 	  int size = luaL_checkinteger(L,6);
 	  if (dest_string) {
-	    session = skynet_sendname(context, source, dest_string, type | PTYPE_TAG_DONTCOPY, session, msg, size);
+	    session = skynet_sendname(context, 
+	      source, dest_string, type | PTYPE_TAG_DONTCOPY, session, msg, size);
 	  } else {
 	    session = skynet_send(context, source, dest, type | PTYPE_TAG_DONTCOPY, session, msg, size);
 	  }
