@@ -11,7 +11,7 @@
 回调方式（callback type）
 - CALLBACK_TYPE_ALL_MATCHES (1) 收到的每个满足过滤条件的advertisement包都会回报
 - CALLBACK_TYPE_FIRST_MATCH (2) 满足条件的设备的相同advertisement包只会回报一次，不会重复回报
-- CALLBACK_TYPE_MATCH_LOST (4) 满足条件的设备第一次回报之后，出现一段时间都没有收到这个设备的包时回调一次
+- CALLBACK_TYPE_MATCH_LOST (4) 满足条件的设备第一次回报后，出现一段时间都没收到该设备的包时回调一次
 
 保存相同匹配包的数量
 - MATCH_NUM_ONE_ADVERTISEMENT (1) 满足条件的相同advertisement包只要保存一个
