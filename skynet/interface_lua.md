@@ -161,6 +161,26 @@ static int _intcommand(lua_State* L) {
   }
   return 0;                 //否则表示执行失败，返回结果个数0
 }
+
+//@[_error]发送一条错误信息给logger服务
+//栈中的参数：错误消息字符串
+static int _error(lua_State* L) {
+  struct skynet_context* context = lua_touserdata(L, lua_upvalueindex(1));
+  skynet_error(context, "%s", luaL_checkstring(L,1));
+  return 0; //以上获取错误信息字符串并调用底层函数skynet_error将信息发给logger服务
+}
+
+//@[_tostring]将给定长度的userdata当成字符串压入栈中并返回
+//栈中的参数：userdata_msg, msg_sz
+static int _tostring(lua_State* L) {
+  if (lua_isnoneornil(L, 1)) {
+    return 0;                       //必须有参数，否则直接返回结果个数0
+  }
+  char* msg = lua_touserdata(L, 1); //获取userdata
+  int sz = luaL_checkinteger(L, 2); //获取数据长度
+  lua_pushlstring(L, msg, sz);      //当成字符串压入栈中
+  return 1;                         //返回结果个数1
+}
 ```
 
 
