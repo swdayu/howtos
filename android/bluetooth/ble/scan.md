@@ -56,5 +56,5 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
 }
 ```
 
-另外NormalScan必须GPS打开才能收到Scan的结果，而BatchScan不需要打开GPS也可以收到结果。
+另外NormalScan必须GPS打开才能收到Scan的结果，而BatchScan不需要打开GPS即可收到结果。
 好奇怪的设计，另外蓝牙与GPS为什么要扯上关系呢?
