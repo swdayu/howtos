@@ -44,3 +44,17 @@ public static final class Builder {
   //...
 }
 ```
+
+# 安卓6.0的定位权限问题
+
+在startScan之前必须要手动请求Location权限：
+```java
+if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+    getContext().checkCallingOrSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) !=
+    PackageManager.PERMISSION_GRANTED) {
+  requestPermissions(new String[]{"android.permission.ACCESS_COARSE_LOCATION"}, 0);
+}
+```
+
+另外NormalScan必须GPS打开才能收到Scan的结果，而BatchScan不需要打开GPS也可以收到结果。
+好奇怪的设计，另外蓝牙与GPS为什么要扯上关系呢?
