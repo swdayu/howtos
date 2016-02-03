@@ -13,8 +13,8 @@ Lua定义了一套规则完成Lua函数到C的调用，它首先将要调用的C
 ```c
 //@[_send]给指定服务发送消息
 //传入参数：dest_hdl type session content_type (msg_string | msg_data msg_sz)
-//返回结果：integer msg_session_id或不返回结果
-static int _send(lua_State *L) {
+//返回结果：integer msg_session_id或无结果
+static int _send(lua_State* L) {
   struct skynet_context* context = 
     lua_touserdata(L, lua_upvalueindex(1));      //TODO 获取当前服务的context
   uint32_t dest = (uint32_t)lua_tointeger(L, 1); //以整数形式获取目标服务的句柄
@@ -28,12 +28,12 @@ static int _send(lua_State *L) {
   }
   int type = luaL_checkinteger(L, 2);           //获取消息的类型
   int session = 0;
-  if (lua_isnil(L,3)) {                         //如果传入的session为nil
+  if (lua_isnil(L, 3)) {                        //如果传入的session为nil
     type |= PTYPE_TAG_ALLOCSESSION;             //则设置一个标记表示自动分配session号
   } else {
-    session = luaL_checkinteger(L,3);           //否则以整数的形式获取到消息的session好
+    session = luaL_checkinteger(L, 3);          //否则以整数的形式获取到消息的session好
   }
-  int mtype = lua_type(L,4);                    //获取消息内容的类型
+  int mtype = lua_type(L, 4);                   //获取消息内容的类型
   switch (mtype) {
   case LUA_TSTRING: {                           //如果消息的内容是字符串
     size_t len = 0;
@@ -49,8 +49,8 @@ static int _send(lua_State *L) {
     break;
   }
   case LUA_TLIGHTUSERDATA: {                   //如果消息的内容为轻量用户数据
-    void* msg = lua_touserdata(L,4);           //获取这个消息的数据指针
-    int size = luaL_checkinteger(L,5);         //获取消息内容的长度
+    void* msg = lua_touserdata(L, 4);          //获取这个消息的数据指针
+    int size = luaL_checkinteger(L, 5);        //获取消息内容的长度
     if (dest_str) {                            //如果目标服务句柄以字符串的形式给出则调用skynet_sendname发送消息
       session = skynet_sendname(context, 0, dest_str, type | PTYPE_TAG_DONTCOPY, session, msg, size);
     } else {                                   //否则调用skynet_send发送消息
@@ -66,7 +66,7 @@ static int _send(lua_State *L) {
     // todo: maybe throw an error would be better
     return 0;
   }
-  lua_pushinteger(L,session);                 //否则将消息session号压入栈中，并返回1表示该函数返回一个结果
+  lua_pushinteger(L, session);                 //否则将消息session号压入栈中，并返回1表示该函数返回一个结果
   return 1;
 }
 
@@ -129,7 +129,7 @@ static int _genid(lua_State* L) {
 
 //@[_command]执行对应的skynet命令
 //传入参数：lua_string cmd, lua_string cmd_parm
-//返回结果：lua_string service_name或者不返回结果
+//返回结果：lua_string service_name或无结果
 static int _command(lua_State* L) {
   struct skynet_context* context = lua_touserdata(L, lua_upvalueindex(1));
   const char* cmd = luaL_checkstring(L, 1);
@@ -148,7 +148,7 @@ static int _command(lua_State* L) {
 
 //@[_intcommand]执行对应的skynet命令，与_command不同的是命令的参数是整数
 //传入参数：lua_string cmd, integer cmd_parm
-//返回结果：integer handle或者不返回结果
+//返回结果：integer handle或无结果
 static int _intcommand(lua_State* L) {
   struct skynet_context* context = lua_touserdata(L, lua_upvalueindex(1));
   const char* cmd = luaL_checkstring(L, 1);
@@ -323,15 +323,10 @@ int _luaseri_unpack(lua_State* L) {
   // Need not free buffer
   return lua_gettop(L) - 1;            //返回解析出的值的个数
 }
-```
 
-
-
-
-```c
-//@[luaopen_skynet_core] skynet.core open function defined in lua-skynet.c
+//@[luaopen_skynet_core] skynet.core open function
 int luaopen_skynet_core(lua_State* L) {
-  luaL_checkversion(L); //检查创建Lua状态的Lua版本与调用该函数的Lua版本是否一致，且是否在相同的地址空间中
+  luaL_checkversion(L); //检查创建Lua状态的Lua版本与调用该函数的Lua版本是否一致且在相同地址空间中
   luaL_Reg l[] = {
     { "send" , _send },
     { "genid", _genid },
