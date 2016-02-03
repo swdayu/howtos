@@ -12,7 +12,8 @@ Lua定义了一套规则完成Lua函数到C的调用，它首先将要调用的C
 
 ```c
 //@[_send]给指定服务发送消息
-//栈中的参数：dest_hdl type session content_type (msg_string | msg_data msg_sz)
+//传入参数：dest_hdl type session content_type (msg_string | msg_data msg_sz)
+//返回结果：integer msg_session_id或不返回结果
 static int _send(lua_State *L) {
   struct skynet_context* context = 
     lua_touserdata(L, lua_upvalueindex(1));      //TODO 获取当前服务的context
@@ -70,51 +71,55 @@ static int _send(lua_State *L) {
 }
 
 //@[_redirect]从源服务发送指定消息给目标服务
-//栈中的参数：src_hdl dest_hdl type session content_type (msg_string | msg_data msg_sz)
-//另外与_send不同的是，该函数不会自动生成消息session号，需要明确指定
+//传入参数：src_hdl dest_hdl type session content_type (msg_string | msg_data msg_sz)
+//返回结果：无，另外与_send不同的是，该函数不会自动生成消息session号，需要明确指定
 static int _redirect(lua_State* L) {
-	struct skynet_context* context = lua_touserdata(L, lua_upvalueindex(1));
-	uint32_t dest = (uint32_t)lua_tointeger(L,1);
-	const char* dest_string = NULL;
-	if (dest == 0) {
-	  dest_string = get_dest_string(L, 1);
-	}
-	uint32_t source = (uint32_t)luaL_checkinteger(L,2);
-	int type = luaL_checkinteger(L,3);
-	int session = luaL_checkinteger(L,4);
-	int mtype = lua_type(L,5);
-	switch (mtype) {
-	case LUA_TSTRING: {
-	  size_t len = 0;
-	  void * msg = (void *)lua_tolstring(L,5,&len);
-	  if (len == 0) {
-	    msg = NULL;
-	  }
-	  if (dest_string) {
-	    session = skynet_sendname(context, source, dest_string, type, session , msg, len);
-	  } else {
-	    session = skynet_send(context, source, dest, type, session , msg, len);
-	  }
-	  break;
-	}
-	case LUA_TLIGHTUSERDATA: {
-	  void * msg = lua_touserdata(L,5);
-	  int size = luaL_checkinteger(L,6);
-	  if (dest_string) {
-	    session = skynet_sendname(context, 
-	      source, dest_string, type | PTYPE_TAG_DONTCOPY, session, msg, size);
-	  } else {
-	    session = skynet_send(context, source, dest, type | PTYPE_TAG_DONTCOPY, session, msg, size);
-	  }
-	  break;
-	}
-	default:
-	  luaL_error(L, "skynet.redirect invalid param %s", lua_typename(L,mtype));
-	}
-	return 0;
+  struct skynet_context* context = lua_touserdata(L, lua_upvalueindex(1));
+  uint32_t dest = (uint32_t)lua_tointeger(L, 1);
+  const char* dest_string = NULL;
+  if (dest == 0) {
+    dest_string = get_dest_string(L, 1);
+  }
+  uint32_t source = (uint32_t)luaL_checkinteger(L, 2);
+  int type = luaL_checkinteger(L, 3);
+  int session = luaL_checkinteger(L, 4);
+  int mtype = lua_type(L, 5);
+  switch (mtype) {
+    case LUA_TSTRING: {
+      size_t len = 0;
+      void* msg = (void*)lua_tolstring(L, 5, &len);
+      if (len == 0) {
+        msg = NULL;
+      }
+      if (dest_string) {
+        session = skynet_sendname(context, source, dest_string, type, session , msg, len);
+      } 
+      else {
+        session = skynet_send(context, source, dest, type, session , msg, len);
+      }
+      break;
+    }
+    case LUA_TLIGHTUSERDATA: {
+      void* msg = lua_touserdata(L, 5);
+      int size = luaL_checkinteger(L, 6);
+      if (dest_string) {
+        session = skynet_sendname(context, 
+            source, dest_string, type | PTYPE_TAG_DONTCOPY, session, msg, size);
+      } 
+      else {
+        session = skynet_send(context, source, dest, type | PTYPE_TAG_DONTCOPY, session, msg, size);
+      }
+      break;
+    }
+    default:
+      luaL_error(L, "skynet.redirect invalid param %s", lua_typename(L,mtype));
+  }
+  return 0;
 }
 
 //@[_genid]生成一个消息session号并返回
+//传入参数：无
+//返回结果：integer session_id
 static int _genid(lua_State* L) {
 	struct skynet_context* context = lua_touserdata(L, lua_upvalueindex(1));
 	int session = skynet_send(context, 0, 0, PTYPE_TAG_ALLOCSESSION , 0 , NULL, 0);
@@ -123,7 +128,8 @@ static int _genid(lua_State* L) {
 }
 
 //@[_command]执行对应的skynet命令
-//栈中的参数：cmd_str parm_str
+//传入参数：lua_string cmd, lua_string cmd_parm
+//返回结果：lua_string service_name或者不返回结果
 static int _command(lua_State* L) {
   struct skynet_context* context = lua_touserdata(L, lua_upvalueindex(1));
   const char* cmd = luaL_checkstring(L, 1);
@@ -141,7 +147,8 @@ static int _command(lua_State* L) {
 }
 
 //@[_intcommand]执行对应的skynet命令，与_command不同的是命令的参数是整数
-//栈中的参数：cmd_str int_parm
+//传入参数：lua_string cmd, integer cmd_parm
+//返回结果：integer handle或者不返回结果
 static int _intcommand(lua_State* L) {
   struct skynet_context* context = lua_touserdata(L, lua_upvalueindex(1));
   const char* cmd = luaL_checkstring(L, 1);
@@ -163,23 +170,158 @@ static int _intcommand(lua_State* L) {
 }
 
 //@[_error]发送一条错误信息给logger服务
-//栈中的参数：错误消息字符串
+//传入参数：错误消息字符串
+//返回结果：无
 static int _error(lua_State* L) {
   struct skynet_context* context = lua_touserdata(L, lua_upvalueindex(1));
   skynet_error(context, "%s", luaL_checkstring(L,1));
   return 0; //以上获取错误信息字符串并调用底层函数skynet_error将信息发给logger服务
 }
 
-//@[_tostring]将给定长度的userdata当成字符串压入栈中并返回
-//栈中的参数：userdata_msg, msg_sz
+//@[_tostring]将给定长度的userdata转换成字符串
+//传入参数：lua_userdata data, integer size
+//返回结果：lua_string str
 static int _tostring(lua_State* L) {
   if (lua_isnoneornil(L, 1)) {
-    return 0;                       //必须有参数，否则直接返回结果个数0
+    return 0;                       //如果参数为空则直接返回
   }
   char* msg = lua_touserdata(L, 1); //获取userdata
   int sz = luaL_checkinteger(L, 2); //获取数据长度
   lua_pushlstring(L, msg, sz);      //当成字符串压入栈中
-  return 1;                         //返回结果个数1
+  return 1;                         //结果个数为1
+}
+
+//@[_callback]设置服务的消息处理函数
+//传入参数：lua_function lua_callback_fn, boolean forward
+//返回结果：无
+static int _callback(lua_State* L) {
+  struct skynet_context* context = lua_touserdata(L, lua_upvalueindex(1));
+  int forward = lua_toboolean(L, 2);           //获取第二个参数
+  luaL_checktype(L, 1, LUA_TFUNCTION);         //确保第一个参数是Lua函数
+  lua_settop(L, 1);                            //将栈中的参数调整为一个
+  lua_rawsetp(L, LUA_REGISTRYINDEX, _cb);      //将registery_table[_cb]设置为lua_callback_fn
+  lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_MAINTHREAD);
+  lua_State* gL = lua_tothread(L, -1);         //获取主线程的指针gL
+  if (forward) {                               //如果第一个参数（forward）为真
+    skynet_callback(context, gL, forward_cb);  //设置服务的消息处理函数为forward_cb
+  }                                            //并将主线程gL设置为函数的参数
+  else {
+    skynet_callback(context, gL, _cb);         //否则将服务的消息处理函数设置为_cb
+  }                                            //并将主线程gL设为函数参数
+  return 0;                                    //该函数不返回结果
+}
+
+//@[_harbor]获取harbor号以及是否为remote服务
+//传入参数：integer handle
+//返回结果：integer harbor, boolean remote
+static int _harbor(lua_State* L) {
+  struct skynet_context* context = lua_touserdata(L, lua_upvalueindex(1));
+  uint32_t handle = (uint32_t)luaL_checkinteger(L, 1);
+  int harbor = 0;             //获取栈中的参数handle并调用底层函数得到harbor和remote
+  int remote = skynet_isremote(context, handle, &harbor);
+  lua_pushinteger(L, harbor); //将harbor入栈
+  lua_pushboolean(L, remote); //将remote入栈
+  return 2;                   //结果个数为2
+}
+
+//@[ltrash]释放传入的对象内存
+//传入参数：lua_string string 或 lua_userdata data, integer size
+//返回结果：无
+static int ltrash(lua_State* L) {
+  int t = lua_type(L, 1);
+  switch (t) {
+    case LUA_TSTRING: {        //如果传入的是Lua字符串，因为Lua垃圾回收机制会自动回收
+      break;                   //不需要释放直接返回
+    }
+    case LUA_TLIGHTUSERDATA: { //如果传入的是用户数据对象
+      void* msg = lua_touserdata(L, 1);
+      luaL_checkinteger(L, 2); //获取该对象指针，并检查第2个参数确保其类型是整型
+      skynet_free(msg);        //释放用户数据对象
+      break;
+    }
+    default:                   //如果传入的是其他类型，抛出错误
+      luaL_error(L, "skynet.trash invalid param %s", lua_typename(L,t));
+  }
+  return 0;                    //该函数没有返回结果
+}
+
+//@[lnow]获取skynet启动后到现在的时间，单位为10毫秒
+//传入参数：无
+//返回结果：integer time
+static int lnow(lua_State* L) {
+  uint64_t ti = skynet_now();
+  lua_pushinteger(L, ti);
+  return 1;
+}
+
+//@[lpackstring]将任意个数Lua值打包成Lua字符串
+//传入参数：任意个数的Lua值
+//返回结果：lua_string pack_str
+static int lpackstring(lua_State* L) {
+  _luaseri_pack(L);              //将栈中的Lua值打包成一个userdata和长度值压入栈中
+  char* str = (char*)lua_touserdata(L, -2);
+  int sz = lua_tointeger(L, -1); //获取栈中的userdata和长度值
+  lua_pushlstring(L, str, sz);   //将userdata转换成Lua字符串压入栈中
+  skynet_free(str);              //将userdata的内存释放掉
+  return 1;                      //栈中的结果个数为1
+}
+
+//@[_luaseri_pack]将栈中任意个数Lua值打包成userdata和长度值
+//传入参数：任意个数Lua值
+//返回结果：lua_userdata data, integer size
+int _luaseri_pack(lua_State* L) {
+  struct block temp;        //{block* next; char buffer[128];}
+  temp.next = NULL;
+  struct write_block wb;    //{block* head; block* current; int len, ptr;}
+  wb_init(&wb, &temp);      //wb.head = wb.current = &temp; wb.len = wb.ptr = 0;
+  pack_from(L, &wb, 0);     //将栈中的Lua值打包成block链表 TODO
+  assert(wb.head == &temp);
+  seri(L, &temp, wb.len);   //将block链表中的所有数据拷贝到一块内存中，并将内存指针和数据长度压入栈中
+  wb_free(&wb);             //释放wb.head->next链表中的block节点
+  return 2;                 //栈中的结果个数为2
+}
+
+//@[_luaseri_unpack]从Lua字符串或用户数据中解析出所有的Lua值
+//传入参数：lua_string str or (lua_userdata data, integer size)
+//返回结果：lua_string str or lua_userdata data, 后面为解出的所有Lua值
+int _luaseri_unpack(lua_State* L) {
+  if (lua_isnoneornil(L, 1)) {         //如果第一个参数为空
+    return 0;                          //直接返回
+  }
+  void* buffer;
+  int len;
+  if (lua_type(L, 1) == LUA_TSTRING) { //如果第一个参数是Lua字符串
+    size_t sz;
+    buffer = (void*)lua_tolstring(L, 1, &sz);
+    len = (int)sz;                     //获取这个字符串和它的长度
+  } 
+  else {                               //否则栈中的参数是userdata以及长度
+    buffer = lua_touserdata(L, 1);     //获取userdata指针
+    len = luaL_checkinteger(L, 2);     //和data的长度
+  }
+  if (len == 0) {                      //如果字符串长度或userdata长度为0
+    return 0;                          //直接返回
+  }
+  if (buffer == NULL) {                //如果字符串指针或数据指针为空则抛出异常
+    return luaL_error(L, "deserialize null pointer");
+  }
+  lua_settop(L, 1);                    //保留栈中的第一个参数
+  struct read_block rb;                //{char* buffer; int len, ptr;}
+  rball_init(&rb, buffer, len);        //rb.buffer = buffer; rb.len = len; rb.ptr = 0;
+  int i;
+  for (i=0; ; i++) {
+    if (i%8 == 7) {                    //确保栈中有足够的空间
+      luaL_checkstack(L, LUA_MINSTACK, NULL);
+    }
+    uint8_t type = 0;                  //读取当前数据的类型（第1个字节）
+    uint8_t* t = rb_read(&rb, sizeof(type));
+    if (t == NULL)
+      break;
+    type = *t;                         //根据类型从数据中解析一个值放入栈中
+    push_value(L, &rb, type & 0x7, type>>3); 
+  }
+  // Need not free buffer
+  return lua_gettop(L) - 1;            //返回解析出的值的个数
 }
 ```
 
