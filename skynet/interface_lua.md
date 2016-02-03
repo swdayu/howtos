@@ -129,7 +129,7 @@ static int _genid(lua_State* L) {
 
 //@[_command]执行对应的skynet命令
 //传入参数：lua_string cmd, lua_string cmd_parm
-//返回结果：lua_string service_name或无结果
+//返回结果：命令的字符串结果，如果发送错误则无结果
 static int _command(lua_State* L) {
   struct skynet_context* context = lua_touserdata(L, lua_upvalueindex(1));
   const char* cmd = luaL_checkstring(L, 1);
@@ -139,7 +139,7 @@ static int _command(lua_State* L) {
     parm = luaL_checkstring(L, 2); 
   }                            //使用传入的参数调用底层函数skynet_command执行cmd
   result = skynet_command(context, cmd, parm);
-  if (result) {                //函数会返回":hex_str_of_service_handle"或".service_name"形式的名称
+  if (result) {
     lua_pushstring(L, result); //如果返回结果不为空表示执行成功，将名称入栈并返回结果个数1
     return 1;
   }
@@ -148,7 +148,7 @@ static int _command(lua_State* L) {
 
 //@[_intcommand]执行对应的skynet命令，与_command不同的是命令的参数是整数
 //传入参数：lua_string cmd, integer cmd_parm
-//返回结果：integer handle或无结果
+//返回结果：命令的整数结果，如果发送错误则无结果
 static int _intcommand(lua_State* L) {
   struct skynet_context* context = lua_touserdata(L, lua_upvalueindex(1));
   const char* cmd = luaL_checkstring(L, 1);
@@ -161,7 +161,7 @@ static int _intcommand(lua_State* L) {
     parm = tmp;
   }                         //使用传入的参数调用底层函数skynet_command执行cmd
   result = skynet_command(context, cmd, parm);
-  if (result) {             //函数会返回":hex_str_of_service_handle"或".service_name"形式的名称
+  if (result) {
     lua_Integer r = strtoll(result, NULL, 0);
     lua_pushinteger(L, r);  //如果返回结果不为空表示执行成功，将名称入栈并返回结果个数1
     return 1;
