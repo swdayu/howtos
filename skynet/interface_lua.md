@@ -467,3 +467,94 @@ local function string_to_handle(str)
   return tonumber("0x" .. string.sub(str, 2))
 end
 ```
+
+# 数据打包
+
+# 性能刨析
+
+```c
+//@[get_time]获取当前线程运行时间，单位为秒
+static double get_time() {
+#if !defined(__APPLE__)
+  struct timespec ti;
+  clock_gettime(CLOCK_THREAD_CPUTIME_ID, &ti);
+  int sec = ti.tv_sec & 0xffff;
+  int nsec = ti.tv_nsec;
+  return (double)sec + (double)nsec / NANOSEC;	
+#else
+  struct task_thread_times_info aTaskInfo;
+  mach_msg_type_number_t aTaskInfoCount = TASK_THREAD_TIMES_INFO_COUNT;
+  if (task_info(mach_task_self(), TASK_THREAD_TIMES_INFO, 
+        (task_info_t )&aTaskInfo, &aTaskInfoCount) != KERN_SUCCESS) {
+    return 0;
+  }
+  int sec = aTaskInfo.user_time.seconds & 0xffff;
+  int msec = aTaskInfo.user_time.microseconds;
+  return (double)sec + (double)msec / MICROSEC;
+#endif
+}
+
+//@[diff_time]获取从start时间点到现在的时间间隔
+static inline double diff_time(double start) {
+  double now = get_time();
+  if (now < start) { //TODO
+    return now + 0x10000 - start;
+  }
+  else {
+    return now - start;
+  }
+}
+
+static int lstart(lua_State* L) {
+  if (lua_type(L,1) == LUA_TTHREAD) {
+    lua_settop(L,1);
+  } 
+  else {
+    lua_pushthread(L);
+  }
+  lua_rawget(L, lua_upvalueindex(2));
+  if (!lua_isnil(L, -1)) {
+    return luaL_error(L, "Thread %p start profile more than once", lua_topointer(L, 1));
+  }
+  lua_pushthread(L);
+  lua_pushnumber(L, 0);
+  lua_rawset(L, lua_upvalueindex(2));
+  lua_pushthread(L);
+  double ti = get_time();
+#ifdef DEBUG_LOG
+  fprintf(stderr, "PROFILE [%p] start\n", L);
+#endif
+  lua_pushnumber(L, ti);
+  lua_rawset(L, lua_upvalueindex(1));
+  return 0;
+}
+
+static int lstop(lua_State* L) {
+  if (lua_type(L, 1) == LUA_TTHREAD) {
+    lua_settop(L, 1);
+  } 
+  else {
+    lua_pushthread(L);
+  }
+  lua_rawget(L, lua_upvalueindex(1));
+  if (lua_type(L, -1) != LUA_TNUMBER) {
+    return luaL_error(L, "Call profile.start() before profile.stop()");
+  } 
+  double ti = diff_time(lua_tonumber(L, -1));
+  lua_pushthread(L);
+  lua_rawget(L, lua_upvalueindex(2));
+  double total_time = lua_tonumber(L, -1);
+  lua_pushthread(L);
+  lua_pushnil(L);
+  lua_rawset(L, lua_upvalueindex(1));
+  lua_pushthread(L);
+  lua_pushnil(L);
+  lua_rawset(L, lua_upvalueindex(2));
+  total_time += ti;
+  lua_pushnumber(L, total_time);
+#ifdef DEBUG_LOG
+  fprintf(stderr, "PROFILE [%p] stop (%lf / %lf)\n", L, ti, total_time);
+#endif
+  return 1;
+}
+```
