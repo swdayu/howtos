@@ -505,56 +505,141 @@ static inline double diff_time(double start) {
   }
 }
 
+//@[lstart]启动计时
+//传入参数：无
+//返回结果：无
 static int lstart(lua_State* L) {
   if (lua_type(L,1) == LUA_TTHREAD) {
-    lua_settop(L,1);
+    lua_settop(L,1);                  //如果第1个参数是协程，将参数调整为1个
   } 
   else {
-    lua_pushthread(L);
+    lua_pushthread(L);                //否则将协程L压入栈中
   }
-  lua_rawget(L, lua_upvalueindex(2));
-  if (!lua_isnil(L, -1)) {
+  lua_rawget(L, lua_upvalueindex(2)); //将第2个上值入栈
+  if (!lua_isnil(L, -1)) {            //如果栈顶的上值不为nil表示已经开启了profiling，抛出错误
     return luaL_error(L, "Thread %p start profile more than once", lua_topointer(L, 1));
   }
-  lua_pushthread(L);
-  lua_pushnumber(L, 0);
-  lua_rawset(L, lua_upvalueindex(2));
-  lua_pushthread(L);
-  double ti = get_time();
+  lua_pushthread(L);                  //将协程L入栈 TODO ???
+  lua_pushnumber(L, 0);               //将0入栈
+  lua_rawset(L, lua_upvalueindex(2)); //将第2个上值设置为0，并将0出栈
+  lua_pushthread(L);                  //将协程L入栈
+  double ti = get_time();             //获取当前时间
 #ifdef DEBUG_LOG
   fprintf(stderr, "PROFILE [%p] start\n", L);
 #endif
-  lua_pushnumber(L, ti);
-  lua_rawset(L, lua_upvalueindex(1));
-  return 0;
+  lua_pushnumber(L, ti);              //将当前时间入栈
+  lua_rawset(L, lua_upvalueindex(1)); //将第1个上值设置为当前时间，并将当前时间出栈
+  return 0;                           //该函数不返回结果
 }
 
+//@[lstop]终止计时
+//传入参数：无
+//返回结果：获取lstart到lstop对应线程运行时间
 static int lstop(lua_State* L) {
   if (lua_type(L, 1) == LUA_TTHREAD) {
-    lua_settop(L, 1);
+    lua_settop(L, 1);                   //第1个参数如果是协程，将参数个数调整到1个
   } 
   else {
-    lua_pushthread(L);
+    lua_pushthread(L);                  //否则将协程L压入栈中
   }
-  lua_rawget(L, lua_upvalueindex(1));
-  if (lua_type(L, -1) != LUA_TNUMBER) {
+  lua_rawget(L, lua_upvalueindex(1));   //将第1个上值入栈
+  if (lua_type(L, -1) != LUA_TNUMBER) { //如果栈顶元素不是数值类型，抛出错误
     return luaL_error(L, "Call profile.start() before profile.stop()");
-  } 
+  }                                     //计算栈顶时间值到现在的时间差ti
   double ti = diff_time(lua_tonumber(L, -1));
-  lua_pushthread(L);
-  lua_rawget(L, lua_upvalueindex(2));
+  lua_pushthread(L);                    //将协程L入栈 TODO ???
+  lua_rawget(L, lua_upvalueindex(2));   //将第2个上值入栈，并该值赋给total_time
   double total_time = lua_tonumber(L, -1);
-  lua_pushthread(L);
-  lua_pushnil(L);
-  lua_rawset(L, lua_upvalueindex(1));
-  lua_pushthread(L);
-  lua_pushnil(L);
-  lua_rawset(L, lua_upvalueindex(2));
-  total_time += ti;
-  lua_pushnumber(L, total_time);
+  lua_pushthread(L);                    //将协程L入栈 TODO ???
+  lua_pushnil(L);                       //将nil入栈
+  lua_rawset(L, lua_upvalueindex(1));   //将第1个上值设置为nil，并将nil出栈
+  lua_pushthread(L);                    //将协程L入栈 TODO ???
+  lua_pushnil(L);                       //将nil入栈
+  lua_rawset(L, lua_upvalueindex(2));   //将第2个上值设置为nil，并将nil出栈
+  total_time += ti;                     //total_time加上当前的差值ti
+  lua_pushnumber(L, total_time);        //将总时间入栈
 #ifdef DEBUG_LOG
   fprintf(stderr, "PROFILE [%p] stop (%lf / %lf)\n", L, ti, total_time);
 #endif
-  return 1;
+  return 1;                             //返回1个结果
 }
+
+//@[timing_resume]
+static int timing_resume(lua_State* L) {
+#ifdef DEBUG_LOG
+  lua_State* from = lua_tothread(L, -1);
+#endif
+  lua_rawget(L, lua_upvalueindex(2));   //将第2个上值入栈
+  if (lua_isnil(L, -1)) {		//如果上值为nil
+    lua_pop(L, 1);                      //将其从栈中移除
+  }
+  else {
+    lua_pop(L, 1);                      //否则第2个上值不为nil，将其从栈中移除
+    lua_pushvalue(L, 1);                //将1入栈
+    double ti = get_time();             //获取当前时间
+  #ifdef DEBUG_LOG
+    fprintf(stderr, "PROFILE [%p] resume\n", from);
+  #endif
+    lua_pushnumber(L, ti);              //将当前时间入栈
+    lua_rawset(L, lua_upvalueindex(1));	//将第1个上值设置为当前时间，并将当前时间出栈
+  }                                     //获取第3个上值作为协程resume函数
+  lua_CFunction co_resume = lua_tocfunction(L, lua_upvalueindex(3));
+  return co_resume(L);                  //调用这个函数resume协程
+}
+
+//@[lresume]
+static int lresume(lua_State* L) {
+  lua_pushvalue(L, 1);     //将1入栈
+  return timing_resume(L); //调用timing_resume
+}
+
+//@[lresume_co]
+static int lresume_co(lua_State* L) {
+  luaL_checktype(L, 2, LUA_TTHREAD); //确保第2个参数是协程
+  lua_rotate(L, 2, -1);    //第2个参数与栈顶之间的参数向栈底方向循环移动1位（第2个参数移动栈顶）
+  return timing_resume(L); //调用timing_resume
+}
+
+static int timing_yield(lua_State* L) {
+#ifdef DEBUG_LOG
+  lua_State* from = lua_tothread(L, -1);
+#endif
+  lua_rawget(L, lua_upvalueindex(2));       //将第2个上值入栈
+  if (lua_isnil(L, -1)) {                   //如果其值为nil
+    lua_pop(L,1);                           //将其出栈
+  }
+  else {                                    //否则第2个上值不为nil
+    double ti = lua_tonumber(L, -1);        //获取栈顶值保存到ti
+    lua_pop(L, 1);                          //移除栈顶一个元素
+    lua_pushthread(L);                      //将协程L入栈
+    lua_rawget(L, lua_upvalueindex(1));     //将第1个上值入栈
+    double starttime = lua_tonumber(L, -1); //获取栈顶值保存到starttime
+    lua_pop(L, 1);                          //移除栈顶一个元素
+    double diff = diff_time(starttime);     //计算starttime到现在的时间间隔
+    ti += diff;                             //计算总体时间ti
+#ifdef DEBUG_LOG
+    fprintf(stderr, "PROFILE [%p] yield (%lf/%lf)\n", from, diff, ti);
+#endif
+    lua_pushthread(L);                      //将协程L入栈
+    lua_pushnumber(L, ti);                  //将总体时间ti入栈
+    lua_rawset(L, lua_upvalueindex(2));     //将总体时间ti设置到第2个上值，并将ti出栈
+  }                                         //以下获取第3个上值作为协程yield函数
+  lua_CFunction co_yield = lua_tocfunction(L, lua_upvalueindex(3));
+  return co_yield(L);                       //调用这个函数进行yield
+}
+
+//@[lyield]
+static int lyield(lua_State* L) {
+  lua_pushthread(L);      //将协程L入栈
+  return timing_yield(L); //调用timing_yield
+}
+
+//@[lyield_co]
+static int lyield_co(lua_State* L) {
+  luaL_checktype(L, 1, LUA_TTHREAD); //确保第1个参数为协程
+  lua_rotate(L, 1, -1);              //将第1个参数移到栈顶
+  return timing_yield(L);            //调用timing_yield
+}
+
+
 ```
