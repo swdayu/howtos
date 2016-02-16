@@ -392,7 +392,7 @@ int luaopen_profile(lua_State* L) {
   luaL_setfuncs(L, l, 3);                  //注册l中的函数到空table中，设置这些函数共享3个上值start/total和nil
   int libtable = lua_gettop(L);            //获取栈中参数个数[funcs_table]
   lua_getglobal(L, "coroutine");           //将全局变量coroutine入栈
-  lua_getfield(L, -1, "resume");           //将栈顶coroutine的resume域对应的值入栈
+  lua_getfield(L, -1, "resume");           //将栈顶coroutine的resume函数（Lua标准resume函数）入栈
   lua_CFunction co_resume = lua_tocfunction(L, -1);
   if (co_resume == NULL)                   //将栈顶resume函数保存到co_resume中，如果为NULL则抛出错误
     return luaL_error(L, "Can't get coroutine.resume");
@@ -405,7 +405,7 @@ int luaopen_profile(lua_State* L) {
   lua_pushcfunction(L, co_resume);         //将co_resume入栈
   lua_setupvalue(L, -2, 3);                //设置lresume_co的第3个上值为co_resume，并将co_resume移除出栈
   lua_pop(L, 1);                           //将lresume_co移除出栈
-  lua_getfield(L, -1, "yield");            //将栈顶coroutine的yield域对应的值入栈
+  lua_getfield(L, -1, "yield");            //将栈顶coroutine的yield函数（Lua标准yield函数）入栈
   lua_CFunction co_yield = lua_tocfunction(L, -1);
   if (co_yield == NULL)                    //将栈顶yield函数保存到co_yield中，如果为NULL则抛出错误
     return luaL_error(L, "Can't get coroutine.yield");
@@ -531,7 +531,7 @@ static int timing_resume(lua_State* L) {
   #endif
     lua_pushnumber(L, ti);              //将当前时间入栈
     lua_rawset(L, lua_upvalueindex(1));	//将第1个上值设置为当前时间，并将当前时间出栈
-  }                                     //获取第3个上值作为协程resume函数
+  }                                     //获取第3个上值作为协程resume函数（Lua标准resume函数）
   lua_CFunction co_resume = lua_tocfunction(L, lua_upvalueindex(3));
   return co_resume(L);                  //调用这个函数resume协程
 }
@@ -573,7 +573,7 @@ static int timing_yield(lua_State* L) {
     lua_pushthread(L);                      //将协程L入栈
     lua_pushnumber(L, ti);                  //将总体时间ti入栈
     lua_rawset(L, lua_upvalueindex(2));     //将总体时间ti设置到第2个上值，并将ti出栈
-  }                                         //以下获取第3个上值作为协程yield函数
+  }                                         //以下获取第3个上值作为协程yield函数（Lua标准yiel函数）
   lua_CFunction co_yield = lua_tocfunction(L, lua_upvalueindex(3));
   return co_yield(L);                       //调用这个函数进行yield
 }
