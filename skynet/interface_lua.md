@@ -575,7 +575,7 @@ static int timing_resume(lua_State* L) {
   }
   else {
     lua_pop(L, 1);                      //否则第2个上值不为nil，将其从栈中移除
-    lua_pushvalue(L, 1);                //将1入栈
+    lua_pushvalue(L, 1);                //将第1个参数拷贝一份压入栈中
     double ti = get_time();             //获取当前时间
   #ifdef DEBUG_LOG
     fprintf(stderr, "PROFILE [%p] resume\n", from);
@@ -589,7 +589,7 @@ static int timing_resume(lua_State* L) {
 
 //@[lresume]
 static int lresume(lua_State* L) {
-  lua_pushvalue(L, 1);     //将1入栈
+  lua_pushvalue(L, 1);     //将第1个参数拷贝一份压入栈中
   return timing_resume(L); //调用timing_resume
 }
 
@@ -600,6 +600,7 @@ static int lresume_co(lua_State* L) {
   return timing_resume(L); //调用timing_resume
 }
 
+//@[timing_yield]
 static int timing_yield(lua_State* L) {
 #ifdef DEBUG_LOG
   lua_State* from = lua_tothread(L, -1);
@@ -641,5 +642,60 @@ static int lyield_co(lua_State* L) {
   return timing_yield(L);            //调用timing_yield
 }
 
-
+//@[luaopen_profile]注册C函数给Lua使用
+//传入参数：无
+//返回结果：注册的函数表
+int luaopen_profile(lua_State* L) {
+  luaL_checkversion(L);
+  luaL_Reg l[] = {
+    {"start", lstart},
+    {"stop", lstop},
+    {"resume", lresume},
+    {"yield", lyield},
+    {"resume_co", lresume_co},
+    {"yield_co", lyield_co},
+    {NULL, NULL},
+  };
+  luaL_newlibtable(L, l);                  //根据l的大小创建一个空table并压入栈中
+  lua_newtable(L);	                   //创建一个新table并入栈 start time
+  lua_newtable(L);	                   //创建一个新table并入栈 total time
+  lua_newtable(L);	                   //创建一个新table并入栈 weak table
+  lua_pushliteral(L, "kv");                //将字符串"kv"入栈
+  lua_setfield(L, -2, "__mode");           //设置weak table的mode为kv，其键和值都是弱键和弱值
+  lua_pushvalue(L, -1);                    //将weak table复制一份压入栈中
+  lua_setmetatable(L, -3);                 //将weak table设置成total time table的元表
+  lua_setmetatable(L, -3);                 //将weak table设置成start time table的元表
+  lua_pushnil(L);                          //将nil入栈，当前栈中元素：[funcs/start/total_table, nil]
+  luaL_setfuncs(L, l, 3);                  //注册l中的函数到空table中，设置这些函数共享3个上值start/total_table和nil
+  int libtable = lua_gettop(L);            //获取栈中参数个数[funcs_table]
+  lua_getglobal(L, "coroutine");           //将全局变量coroutine入栈
+  lua_getfield(L, -1, "resume");           //将栈顶coroutine的resume域对应的值入栈
+  lua_CFunction co_resume = lua_tocfunction(L, -1);
+  if (co_resume == NULL)                   //将栈顶resume函数保存到co_resume中，如果为NULL则抛出错误
+    return luaL_error(L, "Can't get coroutine.resume");
+  lua_pop(L, 1);                           //将栈顶resume移除
+  lua_getfield(L, libtable, "resume");     //将funcs_table中resume域对应的值（lresume）入栈
+  lua_pushcfunction(L, co_resume);         //将co_resume入栈
+  lua_setupvalue(L, -2, 3);                //设置lresume的第3个上值为co_resume，并将co_resume从栈中移除
+  lua_pop(L, 1);                           //将lresume出栈
+  lua_getfield(L, libtable, "resume_co");  //将funcs_table中resume_co域对应的值（lresume_co）入栈
+  lua_pushcfunction(L, co_resume);         //将co_resume入栈
+  lua_setupvalue(L, -2, 3);                //设置lresume_co的第3个上值为co_resume，并将co_resume移除出栈
+  lua_pop(L, 1);                           //将lresume_co移除出栈
+  lua_getfield(L, -1, "yield");            //将栈顶coroutine的yield域对应的值入栈
+  lua_CFunction co_yield = lua_tocfunction(L, -1);
+  if (co_yield == NULL)                    //将栈顶yield函数保存到co_yield中，如果为NULL则抛出错误
+    return luaL_error(L, "Can't get coroutine.yield");
+  lua_pop(L, 1);                           //将yield移除出栈
+  lua_getfield(L, libtable, "yield");      //将funcs_table中的yield域对应的值（lyield）入栈
+  lua_pushcfunction(L, co_yield);          //将co_yield入栈
+  lua_setupvalue(L, -2, 3);                //设置lyield的第3个上值为co_yield，并将co_yield从栈中移除
+  lua_pop(L, 1);                           //将lyield移除出栈
+  lua_getfield(L, libtable, "yield_co");   //将funcs_table中的yield_co域对应的值（lyield_co）入栈
+  lua_pushcfunction(L, co_yield);          //将co_yield入栈
+  lua_setupvalue(L, -2, 3);                //设置lyield_co的第3个上值为co_yield，并将co_yield从栈中移除
+  lua_pop(L,1);                            //将lyield移除出栈
+  lua_settop(L, libtable);                 //调整参数个数仅剩funcs_table
+  return 1;                                //返回结果个数1
+}
 ```
