@@ -8,7 +8,9 @@ Lua定义了一套规则完成Lua函数到C的调用，它首先将要调用的C
 
 要在Lua中使用skynet的功能，需要先定义一个中间层完成调用转换，源文件lua-skynet.c即完成
 这个功能，它定义一组满足规则的C函数，然后打包成Lua可以访问的动态库模块给Lua使用。
-这些C函数专供Lua调用，并在函数内部调用底层普通的C函数完成实际的功能。
+这些C函数专供Lua调用，并在函数内部调用底层skynet实现完成实际的功能。
+
+# 核心函数（skynet.core）
 
 ```c
 //@[_send]给指定服务发送消息
@@ -358,7 +360,7 @@ int luaopen_skynet_core(lua_State* L) {
 # 数据打包
 
 
-# 性能刨析
+# 性能刨析（profile）
 
 ```c
 //@[get_time]获取当前线程运行时间，单位为秒
@@ -554,7 +556,7 @@ int luaopen_profile(lua_State* L) {
   lua_setmetatable(L, -3);                 //将weak table设置成total time table的元表
   lua_setmetatable(L, -3);                 //将weak table设置成start time table的元表
   lua_pushnil(L);                          //将nil入栈，当前栈中元素：[funcs/start/total_table, nil]
-  luaL_setfuncs(L, l, 3);                  //注册l中的函数到空table中，设置这些函数共享3个上值start/total_table和nil
+  luaL_setfuncs(L, l, 3);                  //注册l中的函数到空table中，设置这些函数共享3个上值start/total和nil
   int libtable = lua_gettop(L);            //获取栈中参数个数[funcs_table]
   lua_getglobal(L, "coroutine");           //将全局变量coroutine入栈
   lua_getfield(L, -1, "resume");           //将栈顶coroutine的resume域对应的值入栈
