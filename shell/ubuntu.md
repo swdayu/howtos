@@ -162,3 +162,32 @@ $ svn export http://192.168.7.3/svn/ --username <user>
 $ gnome-system-monitor
 $ top
 ```
+
+## Setup VPN Server
+```shell
+$ sudo apt-get install pptpd
+$ sudo vim /etc/pptpd.conf
+  # uncomment these lines
+  localip 192.168.0.1
+  remoteip 192.168.0.234-238,192.168.0.245
+$ sudo vim /etc/ppp/chap-secrets
+  # add account, * accept connection from all ip addresses
+  username pptpd "password" *
+$ sudo vim /etc/ppp/pptpd-options
+  # modify this line
+  ms-dns 8.8.8.8
+$ sudo vim /etc/sysctl.conf
+  # uncomment this line
+  net.ipv4.ip_forward=1
+$ sudo sysctl -p
+$ sudo apt-get install iptables
+$ sudo iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -o eth0 -j MASQUERADE
+$ sudo iptables-save > /etc/iptables-rules
+$ sudo vim /etc/network/interface
+  # add this line in eth0 section
+  pre-up iptables-restore < /etc/iptables-rules
+$ sudo service pptpd restart
+```
+
+
+
