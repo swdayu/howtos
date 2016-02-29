@@ -1,5 +1,5 @@
 
-
+```lua
 local c = require "skynet.core"
 local profile = require "profile"
 local coroutine_resume = profile.resume
