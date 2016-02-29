@@ -365,58 +365,58 @@ int _luaseri_unpack(lua_State* L) {
 # 性能刨析（profile）
 
 ```c
-//@[luaopen_profile]注册C函数给Lua使用
+//@[luaopen_profile]注册Profile的C函数给Lua使用
 //传入参数：无
 //返回结果：注册的函数表
 int luaopen_profile(lua_State* L) {
   luaL_checkversion(L);
   luaL_Reg l[] = {
-    {"start", lstart},
-    {"stop", lstop},
-    {"resume", lresume},
-    {"yield", lyield},
-    {"resume_co", lresume_co},
-    {"yield_co", lyield_co},
-    {NULL, NULL},
+    {"start", lstart},           //拥有3个上值：start_time_table, total_time_table, nil
+    {"stop", lstop},             //拥有3个上值：start_time_table, total_time_table, nil
+    {"resume", lresume},         //拥有3个上值：start_time_table, total_time_table, coroutine.resume
+    {"yield", lyield},           //拥有3个上值：start_time_table, total_time_table, coroutine.yield
+    {"resume_co", lresume_co},   //拥有3个上值：start_time_table, total_time_table, coroutine.resume
+    {"yield_co", lyield_co},     //拥有3个上值：start_time_table, total_time_table, coroutine.yield
+    {NULL, NULL},                //其中start_time_table和total_time_table的元表是一个weak_table
   };
-  luaL_newlibtable(L, l);                  //根据l的大小创建一个空table并压入栈中
-  lua_newtable(L);	                   //创建一个新table并入栈 start time
-  lua_newtable(L);	                   //创建一个新table并入栈 total time
-  lua_newtable(L);	                   //创建一个新table并入栈 weak table
+  luaL_newlibtable(L, l);                  //根据l的大小创建一个空table（funcs_table）入栈
+  lua_newtable(L);	                   //创建一个新table（start_time_table）入栈
+  lua_newtable(L);	                   //创建一个新table（total_time_table）入栈
+  lua_newtable(L);	                   //创建一个新table（weak_table）入栈
   lua_pushliteral(L, "kv");                //将字符串"kv"入栈
-  lua_setfield(L, -2, "__mode");           //设置weak table的mode为kv，其键和值都是弱键和弱值
-  lua_pushvalue(L, -1);                    //将weak table复制一份压入栈中
-  lua_setmetatable(L, -3);                 //将weak table设置成total time table的元表
-  lua_setmetatable(L, -3);                 //将weak table设置成start time table的元表
-  lua_pushnil(L);                          //将nil入栈，当前栈中元素：[funcs/start/total_table, nil]
-  luaL_setfuncs(L, l, 3);                  //注册l中的函数到空table中，设置这些函数共享3个上值start/total和nil
-  int libtable = lua_gettop(L);            //获取栈中参数个数[funcs_table]
+  lua_setfield(L, -2, "__mode");           //设置weak_table的mode为kv，其键和值都是弱键和弱值，并将"kv"移除出栈
+  lua_pushvalue(L, -1);                    //将weak_table复制一份入栈
+  lua_setmetatable(L, -3);                 //将weak_table设置成total_time_table的元表，并移除一个weak_table
+  lua_setmetatable(L, -3);                 //将weak table设置成start_time_table的元表，移除第二个weak_table
+  lua_pushnil(L);                          //将nil入栈，当前栈中元素：[funcs/start_time/total_time_table, nil]
+  luaL_setfuncs(L, l, 3);                  //将l中的函数注册到funcs_table中，设置函数共享3个上值start/total_time_table和nil
+  int libtable = lua_gettop(L);            //获取当前栈元素个数，此时栈顶元素为funcs_table
   lua_getglobal(L, "coroutine");           //将全局变量coroutine入栈
-  lua_getfield(L, -1, "resume");           //将栈顶coroutine的resume函数（Lua标准resume函数）入栈
+  lua_getfield(L, -1, "resume");           //将coroutine.resume入栈（Lua标准resume函数）
   lua_CFunction co_resume = lua_tocfunction(L, -1);
   if (co_resume == NULL)                   //将栈顶resume函数保存到co_resume中，如果为NULL则抛出错误
     return luaL_error(L, "Can't get coroutine.resume");
-  lua_pop(L, 1);                           //将栈顶resume移除
+  lua_pop(L, 1);                           //将栈顶resume函数移除
   lua_getfield(L, libtable, "resume");     //将funcs_table中resume域对应的值（lresume）入栈
   lua_pushcfunction(L, co_resume);         //将co_resume入栈
-  lua_setupvalue(L, -2, 3);                //设置lresume的第3个上值为co_resume，并将co_resume从栈中移除
+  lua_setupvalue(L, -2, 3);                //将lresume的第3个上值设置为co_resume，并将co_resume移除出栈
   lua_pop(L, 1);                           //将lresume出栈
   lua_getfield(L, libtable, "resume_co");  //将funcs_table中resume_co域对应的值（lresume_co）入栈
   lua_pushcfunction(L, co_resume);         //将co_resume入栈
-  lua_setupvalue(L, -2, 3);                //设置lresume_co的第3个上值为co_resume，并将co_resume移除出栈
-  lua_pop(L, 1);                           //将lresume_co移除出栈
-  lua_getfield(L, -1, "yield");            //将栈顶coroutine的yield函数（Lua标准yield函数）入栈
+  lua_setupvalue(L, -2, 3);                //将lresume_co的第3个上值设置为co_resume，并将co_resume移除出栈
+  lua_pop(L, 1);                           //将lresume_co出栈
+  lua_getfield(L, -1, "yield");            //将coroutine.yield函数入栈（Lua标准yield函数）
   lua_CFunction co_yield = lua_tocfunction(L, -1);
   if (co_yield == NULL)                    //将栈顶yield函数保存到co_yield中，如果为NULL则抛出错误
     return luaL_error(L, "Can't get coroutine.yield");
   lua_pop(L, 1);                           //将yield移除出栈
   lua_getfield(L, libtable, "yield");      //将funcs_table中的yield域对应的值（lyield）入栈
   lua_pushcfunction(L, co_yield);          //将co_yield入栈
-  lua_setupvalue(L, -2, 3);                //设置lyield的第3个上值为co_yield，并将co_yield从栈中移除
+  lua_setupvalue(L, -2, 3);                //将lyield的第3个上值设置为co_yield，并将co_yield移除出栈
   lua_pop(L, 1);                           //将lyield移除出栈
   lua_getfield(L, libtable, "yield_co");   //将funcs_table中的yield_co域对应的值（lyield_co）入栈
   lua_pushcfunction(L, co_yield);          //将co_yield入栈
-  lua_setupvalue(L, -2, 3);                //设置lyield_co的第3个上值为co_yield，并将co_yield从栈中移除
+  lua_setupvalue(L, -2, 3);                //将lyield_co的第3个上值设置为co_yield，并将co_yield移除出栈
   lua_pop(L,1);                            //将lyield移除出栈
   lua_settop(L, libtable);                 //调整参数个数仅剩funcs_table
   return 1;                                //返回结果个数1
@@ -513,69 +513,71 @@ static int lstop(lua_State* L) {
   return 1;                             //返回1个结果
 }
 
-//@[timing_resume]
+//@[timing_resume]除resume协程外还会记录协程的启动时间
+//resume函数的参数：coroutine.resume(co [, val1, ...])
 static int timing_resume(lua_State* L) {
 #ifdef DEBUG_LOG
   lua_State* from = lua_tothread(L, -1);
 #endif
-  lua_rawget(L, lua_upvalueindex(2));   //将第2个上值入栈
-  if (lua_isnil(L, -1)) {		//如果上值为nil
-    lua_pop(L, 1);                      //将其从栈中移除
+  lua_rawget(L, lua_upvalueindex(2));   //将total_time_table[top_arg]入栈，并将top_arg移除
+  if (lua_isnil(L, -1)) {		//如果total_time为nil
+    lua_pop(L, 1);                      //将其从栈中移除，不会进行时间计算直接运行下面的resume函数
   }
   else {
-    lua_pop(L, 1);                      //否则第2个上值不为nil，将其从栈中移除
+    lua_pop(L, 1);                      //否则total_time不为nil，将其从栈中移除，开始计算时间
     lua_pushvalue(L, 1);                //将第1个参数拷贝一份压入栈中
     double ti = get_time();             //获取当前时间
   #ifdef DEBUG_LOG
     fprintf(stderr, "PROFILE [%p] resume\n", from);
   #endif
-    lua_pushnumber(L, ti);              //将当前时间入栈
-    lua_rawset(L, lua_upvalueindex(1));	//将第1个上值设置为当前时间，并将当前时间出栈
-  }                                     //获取第3个上值作为协程resume函数（Lua标准resume函数）
+    lua_pushnumber(L, ti);              //将当前时间入栈，当前参数[1st_arg, ti]
+    lua_rawset(L, lua_upvalueindex(1));	//start_time_table[1st_arg] = ti，会将[1st_arg, ti]移除出栈
+  }                                     //获取resume函数（Lua标准resume函数）
   lua_CFunction co_resume = lua_tocfunction(L, lua_upvalueindex(3));
-  return co_resume(L);                  //调用这个函数resume协程
+  return co_resume(L);                  //resume协程
 }
 
 //@[lresume]
 static int lresume(lua_State* L) {
-  lua_pushvalue(L, 1);     //将第1个参数拷贝一份压入栈中
+  lua_pushvalue(L, 1);     //将第1个参数拷贝一份入栈
   return timing_resume(L); //调用timing_resume
 }
 
 //@[lresume_co]
 static int lresume_co(lua_State* L) {
   luaL_checktype(L, 2, LUA_TTHREAD); //确保第2个参数是协程
-  lua_rotate(L, 2, -1);    //第2个参数与栈顶之间的参数向栈底方向循环移动1位（第2个参数移动栈顶）
+  lua_rotate(L, 2, -1);    //第2个参数与栈顶之间的参数向栈底方向循环移动1位（第2个参数移动到栈顶）
   return timing_resume(L); //调用timing_resume
 }
 
-//@[timing_yield]
+//@[timing_yield]除yield协程外还会记录协程的运行时间
+//yield函数的参数：coroutine.yield([res1, ...])
 static int timing_yield(lua_State* L) {
 #ifdef DEBUG_LOG
   lua_State* from = lua_tothread(L, -1);
 #endif
-  lua_rawget(L, lua_upvalueindex(2));       //将第2个上值入栈
-  if (lua_isnil(L, -1)) {                   //如果其值为nil
-    lua_pop(L,1);                           //将其出栈
+  lua_rawget(L, lua_upvalueindex(2));       //将total_time_table[top_arg]入栈，并将top_arg移除
+  if (lua_isnil(L, -1)) {                   //如果total_time为nil
+    lua_pop(L,1);                           //将其移除出栈，不会进行时间计算直接运行下面的yield函数
   }
-  else {                                    //否则第2个上值不为nil
-    double ti = lua_tonumber(L, -1);        //获取栈顶值保存到ti
-    lua_pop(L, 1);                          //移除栈顶一个元素
+  else {                                    //否则total_time不为nil
+    double ti = lua_tonumber(L, -1);        //将total_time保存到ti
+    lua_pop(L, 1);                          //移total_time移除出栈，开始计算时间
     lua_pushthread(L);                      //将协程L入栈
-    lua_rawget(L, lua_upvalueindex(1));     //将第1个上值入栈
-    double starttime = lua_tonumber(L, -1); //获取栈顶值保存到starttime
-    lua_pop(L, 1);                          //移除栈顶一个元素
-    double diff = diff_time(starttime);     //计算starttime到现在的时间间隔
-    ti += diff;                             //计算总体时间ti
+    lua_rawget(L, lua_upvalueindex(1));     //将start_time_table[L]入栈，并将L移除出栈
+    double starttime = lua_tonumber(L, -1); //将start_time保存到starttime
+    lua_pop(L, 1);                          //将start_time移除出栈
+    double diff = diff_time(starttime);     //获取starttime到现在的时间间隔diff
+    ti += diff;                             //将时间间隔加入到ti中
 #ifdef DEBUG_LOG
     fprintf(stderr, "PROFILE [%p] yield (%lf/%lf)\n", from, diff, ti);
 #endif
     lua_pushthread(L);                      //将协程L入栈
     lua_pushnumber(L, ti);                  //将总体时间ti入栈
-    lua_rawset(L, lua_upvalueindex(2));     //将总体时间ti设置到第2个上值，并将ti出栈
-  }                                         //以下获取第3个上值作为协程yield函数（Lua标准yiel函数）
+    lua_rawset(L, lua_upvalueindex(2));     //设置total_time_table[L] = ti，并将ti和L移除
+  }                                         //获取yield函数（Lua标准yiel函数）
   lua_CFunction co_yield = lua_tocfunction(L, lua_upvalueindex(3));
-  return co_yield(L);                       //调用这个函数进行yield
+  return co_yield(L);                       //yield协程
 }
 
 //@[lyield]
