@@ -384,11 +384,11 @@ int luaopen_profile(lua_State* L) {
   lua_newtable(L);                         //创建一个新table（total_time_table）入栈
   lua_newtable(L);                         //创建一个新table（weak_table）入栈
   lua_pushliteral(L, "kv");                //将字符串"kv"入栈
-  lua_setfield(L, -2, "__mode");           //设置weak_table的mode为kv，其键和值都是弱键和弱值，并将"kv"移除出栈
+  lua_setfield(L, -2, "__mode");           //设置weak_table的mode为kv，其键和值都是弱键和弱值，并将"kv"移除
   lua_pushvalue(L, -1);                    //将weak_table复制一份入栈
   lua_setmetatable(L, -3);                 //将weak_table设置成total_time_table的元表，并移除一个weak_table
   lua_setmetatable(L, -3);                 //将weak table设置成start_time_table的元表，移除第二个weak_table
-  lua_pushnil(L);                          //将nil入栈，当前栈中元素：[funcs/start_time/total_time_table, nil]
+  lua_pushnil(L);                          //将nil入栈，当前栈中元素：[funcs/start_time/total_time, nil]
   luaL_setfuncs(L, l, 3);                  //将l中的函数注册到funcs_table中，设置函数共享栈顶的3个上值
   int libtable = lua_gettop(L);            //获取当前栈元素个数，此时栈顶元素为funcs_table
   lua_getglobal(L, "coroutine");           //将全局变量coroutine入栈
