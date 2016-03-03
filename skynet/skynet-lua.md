@@ -33,12 +33,12 @@ local profile = require "profile"
 local coroutine_resume = profile.resume
 local coroutine_yield = profile.yield
 
---@[co_create]
+--@[co_create]如果协程池中有协程则取出最末尾一个resume并返回该协程，否则创建一个新协程返回
 local coroutine_pool = {}
 local function co_create(f)
   local co = table.remove(coroutine_pool)        --获取并移除协程池中的最后一个协程
   if co == nil then                              --如果获取的协程为空
-    co = coroutine.create(function(...)          --新创建一个Lua标准协程，协程主函数会做如下事情：
+    co = coroutine.create(function(...)          --新创建一个Lua标准协程，协程主函数会做以下事情：
       f(...)                                     --1. 执行用户传入的函数f
       while true do                              --2. 死循环一直执行以下操作：TODO
         f = nil                                  --   将f置为nil TODO
