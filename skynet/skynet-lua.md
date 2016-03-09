@@ -87,4 +87,51 @@ end
 function skynet.yield()
   return skynet.sleep(0)
 end
+
+--@[skynet.wait] TODO
+--传入参数：TODO
+function skynet.wait(co)
+  local session = c.genid()                          --获取一个新的整型session号
+  local ret, msg = coroutine_yield("SLEEP", session) --yield当前协程
+  co = co or coroutine.running()                     --如果传入的co为空则将当前协程保存到co
+  sleep_session[co] = nil                            --将co对应的sleep消息session号置为空 TODO
+  session_id_coroutine[session] = nil                --将新产生的session号对应的协程设为空 TODO
+end
+
+--@[skynet.self]获取当前服务的句柄
+local self_handle
+function skynet.self()
+  if self_handle then                              --如果已经保存了服务的句柄
+    return self_handle                             --直接返回这个句柄
+  end
+  self_handle = string_to_handle(c.command("REG")) --将服务句柄字符串":hex_str_of_service_handle"注册作为服务名称
+  return self_handle                               --将服务名称字符串转换成整型句柄值保存到self_handle后，返回这个服务句柄
+end
+
+--@[skynet.localname]获取对应名称的服务句柄
+--传入参数：".service_name"形式的服务名称
+--返回结果：服务的整型句柄或nil
+function skynet.localname(name)
+  local addr = c.command("QUERY", name) --使用".service_name"形式的名称查找对应的服务，返回服务句柄字符串
+  if addr then                          --如果找到对应的服务
+    return string_to_handle(addr)       --返回这个服务对应的整型句柄
+  end
+end
+
+--@[skynet.now]skynet启动后到现在的时间间隔，单位为10毫秒
+skynet.now = c.now
+
+--@[skynet.starttime]skynet启动的时间点，单位为秒
+local starttime
+function skynet.starttime()
+  if not starttime then
+    starttime = c.intcommand("STARTTIME")
+  end
+  return starttime
+end
+
+--@[skynet.time]现在的时间点，单位为秒
+function skynet.time()
+  return skynet.now()/100 + (starttime or skynet.starttime())
+end
 ```
