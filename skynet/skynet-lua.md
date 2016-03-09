@@ -28,10 +28,10 @@ function skynet.register_protocol(class)
   proto[id] = class          --也可以通过proto[id]访问注册的对象
 end
 
-
 local profile = require "profile"
 local coroutine_resume = profile.resume
 local coroutine_yield = profile.yield
+local coroutine = coroutine
 
 --@[co_create]如果协程池中有协程则取出最末尾一个resume并返回该协程，否则创建一个新协程返回
 local coroutine_pool = {}
@@ -53,29 +53,37 @@ local function co_create(f)
   return co                                      --最后将协程返回
 end
 
+--@[skynet.timeout]创建计时器和一个对应协程，并将计时器消息session号与协程进行关联
+--传入参数：integer ti, lua_function func
 function skynet.timeout(ti, func)
-	local session = c.intcommand("TIMEOUT",ti)
-	assert(session)
-	local co = co_create(func)
-	assert(session_id_coroutine[session] == nil)
-	session_id_coroutine[session] = co
+  local session = c.intcommand("TIMEOUT", ti)  --创建ti超时的计时器，时间ti超时后会向服务消息队列发送一条消息
+  assert(session)                              --该函数会返回消息session号，session号不能为空
+  local co = co_create(func)                   --使用超时处理函数创建一个新协程co
+  assert(session_id_coroutine[session] == nil) --对应的session号必须没有关联其他协程
+  session_id_coroutine[session] = co           --将session号和新协程进行关联
 end
 
+--@[skynet.sleep]创建sleep计时器然后yield当前协程，并清除当前协程关联的sleep消息session号
+--传入参数：integer ti
+--返回结果：如果yield成功则返回nil，否则返回"BREAK"或抛出异常
 function skynet.sleep(ti)
-  local session = c.intcommand("TIMEOUT",ti)
-  assert(session)
-  local succ, ret = coroutine_yield("SLEEP", session)
-  sleep_session[coroutine.running()] = nil
-  if succ then
+  local session = c.intcommand("TIMEOUT", ti)         --创建ti超时的计时器，时间ti超时后会向服务消息队列发送一条消息
+  assert(session)                                     --该函数会返回消息session号，session号不能为空
+  local succ, ret = coroutine_yield("SLEEP", session) --yield当前协程
+  sleep_session[coroutine.running()] = nil            --将当前运行协程对应的sleep消息session号设为nil
+  if succ then                                        --如果yield成功则直接返回
     return
-  end
-  if ret == "BREAK" then
-    return "BREAK"
-  else
+  end                                                 --否则yield失败，再判断：
+  if ret == "BREAK" then                              --返回的第2个参数ret是否为"BREAK"
+    return "BREAK"                                    --是则返回"BREAK"
+  else                                                --否则抛出异常
     error(ret)
   end
 end
 
+--@[skynet.yield]超时为0会直接发送消息到服务消息队列，然后yield当前协程并清除当前协程关联的sleep消息session号
+--传入参数：无
+--返回结果：如果yield成功则返回nil，否则返回"BREAK"或抛出异常
 function skynet.yield()
   return skynet.sleep(0)
 end
