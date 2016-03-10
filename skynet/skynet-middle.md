@@ -46,7 +46,7 @@ int luaopen_skynet_core(lua_State* L) {
 }
 
 //@[_send]给指定服务发送消息
-//传入参数：dest_hdl type session content_type (msg_string | msg_data msg_sz)
+//传入参数：dest_name/hdl type session content_type (msg_string | msg_data msg_sz)
 //返回结果：integer msg_session_id或无结果
 static int _send(lua_State* L) {
   struct skynet_context* context = 
@@ -105,7 +105,7 @@ static int _send(lua_State* L) {
 }
 
 //@[_redirect]从源服务发送指定消息给目标服务
-//传入参数：src_hdl dest_hdl type session content_type (msg_string | msg_data msg_sz)
+//传入参数：dest_name/hdl src_hdl type session content_type (msg_string | msg_data msg_sz)
 //返回结果：无，另外与_send不同的是，该函数不会自动生成消息session号，需要明确指定
 static int _redirect(lua_State* L) {
   struct skynet_context* context = lua_touserdata(L, lua_upvalueindex(1));
