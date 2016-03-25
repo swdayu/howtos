@@ -1,33 +1,23 @@
 
-# VIM
-
-BASIC
+## Basic
 ```shell
 INSERT - change to insert mode
 ESC - exit from editor mode to command mode
-```
 
-QUIT
-```shell
 :q   - quit without save
 :wq  - save and then quit
 :wq! - force overwrite and quit
-```
 
-GO TO LINE
-```shell
 : LINE_NUMBER ENTER
-```
-
-SEARCH STRING
-```
 / STRING_TO_SEARCH ENTER - first match after cursor
 ? STRING_TO_SEARCH ENTER - first match before cursor
 n - next match
 N - prev match
 ```
 
-```shell
+## Skills
+
+```c
 x   删除光标下的字符
 .   重复上一次操作，这里再次删除光标下的字符
 u   撤销上一次操作
@@ -51,6 +41,8 @@ f+        在当前行查找下一个加号，并将光标移动到+字符上
 s + <ESC> 删除当前字符并进入插入模式，添加一个空格一个加号和一个空格，退出插入模式
 ;.        正向继续上一次查找（使用,可以反向查找），并重复上一次操作
 
-
-i   进入插入模式
+:set hls       可以打开高亮显示
+*              查找当前光标所在位置的单词
+cw[word]<ESC>  删除当前单词光标位置到单词结尾间的字符，并输入替换的单词，然后退出插入模式
+n.             查找下一个单词，并执行上述替换操作
 ```
