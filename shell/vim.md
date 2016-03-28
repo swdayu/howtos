@@ -65,7 +65,15 @@ d3w               删除3个单词（或者3dw）
 
 [操作符 + 动作命令 = 操作]
 :h operator 查看所有操作符
-d{motion}    dl 删除字符 dw daw 删除单词 dap 删除段落 dd 重复作用于当前行
+c{motion}    cl 删除当前字符 cw 删除单词光标之后的字符 caw 删除整个单词 cap 删除段落 cc 删除当前行 => 并保留在插入模式
+d{motion}    dl 删除当前字符 dw 删除单词光标之后的字符 daw 删除整个单词 dap 删除段落 dd 重复作用于当前行
 gu{motion}   gul guaw guap 转换成小写 gugu guu 作用于当前行
 gU{motion}   gUl gUaw gUap 转换成大写 gUgU gUU 作用于当前行
+g~{motion}   g~l g~aw g~ap 大小变小大 g~g~ g~~ 作用于当前行
+>{motion}    >ap >> 增加缩进
+<{motion}    <ap << 减少缩进
+={motion}    =ap == 自动缩进
+
+:h :map-operator
+:h omap-info
 ```
