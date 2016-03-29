@@ -76,4 +76,11 @@ g~{motion}   g~l g~aw g~ap 大小变小大 g~g~ g~~ 作用于当前行
 
 :h :map-operator
 :h omap-info
+
+[插入模式]
+<c-h> 删除前一个字符
+<c-w> 删除前一个单词
+<c-u> 删除至行首
+
+
 ```
