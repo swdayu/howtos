@@ -56,6 +56,7 @@ lpeg.P(value)
 - 如果值是一个表，它被当作语法进行解析，见Grammars部分
 - 如果值是一个函数，`returns a pattern equivalent to a match-time capture over the empty string`
 
+**lpeg.B**
 ```lua
 lpeg.B(patt)
 ```
@@ -63,6 +64,7 @@ lpeg.B(patt)
 模式patt必须只匹配固定长度的字符串，且不能包含capture。
 像and predicate（#patt）一样，返回的pattern不管匹配成功或失败都不会消耗输入字符串中的字符。
 
+**lpeg.R**
 ```lua
 lpeg.R({range})
 ```
@@ -70,6 +72,7 @@ lpeg.R({range})
 每个范围是一个长度为2的字符串，例如"xy"表示的范围包含两个字符x和y。
 例如lpeg.R("09")匹配数字，lpeg.R("az", "AZ")匹配字母。
 
+**lpeg.S**
 ```lua
 lpeg.S(string)
 ```
@@ -77,12 +80,14 @@ lpeg.S(string)
 注意如果传入的字符串只包含一个字符，则如lpeg.P("a")等价于lpeg.S("a")也等价于lpeg.R("aa")，
 另外lpeg.S("")和lpeg.R()返回的pattern总匹配失败。
 
+**lpeg.V**
 ```lua
 lpeg.V(v)
 ```
 这个函数创建语法的非终结符（或变量），`The created non-terminal refers to the rule indexed by v in the enclosing grammar`。
 见Grammars部分。
 
+**lpeg.locale**
 ```lua
 lpeg.locale([table])
 ```
@@ -91,17 +96,17 @@ lpeg.locale([table])
 每个pattern都匹配属于对应字符集合中的单个字符。
 If called with an argument table, then it creates those fields inside the given table and returns that table.
 
-**#patt**
+**#patt**  
 返回的pattern只有输入字符串匹配patt时才匹配，但不管成功或失败都不消耗输入字符串中的字符。
 这个pattern是一种and predicate，与原PEG中的&patt等价。这种pattern不产生任何capture。
 
-**-patt**
+**-patt**  
 返回的pattern只有输入串不匹配patt的时候才匹配，不管成功或失败它都不会消耗
 输入串中的字符（这个pattern与原PEG中的!patt等价）。
 例如-lpeg.P(1)只匹配字符串的末尾。这种pattern不产生任何capture，
 因为patt会匹配失败或-patt会匹配失败（匹配失败的pattern不产生capture）。
 
-**patt1+patt2**
+**patt1+patt2**  
 返回的pattern匹配patt1或者patt2（与原PEG中的patt1/patt2等价，注意不要与LPeg中的/操作混淆），匹配不会回溯。
 如果patt1和patt2都匹配字符集合，则这个操作等价于匹配这两个字符集合的并集。例如：
 ```lua
@@ -110,7 +115,7 @@ upper = lpeg.R("AZ")
 letter = lower + upper
 ```
 
-**patt1-patt2**
+**patt1-patt2**  
 返回的pattern等价于PEG中的!patt2 patt1，它表示匹配patt2失败，但匹配patt1成功。
 如果匹配成功，该pattern会产生源于patt1的所有capture。
 它不会产生源于patt2的任何capture（因为patt2会匹配失败或patt1-patt2会匹配失败）。
@@ -118,16 +123,16 @@ letter = lower + upper
 （匹配的字符集合是将patt1字符集合中属于patt2字符集合的字符都去掉后的字符集合）。
 注意-patt等价于""-patt（或0-patt），如果patt是字符集合，则1-patt是它的补集。
 
-**patt1*patt2**
+**patt1*patt2**  
 返回的pattern只有在匹配patt1成功后接着匹配patt2成功才匹配成功。
 
-**patt^n**
+**patt^n**  
 如果n是非负数，这个pattern等价于PEG中的pattn patt*，它表示匹配n次或更多次patt。
 如果n是负数，则这个pattern等价于PEG中的(patt?)-n，它表示匹配最多|n|次patt。
 特别地patt^0等价与PEG中的patt*，patt^1等价于PEG中的patt+，而patt^-1则等价于PEG中的patt?。
 这个匹配使用无回溯贪婪匹配方式进行匹配（也称为possessive repetition），即它只匹配patt的最长匹配序列。
 
-**Grammars**
+**Grammars**  
 使用Lua变量可以增量式的定义pattern，新的pattern可以使用原来已经定义的pattern。
 然而使用这种方式不能定义递归pattern，此时我们需要用到grammer
 LPeg使用table表示grammer，table中的每一个entry表示一条规则。
