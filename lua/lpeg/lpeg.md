@@ -86,9 +86,9 @@ lpeg.V(v)
 ```lua
 lpeg.locale([table])
 ```
-
-Returns a table with patterns for matching some character classes according to the current locale. The table has fields named alnum, alpha, cntrl, digit, graph, lower, print, punct, space, upper, and xdigit, each one containing a correspondent pattern. Each pattern matches any single character that belongs to its class.
-
+返回当前locale对应的字符类的匹配pattern，所有pattern保存在一个table中。
+其中包括alnum，alpha，cntrl，digit，graph，lower，print，punct，space，upper，xdigit。
+每个pattern都匹配属于对应字符集合中的单个字符。
 If called with an argument table, then it creates those fields inside the given table and returns that table.
 
 **#patt**
