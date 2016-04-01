@@ -15,12 +15,12 @@ LPeg中的模式（pattern）是普通的Lua值（使用userdata表示），并�
 ```lua
 lpeg.match(pattern, subject[, init])
 ```
-查找字符串`subject`中满足模式`pattern`的子串。
-如果匹配成功则返回子串后一个字符的索引，或所有捕获的值（如果pattern包含了捕获的语法）。
+查找输入串`subject`中满足模式`pattern`的子串。
+如果匹配成功则返回子串后一个字符的索引，或所有captur的值（如果pattern包含了captur的语法）。
 
-该函数有一个可选的参数`init`，用于指定字符串`subject`的启始查找索引，如果传入一个负数表示从后往前算的一个值。
-注意这个函数只会去匹配从`subject`字符串init索引位置开始的子串，不会去匹配从任何位置开始的子串。
-如果要匹配从任何位置开始的子串，可以写一个循环或使用匹配任何位置的模式`pattern`。
+该函数有一个可选的参数`init`，用于指定输入串`subject`的查找起始索引，如果传入一个负数表示从后往前算的一个值。
+注意这个函数只会去匹配输入串`subject`init索引位置开始的子串，不会匹配从任何位置开始的子串。
+如果要匹配从任何位置开始的子串，可以写一个循环或匹配任何位置的模式`pattern`。
 
 **lpeg.type**
 ```lua
@@ -131,5 +131,3 @@ letter = lower + upper
 使用Lua变量可以增量式的定义pattern，新的pattern可以使用原来已经定义的pattern。
 然而使用这种方式不能定义递归pattern，此时我们需要用到grammer
 LPeg使用table表示grammer，table中的每一个entry表示一条规则。
-
-
