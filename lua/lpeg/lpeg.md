@@ -61,7 +61,7 @@ lpeg.B(patt)
 ```
 返回的pattern只在输入串当前位置之前的字符匹配patt时才表示匹配。
 模式patt必须只匹配固定长度的字符串，且不能包含capture。
-像predicate一样，返回的pattern不管匹配成功或失败都不会消耗输入字符串中的字符。
+像and predicate（#patt）一样，返回的pattern不管匹配成功或失败都不会消耗输入字符串中的字符。
 
 ```lua
 lpeg.R({range})
