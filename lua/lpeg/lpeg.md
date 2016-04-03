@@ -9,7 +9,7 @@
 LPeg是一种新的Lua模式匹配库，它基于PEG（Parsing Expression Grammars）语法实现。
 LPeg中的模式（pattern）是普通的Lua值（使用userdata表示），并且通过元表为模式定义了一些特定的操作。
 
-## 函数
+## 基本函数
 
 **lpeg.match**
 ```lua
@@ -144,7 +144,7 @@ letter = lower + upper
 然而使用这种方式不能定义递归pattern，此时我们需要用到grammer
 LPeg使用table表示grammer，table中的每一个entry表示一条规则。
 
-## Captures
+## 生成捕获
 
 捕获只有在匹配成功时才产生值，每个捕获可以产生0或多个值。
 一般情况下，捕获的值只有在匹配完全成功后才开始运算，但除了match-time的捕获e除外。
