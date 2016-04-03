@@ -16,7 +16,7 @@ LPeg中的模式（pattern）是普通的Lua值（使用userdata表示），并�
 lpeg.match(pattern, subject[, init])
 ```
 查找输入串`subject`中满足模式`pattern`的子串。
-如果匹配成功则返回子串后一个字符的索引，或所有captur的值（如果pattern包含了captur的语法）。
+如果匹配成功则返回子串后一个字符的索引，或所有capture的值（如果pattern包含了capture的语法）。
 
 该函数有一个可选的参数`init`，用于指定输入串`subject`的查找起始索引，如果传入一个负数表示从后往前算的一个值。
 注意这个函数只会去匹配输入串`subject`init索引位置开始的子串，不会匹配从任何位置开始的子串。
@@ -143,3 +143,35 @@ letter = lower + upper
 使用Lua变量可以增量式的定义pattern，新的pattern可以使用原来已经定义的pattern。
 然而使用这种方式不能定义递归pattern，此时我们需要用到grammer
 LPeg使用table表示grammer，table中的每一个entry表示一条规则。
+
+## Captures
+
+捕获只有在匹配成功时才产生值，每个捕获可以产生0或多个值。
+一般情况下，捕获的值只有在匹配完全成功后才开始运算，但除了match-time的捕获e除外。
+这种捕获只要自己匹配，就会立即运算所有嵌套的值，并调用对应的函数（这些函数定义是否匹配以及要产生哪些值）。
+
+**lpeg.C**
+```lua
+lpeg.C(patt)
+```
+捕获匹配patt的输入子串，如果patt还有其他的捕获，这些捕获在这个捕获之后返回。
+
+**lpeg.Carg**
+```lua
+lpeg.Carg(n)
+```
+这个捕获匹配空字符串，产生的值是lpeg.match的第n个额外参数。
+
+
+**lpeg.Cb**
+```lua
+lpeg.Cb(name)
+```
+创建一个后向捕获（back capture）。这个捕获匹配空字符串，
+产生的值是名为name(可以是任意Lua值)的最近匹配完全的没有在任何捕获内的捕获的值。
+
+**lpeg.Cc**
+```lua
+lpeg.Cc([value,...])
+```
+创建一个常量捕获。
