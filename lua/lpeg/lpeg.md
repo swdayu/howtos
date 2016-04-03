@@ -168,10 +168,91 @@ lpeg.Carg(n)
 lpeg.Cb(name)
 ```
 创建一个后向捕获（back capture）。这个捕获匹配空字符串，
-产生的值是名为name(可以是任意Lua值)的最近匹配完全的没有在任何捕获内的捕获的值。
+产生的值是名为name(可以是任意Lua值)的最近匹配完全的没有在任何捕获内的group capture的值。
 
 **lpeg.Cc**
 ```lua
 lpeg.Cc([value,...])
 ```
-创建一个常量捕获。
+创建一个常量捕获。它匹配空字符串，产生的值为所有传入的参数。
+
+**lpeg.Cf**
+```lua
+lpeg.Cf(patt,func)
+```
+如果patt产生额捕获为C1 C2 ... Cn，那么这个捕获产生的值为func(...func(func(C1,C2),C3)...,Cn)。
+其中patt至少应该有一个捕获并产生至少一个值。例如：
+```lua
+-- matches a numeral and captures its numerical value
+number = lpeg.R"09"^1 / tonumber
+-- matches a list of numbers, capturing their values
+list = number * ("," * number)^0
+-- auxiliary function to add two numbers
+function add (acc, newvalue) return acc + newvalue end
+-- folds the list of numbers adding them
+sum = lpeg.Cf(list, add)
+-- example of use
+print(sum:match("10,30,43"))   --> 83
+```
+
+**lpeg.Cg**
+```lua
+lpeg.Cg(patt[,name])
+```
+创建一个group capture，将patt返回的所有捕获的值合并成一个捕获，group capture可以是匿名的（不指定name）或者
+指定名字为name（可以是任何非nil Lua值）。匿名group capture将多个capture的值合并成一个捕获，而命名group caputre则不一样。
+`In most situations, a named group returns no values at all. Its values are only relevant for a following back capture or when used inside a table capture.`
+
+**lpeg.Cp**
+```lua
+lpeg.Cp()
+```
+创建一个position capture，它匹配空字符串，产生的值是收入串匹配的位置（一个整数）。
+
+**lpeg.Cs**
+```lua
+lpeg.Cs(patt)
+```
+创建一个substitution capture。
+
+**lpeg.Ct**
+```lua
+lpeg.Ct(patt)
+```
+创建一个table capture。
+
+**patt/string**
+
+创建一个string capture，产生的值是string的拷贝，除非字符串中包含%转义字符。
+转义序列%n，其中1到9表示patt中的n个捕获，而0表示patt的整个捕获。另外%%表示字符%。
+
+**patt/number**
+
+创建一个numbered capture，其中0表示没有捕获值，而非零表示patt的第n个捕获。
+
+**patt/table**
+
+创建一个query capture。
+
+**patt/function**
+
+创建一个function capture，patt的所有捕获值被作为参数传入函数（如果patt没有捕获则传入整个匹配子串），
+函数的返回值是这个捕获的值。如果该函数没有返回值，则这个捕获不产生值。
+
+**lpeg.Cmt**
+```lua
+lpeg.Cmt(patt, function)
+```
+创建一个match-time capture，不同于其他捕获，这个捕获自身一旦匹配就会立即运算其值。
+它所有的嵌套捕获值都会立即运算出来，然后调用给定的函数function。
+传入这个函数的参数是整个输入串、当前匹配位置、以及所有patt产生的捕获值。
+该函数返回的第一个值定义了匹配的行为，如果返回一个整数则表示匹配成功，而返回的整数变成新的当前位置
+（假设输入串的长度为n并且当前位置为i，则返回的整数必须在范围[i, n+1]内）。
+如果返回的是true则表示匹配成功而且不销毁输入字符（相当于然后整数i);
+如果返回false、nil或没有返回值则表示匹配失败。
+而任何额外的函数返回值，都会作为该捕获的产生值。
+
+## 简单示例
+
+
+
