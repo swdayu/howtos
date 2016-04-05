@@ -17,6 +17,7 @@ lpeg.match(pattern, subject[, init])
 ```
 查找输入串`subject`中满足模式`pattern`的子串。
 如果匹配成功则返回子串后一个字符的索引，或所有capture的值（如果pattern包含了capture的语法）。
+如匹配失败则返回nil。
 
 该函数有一个可选的参数`init`，用于指定输入串`subject`的查找起始索引，如果传入一个负数表示从后往前算的一个值。
 注意这个函数只会去匹配输入串`subject`init索引位置开始的子串，不会匹配从任何位置开始的子串。
