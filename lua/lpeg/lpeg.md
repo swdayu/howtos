@@ -255,5 +255,24 @@ lpeg.Cmt(patt, function)
 
 ## 简单示例
 
+**Using a Pattern**
 
+```lua
+local lpeg = require "lpeg"
+p = lpeg.R"az"^1 * -1          --> 匹配小写字母1次或多次然后再匹配-1（end-of-string）
+print(p:match("hello"))        --> 6
+print(lpeg.match(p, "hello"))  --> 6
+print(p:match("1 hello"))      --> nil
+```
 
+**Name-value lists**
+
+```lua
+lpeg.locale(lpeg)                         --> adds locale entries into 'lpeg' table
+local space = lpeg.space^0                --> 匹配0个或多个space字符
+local name = lpeg.C(lpeg.alpha^1) * space --> 匹配1个或多个字母（这1个或多个字母形成一个捕获），后面跟随空白
+local sep = lpeg.S(",;") * space          --> 匹配逗号或分号后跟空白
+local pair = lpeg.Cg(name * "=" * space * name) * sep^-1 --> 匹配名称、等号、空白和名称，后跟最多一个分割符号
+local list = lpeg.Cf(lpeg.Ct("") * pair^0, rawset)       --> 
+t = list:match("a=b, c = hi; next = pi")                 --> { a = "b", c = "hi", next = "pi" }
+```
