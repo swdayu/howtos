@@ -276,3 +276,25 @@ local pair = lpeg.Cg(name * "=" * space * name) * sep^-1 --> 匹配名称、等�
 local list = lpeg.Cf(lpeg.Ct("") * pair^0, rawset)       --> 
 t = list:match("a=b, c = hi; next = pi")                 --> { a = "b", c = "hi", next = "pi" }
 ```
+
+Splitting a string
+
+```lua
+function split(s, sep)
+  sep = lpeg.P(sep)                --> sep匹配指定的分割字符
+  local elem = lpeg.C((1 - sep)^0) --> (1-sep)表示不匹配分割字符但匹配任何1个字符（1等价与lpeg.P(1)），
+                                   --> 因此elem匹配0到多个非分割字符（lpeg.C将这些字符构建成一个捕获）
+  local p = elem * (sep * elem)^0  --> p先匹配一个elem，然后再匹配0到多个sep和elem的序列
+  return lpeg.match(p, s)          --> 对给定输入串s进行匹配，返回所有的捕获值（即所有的elem）
+end
+```
+
+如果split返回结果太多，可能导致Lua函数返回值个数溢出。这种情况下我们可以使用table收集这些值：
+```lua
+function split(s, sep)
+  sep = lpeg.P(sep)                        --> sep匹配指定分割字符
+  local elem = lpeg.C((1 - sep)^0)         --> 捕获0到多个非分割字符
+  local p = lpeg.Ct(elem * (sep * elem)^0)
+  return lpeg.match(p, s)
+end
+```
