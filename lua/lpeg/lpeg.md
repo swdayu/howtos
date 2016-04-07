@@ -85,7 +85,7 @@ lpeg.S(string)
 ```lua
 lpeg.V(v)
 ```
-这个函数创建语法的非终结符（或变量），`The created non-terminal refers to the rule indexed by v in the enclosing grammar`。
+这个函数创建语法的非终结符（或变量），创建的变量引用的pattern位于当前table的v位置（v是table的索引或键）。
 见Grammars部分。
 
 **lpeg.locale**
@@ -142,8 +142,20 @@ letter = lower + upper
 **Grammars**  
 
 使用Lua变量可以增量式的定义pattern，新的pattern可以使用原来已经定义的pattern。
-然而使用这种方式不能定义递归pattern，此时我们需要用到grammer
+然而使用这种方式不能定义递归pattern，此时我们需要用到grammer。
 LPeg使用table表示grammer，table中的每一个entry表示一条规则。
+例如下面的例子匹配由a和b组成的字符串，并且其中的a和b的个数相等（the following grammar matches
+strings of a's and b's that have the same number of a's and b's）：
+```lua
+equalcount = lpeg.P{
+  "S";                                               --> 初始规则的名称为S
+  S = "a" * lpeg.V"B" + "b" * lpeg.V"A" + "",        --> 规则S的定义
+  A = "a" * lpeg.V"S" + "b" * lpeg.V"A" * lpeg.V"A", --> 规则A的定义
+  B = "b" * lpeg.V"S" + "a" * lpeg.V"B" * lpeg.V"B", --> 规则B的定义
+} * -1
+```
+其中table索引1位置定义了语法的初始规则，如果其值是字符串则这个字符串是初始规则的名称，否则索引1位置的值就是初始规则本身。
+语法最终构建的pattern是匹配初始规则的pattern。
 
 ## 生成捕获
 
