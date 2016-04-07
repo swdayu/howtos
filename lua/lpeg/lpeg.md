@@ -280,7 +280,7 @@ local list = lpeg.Cf(lpeg.Ct("") * pair^0, rawset)       -->
 t = list:match("a=b, c = hi; next = pi")                 --> { a = "b", c = "hi", next = "pi" }
 ```
 
-Splitting a string
+**Splitting a string**
 
 ```lua
 function split(s, sep)
@@ -297,7 +297,40 @@ end
 function split(s, sep)
   sep = lpeg.P(sep)                        --> sep匹配指定分割字符
   local elem = lpeg.C((1 - sep)^0)         --> 捕获0到多个非分割字符
-  local p = lpeg.Ct(elem * (sep * elem)^0)
-  return lpeg.match(p, s)
+  local p = lpeg.Ct(elem * (sep * elem)^0) --> 创建table capture，捕获的值将会保存到table中
+  return lpeg.match(p, s)                  --> 对给定输入串s进行匹配，返回保存了所有捕获值的table
+end
+```
+
+**Searching for a pattern**
+
+LPeg中基本的match函数只能执行原地匹配，给定模式p，如果编写出匹配任何位置的子串呢？
+方法之一如下：
+```lua
+function anywhere(p)
+  return lpeg.P{ p + 1 * lpeg.V(1) } --> 匹配p或者跳过1个字符后继续匹配
+end
+
+-- 利用position capture进一步获取匹配子串的位置信息
+local I = lpeg.Cp()
+function anywhere (p)
+  return lpeg.P{ I * p * I + 1 * lpeg.V(1) }
+end
+print(anywhere("world"):match("hello world!")) --> 7   12
+```
+
+另一种方式是：
+```lua
+local I = lpeg.Cp()
+function anywhere(p)
+  return (1 - lpeg.P(p))^0 * I * p * I
+end
+
+-- 限制在一个单词内部匹配
+local t = lpeg.locale()
+function atwordboundary(p)
+  return lpeg.P{
+    [1] = p + t.alpha^0 * (1 - t.alpha)^1 * lpeg.V(1)
+  }
 end
 ```
