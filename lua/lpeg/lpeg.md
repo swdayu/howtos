@@ -220,7 +220,10 @@ lpeg.Cs(patt)
 ```lua
 lpeg.Ct(patt)
 ```
-创建一个table capture。
+创建一个table capture。这个捕获将创建一个table，patt匹配的所有匿名捕获值都将添加到这个table中（从索引1开始添加）。
+另外patt匹配的所有命名capture group，也会以capture group的名称为键保存到table中（Moreover, for each named capture group
+created by patt, the first value of the group is put into the table with the group name as its key）。
+最后匹配的结果以table返回，这个table通过以上方式保存了所有捕获的值。
 
 **patt/string**
 
