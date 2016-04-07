@@ -4,6 +4,25 @@
 - http://www.ruanyifeng.com/blog/2015/02/make.html
 - https://www.gnu.org/software/make/manual/make.html
 
+## Makefile文件的格式
+
+Makefile文件由一系列规则（rules）构成，每条规则的格式是：
+```make
+<target>: <prerequisites>
+[tab]  <command-line>
+[tab]  <command-line>
+       ....
+```
+
+从第2行开始的命令行（command-line）都必须以tab开头，但可以通过.RECIPEPREFIX修改这个字符，例如：
+```make
+.RECIPEPREFIX= >
+clean:
+> rm -f target.so
+```
+
+目标可以包含多条命令，这些命令可以在同一行或不同行
+
 ```make
 
 # target: dependencies
