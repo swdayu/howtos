@@ -1,7 +1,8 @@
                               
-## m    ake
+## make
 - https://gcc.gnu.org/onlinedocs/gcc-5.3.0/gcc/
 - http://www.ruanyifeng.com/blog/2015/02/make.html
+- https://www.gnu.org/software/make/manual/make.html
 
 ```make
 
