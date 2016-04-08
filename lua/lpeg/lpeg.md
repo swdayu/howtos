@@ -202,16 +202,13 @@ lpeg.Cf(patt,func)
 那么这个捕获产生的值为func(...func(func(C1,C2),C3)...,Cn)。
 其中patt至少应该有一个捕获并产生至少一个值。例如：
 ```lua
--- matches a numeral and captures its numerical value
-number = lpeg.R"09"^1 / tonumber
--- matches a list of numbers, capturing their values
-list = number * ("," * number)^0
--- auxiliary function to add two numbers
-function add (acc, newvalue) return acc + newvalue end
--- folds the list of numbers adding them
-sum = lpeg.Cf(list, add)
--- example of use
-print(sum:match("10,30,43"))   --> 83
+number = lpeg.R"09"^1 / tonumber --> 匹配1到多个数字，创建的捕获会将这个数字字符串传入tonumber函数（将字符串转换成数值）
+list = number * ("," * number)^0 --> 匹配逗号分割的number序列
+function add(acc, newvalue)      --> 辅助函数用于累加
+  return acc + newvalue
+end
+sum = lpeg.Cf(list, add)         --> 创建的捕获会将list匹配的所有number数值通过add函数进行累加
+print(sum:match("10,30,43"))     --> 83
 ```
 
 **lpeg.Cg**
