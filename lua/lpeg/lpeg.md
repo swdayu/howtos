@@ -215,9 +215,11 @@ print(sum:match("10,30,43"))     --> 83
 ```lua
 lpeg.Cg(patt[,name])
 ```
-创建一个group capture，将patt返回的所有捕获的值合并成一个捕获，group capture可以是匿名的（不指定name）或者
-指定名字为name（可以是任何非nil Lua值）。匿名group capture将多个capture的值合并成一个捕获，而命名group caputre则不一样。
-`In most situations, a named group returns no values at all. Its values are only relevant for a following back capture or when used inside a table capture.`
+创建一个group capture，它将patt匹配返回的所有值group成一个capture。
+形成的capture可以是匿名的（name没有指定），也可以是命名的（指定了一个非nil的Lua值为name）。
+匿名group通常用于将多个capture的所有值group到一个capture中。
+而命名group大多数情况下不返回值，它的值仅在随后的back capture中或用在table capture内部时才有意义
+（its values are only relevant for a following back capture or when used inside a table capture）。
 
 **lpeg.Cp**
 ```lua
@@ -229,7 +231,10 @@ lpeg.Cp()
 ```lua
 lpeg.Cs(patt)
 ```
-创建一个substitution capture。
+创建一个substitution capture，它捕获匹配patt的输入子串，并对它进行替换。
+For any capture inside patt with a value, the substring that matched the capture
+is replaced by the capture value (which should be a string).
+The final captured value is the string resulting from all replacements.
 
 **lpeg.Ct**
 ```lua
