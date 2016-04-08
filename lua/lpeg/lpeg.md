@@ -167,33 +167,39 @@ equalcount = lpeg.P{
 ```lua
 lpeg.C(patt)
 ```
-捕获匹配patt的输入子串，如果patt还有其他的捕获，这些捕获在这个捕获之后返回。
+创建一个simple capture，用于捕获匹配patt的输入子串，
+如果patt还有其他的捕获，这些捕获在这个捕获之后返回。
 
 **lpeg.Carg**
 ```lua
 lpeg.Carg(n)
 ```
-这个捕获匹配空字符串，产生的值是lpeg.match的第n个额外参数。
+创建一个argument capture，这个捕获匹配空字符串，产生的值是lpeg.match的第n个额外参数。
 
 
 **lpeg.Cb**
 ```lua
 lpeg.Cb(name)
 ```
-创建一个后向捕获（back capture）。这个捕获匹配空字符串，
-产生的值是名为name(可以是任意Lua值)的最近匹配完全的没有在任何捕获内的group capture的值。
+创建一个back capture，它匹配空字符串，产生的值是最近匹配完整的名为name的group capture的值。
+匹配完整的意思是该group capture对应的整个pattern已完成匹配（A Complete capture means that 
+the entire pattern corresponding to the capture has matched）。
+最近的group capture是上一个完整的最外层的group capture，该capture不在其他完整capture的内部
+（Most recent means the last complete outermost group capture with the given name, 
+an Outermost capture means that the capture is not inside another complete capture）。
 
 **lpeg.Cc**
 ```lua
 lpeg.Cc([value,...])
 ```
-创建一个常量捕获。它匹配空字符串，产生的值为所有传入的参数。
+创建一个constant capture，它匹配空字符串，产生的值为所有传入的参数。
 
 **lpeg.Cf**
 ```lua
 lpeg.Cf(patt,func)
 ```
-如果patt产生额捕获为C1 C2 ... Cn，那么这个捕获产生的值为func(...func(func(C1,C2),C3)...,Cn)。
+创建一个fold capture，如果patt产生额捕获为C1 C2 ... Cn，
+那么这个捕获产生的值为func(...func(func(C1,C2),C3)...,Cn)。
 其中patt至少应该有一个捕获并产生至少一个值。例如：
 ```lua
 -- matches a numeral and captures its numerical value
