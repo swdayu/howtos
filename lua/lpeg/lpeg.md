@@ -256,7 +256,8 @@ created by patt, the first value of the group is put into the table with the gro
 
 **patt/table**
 
-创建一个query capture。
+创建一个query capture，匹配patt后返回的第1个值会作为table的索引或键用来查询table中的值，
+如果查询成功则这个值作为最终capture的值返回，否则不产生capture值。
 
 **patt/function**
 
