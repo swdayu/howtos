@@ -11,5 +11,5 @@ Write down notes or guides of things.
 - compiler
 
 ## Website
-- zerodegree.im/computer_science/c_language/
-- zerodegree.im/stories/bai_nian_gu_du/
+- zerodegree.im/computer-science/c-language/
+- zerodegree.im/stories/bai-nian-gu-du/
