@@ -499,6 +499,33 @@ static int traceback(lua_State *L) {
 }
 ```
 
+## Skynet的启动
+
+**主要流程**
+```c
+//main@skynet-src/skynet_main.c
+1. 读取传入的配置文件，将配置信息加载到skynet的环境中
+2. 调用skynet_start()开始启动流程
+
+//skynet_start@skynet-src/skynet_start.c
+3. 启动第一个skynet服务logger（service-src/service_logger.c）
+   - 任何服务都可以调用skynet_error发送错误消息给logger服务，此服务负责处理所有这些消息
+4. 启动一个snlua服务（service-src/service_snlua.c）加载并执行bootstrap脚本（service/bootstrap.lua）
+   - 
+5. 启动1个moniter线程（用于监控）、1个timer线程（用于计时）、1个socket线程（处理网络socket）、和n个worker线程
+6. 至此一个skynet节点启动完毕，节点中所有skynet服务的业务逻辑都将在worker线程中执行，直到skynet节点退出为止 
+```
+
+**Skynet节点模型**
+
+一个skynet节点是一个操作系统进程，这个进程存在1个主线程、1个moniter线程、1个timer线程、1个socket线程、和n个worker线程。
+Skynet使用服务对节点中的业务逻辑进行划分，而服务之间则通过消息传递进行数据通信。
+因此从逻辑上看，一个skynet节点由多个skynet服务组成，每个服务都拥有一个32位的唯一句柄、以及一个用于接收消息的消息队列。
+所有消息源头（运行在worker线程中的服务发送的消息、timer线程产生的超时消息、socket线程产生的网络消息）产生的消息
+都会插入到目标服务的消息队列中，而所有服务的消息队列都被串联在一个叫Q的全局队列中。
+
+**配置文件和bootstrap脚本**
+
 ## 代码缓存
 
 skynet修改了Lua的实现，加入了一个新特性可以让多个Lua VM共享相同的函数原型。
