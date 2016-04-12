@@ -504,7 +504,7 @@ static int traceback(lua_State *L) {
 **主要流程**
 ```c
 //main@skynet-src/skynet_main.c
-1. 读取传入的配置文件，将配置信息加载到skynet的环境中
+1. 读取配置文件，将配置信息加载到skynet环境
 2. 调用skynet_start()开始启动流程
 
 //skynet_start@skynet-src/skynet_start.c
