@@ -505,12 +505,12 @@ static int traceback(lua_State *L) {
 ```c
 //main@skynet-src/skynet_main.c
 1. 读取配置文件，将配置信息加载到skynet环境
-2. 调用skynet_start()开始启动流程
+2. 调用skynet_start()开始启动
 
 //skynet_start@skynet-src/skynet_start.c
-3. 启动第一个skynet服务logger（service-src/service_logger.c）
-   - 任何服务都可以调用skynet_error发送错误消息给logger服务，此服务负责处理所有这些消息
-4. 启动一个snlua服务（service-src/service_snlua.c）加载并执行bootstrap脚本（service/bootstrap.lua）
+3. 创建logger服务（service-src/service_logger.c）用于处理错误消息
+   - 任何服务都可以调用skynet_error发送错误消息给logger服务
+4. 创建一个snlua服务（service-src/service_snlua.c）加载执行bootstrap脚本（service/bootstrap.lua）
    - 
 5. 启动1个moniter线程（用于监控）、1个timer线程（用于计时）、1个socket线程（处理网络socket）、和n个worker线程
 6. 至此一个skynet节点启动完毕，节点中所有skynet服务的业务逻辑都将在worker线程中执行，直到skynet节点退出为止 
