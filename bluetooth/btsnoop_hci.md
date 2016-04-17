@@ -51,7 +51,6 @@ static void hal_says_data_ready(serial_data_type_t type) {
       if (type != DATA_TYPE_EVENT) {
         packet_fragmenter->reassemble_and_dispatch(incoming->buffer);
       } else if (!filter_incoming_event(incoming->buffer)) {
-        // Dispatch the event by event code
         uint8_t *stream = incoming->buffer->data;
         uint8_t event_code;
         STREAM_TO_UINT8(event_code, stream);
@@ -61,13 +60,9 @@ static void hal_says_data_ready(serial_data_type_t type) {
           incoming->buffer
         );
       }
-      // We don't control the buffer anymore
       incoming->buffer = NULL;
       incoming->state = BRAND_NEW;
       hal->packet_finished(type);
-      // We return after a packet is finished for two reasons:
-      // 1. The type of the next packet could be different.
-      // 2. We don't want to hog cpu time.
       return;
     }
 }
