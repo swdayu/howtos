@@ -38,7 +38,7 @@ cts-tf > run cts -c android.bluetooth.cts.BluetoothLeScanTest
 ## BluetoothLeScanTest
 
 ```java
-//@cts/tests/tests/bluetooth/src/android/bluetooth/cts/BluetoothLeScanTest.java
+[@cts/tests/tests/bluetooth/src/android/bluetooth/cts/BluetoothLeScanTest.java]
 
 //@testBasicBleScan: 使用low power mode启动BLE搜索
 public void testBasicBleScan() {
