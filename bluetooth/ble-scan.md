@@ -101,13 +101,15 @@ public void testOpportunisticScan() {
   mScanner.startScan(filters, regularScanSettings, regularScanCallback);
   sleep(SCAN_DURATION_MILLIS);
   // With normal BLE scan client, opportunistic scan client will get scan results.
-  assertTrue("opportunistic scan results shouldn't be empty", !emptyScanCallback.getScanResults().isEmpty());
+  assertTrue("opportunistic scan results shouldn't be empty",
+      !emptyScanCallback.getScanResults().isEmpty());
   mScanner.stopScan(regularScanCallback);
   // In case we got scan results before scan was completely stopped.
   sleep(1000);
   emptyScanCallback.clear();
   sleep(SCAN_DURATION_MILLIS);
-  assertTrue("opportunistic scan shouldn't have scan results", emptyScanCallback.getScanResults().isEmpty());
+  assertTrue("opportunistic scan shouldn't have scan results",
+      emptyScanCallback.getScanResults().isEmpty());
 }
 
 //@testScanFilter: 使用low latency mode以及filter条件搜索BLE设备
