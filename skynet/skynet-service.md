@@ -528,22 +528,22 @@ Skynet使用服务对节点中的业务逻辑进行划分，而服务之间则�
 
 ```lua
 --基础配置--
-thread = 8                    --指定当前节点启动的工作线程个数,一般不应超过实际CPU核心个数
-logger = nil                  --指定日志输出的文件名,如果为nil则输出到标准错误流
-logservice = "logger"         --指定logger服务的名称(默认的"logger"服务在service_logger.c中实现),这个服务用于打印日志
+thread = 8                    --指定当前节点需启动的工作线程个数,一般不应超过实际CPU核心数
+logger = nil                  --指定日志输出文件名,如果为nil则输出到标准错误流
+logservice = "logger"         --指定logger服务的名称(默认"logger"服务在service_logger.c中实现),该服务用于打印日志
 bootstrap = "snlua bootstrap" --指定bootstrap服务的名称,snlua表示该服务是Lua服务,bootstrap服务用于启动skynet节点
-start = "main"                --指定Skynet节点启动后运行的用户主程序,默认为main.lua,该脚本在bootstrap中最后一步执行
+start = "main"                --指定Skynet节点启动后运行的用户主程序,默认为main.lua,该脚本在bootstrap最后一步执行
 
 --路径配置--
 root = "./"                     --设置基准路径,这里为当前目录
-logpath = root.."service_msgs/" --运行时可将服务log功能打开,该服务接收的所有消息都会记录到这个目录下,名称为服务句柄字符串
+logpath = root.."service_msgs/" --运行时可以打开服务log,所有接收到的消息将记录在这里,以服务的句柄字符串为文件名
 luaservice = root.."service/?.lua;"..root.."test/?.lua;"..root.."examples/?.lua"
 lualoader = "lualib/loader.lua"
 cpath = root.."cservice/?.so"
 snax = root.."examples/?.lua;"..root.."test/?.lua"
 
 --节点配置--
-harbor = 1                  --当前节点编号(1~255),skynet网络最大支持255个节点,0表示单节点网络(此时下列参数都无需配置)
+harbor = 1                  --当前节点编号(1~255),skynet网络最大支持255个节点,0表示单节点网络(此时无需配置下列参数)
 address = "127.0.0.1:2526"  --当前节点的IP地址和端口
 master = "127.0.0.1:2013"   --主节点的IP地址和端口,主节点会开启一个控制中心,用于监控所有其他节点
 standalone = "0.0.0.0:2013" --指定这一项表示当前节点是主节点
