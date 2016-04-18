@@ -503,11 +503,11 @@ static int traceback(lua_State *L) {
 
 **主要流程**
 ```c
-//main@skynet-src/skynet_main.c
+//main()@skynet-src/skynet_main.c
 1. 读取配置文件，将配置信息加载到skynet环境
 2. 调用skynet_start()开始启动
 
-//skynet_start@skynet-src/skynet_start.c
+//skynet_start()@skynet-src/skynet_start.c
 3. 创建logger服务（service-src/service_logger.c）用于处理错误消息
    - 任何服务都可以调用skynet_error发送错误消息给logger服务
 4. 创建一个snlua服务（service-src/service_snlua.c）加载执行bootstrap脚本（service/bootstrap.lua）
@@ -524,7 +524,83 @@ Skynet使用服务对节点中的业务逻辑进行划分，而服务之间则�
 所有消息源头（运行在worker线程中的服务发送的消息、timer线程产生的超时消息、socket线程产生的网络消息）产生的消息
 都会插入到目标服务的消息队列中，而所有服务的消息队列都被串联在一个叫Q的全局队列中。
 
-**配置文件和bootstrap脚本**
+**配置文件**
+
+```lua
+--基础配置--
+thread = 8                    --指定当前节点启动的工作线程个数,一般不应超过实际CPU核心个数
+logger = nil                  --指定日志输出的文件名,如果为nil则输出到标准错误流
+logservice = "logger"         --指定logger服务的名称(默认的"logger"服务在service_logger.c中实现),这个服务用于打印日志
+bootstrap = "snlua bootstrap" --指定bootstrap服务的名称,snlua表示该服务是Lua服务,bootstrap服务用于启动skynet节点
+start = "main"                --指定Skynet节点启动后运行的用户主程序,默认为main.lua,该脚本在bootstrap中最后一步执行
+
+--路径配置--
+root = "./"                     --设置基准路径,这里为当前目录
+logpath = root.."service_msgs/" --运行时可将服务log功能打开,该服务接收的所有消息都会记录到这个目录下,名称为服务句柄字符串
+luaservice = root.."service/?.lua;"..root.."test/?.lua;"..root.."examples/?.lua"
+lualoader = "lualib/loader.lua"
+cpath = root.."cservice/?.so"
+snax = root.."examples/?.lua;"..root.."test/?.lua"
+
+--节点配置--
+harbor = 1                  --当前节点编号(1~255),skynet网络最大支持255个节点,0表示单节点网络(此时下列参数都无需配置)
+address = "127.0.0.1:2526"  --当前节点的IP地址和端口
+master = "127.0.0.1:2013"   --主节点的IP地址和端口,主节点会开启一个控制中心,用于监控所有其他节点
+standalone = "0.0.0.0:2013" --指定这一项表示当前节点是主节点
+```
+
+**启动脚本**
+
+```lua
+local skynet = require "skynet"
+local harbor = require "skynet.harbor"
+require "skynet.manager"	-- import skynet.launch, ...
+local memory = require "memory"
+
+skynet.start(function()
+	local sharestring = tonumber(skynet.getenv "sharestring")
+	memory.ssexpand(sharestring or 4096)
+	
+	local standalone = skynet.getenv "standalone"
+	
+	local launcher = assert(skynet.launch("snlua","launcher"))
+	skynet.name(".launcher", launcher)
+	
+	local harbor_id = tonumber(skynet.getenv "harbor")
+	if harbor_id == 0 then
+		assert(standalone ==  nil)
+		standalone = true
+		skynet.setenv("standalone", "true")
+	
+		local ok, slave = pcall(skynet.newservice, "cdummy")
+		if not ok then
+			skynet.abort()
+		end
+		skynet.name(".cslave", slave)
+	
+	else
+		if standalone then
+			if not pcall(skynet.newservice,"cmaster") then
+				skynet.abort()
+			end
+		end
+	
+		local ok, slave = pcall(skynet.newservice, "cslave")
+		if not ok then
+			skynet.abort()
+		end
+		skynet.name(".cslave", slave)
+	end
+	
+	if standalone then
+		local datacenter = skynet.newservice "datacenterd"
+		skynet.name("DATACENTER", datacenter)
+	end
+	skynet.newservice "service_mgr"
+	pcall(skynet.newservice,skynet.getenv "start" or "main")
+	skynet.exit()
+end)
+```
 
 ## 代码缓存
 
