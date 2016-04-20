@@ -25,4 +25,4 @@ The broadcast mode and observation procedure allow two devices to
 communicate in a unidirectional connectionless manner using the advertising
 events.
 
-
+![Broadcast mode and observation procedure requirements](./assets/broadcast-mode-and-observation-procedure-requirements.png)
