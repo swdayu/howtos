@@ -60,7 +60,6 @@ by using the resolvable private address resolution procedure.
 ### 9.2 Discovery modes and procedures
 
 GAP角色应支持的模式或过程：
-
 ```c
 Modes and procedures        Peripheral
 --------------------------------------
