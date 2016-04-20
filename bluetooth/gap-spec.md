@@ -64,15 +64,15 @@ GAP角色应支持的模式或过程：
 ```c
 Modes and procedures        Peripheral
 --------------------------------------
-Non-Discoverable mode       [M]
-Limited Discoverable mode   [O]
-General Discoverable mode   [C] if Limited Discoverable mode is not supported then mandatory, else optional.
-Name Discovery procedure    [O]
+1. Non-Discoverable mode       [M]
+2. Limited Discoverable mode   [O]
+3. General Discoverable mode   [C] if 2. is not supported then 3. is mandatory, otherwise optional.
+4. Name Discovery procedure    [O]
 
 Modes and procedures        Central
 --------------------------------------
-Limited Discovery procedure [O]
-General Discovery procedure [M]
-Name Discovery procedure    [O]
+1. Limited Discovery procedure [O]
+2. General Discovery procedure [M]
+3. Name Discovery procedure    [O]
 ```
 
