@@ -59,4 +59,20 @@ by using the resolvable private address resolution procedure.
 
 ### 9.2 Discovery modes and procedures
 
+GAP角色应支持的模式或过程：
+
+```c
+Modes and procedures        Peripheral
+--------------------------------------
+Non-Discoverable mode       [M]
+Limited Discoverable mode   [O]
+General Discoverable mode   [C] if Limited Discoverable mode is not supported then mandatory, else optional.
+Name Discovery procedure    [O]
+
+Modes and procedures        Central
+--------------------------------------
+Limited Discovery procedure [O]
+General Discovery procedure [M]
+Name Discovery procedure    [O]
+```
 
