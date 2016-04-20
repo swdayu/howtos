@@ -25,4 +25,7 @@ The broadcast mode and observation procedure allow two devices to
 communicate in a unidirectional connectionless manner using the advertising
 events.
 
+广播模式和发现过程允许两个设备通过advertising事件进行单向的无连接的沟通。
+对应的GAP角色应支持的模式或过程入如下图所示，其中E表示对应的模式或过程对当前的角色不适用。
 ![Broadcast mode and observation procedure requirements](./assets/broadcast-mode-and-observation-procedure-requirements.png)
+
