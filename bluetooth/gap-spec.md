@@ -25,7 +25,22 @@ The broadcast mode and observation procedure allow two devices to
 communicate in a unidirectional connectionless manner using the advertising
 events.
 
-广播模式和发现过程允许两个设备通过advertising事件进行单向的无连接的沟通。
-对应的GAP角色应支持的模式或过程入如下图所示，其中E表示对应的模式或过程对当前的角色不适用。
+广播模式和发现过程允许两个设备通过advertising事件进行单向无连接沟通。
+对应的GAP角色应支持的模式或过程如下图所示，其中E（Excluded）表示该模式或过程对当前角色不适用。
 ![Broadcast mode and observation procedure requirements](./assets/broadcast-mode-and-observation-procedure-requirements.png)
+
+**Broadcast Mode**
+
+The broadcast mode provides a method for a device to send connectionless
+data (ADV_NONCONN_IND or ADV_SCAN_IND) in advertising events.
+The advertising data shall be formatted using the Advertising Data (AD) type
+format.
+A device in the broadcast mode shall not set the ‘LE General Discoverable Mode’
+flag or the ‘LE Limited Discoverable Mode’ flag in the Flags AD Type.
+Note: All data sent by a device in the broadcast mode is considered unreliable
+since there is no acknowledgement from any device that may have received
+the data.
+
+**Observation Procedure**
+
 
