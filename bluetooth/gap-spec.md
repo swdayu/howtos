@@ -28,8 +28,10 @@ events.
 广播模式和发现过程允许两个设备通过advertising事件进行单向无连接沟通。
 
 GAP角色应支持的模式或过程：
+
 ![Broadcast mode and observation procedure requirements](./assets/broadcast-mode-and-observation-procedure-requirements.png)
-*其中E（Excluded）表示该模式或过程对当前角色不适用
+
+\*其中E（Excluded）表示该模式或过程对当前角色不适用
 
 **Broadcast Mode**
 
