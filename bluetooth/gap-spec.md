@@ -78,17 +78,18 @@ Modes and procedures        Central
 3. Name Discovery procedure    [O]
 ```
 
-** Non-Discoverable Mode**
+**Non-Discoverable Mode**
 
 A Peripheral device in the non-connectable mode may send ADV_NONCONN_IND/ADV_SCN_IND advertising packets
 or may not send advertising packets.
 The advertising data shall not set ‘LE General/Limited Discoverable Mode’ flag in the Flags AD type.
 
-** Limited/General Discoverable Mode**
+**Limited/General Discoverable Mode**
 
 The limited/general discoverable mode is typically used when the device is intending to be
 discoverable for a limited/long period of time.
 
+```c
 Discoveralbe Time    a limited period of time         a long period of time
                      no longer than T_GAP(lim_adv_timeout) 180s
 Can be discovered by    limited or general discovery procedure  general discovery procedure
@@ -109,6 +110,7 @@ Note:
 static data should be placed in the scan response data.
     The choice of advertising interval is a trade-off between power
 consumption and device discovery time.
+```
 
 **Limited/General Discovery Procedure**
 
