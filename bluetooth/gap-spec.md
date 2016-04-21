@@ -59,6 +59,9 @@ by using the resolvable private address resolution procedure.
 
 ### 9.2 Discovery modes and procedures
 
+All devices shall be in either non-discoverable mode or one of the discoverable
+modes (general/limited discoverable mode).
+
 GAP角色应支持的模式或过程：
 ```c
 Modes and procedures        Peripheral
@@ -74,4 +77,38 @@ Modes and procedures        Central
 2. General Discovery procedure [M]
 3. Name Discovery procedure    [O]
 ```
+
+** Non-Discoverable Mode**
+
+A Peripheral device in the non-connectable mode may send ADV_NONCONN_IND/ADV_SCN_IND advertising packets
+or may not send advertising packets.
+The advertising data shall not set ‘LE General/Limited Discoverable Mode’ flag in the Flags AD type.
+
+** Limited/General Discoverable Mode**
+
+The limited/general discoverable mode is typically used when the device is intending to be
+discoverable for a limited/long period of time.
+
+Discoveralbe Time    a limited period of time         a long period of time
+                     no longer than T_GAP(lim_adv_timeout) 180s
+Can be discovered by    limited or general discovery procedure  general discovery procedure
+Advertising Packets       ADV_NONCONN_IND/ADV_IND/ADV_SCAN_IND/SCAN_RSP
+LE Limited Discoverable Mode flag        1             0
+LE General Discoveralbe Mode flag        0             1
+For LE-only device:
+    BR/EDR Not Supported                      1
+    Simultaneous LE and BR/EDR to Same Device Capable (Controller) 0
+    Simultaneous LE and BR/EDR to Same Device Capable (Host) 0
+Should also include for faster connectivity experience
+    TX Power Level, Local Name, Service UUIDs, Slave Connection Interval Range
+Advertising Filter Policy                Process SCAN_REQ and CONNECT_REQ from all devices
+The device shall remain in general discoverable mode until a connection is
+established or the Host terminates the mode.
+Note:
+    Data that change frequently should be placed in the advertising data and
+static data should be placed in the scan response data.
+    The choice of advertising interval is a trade-off between power
+consumption and device discovery time.
+
+**Limited/General Discovery Procedure**
 
