@@ -2,11 +2,14 @@
 **ā á ǎ à ē é ě è ī í ǐ ì ō ó ǒ ò ū ú ǔ ù ü ǖ ǘ ǚ ǜ**
 
 **八百标兵**
-```c
-八百标兵奔北坡（ba1 bai3 biao1 bing1 ben4 bei3 po1）
-炮兵并排北边跑（pao4 bing1 bing4 pai2 bei3 bian1 pao3）
-炮兵怕把标兵碰（pao4 bing1 pa4 ba3 biao1 bing1 peng4）
-标兵怕碰炮兵炮（biao1 bing1 pa4 peng4 pao4 bing1 pao4）
-```
+bā bǎi biāo bīng bèn běi pō  
+八 百  标   兵   奔  北  坡  
+pào bīng bìng pái běi biān pǎo  
+炮  兵   并   排  北  边   跑  
+pào bīng pà bǎ biāo bīng pèng  
+炮  兵   怕 把 标   兵   碰  
+biāo bīng pà pèng pào bīng pào  
+标   兵   怕 碰   炮  兵   炮  
+
 
 
