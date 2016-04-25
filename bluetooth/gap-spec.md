@@ -113,4 +113,54 @@ consumption and device discovery time.
 ```
 
 **Limited/General Discovery Procedure**
+```c
+Receive data from device       in Limited discoverable mode    in Limited and Gernal discoverable mode
+Shall set Sanner_Filter_Policy                   process all advertising packets
+Should set scan interval
+Should set scan window
+Should configure controller                      use active scanning
+Should continue scan           at least T_GAP(lim_disc_scan_min) 10.24s   at least T_GAP(gen_disc_scan_min) 10.24s
+Shall accept advertising data when   LE Limited Discoverable Flag is 1   LE Limited or General Discoverable Flag is 1
+```
+???
+The host shall ignore the 'Simultaneous LE and BR/EDR to Same Device
+Capable (Controller)' and 'Simultaneous LE and BR/EDR to Same Device
+Capable (Host)' bits in the Flags AD type.
 
+**Name Discovery Procedure**
+
+If the complete device name is not acquired while performing either the limited
+discovery procedure or the general discovery procedure, then the name
+discovery procedure may be performed.
+
+The name discovery procedure shall be performed as follows:
+- The Host shall establish a connection using one of the connection establishment procedures
+- The Host shall read the device name characteristic using the GATT procedure - Read Using Characteristic UUID
+- The connection may be terminated after the GATT procedure has completed
+
+### 9.3 Connection Modes and Procedures
+
+When devices are connected, the parameters of the connection can be
+updated with the Connection Parameter Update procedure.
+
+GAP角色应支持的模式或过程：
+```c
+Broadcaster和Observer这两个角色只支持Non-connectable Mode,其他连接模式和所有的连接过程都不支持。
+
+Modes and Procedures                          Peripheral
+--------------------------------------------------------
+Non-connectable mode                          M
+Undirected connectable mode                   M
+Directed connectable mode                     O
+Connection parameter update procedure         O
+Terminate connection procedure                M
+
+Modes and Procedures                          Central
+--------------------------------------------------------
+Auto connection establishment procedure       O
+Selective connection establishment procedure  O
+General connection establishment procedure    C *如果支持LE Privacy则Mandatory，否则Optional
+Direct connection establishment procedure     M
+Connection parameter update procedure         M
+Terminate connection procedure                M
+```
