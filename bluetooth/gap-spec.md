@@ -27,7 +27,7 @@ events.
 
 广播模式和发现过程允许两个设备通过advertising事件进行单向无连接沟通。
 
-GAP角色应支持的模式或过程：
+GAP角色应支持的单向无连接模式或过程：
 
 ![Broadcast mode and observation procedure requirements](./assets/broadcast-mode-and-observation-procedure-requirements.png)
 
@@ -62,7 +62,7 @@ by using the resolvable private address resolution procedure.
 All devices shall be in either non-discoverable mode or one of the discoverable
 modes (general/limited discoverable mode).
 
-GAP角色应支持的模式或过程：
+GAP角色应支持的Discovery模式或过程：
 ```c
 Modes and procedures        Peripheral
 --------------------------------------
@@ -143,24 +143,51 @@ The name discovery procedure shall be performed as follows:
 When devices are connected, the parameters of the connection can be
 updated with the Connection Parameter Update procedure.
 
-GAP角色应支持的模式或过程：
+GAP角色应支持的Connection模式或过程：
 ```c
 Broadcaster和Observer这两个角色只支持Non-connectable Mode,其他连接模式和所有的连接过程都不支持。
 
 Modes and Procedures                          Peripheral
 --------------------------------------------------------
-Non-connectable mode                          M
-Undirected connectable mode                   M
-Directed connectable mode                     O
-Connection parameter update procedure         O
-Terminate connection procedure                M
+Non-connectable mode                          [M]
+Undirected connectable mode                   [M]
+Directed connectable mode                     [O]
+Connection parameter update procedure         [O]
+Terminate connection procedure                [M]
 
 Modes and Procedures                          Central
 --------------------------------------------------------
-Auto connection establishment procedure       O
-Selective connection establishment procedure  O
-General connection establishment procedure    C *如果支持LE Privacy则Mandatory，否则Optional
-Direct connection establishment procedure     M
-Connection parameter update procedure         M
-Terminate connection procedure                M
+Auto connection establishment procedure       [O]
+Selective connection establishment procedure  [O]
+General connection establishment procedure    [C] *如果支持LE Privacy则Mandatory，否则Optional
+Direct connection establishment procedure     [M]
+Connection parameter update procedure         [M]
+Terminate connection procedure                [M]
 ```
+
+**Non-Connectable Mode**
+
+A device in the non-connectable mode may send ADV_NONCONN_IND or ADV_SCAN_IND packets.
+In this case it is recommended that the Host configures the Controller as follows:
+- should set the Advertising_Filter_Policy to
+  "process scan and connection requests only from devices in the White List" or
+  "process scan and connection requests from all devices"
+- should set the advertising interval ...
+
+**Undirected Connectable Mode**
+```c
+Shall send advertising packets                        ADV_IND
+Shall accept CONNECT_REQ from a device performing     Auto or General connection establishment procedure
+Should config advertising interval ...
+```
+
+**Directed Connectable Mode**
+This mode shall only be used if the device has a known peer device address.
+```c
+Shall send advertising packets                        ADV_DIRECT_IND
+Shall accept CONNECT_REQ from a device performing     Auto or General connection establishment procedure
+```
+
+**Auto Connection Establishment Procedure**
+
+
