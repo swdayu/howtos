@@ -22,3 +22,8 @@ $ grep -E "str1|str2" filename
 ```
 $ cat file.txt | grep -i str1
 ```
+
+# 统计行数
+```shell
+$ wc -l file.txt
+```
