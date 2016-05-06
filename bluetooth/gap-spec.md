@@ -190,4 +190,46 @@ Shall accept CONNECT_REQ from a device performing     Auto or General connection
 
 **Auto Connection Establishment Procedure**
 
+This procedure uses
+the initiator White List in the Controller. The Controller autonomously
+establishes a connection with a device with the device address that matches
+the address stored in the White List.
+
+When a Host performs the auto connection establishment procedure, the Host
+configures the Controller as follows:
+1. The Host shall write the list of device addresses that are to be auto con-
+nected to into the White List.
+2. The Host shall set the initiator filter policy to ‘process connectable
+advertising packets from all devices in the White List’.
+3. The Host should set the scan interval and scan window as defined in
+Section 9.3.11.
+4. The Host should set connection parameters as defined in Section 9.3.12.
+This procedure is terminated when a connection is established or when the
+Host terminates the procedure.
+
+**Direct Connection Establishment Procedure**
+
+The direct connection establishment procedure allows the Host to establish a
+connection with the Host selected connection configuration parameters with a
+single peer device.
+
+When a Host performs the direct connection establishment procedure, the Host
+configures the Controller as follows:
+1. The Host shall set the initiator filter policy to ‘ignore the White List and pro-
+cess connectable advertising packets from a specific single device specified
+by the Host’.
+2. The Host shall set the peer address to the device address of the specific
+single device.
+3. The Host should set connection parameters as defined in Section 9.3.12.
+4. The Host shall initiate a connection.
+This procedure is terminated when a connection is established or when the
+Host terminates the procedure.
+
+**General Connection Establishment Procedure**
+
+先做scan接收所有能收到的设备，然后选择一个设备去连接。
+
+**Selective Connection Establishment Procedure**
+
+使用whitelist做scan接收到设备后，选择一个设备去连接。
 
