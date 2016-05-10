@@ -42,8 +42,8 @@ int skynet_sendname(skynet_context* ctx, src_hdl, dest_name, msg_type, msg_sessi
 调用skynet_callback(ctx, ud, cb)可以设置服务的消息处理函数和参数。
 ```c
 void skynet_callback(struct skynet_context* context, void* ud, skynet_cb cb) {
-	context->cb = cb;    //设置服务的消息处理函数
-	context->cb_ud = ud; //设置服务消息处理函数的参数
+  context->cb = cb;    //设置服务的消息处理函数
+  context->cb_ud = ud; //设置服务消息处理函数的参数
 }
 ```
 当工作线程处理消息队列中的消息时，会调用对应服务的消息处理函数，将发给该服务的消息传递给服务处理，
@@ -558,47 +558,45 @@ require "skynet.manager"
 local memory = require "memory"
 
 skynet.start(function()
-	local sharestring = tonumber(skynet.getenv "sharestring")
-	memory.ssexpand(sharestring or 4096)
+  local sharestring = tonumber(skynet.getenv "sharestring")
+  memory.ssexpand(sharestring or 4096)
 	
-	local standalone = skynet.getenv "standalone"
+  local standalone = skynet.getenv "standalone"
 	
-	local launcher = assert(skynet.launch("snlua","launcher"))
-	skynet.name(".launcher", launcher)
+  local launcher = assert(skynet.launch("snlua","launcher"))
+  skynet.name(".launcher", launcher)
 	
-	local harbor_id = tonumber(skynet.getenv "harbor")
-	if harbor_id == 0 then
-		assert(standalone ==  nil)
-		standalone = true
-		skynet.setenv("standalone", "true")
+  local harbor_id = tonumber(skynet.getenv "harbor")
+  if harbor_id == 0 then
+    assert(standalone ==  nil)
+    standalone = true
+    skynet.setenv("standalone", "true")
+
+    local ok, slave = pcall(skynet.newservice, "cdummy")
+    if not ok then
+      skynet.abort()
+    end
+    skynet.name(".cslave", slave)
+  else
+    if standalone then
+      if not pcall(skynet.newservice,"cmaster") then
+        skynet.abort()
+      end
+    end
+    local ok, slave = pcall(skynet.newservice, "cslave")
+    if not ok then
+      skynet.abort()
+    end
+    skynet.name(".cslave", slave)
+  end
 	
-		local ok, slave = pcall(skynet.newservice, "cdummy")
-		if not ok then
-			skynet.abort()
-		end
-		skynet.name(".cslave", slave)
-	
-	else
-		if standalone then
-			if not pcall(skynet.newservice,"cmaster") then
-				skynet.abort()
-			end
-		end
-	
-		local ok, slave = pcall(skynet.newservice, "cslave")
-		if not ok then
-			skynet.abort()
-		end
-		skynet.name(".cslave", slave)
-	end
-	
-	if standalone then
-		local datacenter = skynet.newservice "datacenterd"
-		skynet.name("DATACENTER", datacenter)
-	end
-	skynet.newservice "service_mgr"
-	pcall(skynet.newservice,skynet.getenv "start" or "main")
-	skynet.exit()
+  if standalone then
+    local datacenter = skynet.newservice "datacenterd"
+    skynet.name("DATACENTER", datacenter)
+  end
+  skynet.newservice "service_mgr"
+  pcall(skynet.newservice,skynet.getenv "start" or "main")
+  skynet.exit()
 end)
 ```
 
