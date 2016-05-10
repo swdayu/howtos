@@ -554,7 +554,7 @@ standalone = "0.0.0.0:2013" --指定这一项表示当前节点是主节点
 ```lua
 local skynet = require "skynet"
 local harbor = require "skynet.harbor"
-require "skynet.manager"	-- import skynet.launch, ...
+require "skynet.manager"
 local memory = require "memory"
 
 skynet.start(function()
