@@ -1,5 +1,16 @@
 
-**cts**
+**Keywords**
+```c
+[Connection]
+L2CA_SetDesireRole // set allow role switch or not when create connection
+btm_sec_disconnected
+ACL_DISCONNECTED
+
+L2CA_DisconnectRsp
+```
+
+
+**CTS**
 
 Android M: BLE搜索要收到设备需要把GPS打开；
 
