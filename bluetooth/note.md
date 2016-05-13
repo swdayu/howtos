@@ -1,7 +1,7 @@
 
 **cts**
 
-BLE搜索要收到设备需要把GP打开；
+Android M: BLE搜索要收到设备需要把GPS打开；
 
 **BLE Profile**
 
