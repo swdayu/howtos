@@ -5,6 +5,7 @@
 - http://www.inf.puc-rio.br/~roberto/lpeg/lpeg-1.0.0.tar.gz
 - http://bford.info/packrat/
 - http://lua-users.org/wiki/LpegTutorial
+- https://en.wikipedia.org/wiki/Parsing_expression_grammar
 
 LPeg是一种新的Lua模式匹配库，它基于PEG（Parsing Expression Grammars）语法实现。
 LPeg中的模式（pattern）是普通的Lua值（使用userdata表示），并且通过元表为模式定义了一些特定的操作。
