@@ -6,12 +6,24 @@ OOB途径：可以代替一般的蓝牙设备搜索和配对过程
 在这个过程中，被搜索的设备必须处于特定的发现模式下，而执行搜索的设备必须执行特定的过程来执行搜索。
 
 
-**设备发现(或搜索设备)涉及的模式**
+**被搜设备的模式**
+
+被搜搜设备必须处于不可发现模式(Non-discoverable mode)或
+
+
+| 模式  | Non-discoverable mode | Limited discoverable mode | General discoveralbe mode
+|
 
 
 
 1. 被搜索的设备必须处于不可发现状态(Non-discoverable mode)或一种可发现状态(Limited/General discoverable mode)
-   - 
+```c
+      | Non-discoveralbe mode | Limited discoverable mode | General discoverable mode
+
+
+```
+
+
 2. 执行搜索的设备
 
 
