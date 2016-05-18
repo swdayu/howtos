@@ -1,3 +1,19 @@
+OOB途径：可以代替一般的蓝牙设备搜索和配对过程
+
+## 4. Discovery Modes and Procedures (设备发现模式和过程)
+
+设备发现模式和过程，是蓝牙设备搜索过程中涉及的蓝牙设备要遵循的行为。
+在这个过程中，被搜索的设备必须处于特定的发现模式下，而执行搜索的设备必须执行特定的过程来执行搜索。
+
+
+**设备发现(或搜索设备)涉及的模式**
+
+
+
+1. 被搜索的设备必须处于不可发现状态(Non-discoverable mode)或一种可发现状态(Limited/General discoverable mode)
+   - 
+2. 执行搜索的设备
+
 
 ## 9. Operational modes and procedures - LE physical transport（LE链路相关的模式和过程）
 
