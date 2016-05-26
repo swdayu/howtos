@@ -39,3 +39,12 @@ Guest User下收不到手表的FMP通知，也不能同步时间等，需要切�
 - 手机与BLE设备连接之后，手机先关闭再打开蓝牙，手机会自动重连这个设备，
   如果对方设备已经处于不可连接状态（当手机关掉蓝牙连接会断掉，对方设备可能将也会将蓝牙关闭导致不可连），
   需要将它设置到可连接状态之后连接才能建立成功
+
+**文件位置**
+```shell
+$ adb shell cat /etc/bluetooth/bt_stack.conf | less
+$ adb shell cat /system/etc/bluetooth/bt_stack.conf | less
+
+/system/etc/bluetooth/bt_stack.conf
+/system/lib/hw/bluetooth.default.so
+```
