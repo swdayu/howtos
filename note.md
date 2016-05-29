@@ -3,6 +3,7 @@
 xijkn.com
 skywr.walke
 strlian.stewart
+trilian.stewart
 ```
 
 ## 德国社会学家 - 马克斯.韦伯
