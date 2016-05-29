@@ -1,7 +1,7 @@
 
 ```c
-kipovov.im/c/
-kipovov.im/story/
+kipmuv.im/c/
+kipmuv.im/story/
 ```
 
 ## 德国社会学家 - 马克斯.韦伯
