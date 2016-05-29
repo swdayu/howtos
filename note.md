@@ -2,7 +2,7 @@
 ```c
 kipmuv.im/c/
 kipmuv.im/story/
-keov.im/
+keeov.im/
 ```
 
 ## 德国社会学家 - 马克斯.韦伯
