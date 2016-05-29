@@ -1,8 +1,8 @@
 
 ```c
-kipmuv.im/c/
-kipmuv.im/story/
-keeov.im/
+xijkn.com
+skywr.walke
+trillian.stewart
 ```
 
 ## 德国社会学家 - 马克斯.韦伯
