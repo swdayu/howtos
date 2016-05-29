@@ -9,7 +9,3 @@ Write down notes or guides of things.
 - tex
 - PEG/regex
 - compiler
-
-## Website
-- zerodegree.im/computer-science/c-language/
-- zerodegree.im/stories/bai-nian-gu-du/
