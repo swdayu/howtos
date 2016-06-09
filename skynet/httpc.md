@@ -1,9 +1,11 @@
 
 ```lua
-http.sockethelper --> lualib/http/sockethelper.lua
-http.url          --> lualib/http/url.lua
-http.internal     --> lualib/http/internal.lua
-dns               --> lualib/dns.lua
+-- ## lualib/http/httpc.lua
+
+local helper = require "http.sockethelper" --> lualib/http/sockethelper.lua
+local url = require "http.url"             --> lualib/http/url.lua
+local internal = require "http.internal"   --> lualib/http/internal.lua
+local dns = require "dns"                  --> lualib/dns.lua
 
 local httpc = {}
 
@@ -34,11 +36,77 @@ function httpc.request(method, host, url, recvheader, header, content)
   end
   local fd = helper.connect(hostname, port)          --> 连接目标主机
   local ok, status, body = pcall(request, fd, method, host, url, recvheader, header, content)
-  helper.clese(fd)
-  if ok then
-    return status, body
-  else
-    error(status)
+  helper.close(fd)                                   --> 保护调用（可以捕获函数调用错误）Lua函数request；然后关闭连接描述符
+  if ok then                                         --> 如果调用成功，则
+    return status, body                              --> 返回该http请求返回的status和body
+  else                                               --> 否则
+    error(status)                                    --> 抛出错误
   end
+end
+
+local function request(fd, method, host, url, recvheader, header, content)
+  local read = helper.readfunc(fd)
+  local write = helper.writefunc(fd)
+  local header_content = ""
+  if header then
+    if not header.host then
+      header.host = host
+    end
+    for k,v in pairs(header) do
+      header_content = string.format("%s%s:%s\r\n", header_content, k, v)
+    end
+  else
+    header_content = string.format("host:%s\r\n",host)
+  end
+  if content then
+    local data = string.format("%s %s HTTP/1.1\r\n%scontent-length:%d\r\n\r\n", method, url, header_content, #content)
+    write(data)
+    write(content)
+  else
+  local request_header = string.format("%s %s HTTP/1.1\r\n%scontent-length:0\r\n\r\n", method, url, header_content)
+    write(request_header)
+  end
+  local tmpline = {}
+  local body = internal.recvheader(read, tmpline, "")
+  if not body then
+    error(socket.socket_error)
+  end
+  local statusline = tmpline[1]
+  local code, info = statusline:match "HTTP/[%d%.]+%s+([%d]+)%s+(.*)$"
+  code = assert(tonumber(code))
+  local header = internal.parseheader(tmpline,2,recvheader or {})
+  if not header then
+    error("Invalid HTTP response header")
+  end
+  local length = header["content-length"]
+  if length then
+    length = tonumber(length)
+  end
+  local mode = header["transfer-encoding"]
+  if mode then
+    if mode ~= "identity" and mode ~= "chunked" then
+      error ("Unsupport transfer-encoding")
+    end
+  end
+  if mode == "chunked" then
+    body, header = internal.recvchunkedbody(read, nil, header, body)
+    if not body then
+      error("Invalid response body")
+    end
+  else
+    -- identity mode
+    if length then
+      if #body >= length then
+        body = body:sub(1,length)
+      else
+        local padding = read(length - #body)
+        body = body .. padding
+      end
+    else
+      -- no content-length, read all
+      body = body .. socket.readall(fd)
+    end
+  end
+  return code, body
 end
 ```
