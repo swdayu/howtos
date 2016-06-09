@@ -552,52 +552,111 @@ standalone = "0.0.0.0:2013" --指定这一项表示当前节点是主节点
 **启动脚本**
 
 ```lua
-local skynet = require "skynet"
-local harbor = require "skynet.harbor"
-require "skynet.manager"
-local memory = require "memory"
+-- ## manager.lua
 
+--@[skynet.launch]启动一个指定名称的服务，返回成功启动的服务的整型句柄
+--传入参数：一般形式是lua_string service_name, lua_string service_para
+--返回结果：服务的整型句柄或nil
+function skynet.launch(...)
+  local addr = c.command("LAUNCH", table.concat({...}, " "))
+  if addr then
+    return tonumber("0x" .. string.sub(addr, 2))
+  end
+end
+
+--@[skynet.kill]终止指定名称的服务
+function skynet.kill(name)
+  if type(name) == "number" then
+    skynet.send(".launcher", "lua", "REMOVE", name, true)
+    name = skynet.address(name)
+  end
+  c.command("KILL", name)
+end
+
+--@[skynet.abort]强制终止当前skynet节点
+function skynet.abort()
+  c.command("ABORT")
+end
+
+--@[globalname]
+local function globalname(name, handle)
+  local c = string.sub(name, 1, 1)
+  assert(c ~= ':')                       --TODO
+  if c == '.' then                       --以"."开头的名称为局部名称
+    return false                         --当前名称为局部名称
+  end
+  assert(#name <= 16)                    --全局名称最大长度为16
+  assert(tonumber(name) == nil)          --全局名称不能是数字字符串
+  local harbor = require "skynet.harbor" --skynet/harbor.lua
+  harbor.globalname(name, handle)        --会给".cslave"服务发送一条"lua" "Register"消息
+  return true                            --当前名称为全局名称
+end
+
+--@[skynet.register]为当前服务注册一个局部名称，必须以"."开头
+function skynet.register(name)
+  if not globalname(name) then           --如果name为全局名称，会调用harbor.globalname(name, nil) TODO
+    c.command("REG", name)
+  end
+end
+
+--@[skynet.name]为handle对应的服务注册一个局部名称，必须以"."开头
+function skynet.name(name, handle)
+  if not globalname(name, handle) then   --如果name为全局名称，会调用harbor.globalname(name, handle) TODO
+    c.command("NAME", name .. " " .. skynet.address(handle))
+  end
+end
+
+-- ## bootstrap.lua
+
+local skynet = require "skynet"                              --skynet.lua
+local harbor = require "skynet.harbor"                       --skynet/harbor.lua
+require "skynet.manager"                                     --skynet/manager.lua
+local memory = require "memory"                              --lua-memory.c
 skynet.start(function()
   local sharestring = tonumber(skynet.getenv "sharestring")
   memory.ssexpand(sharestring or 4096)
-	
-  local standalone = skynet.getenv "standalone"
-	
-  local launcher = assert(skynet.launch("snlua","launcher"))
-  skynet.name(".launcher", launcher)
-	
-  local harbor_id = tonumber(skynet.getenv "harbor")
-  if harbor_id == 0 then
-    assert(standalone ==  nil)
-    standalone = true
-    skynet.setenv("standalone", "true")
-
-    local ok, slave = pcall(skynet.newservice, "cdummy")
-    if not ok then
-      skynet.abort()
+  local standalone = skynet.getenv "standalone"              --获取standalone配置参数
+  local launcher = assert(skynet.launch("snlua","launcher")) --启动launcher服务("LAUNCH", "snlua launcher")返回整型句柄
+  skynet.name(".launcher", launcher)                         --将launcher服务命名为".launcher"，以点开始的名称为节点内的局部名称
+  local harbor_id = tonumber(skynet.getenv "harbor")         --获取harbor配置参数
+  if harbor_id == 0 then                                     --harbor为0表示当前网络只有单个skynet节点
+    assert(standalone ==  nil)                               --此时standalone不应指定master节点的IP和端口
+    standalone = true                                        --单节点自身即为master节点，将standalone设为true，但无需节点调度不用启动cmaster服务
+    skynet.setenv("standalone", "true")                      --单skynet节点的standalone环境变量设为字符串"true"
+    local ok, slave = pcall(skynet.newservice, "cdummy")     --每个节点都应有一个slave服务，用于节点间的消息转发，以及同步全局名字
+    if not ok then                                           --单节点无需节点间消息转发，但可能会注册全局名字，为了兼容启动cdummy服务用于拦截对外全局名字变更
+      skynet.abort()                                         --如果启动失败，终止当前skynet节点，以点开始的名称为节点内的局部名称
     end
-    skynet.name(".cslave", slave)
-  else
-    if standalone then
-      if not pcall(skynet.newservice,"cmaster") then
-        skynet.abort()
+    skynet.name(".cslave", slave)                            --将slave服务命名为".cslave"
+  else                                                       --否则当前网络是多节点的skynet网络
+    if standalone then                                       --如果standalone，则当前启动的节点是网络中的master节点
+      if not pcall(skynet.newservice,"cmaster") then         --master节点徐启动cmaster服务用于节点调度
+        skynet.abort()                                       --如果启动失败，则终止当前skyent节点
       end
     end
-    local ok, slave = pcall(skynet.newservice, "cslave")
+    local ok, slave = pcall(skynet.newservice, "cslave")     --启动cslave服务，每个节点都必须有一个slave服务
     if not ok then
-      skynet.abort()
+      skynet.abort()                                         --如果slave服务启动失败，终止当前skynet节点
     end
-    skynet.name(".cslave", slave)
+    skynet.name(".cslave", slave)                            --将slave服务命名为".clave"，以点开始的名称为节点内的局部名称
   end
-	
   if standalone then
-    local datacenter = skynet.newservice "datacenterd"
-    skynet.name("DATACENTER", datacenter)
+    local datacenter = skynet.newservice "datacenterd"       --如果是master节点，还需启动datacenterd服务
+    skynet.name("DATACENTER", datacenter)                    --为datacenter服务注册一个全局名称"DATACENTER"，改注册动作会发送一条REGISTER消息给".cslave"服务
   end
-  skynet.newservice "service_mgr"
-  pcall(skynet.newservice,skynet.getenv "start" or "main")
+  skynet.newservice "service_mgr"                            --接着启动service_mgr服务用于UniqueService管理
+  pcall(skynet.newservice, skynet.getenv "start" or "main")  --然后启动用户的启动脚本
   skynet.exit()
 end)
+```
+
+**单节点模式下启动的skynet服务**
+```c
+1. 名为".launcher"的lua服务launcher (launcher.lua)
+2. 名为".cslave"的lua服务cdummy (cdummy.lua)
+3. 名为"DATACENTER"的lua服务datacenterd (datacenterd.lua)
+4. Lua服务service_mgr (service_mgr.lua)
+5. 用户服务start
 ```
 
 ## 代码缓存
