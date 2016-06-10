@@ -130,6 +130,7 @@
 
 链接
 - http://www.csindex.com.cn/sseportal/csiportal/zs/jbxx/daily_index_info.jsp
+- http://www.csindex.com.cn/sseportal/csiportal/hy_syl/syl.jsp
 - http://www.swsindex.com/idx0510.aspx
 - http://www.hsi.com.hk/HSI-Net/HSI-Net
 - http://www.qqjjsj.com/gpsj/
