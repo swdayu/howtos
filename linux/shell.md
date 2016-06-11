@@ -144,6 +144,7 @@ $ sudo update-alternatives --list java
 # if multiple java exist, use following commands to set current java
 $ sudo update-alternatives --config java
 $ sudo update-alternatives --config javac
+$ java -version
 
 # oracle jdk
 $ sudo add-apt-repository ppa:webupd8team/java
