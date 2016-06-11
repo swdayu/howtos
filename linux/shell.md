@@ -130,7 +130,7 @@ $ sudo service pptpd restart
 ```
 
 **java**
-```shell 1
+```shell
 # openjdk
 $ sudo add-apt-repository ppa:openjdk-r/ppa
 $ sudo apt-get update
