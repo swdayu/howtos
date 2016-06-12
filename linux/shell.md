@@ -44,7 +44,7 @@ $ sudo vi /etc/hosts
   File | Preferences | Display
   - Maximum Guest Screen Size: Hint
   - Width: input wanted default window width
-  - Heigh: input wanted default window height
+  - Height: input wanted default window height
   
 # Share clipboard
   Machine | Settings | General | Advanced
