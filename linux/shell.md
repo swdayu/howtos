@@ -38,6 +38,35 @@ $ sudo vi /etc/hosts
 # and the name on the Terminal [username@hostname:~$].
 ```
 
+**virtualbox**
+```shell
+# Default window size
+  File | Preferences | Display
+  - Maximum Guest Screen Size: Hint
+  - Width: input wanted default window width
+  - Heigh: input wanted default window height
+  
+# Share clipboard
+  Machine | Settings | General | Advanced
+  - Shared Clipboard: Bidirectional
+  Machine | Settings | Storage
+  - Controller: SATA    => check "Use Host I/O Cache"
+    - YourVirtualOS.vdi => check "Solid-state Drive"
+
+# Share folders
+  Machine | Settings | Shared Folders
+  - add folders wanted to share to Machine Folders
+  - all shared folders will mounted under `/media/`
+
+# Add your username to vboxsf group to require the access permission
+$ ls -al /media/
+drwxrwx---   1 root vboxsf 12288 6月  12 11:49 sf_E_DRIVE
+drwxrwx---   1 root vboxsf 16384 6月  12 01:14 sf_F_DRIVE
+drwxrwx---   1 root vboxsf  4096 6月  12 11:48 sf_G_DRIVE
+$ sudo usermod -a -G vboxsf yourusername
+$ reboot
+```
+
 **wine**
 
 Wine (wine is not an emulator) is a free and open source compatibility layer software application that aims to allow applications designed for Microsoft Windows to run on Unix-like operating systems.
