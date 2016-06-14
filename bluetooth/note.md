@@ -1,11 +1,15 @@
 
 **Keywords**
 ```c
+## HFP
+
+1. SCO State:  "AG SCO State|AG_AUDIO|setBluetoothScoOn"
+2. AT Command: "bta_ag_hfp_result|HFP AT cmd"
+
 [Connection]
 L2CA_SetDesireRole // set allow role switch or not when create connection
 btm_sec_disconnected
 ACL_DISCONNECTED
-
 L2CA_DisconnectRsp
 ```
 
