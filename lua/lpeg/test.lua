@@ -8,11 +8,11 @@ local function ltest(expr, value)
   return false
 end
 
--->> Basic Match
+--> Basic Match
 
 matchString = lpeg.P("abc")
 matchFourCharacters = lpeg.P(4) -- positive number
-matchZeroCharacters = lpeg.P(0) -- match success
+matchZeroCharacters = lpeg.P(0) -- always success
 matchSuccess = lpeg.P(true)
 matchFail = lpeg.P(false)
 
@@ -89,7 +89,7 @@ result = lpeg.match(matchFail, "a", 3)
 assert(ltest(result, nil))
 
 
--->> Match Before
+--> Matched Before Or Not
 
 matchStringBefore = lpeg.B(matchString)
 matchFourCharactersBefore = lpeg.B(matchFourCharacters)
@@ -123,6 +123,58 @@ result = lpeg.match(matchZeroCharactersBefore, "abc", 2) --> at pos 2 can match 
 assert(ltest(result, 2))
 result = lpeg.match(matchZeroCharactersBefore, "abc", 3)
 assert(ltest(result, 3))
+
+
+--> Match Predicate (Positive)
+
+result = lpeg.match(#matchString, "zzabc")
+assert(ltest(result, nil))
+result = lpeg.match(#matchString, "zzabc", 3)
+assert(ltest(result, 3))
+result = lpeg.match(#matchString, "zzabc", 4)
+assert(ltest(result, nil))
+
+result = lpeg.match(#matchFourCharacters, "abcde")
+assert(ltest(result, 1))
+result = lpeg.match(#matchFourCharacters, "abcde", 2)
+assert(ltest(result, 2))
+result = lpeg.match(#matchFourCharacters, "abcde", 3)
+assert(ltest(result, nil))
+
+result = lpeg.match(#matchZeroCharacters, "")
+assert(ltest(result, 1))
+result = lpeg.match(#matchZeroCharacters, "a")
+assert(ltest(result, 1))
+result = lpeg.match(#matchZeroCharacters, "a", 2)
+assert(ltest(result, 2))
+result = lpeg.match(#matchZeroCharacters, "a", 3)
+assert(ltest(result, 2))
+
+
+--> Match Predicate (Negative)
+
+result = lpeg.match(-matchString, "zzabc")
+assert(ltest(result, 1))
+result = lpeg.match(-matchString, "zzabc", 3)
+assert(ltest(result, nil))
+result = lpeg.match(-matchString, "zzabc", 4)
+assert(ltest(result, 4))
+
+result = lpeg.match(-matchFourCharacters, "abcde")
+assert(ltest(result, nil))
+result = lpeg.match(-matchFourCharacters, "abcde", 2)
+assert(ltest(result, nil))
+result = lpeg.match(-matchFourCharacters, "abcde", 3)
+assert(ltest(result, 3))
+
+result = lpeg.match(-matchZeroCharacters, "")
+assert(ltest(result, nil))
+result = lpeg.match(-matchZeroCharacters, "a")
+assert(ltest(result, nil))
+result = lpeg.match(-matchZeroCharacters, "a", 2)
+assert(ltest(result, nil))
+result = lpeg.match(-matchZeroCharacters, "a", 3)
+assert(ltest(result, nil))
 
 
 --> Match a Character in a Character Range
