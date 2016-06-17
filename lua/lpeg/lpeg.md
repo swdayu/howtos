@@ -1,5 +1,5 @@
 
-# LPeg
+# lpeg
 - http://www.inf.puc-rio.br/~roberto/lpeg/
 - http://www.inf.puc-rio.br/~roberto/docs/peg.pdf
 - http://www.inf.puc-rio.br/~roberto/lpeg/lpeg-1.0.0.tar.gz
@@ -8,7 +8,145 @@
 - https://en.wikipedia.org/wiki/Parsing_expression_grammar
 
 LPeg是一种新的Lua模式匹配库，它基于PEG（Parsing Expression Grammars）语法实现。
-LPeg中的模式（pattern）是普通的Lua值（使用userdata表示），并且通过元表为模式定义了一些特定的操作。
+LPeg中的模式（pattern）是普通的Lua值（使用userdata表示），并通过元表定义了特定的操作。
+
+## 相关概念
+
+**regex**
+
+Regex tools used the full theory of automata in their implementation:
+they took a regular expression, translated it to a non-deterministic automation,
+and then did a multiple-state simulation of a deterministic automation,
+which could recognize strings in the given language very efficiently.
+However, regular expressions have several limitations as a tool for pattern matching, even for basic tasks.
+
+1. they have no complement operator, some apparently simple languages can be surprisingly difficult to define.
+   typical examples include C comments, which is trickier than it seems;
+   and C identifiers, which must exclude reserved words like for and int.
+2. another limitation of the original theory of regular expressions is that it concerns only the recognition of a string,
+   with no regard for its internal structure. several common applications of pattern matching need to
+   break the match in parts - usually called captures - to be manipulated.
+3. captures also demand that the pattern matches in a deterministic way with a given subject.
+   the most common disambiguation rule is the longest-match rule, used by tools from Lex to POSIX regexes.
+   however, as argued by Clarke and Cormack, any search algorithm using the longest-match rule may need to traverse the subject multiple times.
+
+**peg**
+
+PEGs are a revival of Generalized Top-Down Parsing Languages (GTDPL),
+an old theory of formal grammars with an emphasis on parsing instead of language generation, using restricted backtracking.
+Although a PEG looks suspiciously similar to a Context-Free Grammar,
+it does not define a language, but rather an algorithm to recognize a language.
+
+One of the main advantages advocated for PEGs is that they can express a language syntax down to the character level,
+without the need for a separate lexical analysis. PEGs have several interesting features for pattern-matching.
+
+1. PEGs have an underlying theory that formally describe the behavior of any pattern.
+2. PEGs implement naturally several pattern-matching mechanisms, such as greedy repetitions, non-greedy repetitions,
+   positive lookaheads, and negative lookaheads, without ad-hoc extensions.
+3. PEGs can express all deterministic LR(k) languages (although not all deterministic LR(k) grammars),
+   and even some non-context-free langauges.
+4. PEGs allow a fast and simple implementation based on a parsing machine.
+5. Although it is possible to write patterns with exponential time complexity for the parsing machine,
+   they are much less common than in regexes, thanks to the limited backtracking.
+   In particular, patterns written without grammatical rules always hava a worst-case time O(n^k) and space O(k),
+   where k is the pattern's star height.
+   Moreover, the parsing machine has a simple and clear performance model that allows programmars to understand
+   and predict the time complexity of their patterns. The model also provides a firm basis for pattern optimizations.
+6. It is easy to extend the parsing machine with new constructions without breaking its properties.
+   For instance, adding back references to the machine does not make the problem NP-complete.
+
+**ordered choice**
+
+Restricted backtracking means that a PEG does only local backtracking.
+Once an option has been chosen, it cannot be changed because of a later failure.
+As an example, consider the following grammar fragment, where each Ei is an arbitrary expression.
+```
+S <- A B
+A <- E1 / E2 / E3
+```
+When trying to match the input string against S, the parser starts with A.
+To match A, the parser will first try the expression E1. If that match fails, it will backtrack and try E2, and so on.
+Once a matching option is found, however, there is no more backtracking for this rule.
+If, after choosing Ei, as the option for A, the subsequent match of B fails, the entrie sequence A B fails.
+A failure in B will not cause the parser to try another option for A; that is, the parser does not do global backtracking.
+
+**repetitions**
+
+A blind greedy repetition, sometimes called possessive, always matches the maximum possible span (therefore greedy),
+disregarding what comes afterwards (therefore blind).
+```
+S <- E S / ""
+```
+Ordered choice implies that this repetition is greedy: it always tries first to repeat.
+Local backtracking implies that it is blind: a subsequent failure will not change this longest matching.
+
+A non-blind greedy repetition is one that repeats as many times as possible (therefore greedy),
+as long as the rest of the pattern matches (therefore non-blind).
+```
+S <- E1 S / E2
+```
+This pattern will always try first the option E1 S, which consumes one instance of E1 and tries S again.
+This will go on until the subject's end. Then, it backtracks step by step until it finds a E2 or
+until there is no more backtracking and the entire pattern fails.
+As an example, the following grammer matches a subject up to its last digit: ` S <= . S / [0-9]`.
+
+Blind non-greedy repetition is not very useful -- it always matches the empty string.
+Non-blind non-greedy repetition (also called lazy or reluctant), on the other hand, may be convenient.
+For example, if you want to match the minimum number of E1 up the first E2, you can write:
+```
+S <- E2 / E1 S
+```
+This pattern first tries to match E2. If that fails, it matches E1 and repeats.
+As a concrete example, the following grammar matches C comments:
+```
+Comment <- "/*" Close
+Close   <- "*/" / . Close
+```
+
+**syntactic predicates**
+
+The *not predicate* corresponds to a negative lookahead.
+The expression !E matches only if the pattern E fails, and this pattern never consumes any input.
+As an example, PEGs do not need a special pattern (usually denoted by $ in regex) to match the end.
+The pattern `!.` succeeds only if `.` fails; this fail can only happen at the end of the subject,
+when there are no more characters available.
+
+The *and predicate* denoted by a prefix `&`, it corresponds to the positive lookahead operation.
+The expression &E is defined as !!E: it success only when E succeeds, but does not consume any input.
+
+Syntactic predicates greatly expand the expressiveness of PEGs: they provide a strong lookahead mechanism,
+and the *not predicate* provides a kind of a complement operator.
+For instance, use `!(("int" / "float") ![a-z]) [a-z]+` to match a lower-case identifier different from int or float.
+The pattern (("int" / "float") ![a-z]) succeeds when it matches int or float not followed by a lower-case letter (that is, as a complete word).
+
+The *not predicate* can replace non-greedy repetitions in most situations.
+For example, `(!B E)* B` matches instances of E as long as B does not match, and then matches B.
+Using this technique, we can rewrite grammar for C comments like this: `Comment <- "/*" (!"*/" .)* "*/"`.
+
+
+**left recursion**
+
+PEGs do not support left resursion. For instance, if we write a grammar like
+```
+S <- S X / ...
+```
+the result is an infinite loop. We say that such grammars are not *well formed*.
+Similarly, loops of patterns that can match the empty string (e.g. `""*`) are not well formed,
+as their expansions result in left-recursive rules.
+
+Although the general problem of whether a grammar is well formed is undecidable,
+some PEG tools implement conservative algorithms to detect these degenerate loops.
+
+
+**right-linear grammar**
+
+PEGs hava a intersting relationship with right-linear grammars.
+A *right-linear grammar* is a grammar in which each production alternative has at most one nonterminal, at its end.
+Because there are no sequences like `A B` (with two non-terminal symbols),
+the question of whether the parser tries another option for A if B fails does not arise.
+Therefore, these grammars have the same behavior both as PEGs and as CFGs.
+In particular, we can use traditional techniques to translate a finite automata into a PEG.
+
 
 ## 基本函数
 
