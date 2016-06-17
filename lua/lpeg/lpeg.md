@@ -1,5 +1,5 @@
 
-# lpeg
+# LPEG
 - http://www.inf.puc-rio.br/~roberto/lpeg/
 - http://www.inf.puc-rio.br/~roberto/docs/peg.pdf
 - http://www.inf.puc-rio.br/~roberto/lpeg/lpeg-1.0.0.tar.gz
