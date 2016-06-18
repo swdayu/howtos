@@ -199,3 +199,101 @@ result = lpeg.match(matchOperators, "*")
 assert(ltest(result, 2))
 result = lpeg.match(matchOperators, "/zzz")
 assert(ltest(result, 2))
+
+
+--> Ordered Choice
+
+matchAB = lpeg.P("ab")
+matchCD = lpeg.P("cd")
+matchABC = lpeg.P("abc")
+
+result = lpeg.match(matchAB + matchCD, "zabcd") -- match "ab" first, if failed then re-match "cd" again
+assert(ltest(result, nil))
+result = lpeg.match(matchAB + matchCD, "zabcd", 2)
+assert(ltest(result, 4))
+result = lpeg.match(matchAB + matchCD, "zabcd", 4)
+assert(ltest(result, 6))
+result = lpeg.match(matchAB + matchCD, "cd")
+assert(ltest(result, 3))
+
+result = lpeg.match(matchABC + matchAB, "abcd")
+assert(ltest(result, 4))
+result = lpeg.match(matchAB + matchABC, "abcd")
+assert(ltest(result, 3))
+
+
+--> Continue Match
+
+result = lpeg.match(matchAB * matchCD, "abcde")  -- match "ab" and then match "cd"
+assert(ltest(result, 5))
+result = lpeg.match(-matchABC * matchAB, "abcd") -- current doesn't match "abc" and then match "ab"
+assert(ltest(result, nil))
+result = lpeg.match(-matchABC * matchAB, "abzz")
+assert(ltest(result, 3))
+
+
+--> Repetition
+
+matchZeroOrMore = lpeg.P(matchAB^0)
+matchOneOrMore = lpeg.P(matchAB^1)
+matchTwoOrMore = lpeg.P(matchAB^2)
+matchZeroOrOne = lpeg.P(matchAB^-1)
+matchThreeAtMost = lpeg.P(matchAB^-3)
+
+result = matchZeroOrMore:match("")
+assert(ltest(result, 1))
+result = matchZeroOrMore:match("acc")  -- zero time matched
+assert(ltest(result, 1))
+result = matchZeroOrMore:match("zab")  -- zero time matched
+assert(ltest(result, 1))
+result = matchZeroOrMore:match("abzz")
+assert(ltest(result, 3))
+result = matchZeroOrMore:match("ababz")
+assert(ltest(result, 5))
+result = matchZeroOrMore:match("zab")
+assert(ltest(result, 1))
+
+result = matchOneOrMore:match("")
+assert(ltest(result, nil))
+result = matchOneOrMore:match("zzz")
+assert(ltest(result, nil))
+result = matchOneOrMore:match("zab")
+assert(ltest(result, nil))
+result = matchOneOrMore:match("abz")
+assert(ltest(result, 3))
+result = matchOneOrMore:match("abababz")
+assert(ltest(result, 7))
+
+result = matchTwoOrMore:match("")
+assert(ltest(result, nil))
+result = matchTwoOrMore:match("aaa")
+assert(ltest(result, nil))
+result = matchTwoOrMore:match("ab")
+assert(ltest(result, nil))
+result = matchTwoOrMore:match("ababz")
+assert(ltest(result, 5))
+result = matchTwoOrMore:match("abababab")
+assert(ltest(result, 9))
+
+result = matchZeroOrOne:match("")   -- zero time matched
+assert(ltest(result, 1))
+result = matchZeroOrOne:match("az") -- zero time matched
+assert(ltest(result, 1))
+result = matchZeroOrOne:match("ab")
+assert(ltest(result, 3))
+result = matchZeroOrOne:match("abab")
+assert(ltest(result, 3))
+
+result = matchThreeAtMost:match("")   -- zero time matched
+assert(ltest(result, 1))
+result = matchThreeAtMost:match("az") -- zero time matched
+assert(ltest(result, 1))
+result = matchThreeAtMost:match("ab")
+assert(ltest(result, 3))
+result = matchThreeAtMost:match("abab")
+assert(ltest(result, 5))
+result = matchThreeAtMost:match("ababab")
+assert(ltest(result, 7))
+result = matchThreeAtMost:match("abababab")
+assert(ltest(result, 7))
+
