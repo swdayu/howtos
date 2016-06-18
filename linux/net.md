@@ -12,6 +12,13 @@ $ cat ~/.ssh/id_rsa.pub                              # copy your public key file
 $ ssh -T git@github.com                              # test the connection
 ```
 
+**scp**
+```shell
+$ scp -r user@example.com:~/docs/ .                  # copy remote docs under to local current directory
+$ scp /home/a.mp3 user@example.com:~/music/          # copy to remote
+$ scp /home/a.mp3 user@example.com:~/music/001.mp3   # copy from remote
+```
+
 **curl**
 ```shell
 # write output to a file with remote time and remote name
