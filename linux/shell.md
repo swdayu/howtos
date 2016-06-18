@@ -113,6 +113,17 @@ $ gnome-system-monitor
 $ top
 ```
 
+**curl**
+```shell
+# write output to a file with remote time and remote name
+$ curl -R -O http://www.inf.puc-rio.br/~roberto/lpeg/lpeg-1.0.0.tar.gz
+```
+
+**tar**
+```shell
+$ tar zxf lpeg-1.0.0.tar.gz
+```
+
 **zip**
 ```shell
 $ zip dest.zip file1 file2 file3  # compress specified files
