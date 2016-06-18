@@ -1,3 +1,78 @@
+## git
+- http://git-scm.com/
+
+**git config**
+```shell
+$ vi ~/.gitconfig   # editor your git config file
+[user]
+  name = Connectivity_BT) Your Name
+  email = yourname@example.com
+[core]
+  editor = vi
+[color]
+  ui = auto
+[url "ssh://company_yourname@xxx.xx.xx.xx:port"]
+  pushInsteadOf = ssh://yourname@xxx.xx.xx.xx:port
+[push]
+  default = current
+$ git config --list
+$ git configg user.name
+$ git config user.email
+```
+
+**git clone**
+```shell
+$ git clone remote_repo local_dir   # without local_dir will use current directory
+$ mkdir -p repo/.git                # bare clone only copy repo database not files
+$ git clone --bare remote repo/.git  
+$ mkdir -p mirror/.git              # clone a mirror database can be easily synced
+$ git clone --mirror remote mirror/.git
+```
+
+**git remote**
+```shell
+$ git remote update
+$ git remote -v
+$ git remote add https_remote https://example.com/user/demo.git
+$ git remote add ssh_remote git@example.com:user/demo.git
+
+$ git push remote_repo branch
+$ git pull remote_repo branch
+```
+
+**git branch**
+```shell
+$ git branch -a
+```
+
+**git commit**
+```shell
+$ vim modify_files
+$ git status && git diff
+$ git add . && git status
+$ git commit
+    Submit for XXX issue:
+    PROJN-TASK-PHASE-23
+CTRL+O
+CTRL+X
+$ git branch -a        # show branch info -> remote/MM/name/public/develop
+$ git push remote HEAD:refs/for/MM/name/public/develop
+$ git log -2           # last two commits with: commit id, comment
+$ git show commit_id   # show commit detail info by commit id
+$ vim modify_files
+$ git status && git diff
+$ git add . && git status
+$ git commit --amend
+$ git push remote HEAD:refs/for/MM/name/public/develop
+
+# git add --all
+# git commit -m "Update files for some purpose"
+```
+
+**git log**
+```shell
+$ git log --stat -2   # last two commits with: commit id, comment, changed files
+```
 
 **git blame**
 ```shell
