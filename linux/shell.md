@@ -113,12 +113,6 @@ $ gnome-system-monitor
 $ top
 ```
 
-**curl**
-```shell
-# write output to a file with remote time and remote name
-$ curl -R -O http://www.inf.puc-rio.br/~roberto/lpeg/lpeg-1.0.0.tar.gz
-```
-
 **tar**
 ```shell
 $ tar zxf lpeg-1.0.0.tar.gz
@@ -139,9 +133,6 @@ $ sudo apt-get install subversion
 # export files to local folder
 $ svn export http://192.168.7.3/svn/ --username <user>
 ```
-
-**axel - mutithread download**
-- http://www.vpser.net/manage/axel.html
 
 **vpn server**
 ```shell
