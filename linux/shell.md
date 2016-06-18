@@ -26,6 +26,28 @@ $ cat /etc/hosts
 $ apt-get update && apt-get upgrade                        # execute next only if current success
 $ ping -c 1 -w 15 -n 72.14.203.104 || echo "server down"   # execute next only if current failed
 $ mkdir $(date "+%Y-%m-%d")                                # use another command's result as parameters
+$ mkdir `data "+%Y-%m-%d`
+```
+
+**echo**
+```shell
+# echo text with specified color
+$ /bin/echo -e "\033[30m Black \033[0m"
+$ /bin/echo -e "\033[31m Red \033[0m"
+$ /bin/echo -e "\033[32m Green \033[0m"
+$ /bin/echo -e "\033[33m Yellow \033[0m"
+$ /bin/echo -e "\033[34m Blue \033[0m"
+$ /bin/echo -e "\033[35m Purple \033[0m"
+$ /bin/echo -e "\033[36m Light Blue \033[0m"
+$ /bin/echo -e "\033[37m White \033[0m"
+$ /bin/echo -e "\033[40;37m Black Background \033[0m"
+$ /bin/echo -e "\033[41;37m Red Background \033[0m"
+$ /bin/echo -e "\033[42;37m Green Background \033[0m"
+$ /bin/echo -e "\033[43;37m Yellow Background \033[0m"
+$ /bin/echo -e "\033[44;37m Blue Background \033[0m"
+$ /bin/echo -e "\033[45;37m Purple Background \033[0m"
+$ /bin/echo -e "\033[46;37m Light Blue Background \033[0m"
+$ /bin/echo -e "\033[47;31m White Background \033[0m"
 ```
 
 **apt-cache**
