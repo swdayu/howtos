@@ -1,4 +1,33 @@
 
+**basic**
+```shell
+# prompt character
+root@localhost:~#
+user@localhost:~$
+
+# shebang line of shell script
+#!/bin/bash
+
+# edit and execute shell script
+$ cat << EOF >> a.sh
+> #!/bin/bash
+> ...
+> EOF
+$ chmod u+x a.sh
+$ a.sh   # same as `/bin/bash a.sh`
+
+# some config files
+$ cat ~/.bashrc
+$ cat /etc/profile
+$ cat /etc/environment
+$ cat /etc/hosts
+
+# combine commands 
+$ apt-get update && apt-get upgrade                        # execute next only if current success
+$ ping -c 1 -w 15 -n 72.14.203.104 || echo "server down"   # execute next only if current failed
+$ mkdir $(date "+%Y-%m-%d")                                # use another command's result as parameters
+```
+
 **apt-cache**
 ```shell
 # apt - Ubuntu's Advanced Packaging Tool
@@ -36,6 +65,19 @@ $ sudo vi /etc/hosts
 # After physically reboot your device, the hostname will be updated permanently.
 # Check the name display in [System Settings | Details | Overview | Device name], 
 # and the name on the Terminal [username@hostname:~$].
+```
+
+**env**
+```shell
+$ env
+$ echo $PATH
+$ echo $HOME
+$ echo $USER
+
+# show environment variables of a process
+$ pgrep -l ssh
+3190 sshd
+$ sudo cat /proc/3190/environ
 ```
 
 **virtualbox**
