@@ -8,6 +8,7 @@ lpeg
 ----
 W25 06/13 ****** 写完grammar和capture的UT >>>> 基本完成，还剩lpeg.P(func)和lpeg.Cmt()，用到时再深入了解
 W26 06/20 [TODO] 解析识别integer，整理基本类型和常用函数
+W27 06/27 [TODO] 文法的基本概念，正则文法、上下文无关文法、上下文有关文法
 
 svg
 ---
