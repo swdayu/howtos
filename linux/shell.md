@@ -25,6 +25,7 @@ $ cat /etc/hosts
 # combine commands 
 $ apt-get update && apt-get upgrade                        # execute next only if current success
 $ ping -c 1 -w 15 -n 72.14.203.104 || echo "server down"   # execute next only if current failed
+$ echo first cmd; echo second cmd                          # these two commands are not logical related
 $ mkdir $(date "+%Y-%m-%d")                                # use another command's result as parameters
 $ mkdir `data "+%Y-%m-%d`
 ```
