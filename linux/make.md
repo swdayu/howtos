@@ -3,6 +3,7 @@
 - https://gcc.gnu.org/onlinedocs/gcc-5.3.0/gcc/
 - http://www.ruanyifeng.com/blog/2015/02/make.html
 - https://www.gnu.org/software/make/manual/make.html
+- https://gist.github.com/isaacs/62a2d1825d04437c6f08
 
 ## Makefile文件的格式
 
