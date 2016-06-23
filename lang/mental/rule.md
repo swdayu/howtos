@@ -150,7 +150,7 @@ var s5 = {"""2          // only escape character "\{" and "\}"
 "i=!!(idx)"
 
 var normalString = "abc\n2nd_line"
-var nstr2 = 'str"using"double"quote'
+var nstr2 = s'str"using"double"quote'
 var quoteString = q{C:\data.txt} ~ qTAG{string here}TAG
 var qstr2 = q{
 string line 1
