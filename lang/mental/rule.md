@@ -2,23 +2,27 @@
 - https://developer.apple.com/swift/
 - https://onevcat.com/2014/06/walk-in-swift/
 
-**interger**
+**interger/float**
 ```c
-bool - true false
-char - unsigned byte
-byte - unsigned byte
-int8 - signed byte
-half/uhalf - 16-bit
-full/ufull - 32-bit
-long/ulong - 64-bit
-cent/ucent - 128-bit
-iptr/uptr  - machine word size
-int/uint - at least 64-bit
+bool - true false                     bool
+char - unsigned byte                  char
+byte - unsigned byte                  byte
+int8 - signed byte                    int8
+half/uhalf - 16-bit                   half/uh
+full/ufull - 32-bit                   full/uf
+long/ulong - 64-bit                   long/ul
+cent/ucent - 128-bit                  cent/uc
+iptr/uptr  - machine word size        iptr/up
+float/real - 32/128-bit float point   f/real
+int/uint - at least 64-bit            default int type
+double - 64-bit                       default float point type
 
 // integer suffix and user defined suffix
-var a = 12'int8
-var b = 12'byte
-var len = 100'km
+var a = 12int8
+var b = 12byte
+var double len = 100km
+var byte a = 12f
+var b = 243
 
 Iteger: // std.conv.octal octal!237_777
   DecimalInteger        "0 1 2 3 4 5 6 7 8 9 _" 只能以数字开头，开头不能有多个0
@@ -33,12 +37,82 @@ Integer default type:
 0x8000_0000 -> 0xFFFF_FFFF                     int
 0x1_0000_0000 -> 0x7FFF_FFFF_FFFF_FFFF         int
 0x8000_0000_0000_0000 -> 0xFFFF_FFFF_FFFF_FFFF uint
-```
 
-**float**
-```c
-float/double/real - 32/64/128-bit real
+true.print
+'a'.print
+23.print
+0b01.print
+0o77.print
+0xFF.print
+"str".print
+[1,2].print
+{343}.print
+23.0.print
+0.3e5.print
 
+FloatLiteral shall match before IntegerLiteral,
+because IntegerLiteral can become the prefix of a FloatLiteral.
+
+BoolLiteral:
+  "true"
+  "false"
+
+CharLiteral:
+  "'" CharacterByte "'"
+
+CharacterByte:
+  "\" EscapeChar
+  "\x" HexDigit HexDigit
+  PrintableChar
+
+IntegerLiteral:
+  DecimalInteger
+  BinaryInteger
+  OctalInteger
+  HexInteger
+  DecimalInteger IntegerSuffix
+  BinaryInteger IntegerSuffix
+  OctalInteger IntegerSuffix
+  HexInteger IntegerSuffix
+
+DecimalInteger:
+  DecimalDigit
+  DecimalDigit DecimalTail
+
+DecimalTail:
+  DecimalReadableDigit
+  DecimalReadableDigit DecimalTail
+
+DecimalReadableDigit:
+  "_"
+  DecimalDigit
+
+BinaryInteger:
+  "0b" BinaryTail
+
+BinaryTail:
+  BinaryReadableDigit
+  BinaryReadableDigit BinaryTail
+
+BinaryReadableDigit:
+  "_"
+  BinaryDigit
+
+FloatLiteral:
+  DecimalFloat
+  DecimalFloat FloatSuffix
+
+DecimalFloat:
+  DecimalInteger "." DecimalTail
+  DecimalInteger "." DecimalTail DecimalExponent
+
+DecimalExponent:
+  DecimalExponetChars DecimalTail
+
+DecimalExponentChars:
+  "e"
+  "e+"
+  "e-"
 ```
 
 **string**
@@ -62,6 +136,38 @@ var s4 = {"""tag 2-space raw     // doesn't escape any characters
 var s5 = {"""2          // only escape character "\{" and "\}"
   here is a string of file =>{{#inc "layout/header.html"}}
 """}
+
+那种插入表达式(interpolated expression)比较好???
+"i={{idx}}"
+"i=[[idx]]"
+"i=\(idx)"
+"i=$(idx)"
+"i=!(idx)"
+"i=&(idx)"
+"i=\(idx)\"
+"i=$$(idx)"
+"i=##(idx)"
+"i=!!(idx)"
+
+var normalString = "abc\n2nd_line"
+var nstr2 = 'str"using"double"quote'
+var quoteString = q{C:\data.txt} ~ qTAG{string here}TAG
+var qstr2 = q{
+string line 1
+string line 2
+}
+var qstr3 = q2@{
+  string line 1 
+  string line 2 @{val}
+}
+var qstr2 = qTAG2{
+  string line 1
+  string line 2
+}TAG
+var hexstr = x"0A 00 F BCD 32" // "\x0A\x00\xFB\xCD\x32"
+
+Q字符串可以跨行书写，换行处会自动插入换行符号，但是在字符串开头或结尾换行不会插入换行符。
+相邻的字符串字面量会自动合并。
 
 __DATE__
 __TIME__
