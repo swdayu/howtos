@@ -1,11 +1,15 @@
-                              
-## make
+
+**debug**
+```shell
+$ strace
+$ pstack
+```
+
+**make**
 - https://gcc.gnu.org/onlinedocs/gcc-5.3.0/gcc/
 - http://www.ruanyifeng.com/blog/2015/02/make.html
 - https://www.gnu.org/software/make/manual/make.html
 - https://gist.github.com/isaacs/62a2d1825d04437c6f08
-
-## Makefile文件的格式
 
 Makefile文件由一系列规则（rules）构成，每条规则的格式是：
 ```make
