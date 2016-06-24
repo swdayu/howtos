@@ -117,13 +117,11 @@ DecimalExponentChars:
 
 **string**
 ```c
-var str = "double = {{a}}"
-var s2 = "complex calculate {{
-  add(a, b, c) //上文必须已经定义了a和c，以及函数add
-}}"
+var str = "double = $(a)"
+var s2 = "complex calculate $(add(a, b, c))"
 
 // 1. 普通字符串
-var s1 = "doube dval = {{dval}}\tfloat fval = {{fval}}\n"
+var s1 = "doube dval = $(dval)\tfloat fval = $(fval)\n"
 // 2. 原始字符串，不会对其中的字符进行转义
 var s2 = r"c:\nop\data.txt" ~ r"second part"   // only escape character '\"'
 var s3 = x"0A 00 F BCD 32" //相当于"\x0A\x00\xFB\xCD\x32"
@@ -149,16 +147,16 @@ var s5 = {"""2          // only escape character "\{" and "\}"
 "i=##(idx)"
 "i=!!(idx)"
 
-var normalString = "abc\n2nd_line"
+var normalString = "abc\n2nd_line $(str)"
 var nstr2 = s'str"using"double"quote'
 var quoteString = q{C:\data.txt} ~ qTAG{string here}TAG
 var qstr2 = q{
 string line 1
 string line 2
 }
-var qstr3 = q2@{
+var qstr3 = q2!!{
   string line 1 
-  string line 2 @{val}
+  string line 2 !!(val)
 }
 var qstr2 = qTAG2{
   string line 1
