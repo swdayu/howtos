@@ -194,6 +194,24 @@ func foo(int a, b, double... dargs) {
 }
 foo(1, 2, .c=3.0, 1.0, 2.0)
 foo(.c=3.0, 1, 2, 1.0, 2.0, .d=6.28f)
+
+// 在字符串插入表达式中的定义的默认参数的默认类型是string
+func html() qTAG2$${
+  <!DOCTYPE html>
+  <html $$(@lang)>
+    <head>
+      <meta $$(@charset = "utf-8")>
+      <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+      $$(@meta)
+      <title>$$(@title)</title>
+      $$(@css)
+      $$(@js)
+    </head>
+    <body>
+      $$(@body)
+    </body>
+  </html>
+}TAG
 ```
 
 **tuple参数的处理**
