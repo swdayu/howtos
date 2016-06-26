@@ -197,7 +197,8 @@ func calc(int a) {
 var a: 0
 var b: 0.0
 var s: "123"
-var int ival
+var int ival   // no default value
+var ival: int  // with default value of int
 ```
 
 **container**
