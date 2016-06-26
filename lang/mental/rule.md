@@ -70,10 +70,18 @@ IntegerLiteral:
   BinaryInteger
   OctalInteger
   HexInteger
+  ByteSequence IntegerSuffix
   DecimalInteger IntegerSuffix
   BinaryInteger IntegerSuffix
   OctalInteger IntegerSuffix
   HexInteger IntegerSuffix
+
+ByteSequence:
+  "'" CharacterBytes "'"
+
+CharacterBytes:
+  CharacterByte
+  CharacterByte CharacterBytes
 
 DecimalInteger:
   DecimalDigit
