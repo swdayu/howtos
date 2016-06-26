@@ -174,6 +174,32 @@ __LINE__
 __CMPL__
 ```
 
+**var**
+```c
+默认参数的语法
+1. 类成员变量的默认值使用简化语法
+struct Coordinate {
+  minX: 0.0    // var minX: 0.0
+  minY: 0.0    // var minY: 0.0
+  widthX: 0.0  // var widthX: 0.0
+  widthY: 0.0  // var widthY: 0.0
+}
+2. 函数普通参数的默认值
+func calc(int a, b: 64, double c: 3.14) { // var int a  // without default value
+}                                         // var int b: 64  var double c: 3.14
+3. 函数显式命名参数的默认值
+func calc(int a) {
+ @b: 64     // var b: 64
+ @c: 3.14   // var c: 3.14
+ @double d  // without default value
+}
+4. 普通变量的初始默认值
+var a: 0
+var b: 0.0
+var s: "123"
+var int ival
+```
+
 **container**
 ```c
 ```
