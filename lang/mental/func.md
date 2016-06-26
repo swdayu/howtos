@@ -196,7 +196,7 @@ foo(1, 2, .c=3.0, 1.0, 2.0)
 foo(.c=3.0, 1, 2, 1.0, 2.0, .d=6.28f)
 
 // 在字符串插入表达式中的定义的默认参数的默认类型是string
-func Page.html() qTAG2$${
+func html() qTAG2$${
   <!DOCTYPE html>
   <html $$(@lang = "")>
     <head>
