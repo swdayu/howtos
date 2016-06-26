@@ -4,18 +4,18 @@
 
 **interger/float**
 ```c
-bool - true false                     bool
-char - unsigned byte                  char
-byte - unsigned byte                  byte
-int8 - signed byte                    int8
-half/uhalf - 16-bit                   half/uh
-full/ufull - 32-bit                   full/uf
-long/ulong - 64-bit                   long/ul
-cent/ucent - 128-bit                  cent/uc
-iptr/uptr  - machine word size        iptr/up
-float/real - 32/128-bit float point   f/real
-int/uint - at least 64-bit            default int type
-double - 64-bit                       default float point type
+bool - true false                     tf bool
+char - unsigned byte                  ch char
+byte - unsigned byte                  bt byte
+int8 - signed byte                    i8 int8
+half/uhalf - 16-bit                   hf half/uh
+full/ufull - 32-bit                   fu full/uf
+long/ulong - 64-bit                   ll long/ul
+cent/ucent - 128-bit                  ct cent/uc
+iptr/uptr  - machine word size        ip iptr/up
+float/real - 32/128-bit float point   ff float/ fr real
+int/uint - at least 64-bit            ii int/ui: default int type
+double - 64-bit                       fd double: default float point type
 
 // integer suffix and user defined suffix
 var a = 12int8
@@ -23,6 +23,12 @@ var b = 12byte
 var double len = 100km
 var byte a = 12f
 var b = 243
+
+var a: 12int8
+var b: 12byte
+var len: 100km.toDouble
+var a: 12f.toByte
+var b: 243
 
 Iteger: // std.conv.octal octal!237_777
   DecimalInteger        "0 1 2 3 4 5 6 7 8 9 _" 只能以数字开头，开头不能有多个0
@@ -172,6 +178,23 @@ var qstr2 = qTAG2{
 }TAG
 var hexstr = x"0A 00 F BCD 32" // "\x0A\x00\xFB\xCD\x32"
 
+var normalString: "abc\n2nd_line $(str)"
+var nstr2: s'str"using"double"quote'
+var quoteString: q{C:\data.txt} ~ qTAG{string here}TAG
+var qstr2: q{
+string line 1
+string line 2
+}
+var qstr3: q2!!{
+  string line 1 
+  string line 2 !!(val)
+}
+var qstr2: qTAG2{
+  string line 1
+  string line 2
+}TAG
+var hexstr: x"0A 00 F BCD 32" // "\x0A\x00\xFB\xCD\x32"
+
 Q字符串可以跨行书写，换行处会自动插入换行符号，但是在字符串开头或结尾换行不会插入换行符。
 相邻的字符串字面量会自动合并。
 
@@ -187,10 +210,10 @@ __CMPL__
 默认参数的语法
 1. 类成员变量的默认值使用简化语法
 struct Coordinate {
-  minX: 0.0    // var minX: 0.0
-  minY: 0.0    // var minY: 0.0
-  widthX: 0.0  // var widthX: 0.0
-  widthY: 0.0  // var widthY: 0.0
+  minX: 0.0    // var minX: 0.0    var minx = 0.0
+  minY: 0.0    // var minY: 0.0    var miny = 0.0
+  widthX: 0.0  // var widthX: 0.0  var widthx = 0.0
+  widthY: 0.0  // var widthY: 0.0  var widthy = 0.0
 }
 2. 函数普通参数的默认值
 func calc(int a, b: 64, double c: 3.14) { // var int a  // without default value
@@ -205,8 +228,14 @@ func calc(int a) {
 var a: 0
 var b: 0.0
 var s: "123"
+var hval: 'bm'half
+var int ival: "12".toInt
 var int ival   // no default value
 var ival: int  // with default value of int
+5. 冒号模式可以用于处分初始化和赋值
+var a: 0
+var b: 0.0
+b = a + b
 ```
 
 **container**
@@ -239,6 +268,13 @@ func calc(int a, b) int {
   return a + b
 }
 var calc = { (int a, b) int | frozen
+  return a + b
+}
+
+imm car = 3.0   // object is immutable
+imm str = "abc"
+var status, imm data = requireData()
+imm calc = { (int a, b) int |
   return a + b
 }
 ```
