@@ -176,6 +176,12 @@ CurlyBracketStringHead:
   "q" CurlyBracketStringTag NumberOfIndentSpaces "{"
   "q" CurlyBracketStringTag NumberOfIndentSpaces InsertExprQualifierString "{"
 
+RawCharSequence:
+  NormalCharacter
+  PhysicalNewline
+  NormalCharacter RawCharSequence
+  PhysicalNewline RawCharSequence
+
 CurlyBracketStringTail:
   "}" CurlyBracketStringTag   // need match CurlyBracketStringTag in CurlyBracketStringHead
 
