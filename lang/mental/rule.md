@@ -82,7 +82,7 @@ IntegerLiteral:
   OctalInteger IntegerSuffix
   HexInteger IntegerSuffix
 
-ByteSequence:
+ByteSequence: // notice byte-order problem
   "'" CharacterBytes "'"
 
 CharacterBytes:
