@@ -145,8 +145,8 @@ StringLiteral:
   CurlyBracketString
 
 DoubleQuotedString:
-  " CharacterSequence "
-  """ CharacterSequence """
+  `"` CharacterSequence `"`
+  `"""` CharacterSequence `"""`
 
 CharacterSequence:
   NormalCharacter
@@ -155,10 +155,11 @@ CharacterSequence:
   EscapeSequence CharacterSequence
 
 SinagleQuotedString:
-  ''' CharacterSequence '''
+  "`" CharacterSequence "`"
+  `'''` CharacterSequence `'''`
 
 HexadecimalString:
-  x" HexCharSequence "
+  `x"` HexCharSequence `"`
 
 HexCharSequence:
   HexDigit
@@ -174,6 +175,9 @@ CurlyBracketStringHead:
   "q" CurlyBracketStringTag "{"
   "q" CurlyBracketStringTag NumberOfIndentSpaces "{"
   "q" CurlyBracketStringTag NumberOfIndentSpaces InsertExprQualifierString "{"
+
+CurlyBracketStringTail:
+  "}" CurlyBracketStringTag   // need match CurlyBracketStringTag in CurlyBracketStringHead
 
 CurlyBracketStringTag:
   "_"
@@ -191,55 +195,11 @@ InsertExprQualifierString:
 InsertExprQualifierChar:
   ~`!@#$%^&*+=-|\:;'"?/
 
-var str = "double = $(a)"
-var s2 = "complex calculate $(add(a, b, c))"
-
-// 1. 普通字符串
-var s1 = "doube dval = $(dval)\tfloat fval = $(fval)\n"
-// 2. 原始字符串，不会对其中的字符进行转义
-var s2 = r"c:\nop\data.txt" ~ r"second part"   // only escape character '\"'
-var s3 = x"0A 00 F BCD 32" //相当于"\x0A\x00\xFB\xCD\x32"
-// 3. 多行字符串，相当于"string line one\nstring line two" ~ "\n"
-var s4 = {"""tag 2-space raw     // doesn't escape any characters
-  string line one
-  string line two
-"""tag} \n
-// 4. 将文件转换成字符串 //处于安全考虑，#inc只认可相对路径和通过编译器开关控制的搜素路径
-var s5 = {"""2          // only escape character "\{" and "\}"
-  here is a string of file =>{{#inc "layout/header.html"}}
-"""}
-
-那种插入表达式(interpolated expression)比较好???
-"i={{idx}}"
-"i=[[idx]]"
-"i=\(idx)"
-"i=$(idx)"
-"i=!(idx)"
-"i=&(idx)"
-"i=\(idx)\"
-"i=$$(idx)"
-"i=##(idx)"
-"i=!!(idx)"
-
-var normalString = "abc\n2nd_line $(str)" ~ """include double quote " in string"""
-var nstr2 = '''str"using"double"quote'''
-var quoteString = q{C:\data.txt} ~ qTAG{string here}TAG
-var qstr2 = q{
-string line 1
-string line 2
-}
-var qstr3 = q2!!{
-  string line 1 
-  string line 2 !!(val)
-}
-var qstr2 = qTAG2{
-  string line 1
-  string line 2
-}TAG
-var hexstr = x"0A 00 F BCD 32" // "\x0A\x00\xFB\xCD\x32"
-
-var normalString: "abc\n2nd_line $(str)"
-var nstr2: s'str"using"double"quote'
+var str: "double = $(a)"
+var s2: "complex calculate $(add(a, b, c))"
+// 插入表达式(interpolated expression)
+var normalString: "abc\n2nd_line $(str)" ~ """include double quote " in string"""
+var nstr2: '''str"using"double"quote'''
 var quoteString: q{C:\data.txt} ~ qTAG{string here}TAG
 var qstr2: q{
 string line 1
@@ -249,11 +209,15 @@ var qstr3: q2!!{
   string line 1 
   string line 2 !!(val)
 }
+var qstr2: qTAG2{
+  string line 1
+  string line 2
+}TAG
+var hexstr: x"0A 00 F BCD 32" // "\x0A\x00\xFB\xCD\x32"
 var qstr2: qzzz2{
   string line 1
   string line 2
 }zzz
-var hexstr: x"0A 00 F BCD 32" // "\x0A\x00\xFB\xCD\x32"
 
 Q字符串可以跨行书写，换行处会自动插入换行符号，但是在字符串开头或结尾换行不会插入换行符。
 相邻的字符串字面量会自动合并。
