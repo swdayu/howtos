@@ -154,7 +154,7 @@ CharacterSequence:
   NormalCharacter CharacterSequence
   EscapeSequence CharacterSequence
 
-SinagleQuotedString:
+SingleQuotedString:
   "`" CharacterSequence "`"
   `'''` CharacterSequence `'''`
 
