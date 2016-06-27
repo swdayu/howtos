@@ -4,14 +4,14 @@
 
 **interger/float**
 ```c
-bool - true false                     tf bool
+bool - true false                     bl bool
 char - unsigned byte                  ch char
 byte - unsigned byte                  bt byte
 int8 - signed byte                    i8 int8
-half/uhalf - 16-bit                   hf half/uh
-full/ufull - 32-bit                   fu full/uf
-long/ulong - 64-bit                   ll long/ul
-cent/ucent - 128-bit                  ct cent/uc
+half/uhalf - 16-bit                   ih half/uh
+full/ufull - 32-bit                   if full/uf
+long/ulong - 64-bit                   il long/ul
+cent/ucent - 128-bit                  ic cent/uc
 iptr/uptr  - machine word size        ip iptr/up
 float/real - 32/128-bit float point   ff float/ fr real
 int/uint - at least 64-bit            ii int/ui: default int type
@@ -23,6 +23,12 @@ var b = 12byte
 var double len = 100km
 var byte a = 12f
 var b = 243
+
+var a = 12i8
+var b = 12bt
+var double len = 100km
+var byte a = 12ff
+var b = 243fd
 
 var a: 12int8
 var b: 12byte
@@ -131,6 +137,60 @@ DecimalExponentChars:
 
 **string**
 ```c
+
+StringLiteral:
+  DoubleQuotedString
+  SingleQuotedString
+  HexadecimalString
+  CurlyBracketString
+
+DoubleQuotedString:
+  " CharacterSequence "
+  """ CharacterSequence """
+
+CharacterSequence:
+  NormalCharacter
+  EscapeSequence
+  NormalCharacter CharacterSequence
+  EscapeSequence CharacterSequence
+
+SinagleQuotedString:
+  ''' CharacterSequence '''
+
+HexadecimalString:
+  x" HexCharSequence "
+
+HexCharSequence:
+  HexDigit
+  BlankChar
+  HexDigit HexCharSequence
+  BlankChar HexCharSequence
+
+CurlyBracketString:
+  CurlyBracketStringHead RawCharSequence CurlyBracketStringTail
+
+CurlyBracketStringHead:
+  "q{"
+  "q" CurlyBracketStringTag "{"
+  "q" CurlyBracketStringTag NumberOfIndentSpaces "{"
+  "q" CurlyBracketStringTag NumberOfIndentSpaces InsertExprQualifierString "{"
+
+CurlyBracketStringTag:
+  "_"
+  Letter
+  "_" CurlyBracketStringTag
+  Letter CurlyBracketStringTag
+
+NumberOfIndentSpaces:
+  DecimalInteger
+
+InsertExprQualifierString:
+  InsertExprQualifierChar
+  InsertExprQualifierChar InsertExprQualifierString
+
+InsertExprQualifierChar:
+  ~`!@#$%^&*+=-|\:;'"?/
+
 var str = "double = $(a)"
 var s2 = "complex calculate $(add(a, b, c))"
 
@@ -161,8 +221,8 @@ var s5 = {"""2          // only escape character "\{" and "\}"
 "i=##(idx)"
 "i=!!(idx)"
 
-var normalString = "abc\n2nd_line $(str)"
-var nstr2 = s'str"using"double"quote'
+var normalString = "abc\n2nd_line $(str)" ~ """include double quote " in string"""
+var nstr2 = '''str"using"double"quote'''
 var quoteString = q{C:\data.txt} ~ qTAG{string here}TAG
 var qstr2 = q{
 string line 1
@@ -189,10 +249,10 @@ var qstr3: q2!!{
   string line 1 
   string line 2 !!(val)
 }
-var qstr2: qTAG2{
+var qstr2: qzzz2{
   string line 1
   string line 2
-}TAG
+}zzz
 var hexstr: x"0A 00 F BCD 32" // "\x0A\x00\xFB\xCD\x32"
 
 Q字符串可以跨行书写，换行处会自动插入换行符号，但是在字符串开头或结尾换行不会插入换行符。
@@ -216,7 +276,7 @@ struct Coordinate {
   widthY: 0.0  // var widthY: 0.0  var widthy = 0.0
 }
 2. 函数普通参数的默认值
-func calc(int a, b: 64, double c: 3.14) { // var int a  // without default value
+func calc(int a, int b: 64, double c: 3.14) { // var int a  // without default value
 }                                         // var int b: 64  var double c: 3.14
 3. 函数显式命名参数的默认值
 func calc(int a) {
@@ -232,10 +292,6 @@ var hval: 'bm'half
 var int ival: "12".toInt
 var int ival   // no default value
 var ival: int  // with default value of int
-5. 冒号模式可以用于处分初始化和赋值
-var a: 0
-var b: 0.0
-b = a + b
 ```
 
 **container**
