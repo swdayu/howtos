@@ -13,6 +13,18 @@ ACL_DISCONNECTED
 L2CA_DisconnectRsp
 ```
 
+**disable dun service**
+```c
+<service
+  android:process="@string/process"
+  android:name=".dun.BluetoothDunService"          ## vendor/qcom/opensource/bluetooth/src/org/codeaurora/bluetooth/dun/
+  android:enabled="@bool/profile_supported_dun" >  ## vendor/qcom/opensource/bluetooth/res/values/config.xml
+  <intent-filter>
+    <action android:name="android.bluetooth.IBluetoothDun" />
+  </intent-filter>
+</service>
+```
+
 **BLE鼠标测试**
 ```c
 ELECOM M-BT11BB Series 鼠标
