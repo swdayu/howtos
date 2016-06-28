@@ -2,6 +2,78 @@
 - https://developer.apple.com/swift/
 - https://onevcat.com/2014/06/walk-in-swift/
 
+**lexical**
+```c
+Character:
+  AnyUtf8Char
+
+EndOfFile:
+  PhysicalEndOfTheFile
+  '\x00'
+  '\x1a'
+
+EndOfLine:
+  '\x0d'
+  '\x0a'
+  '\u000d' '\u000a'
+  '\u2028'
+  '\u2029'
+  EndOfFile
+
+WhiteSpace:
+  Space
+  Space WhiteSpace
+
+Space:
+  '\x20'
+  '\x09'
+  '\x0b'
+  '\x0c'
+
+Comment:       # Comment is replaced using one space after preprocess
+  LineComment
+  BlockComment
+
+LineComment:
+  "#" Characters EndOfLine
+  "//" Characters EndOfLine
+
+BlockComment:
+  "/*" Characters "*/"
+
+Characters:
+  Character
+  Character Characters
+
+Token:
+  Keyword
+  Identifier
+  FloatLiteral
+  IntegerLiteral
+  StringLiteral
+  CharacterLiteral
+  "." | ".." | "..."
+  "+" | "+=" | "-" | "-=" | "*" \ "*=" | "/" | "/="
+  ... ...
+
+Identifier:
+  IdentifierStartChar
+  IdentifierStartChar IdnetifierChars
+
+IdentifierStartChar:
+  "_"
+  Letter
+  UniversalAlpha   ## ISO/IEC 9899:1999(E) Appendix D (C99 standard)
+
+IdentifierChars:
+  IdentifierChar
+  IdentifierChar IdentifierChars
+
+IdentifierChar:
+  DecimalDigit
+  IdentifierStartChar
+```
+
 **interger/float**
 ```c
 bool - true false                     bl bool
