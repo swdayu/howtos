@@ -16,10 +16,19 @@ $ vi ~/.gitconfig   # editor your git config file
 [push]
   default = current
 $ git config --list
-$ git configg user.name
-$ git config user.email
 
-$ git rev-parse --git-dir   # show the path of current repository
+git config -e --global           # edit .gitconfig under user folder
+git config -e --system           # edit /etc/gitconfig for system
+cd repo
+git config -e                    # edit .git/config
+git config user.name             # show value of repository level
+git config a.b value             # set value of repository level
+git config --global a.b          # show value of user level
+git config --global a.b value    # set value of user level
+git config --system x.y.z        # show value of system level
+git config --system x.x.z value  # set value of system level
+
+git rev-parse --git-dir   # show the path of current repository
 ```
 
 **git grep**
@@ -35,6 +44,38 @@ git grep -e "p1" --and \( -e "p2" -e "p3" \)  # search lines that match "p1" and
 git grep "time_t" -- "*.[ch]"                 # search "timet_t" in .c and .h files
 git grep -n --context 3 "pattern"             # show context lines: -3 -C --context -A --after-context -B --before-context
 git grep -n --function-context "pattern"      # show function context, or use -W for short
+```
+
+**git format-patch**
+```shell
+git init
+git add --all
+git commit -m "initialized"
+git tag v1
+git add
+git commit
+git format-patch v1..HEAD
+git send-email *.patch
+```
+**git add**
+```shell
+git add -u   # --update, add modified file to stage
+git add -A   # --all, add all files (including new files and deleted files) to stage
+```
+
+**git diff**
+```shell
+git diff            # diff between stage and workspace
+git diff --cached   # diff between repository and stage
+```
+
+**git stash**
+```shell
+git stash
+git checkout new_branch
+...
+git checkout original_branch
+git stash pop
 ```
 
 **git clone**
