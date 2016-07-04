@@ -45,6 +45,18 @@ Characters:
   Character
   Character Characters
 
+从输入流读取token的规则（每次扫描前首先忽略开头空白）:
+1. 单词 - 以下划线或字母开头，后跟零个或多个下划线字母或数字，直到遇到空白或非下划线字母数字为止
+2. 数字 - 包括FloatLiteral和IntegerLiteral
+3. 字符和字符串 - 程序语言定义的字符和字符串
+4. 括号 - 每个括号都是一个单独的token，括号有：() <> [] {}
+5. 符号序列 - 由符号~!@#$%^&*-+=|\:;,.?/组成的字符序列，直到遇到空白或非这些符号字符为止
+6. 以符号序列开始的特殊序列 - 可定制一些特殊的序列放在符号序列之前解析
+7. 不属于以上情况的其他序列 - 其他合法或非法的utf8序列
+
+UTF8字符规则：
+- http://local.joelonsoftware.com/wiki/The_Joel_on_Software_Translation_Project:%E8%90%AC%E5%9C%8B%E7%A2%BC
+
 Token:
   Keyword
   Identifier
