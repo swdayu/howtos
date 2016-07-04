@@ -76,37 +76,27 @@ IdentifierChar:
 
 **interger/float**
 ```c
-bool - true false                     bl bool
-char - unsigned byte                  ch char
-byte - unsigned byte                  bt byte
-int8 - signed byte                    i8 int8
-half/uhalf - 16-bit                   ih half/uh
-full/ufull - 32-bit                   if full/uf
-long/ulong - 64-bit                   il long/ul
-cent/ucent - 128-bit                  ic cent/uc
-iptr/uptr  - machine word size        ip iptr/up
-float/real - 32/128-bit float point   ff float/ fr real
-int/uint - at least 64-bit            ii int/ui: default int type
-double - 64-bit                       fd double: default float point type
+bool - true false                     bool
+char - unsigned byte                  char
+byte - unsigned byte                  byte
+int8 - signed byte                    int8
+half/uhalf - 16-bit                   half/uh
+full/ufull - 32-bit                   full/uf
+long/ulong - 64-bit                   long/ul
+cent/ucent - 128-bit                  cent/uc
+iptr/uptr  - machine word size        iptr/up
+float/real - 32/128-bit float point   float/real
+int/uint - at least 64-bit            int/ui: default int type
+double - 64-bit                       double: default float point type
 
 // integer suffix and user defined suffix
 var a = 12int8
 var b = 12byte
 var double len = 100km
-var byte a = 12f
+var byte a = 12float
 var b = 243
-
-var a = 12i8
-var b = 12bt
-var double len = 100km
-var byte a = 12ff
-var b = 243fd
-
-var a: 12int8
-var b: 12byte
-var len: 100km.toDouble
-var a: 12f.toByte
-var b: 243
+var len = 100km.toDouble
+var a = 12float.toByte
 
 Iteger: // std.conv.octal octal!237_777
   DecimalInteger        "0 1 2 3 4 5 6 7 8 9 _" 只能以数字开头，开头不能有多个0
@@ -273,25 +263,25 @@ InsertExprQualifierString:
 InsertExprQualifierChar:
   ~`!@#$%^&*+=-|\:;'"?/
 
-var str: "double = $(a)"
-var s2: "complex calculate $(add(a, b, c))"
+var str = "double = $(a)"
+var s2 = "complex calculate $(add(a, b, c))"
 // 插入表达式(interpolated expression)
-var normalString: "abc\n2nd_line $(str)" ~ """include double quote " in string"""
-var nstr2: '''str"using"double"quote'''
-var quoteString: q{C:\data.txt} ~ qTAG{string here}TAG
-var qstr2: q{
+var normalString = "abc\n2nd_line $(str)" ~ """include double quote " in string"""
+var nstr2 = '''str"using"double"quote'''
+var quoteString = q{C:\data.txt} ~ qTAG{string here}TAG
+var qstr2 = q{
 string line 1
 string line 2
 }
-var qstr3: q2!!{
+var qstr3 = q2!!{
   string line 1 
   string line 2 !!(val)
 }
-var qstr2: qTAG2{
+var qstr2 = qTAG2{
   string line 1
   string line 2
 }TAG
-var hexstr: x"0A 00 F BCD 32" // "\x0A\x00\xFB\xCD\x32"
+var hexstr = x"0A 00 F BCD 32" // "\x0A\x00\xFB\xCD\x32"
 var qstr2: qzzz2{
   string line 1
   string line 2
@@ -307,33 +297,36 @@ __LINE__
 __CMPL__
 ```
 
-**var**
+**var/imm/enum**
 ```c
+var file)a = 3.14
+var this)b = 6.28
+
 默认参数的语法
-1. 类成员变量的默认值使用简化语法
+1. 类成员变量
 struct Coordinate {
-  minX: 0.0    // var minX: 0.0    var minx = 0.0
-  minY: 0.0    // var minY: 0.0    var miny = 0.0
-  widthX: 0.0  // var widthX: 0.0  var widthx = 0.0
-  widthY: 0.0  // var widthY: 0.0  var widthy = 0.0
+  var minX = 0.0
+  var minY = 0.0 
+  var widthX = 0.0
+  var widthY = 0.0
 }
 2. 函数普通参数的默认值
-func calc(int a, int b: 64, double c: 3.14) { // var int a  // without default value
-}                                         // var int b: 64  var double c: 3.14
+func calc(int a, b = 64, double c = 3.14) { // imm int a  // without default value
+}                                           // imm int b = 64  imm double c = 3.14
 3. 函数显式命名参数的默认值
 func calc(int a) {
- @b: 64     // var b: 64
- @c: 3.14   // var c: 3.14
- @double d  // without default value
+ @b = 64     // imm b = 64
+ @c = 3.14   // imm c = 3.14
+ @double d   // without default value
 }
 4. 普通变量的初始默认值
-var a: 0
-var b: 0.0
-var s: "123"
-var hval: 'bm'half
-var int ival: "12".toInt
+var a = 0
+var b = 0.0
+var s = "123"
+var hval = 'bm'half
+var int ival = "12".toInt
 var int ival   // no default value
-var ival: int  // with default value of int
+var ival = int  // with default value of int
 ```
 
 **container**
