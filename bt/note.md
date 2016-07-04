@@ -1,5 +1,5 @@
 
-**Keywords**
+**keywords**
 ```c
 ## HFP
 
@@ -11,6 +11,13 @@ L2CA_SetDesireRole // set allow role switch or not when create connection
 btm_sec_disconnected
 ACL_DISCONNECTED
 L2CA_DisconnectRsp
+```
+
+**btprofiles**
+```c
+vendor/qcom/opensource/bluetooth/res/values/config.xml
+device/qcom/common/device/overlay/packages/apps/Bluetooth/res/values/config.xml
+packages/apps/Bluetooth/res/values/config.xml
 ```
 
 **disable dun service**
