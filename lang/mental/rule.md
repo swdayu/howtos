@@ -55,7 +55,22 @@ Characters:
 7. 不属于以上情况的其他序列 - 其他合法或非法的utf8序列
 
 UTF8字符规则：
+- http://www.unicode.org/
+- http://www.utf-8.com/
+- http://www.ietf.org/rfc/rfc3629.txt
+- http://www.cl.cam.ac.uk/~mgk25/ucs/utf-8-history.txt
 - http://local.joelonsoftware.com/wiki/The_Joel_on_Software_Translation_Project:%E8%90%AC%E5%9C%8B%E7%A2%BC
+- http://local.joelonsoftware.com/mediawiki/index.php/Main_Page
+
+   Char. number range  |        UTF-8 octet sequence
+      (hexadecimal)    |              (binary)
+-----------------------+------------------------------------------------------
+ 7 0000_0000-0000_007F | 0xxxxxxx
+11 0000_0080-0000_07FF | 110xxxxx 10xxxxxx
+16 0000_0800-0000_FFFF | 1110xxxx 10xxxxxx 10xxxxxx
+21 0001_0000-0010_FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+26 0020_0000-03FF_FFFF | 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+31 0400_0000-7FFF_FFFF | 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
 
 Token:
   Keyword
