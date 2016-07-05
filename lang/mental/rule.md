@@ -2,7 +2,8 @@
 - https://developer.apple.com/swift/
 - https://onevcat.com/2014/06/walk-in-swift/
 
-**lexical**
+## lexical
+
 ```c
 Character:
   AnyUtf8Char
@@ -322,6 +323,12 @@ __TIME__
 __FUNC__
 __LINE__
 __CMPL__
+```
+
+## syntax
+
+**expr**
+```c
 ```
 
 **var/imm/enum**
