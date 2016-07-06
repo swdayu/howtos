@@ -13,6 +13,7 @@ $ vi ~/.gitconfig   # editor your git config file
   ui = auto
 [url "ssh://company_yourname@xxx.xx.xx.xx:port"]
   pushInsteadOf = ssh://yourname@xxx.xx.xx.xx:port
+  pushInsteadOf = ssh://yourname@xxx.xx.xx.xx:port
 [push]
   default = current
 $ git config --list
