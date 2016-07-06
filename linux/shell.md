@@ -179,6 +179,14 @@ $ sudo apt-get update
 $ sudo apt-get install skype
 ```
 
+**sogoupinyin**
+```shell
+# download linux version install package from "http://pinyin.sogou.com/linux/?r=pinyin"
+# click it to install
+# select "fcitx" in "System Settings|Language Support|Keyboard input method system"
+# reboot system, and choose "sogoupinyin" for input
+```
+
 **monitor**
 ```shell
 $ gnome-system-monitor
