@@ -65,8 +65,9 @@ git add -A   # --all, add all files (including new files and deleted files) to s
 
 **git diff**
 ```shell
-git diff            # diff between stage and workspace
-git diff --cached   # diff between repository and stage
+git diff            # diff workspace with stage
+git diff --cached   # diff stage with repository
+git diff HEAD~1     # diff repository HEAD~1 with previous commit
 ```
 
 **git stash**
