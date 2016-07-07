@@ -25,6 +25,28 @@ Error_Response (0x01)
 [1B] Request_Opcode
 [2B] Attribute_Handle
 [1B] Error_Code
+
+Error codes:
+0x01 - Invalid Handle
+0x02 - Read Not Permitted
+0x03 - Write Not Permitted
+0x04 - Invalid PDU
+0x05 - Insufficient Authentication
+0x06 - Request Not Supported
+0x07 - Invalid Offset
+0x08 - Insufficient Authorization
+0x09 - Prepare Queue Full
+0x0A - Attribute Not Found
+0x0B - Attribute Not Long (Read Blob Request)
+0x0C - Insufficient Encryption Key Size
+0x0D - Invalid Attribute Value Length
+0x0E - Unlikely Error
+0x0F - Insufficient Encryption
+0x10 - Unsupported Group Type
+0x11 - Insufficient Resources
+0x80 - 0x9F: Application error code defined by a higher layer specification
+0xE0 - 0xFF: Common Profile and Service Error Codes defined in CSS spec Part B
+0x12 - 0x7F, 0xA0 - 0xDF: Reserved for future use
 ```
 
 **Find Information**
@@ -141,6 +163,8 @@ Handle_Value_Indication (0x1D)
 Handle_Value_Confirmation (0x1E)
 [0B] NULL
 ```
+
+========
 
 ## Generic Attribute Profile (GATT)
 
