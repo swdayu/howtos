@@ -68,7 +68,7 @@ $ git init repo  # create a directory of "repo" and init a git repository under 
 **git add**
 ```shell
 $ git add -u     # --update, add modified file to stage
-$ git add -all   # --all -A, add all files (including new files and deleted files) to stage
+$ git add --all  # --all -A, add all files (including new files and deleted files) to stage
 ```
 
 **git status**
