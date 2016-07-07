@@ -1,5 +1,5 @@
 
-## Attribute Protocol (ATT)
+# Attribute Protocol (ATT)
 
 ATT allows a device referred to as the server to expose a set of attributes that describe the services the server support. And using the ATT, these attributes can be discovered, read, written by a client, and can be indicated and notified by the server. An attribute on the server contains following information: the attribute handle, the attribute type, the attribute value, and the attribute permissions.
 
@@ -15,9 +15,8 @@ There are six types of ATT PDUs:
 - server send "Indication" and require client's "Confirmation"
 - server send "Notification" to client
 
-========
+## ExchangeMTU & ErrorResponse
 
-**ExchangeMTU & ErrorResponse**
 ```c
 Exchange_MTU_Request (0x02)
 [2B] Client_Rx_MTU_Size
@@ -52,7 +51,8 @@ Error Codes
 0x12 - 0x7F, 0xA0 - 0xDF: Reserved for future use
 ```
 
-**Find Information**
+## Find Information
+
 ```c
 Find_Info_Request (0x04)
 [2B] Start_Handle: started with 0x0001
@@ -70,7 +70,8 @@ Find_By_Type_Value_Response (0x07)
 [nB] List_Of_Handle_Info: [2B Found_Handle, 2B Group_End_Handle (or Found_Handle)] ...
 ```
 
-**Read Attribute**
+## Read Attribute
+
 ```c
 Read_By_Type_Request (0x08)
 [2B] Start_Handle
@@ -112,7 +113,8 @@ Note: the value of a Long Attribute may change between one Read_Blob_Request and
 
 The part attribute value shall be set to part of the value of the attribute identified by the attribute handle and the value offset in the request. If the value offset is equal to the length of the attribute value, then the length of the part attribute value shall be zero. If the attribute value is longer than (Value_Offset + ATT_MTU-1) then (ATT_MTU-1) octets from Value Offset shall be included in this response.
 
-**Write Attribute**
+## Write Attribute
+
 ```c
 Write_Request (0x12)
 [2B] Attribute_Handle
@@ -135,7 +137,8 @@ Execute_Write_Response (0x19)
 [0B] NULL
 ```
 
-**Write Command**
+## Write Command
+
 ```c
 Write_Command (0x52)
 [2B] Attribute_Handle
@@ -154,7 +157,8 @@ then the server shall ignore the command.
 
 An Attribute PDU that includes an Authentication Signature should not be sent on an encrypted link. Note: an encrypted link already includes authentication data on every packet and therefore adding more authentication data is not required.
 
-**Server Initiated**
+## Server Initiated
+
 ```c
 Handle_Value_Notification (0x1B)
 [2B] Attribute_Handle
@@ -167,8 +171,7 @@ Handle_Value_Confirmation (0x1E)
 [0B] NULL
 ```
 
-
-## Generic Attribute Profile (GATT)
+# Generic Attribute Profile (GATT)
 
 GATT describes a service framework using the ATT
 - exchange configuration
@@ -225,9 +228,7 @@ Gatt defined features
 - Reading a Characteristic Descriptor
 - Writing a Characteristic Descriptor
 
-========
-
-**Server Configuration**
+## Server Configuration
 
 - it is used by the client to configure the ATT_MTU when the client supports a value greater than the default ATT_MTU
 - the ExchangeMTURequest procedure shall not be used on BER physical link since L2CAP channel configuration procedures
@@ -240,7 +241,7 @@ Gatt defined features
          <- Exchange_MTU_Response(Server_Rx_MTU_Size)
 ```
 
-**Primary Service Discovery**
+## Primary Service Discovery
 
 - it is used by a client to discover primary services on a server
 - once primary services are discovered, additional information of primary services can be accessed using other procedures
