@@ -61,40 +61,60 @@ git send-email *.patch
 
 **git init**
 ```shell
-git init       # init a git repository in current directory
-git init repo  # create a directory of "repo" and init a git repository under "repo"
+$ git init       # init a git repository in current directory
+$ git init repo  # create a directory of "repo" and init a git repository under "repo"
 ```
 
 **git add**
 ```shell
-git add -u     # --update, add modified file to stage
-git add -all   # --all -A, add all files (including new files and deleted files) to stage
+$ git add -u     # --update, add modified file to stage
+$ git add -all   # --all -A, add all files (including new files and deleted files) to stage
 ```
 
 **git status**
 ```shell
-$ git status -s   # show status using short format
+$ git status -s     # show status using short format
 M  core/java/android/bluetooth/BluetoothA2dp.java        # green: staged
  M core/java/android/bluetooth/BluetoothGatt.java        # red: modified in workspace
 MM core/java/android/bluetooth/BluetoothGattServer.java  # both modified and staged
+$ git status -s -b  # -b: show current branch
+## master
+MM hello.txt
 ```
 
 **git diff**
 ```shell
 # workspace -> cached area (or stage/index) -> repository
-git diff            # diff workspace with stage
-git diff HEAD       # diff workspace with repository
-git diff HEAD~1     # diff workspace with previous repository
-git diff --cached   # diff stage with repository, same as `git diff --staged`
+$ git diff            # diff workspace with stage
+$ git diff HEAD       # diff workspace with repository
+$ git diff HEAD~1     # diff workspace with previous repository
+$ git diff --cached   # diff stage with repository, same as `git diff --staged`
+```
+
+**git checkout**
+```shell
+$ git checkout -- files    # workspace files replaced by staged files
+$ git checkout HEAD files  # workspace files replaced by repository files
+```
+
+**git reset**
+```shell
+$ git reset HEAD files     # staged files replaced by repository files
+$ git reset HEAD~1 files   # staged files replaced by previous repository files
+```
+
+**git rm**
+```shell
+$ git rm --cached files    # delete staged files
 ```
 
 **git stash**
 ```shell
-git stash
-git checkout new_branch
-...
-git checkout original_branch
-git stash pop
+$ git stash
+$ git checkout new_branch
+$ ...
+$ git checkout original_branch
+$ git stash pop
 ```
 
 **git clone**
@@ -119,6 +139,7 @@ $ git pull remote_repo branch
 
 **git branch**
 ```shell
+$ git branch      # show current branch
 $ git branch -a
 ```
 
