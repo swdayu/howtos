@@ -142,3 +142,60 @@ Handle_Value_Confirmation (0x1E)
 [0B] NULL
 ```
 
+## Generic Attribute Profile (GATT)
+
+GATT describes a service framework using the ATT
+- exchange configuration
+- discovery of services and characteristics on a device
+- reading a characteristic value
+- writing a characteristic value
+- notification of a characteristic value
+- indication of a characteristic value
+
+GATT can be used with
+- BT 1.2 or later when using the profile on the BER physical link, and
+- BT 4.0 or later then using the profile on the BLE physical link
+
+Profile Fundamentals
+- the profile roles are not tied to the controller master/slave roles
+- on the BLE phsical link, use fo security features such as authorization, authentication and encryption are optional.
+  on a BER physical link encryption is mandatory.
+- Multi-octet fields within the GATT profile shall be sent least significant octet first (little endian)
+
+Gatt profile hierarchy
+- a profile can have one or more services
+- a service can contain zero or more service *Include*, and one or more *Characteristics*
+- a characteristic contains *Properties*, a *Value*, and zero or more *Descriptors*
+- a characteristic may be a mandatory or optional characteristic for a service
+- there are two types of services: primary service and secondary service
+- a primary service is a service that exposes the primary usable functionality of this device
+- a primary can be included by another service, and it can be discovered using Primary_Service_Discovery procedure
+- a secondary service is a service that is only intended to be referenced from a primary service
+- or another secondary service or other higher layer specification
+- a secondary service is only relevant in the context of the entity that references it
+
+Gatt profile attribute types
+- 0x2800 Primary Service
+- 0x2801 Secondary Service
+- 0x2802 Service Include
+- 0x2803 Characteristic
+- 0x2900 Characteristic Extended Properties
+- 0x2901 Characteristic User Description
+- 0x2902 Client Characteristic Configuration Descriptor
+- 0x2903 Server Characteristic Configureation Descriptor
+- 0x2904 Characteristic Format Descriptor
+- 0x2905 Characteristic Aggregate Format Descriptor
+
+Gatt defined features
+- Server Configuration
+- Primary Service Discovery
+- Relationship Discovery
+- Characteristic Discovery
+- Characteristic Descriptor Discovery
+- Reading a Characteristic Value
+- Writing a Characteristic Value
+- Notification of a Characteristic Value
+- Indication of a Characteristic Value
+- Reading a Characteristic Descriptor
+- Writing a Characteristic Descriptor
+
