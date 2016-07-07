@@ -26,7 +26,8 @@ Error_Response (0x01)
 [2B] Attribute_Handle
 [1B] Error_Code
 
-Error codes:
+Error Codes
+-----------
 0x01 - Invalid Handle
 0x02 - Read Not Permitted
 0x03 - Write Not Permitted
@@ -164,7 +165,6 @@ Handle_Value_Confirmation (0x1E)
 [0B] NULL
 ```
 
-========
 
 ## Generic Attribute Profile (GATT)
 
@@ -222,4 +222,23 @@ Gatt defined features
 - Indication of a Characteristic Value
 - Reading a Characteristic Descriptor
 - Writing a Characteristic Descriptor
+
+**Server Configuration**
+
+- it is used by the client to configure the ATT_MTU when the client supports a value greater than the default ATT_MTU
+- the ExchangeMTURequest procedure shall not be used on BER physical link since L2CAP channel configuration procedures
+- the client shall set Client Rx MTU to the maximum value it can receive
+- the server shall respond with the Server Rx MTU set to the maximum MTU it can receive, or ErrorResponse
+- if the ErrorResponse is sent by the server with error RequestNotSupported, the default MTU shall be used
+
+```c
+[Client] -> Exchange_MTU_Request(Client_Rx_MTU_Size)
+         <- Exchange_MTU_Response(Server_Rx_MTU_Size)
+```
+
+**Primary Service Discovery**
+
+- it is used by a client to discover primary services on a server
+- once primary services are discovered, additional information of primary services can be accessed using other procedures
+
 
