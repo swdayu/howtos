@@ -246,18 +246,16 @@ Gatt defined features
 - it is used by a client to discover primary services on a server
 - once primary services are discovered, additional information of primary services can be accessed using other procedures
 
-Discover all primary services:
 ```c
+Discover all primary services:
 [Client] -> Read_By_Group_Type_Request(0x0001, 0xFFFF, <<Primary Service>>)
          <- Read_By_Group_Type_Response(0x06, 0x0001, 0x000F, <<UUID1>>, 0x0100, 0x01FF, <<UUID2>>)
          -> Read_By_Group_Type_Request(0x0200, 0xFFFF, <<Primary Service>>)
          <- Read_By_Group_Type_Response(0x06, 0x0200, 0x02FF, <<UUID3>>, 0x0400, 0x04FF, <<UUID4>>)
          -> Read_By_Group_Type_Request(0x0500, 0xFFFF, <<Primary Service>>)
          <- Error_Response(<<Read_By_Group_Type_Request>>, 0x0501, <<Attribute Not Found>>)
-```
 
 Discover primary service by service UUID:
-```c
 [Client] -> Find_By_Type_Value_Request(0x0001, 0xFFFF, <<Primary Service>>, <<UUID1>>)
          <- Find_By_Type_Value_Response(0x0200, 0x0214)
          -> Find_By_Type_Value_Request(0x0215, 0xFFFF, <<Primary Service>>, <<UUID1>>)
