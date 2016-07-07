@@ -78,27 +78,14 @@ Read_Multiple_Request (0x0E)
 [nB] List_Of_Handle
 Read_Multiple_Response (0x0F)
 [nB] List_Of_Value
-
-
-Note: if the attribute is longer than (ATT_MTU-1) octets, the Read_Blob_Request
-is the only way to read the additional octets of a long attribute.
-The first (ATT_MTU-1) octets may be read using a Read_Request, an Handle_Value_Notification or an Handle_Value_Indication.
-
-Note: Long attributes may or may not have their length specified by a higher layer specification.
-If the long attribute has a variable length, the only way to get to the end of it
-is to read it part by part until the value in the Read_Blob_Response has a length shorter than (ATT_MTU-1)
-or an Error Response with the error code «Invalid Offset».
-
-Note: the value of a Long Attribute may change between one Read_Blob_Request and the next Read_Blob_Request.
-A higher layer specification should be aware of this and define appropriate behavior.
-
-The part attribute value shall be set to part of the value of the attribute
-identified by the attribute handle and the value offset in the request.
-If the value offset is equal to the length of the attribute value,
-then the length of the part attribute value shall be zero.
-If the attribute value is longer than (Value_Offset + ATT_MTU-1) then 
-(ATT_MTU-1) octets from Value Offset shall be included in this response.
 ```
+Note: if the attribute is longer than (ATT_MTU-1) octets, the Read_Blob_Request is the only way to read the additional octets of a long attribute. The first (ATT_MTU-1) octets may be read using a Read_Request, an Handle_Value_Notification or an Handle_Value_Indication.
+
+Note: Long attributes may or may not have their length specified by a higher layer specification. If the long attribute has a variable length, the only way to get to the end of it is to read it part by part until the value in the Read_Blob_Response has a length shorter than (ATT_MTU-1) or an Error Response with the error code «Invalid Offset».
+
+Note: the value of a Long Attribute may change between one Read_Blob_Request and the next Read_Blob_Request. A higher layer specification should be aware of this and define appropriate behavior.
+
+The part attribute value shall be set to part of the value of the attribute identified by the attribute handle and the value offset in the request. If the value offset is equal to the length of the attribute value, then the length of the part attribute value shall be zero. If the attribute value is longer than (Value_Offset + ATT_MTU-1) then (ATT_MTU-1) octets from Value Offset shall be included in this response.
 
 **Write Attribute**
 ```c
@@ -133,20 +120,14 @@ Signed_Write_Command (0xD2)
 [2B] Attribute_Handle
 [nB] Attribute_Value
 [12B] Authentication_Signature
+```
 
+Attributes that cannot be read, but can only be written, notified or indicated are called control-point attributes. These control-point attributes can be used by higher layers to enable device specific procedures.
 
-Attributes that cannot be read, but can only be written, notified or indicated are called control-point attributes.
-These control-point attributes can be used by higher layers to enable device specific procedures.
-
-The Write Command is used to request the server to write the value of an attribute,
-typically into a control-point attribute. 
-If the server cannot write the attribute for any reason, or the authentication signature verification fails,
+The Write Command is used to request the server to write the value of an attribute, typically into a control-point attribute. If the server cannot write the attribute for any reason, or the authentication signature verification fails,
 then the server shall ignore the command.
 
-An Attribute PDU that includes an Authentication Signature should not be sent on an encrypted link.
-Note: an encrypted link already includes authentication data on every packet and
-therefore adding more authentication data is not required.
-```
+An Attribute PDU that includes an Authentication Signature should not be sent on an encrypted link. Note: an encrypted link already includes authentication data on every packet and therefore adding more authentication data is not required.
 
 **Server Initiated**
 ```c
