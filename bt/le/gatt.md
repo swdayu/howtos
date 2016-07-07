@@ -15,6 +15,8 @@ There are six types of ATT PDUs:
 - server send "Indication" and require client's "Confirmation"
 - server send "Notification" to client
 
+- - - - - - - -
+
 **ExchangeMTU & ErrorResponse**
 ```c
 Exchange_MTU_Request (0x02)
@@ -222,6 +224,8 @@ Gatt defined features
 - Indication of a Characteristic Value
 - Reading a Characteristic Descriptor
 - Writing a Characteristic Descriptor
+
+- - - - - - - -
 
 **Server Configuration**
 
