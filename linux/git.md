@@ -58,17 +58,34 @@ git commit
 git format-patch v1..HEAD
 git send-email *.patch
 ```
+
+**git init**
+```shell
+git init       # init a git repository in current directory
+git init repo  # create a directory of "repo" and init a git repository under "repo"
+```
+
 **git add**
 ```shell
-git add -u   # --update, add modified file to stage
-git add -A   # --all, add all files (including new files and deleted files) to stage
+git add -u     # --update, add modified file to stage
+git add -all   # --all -A, add all files (including new files and deleted files) to stage
+```
+
+**git status**
+```shell
+$ git status -s   # show status using short format
+M  core/java/android/bluetooth/BluetoothA2dp.java        # green: staged
+ M core/java/android/bluetooth/BluetoothGatt.java        # red: modified in workspace
+MM core/java/android/bluetooth/BluetoothGattServer.java  # both modified and staged
 ```
 
 **git diff**
 ```shell
+# workspace -> cached area (or stage/index) -> repository
 git diff            # diff workspace with stage
-git diff --cached   # diff stage with repository
-git diff HEAD~1     # diff repository HEAD~1 with previous commit
+git diff HEAD       # diff workspace with repository
+git diff HEAD~1     # diff workspace with previous repository
+git diff --cached   # diff stage with repository, same as `git diff --staged`
 ```
 
 **git stash**
@@ -131,7 +148,8 @@ $ git push remote HEAD:refs/for/MM/name/public/develop
 
 **git log**
 ```shell
-$ git log --stat -2   # last two commits with: commit id, comment, changed files
+$ git log --stat -2             # show last 2-commit with: commit id, comment, changed files
+$ git log --pretty=oneline -2   # show last 2-commit with each one line
 ```
 
 **git blame**
