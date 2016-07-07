@@ -3,13 +3,11 @@
 
 ATT allows a device referred to as the server to expose a set of attributes that describe the services the server support. And using the ATT, these attributes can be discovered, read, written by a client, and can be indicated and notified by the server. An attribute on the server contains following information: the attribute handle, the attribute type, the attribute value, and the attribute permissions.
 
-Attribute permissions:
+The attribute has following permissions:
 - Readable, Writeable, Readable and writable
 - Authentication required, No authentication required
 - Authorization required, No authorization required
 - Encryption required, No encryption required
-
-So, the server supported services represented as a set of attributes. The implementation of how these attributes organized or how the content of each attribute structured can be freely customized by the server. The only requirement is that the server can communicate with clients correctly through ATT PDUs.
 
 There are six types of ATT PDUs:
 - client send "Request" and require server's "Response"
