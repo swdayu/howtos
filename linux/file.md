@@ -1,7 +1,12 @@
 
+**cp**
+```shell
+$ cp --parents folder/struct/file.txt dest/folder/   # copy along with the source file's folder structure
+```
+
 **rm**
 ```shell
-$ rm -r folder/   #  remove directories and their contents recursively
+$ rm -r folder/   # remove directories and their contents recursively
 ```
 
 **tar**
