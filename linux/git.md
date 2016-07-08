@@ -39,11 +39,11 @@ git grep -n -w "pattern"                      # search only at word boundary
 git grep -E "patt1|patt2"                     # search lines that match "patt1" or "patt2"
 git grep --all_match -e "p1" -e "p2"          # search lines that match "p1" or "p2"
 git grep -e "p1" --or -e "p2"                 # search lines that match "p1" or "p2"
-git grep --not -e "patt" -- test.txt          # search lines that not contain "patt" in the file of test.txt
+git grep --not -e "patt" -- test.txt          # search lines that not contain "patt" in test.txt
 git grep -e "patt1" --and -e "patt2"          # search lines that match "patt1" and "patt2"
 git grep -e "p1" --and \( -e "p2" -e "p3" \)  # search lines that match "p1" and match "p2" or "p3"
 git grep "time_t" -- "*.[ch]"                 # search "timet_t" in .c and .h files
-git grep -n --context 3 "pattern"             # show context lines: -3 -C --context -A --after-context -B --before-context
+git grep -n --context 3 "pattern"             # show context: -3 -C --context -A/B --after/before-context
 git grep -n --function-context "pattern"      # show function context, or use -W for short
 ```
 
