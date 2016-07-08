@@ -1,7 +1,7 @@
 
 **cp**
 ```shell
-$ cp --parents folder/struct/file.txt dest/folder/   # copy along with the source file's folder structure
+$ cp --parents folder/struct/file.txt dest/folder/   # copy along with the folder structure
 ```
 
 **rm**
