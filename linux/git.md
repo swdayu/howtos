@@ -108,6 +108,11 @@ $ git reset HEAD~1 files   # staged files replaced by previous repository files
 $ git rm --cached files    # delete staged files
 ```
 
+**git clean**
+```shell
+$ git clean -df            # remove untracked directories and files
+```
+
 **git stash**
 ```shell
 $ git stash
