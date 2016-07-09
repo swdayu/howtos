@@ -37,6 +37,23 @@ $ mkdir $(date "+%Y-%m-%d")                                # use another command
 $ mkdir `data "+%Y-%m-%d`
 ```
 
+**tools**
+```c
+# multiple screen terminal
+$ sudo apt-get install terminator
+
+# command line text broswer: http://wiki.ubuntu.org.cn/W3m
+# Space/B - next/prev page
+# J/K - scroll one line forward/backward
+# w/W - next/prev word
+# g/G - go to first/last line
+# Tab/C-u - next/prev hyperlink
+# u/c - show current hyperlink url, show current page url
+# i/I - show image url, open image
+# Enter - open hyperlink
+$ sudo apt-get install w3m w3m-img
+```
+
 **echo**
 ```shell
 # echo text with specified color
