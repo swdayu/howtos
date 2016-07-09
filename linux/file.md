@@ -1,4 +1,6 @@
 
+cut sort wc uniq tr col join paste expand split xargs -
+
 **cp**
 ```shell
 $ cp --parents folder/struct/file.txt dest/folder/   # copy along with the folder structure
