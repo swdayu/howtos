@@ -22,6 +22,13 @@ $ cat /etc/profile
 $ cat /etc/environment
 $ cat /etc/hosts
 
+# stdin: code 0, <, <<
+# stdout: code 1, >, >>
+# stderr: code 2, 2>, 2>>
+$ find folder -name pattern > stdout_log 2> stderror_log
+$ find folder -name pattern 2> /dev/null     # discard error log
+$ find folder -name pattern > logfile 2>&1   # log to the same file
+
 # combine commands 
 $ apt-get update && apt-get upgrade                        # execute next only if current success
 $ ping -c 1 -w 15 -n 72.14.203.104 || echo "server down"   # execute next only if current failed
