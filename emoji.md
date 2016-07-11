@@ -1,11 +1,9 @@
 
 ## People
 
-:simple_smile:
-
 :bowtie:
-:smile: 
-:simple_smile: 
+:smile:
+:simple_smile:
 :laughing:
 :blush:
 :smiley:
@@ -684,8 +682,8 @@
 :es:
 :it:
 :ru: 
-:gb: 
-:uk: 
+:gb:
+:uk:
 :de:
 
 ## Symbols
