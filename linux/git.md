@@ -99,8 +99,17 @@ $ git checkout HEAD files  # workspace files replaced by repository files
 
 **git reset**
 ```shell
-$ git reset HEAD files     # staged files replaced by repository files
+# reset files
+$ git reset HEAD files     # staged files replaced by repository files, workspace remain unchanged
 $ git reset HEAD~1 files   # staged files replaced by previous repository files
+$ git reset HEAD -- files  # add `--` to avoid name conflict between commit/reference and file path
+$ git reset -- files       # same as `git reset HEAD -- files`
+
+# reset HEAD reference
+$ git reset HEAD           # same as `git reset` and `git reset --mixed HEAD`
+$ git reset HEAD~1         # same as `git reset --mixed HEAD~1`
+$ git reset --soft HEAD~1
+$ git reset --hard HEAD~1
 ```
 
 **git rm**
@@ -176,6 +185,13 @@ $ git push remote HEAD:refs/for/MM/name/public/develop
 ```shell
 $ git log --stat -2             # show last 2-commit with: commit id, comment, changed files
 $ git log --pretty=oneline -2   # show last 2-commit with each one line
+$ git log --oneline -2          # similar to `--pretty=oneline`, but with shorten commit id
+$ git log --graph -2            # print out relationship graph for commits
+```
+
+**git reflog**
+```shell
+$ git reflog | head -5          # show local changes of HEAD pointer
 ```
 
 **git blame**
