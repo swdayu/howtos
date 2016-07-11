@@ -1,9 +1,11 @@
 
 ## People
 
-:bowtie:
-:smile:
 :simple_smile:
+
+:bowtie:
+:smile: 
+:simple_smile: 
 :laughing:
 :blush:
 :smiley:
@@ -681,9 +683,9 @@
 :fr:
 :es:
 :it:
-:ru:
-:gb:
-:uk:
+:ru: 
+:gb: 
+:uk: 
 :de:
 
 ## Symbols
@@ -890,5 +892,4 @@
 :small_red_triangle:
 :small_red_triangle_down:
 :shipit:
-
 
