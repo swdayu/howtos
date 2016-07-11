@@ -71,7 +71,7 @@ $ sudo apt-get install w3m w3m-img
 ```
 
 **send later for thunderbird**
-```c
+```shell
 # install
 Tools | Add-ons | Get Add-ons | Search "Send Later" and install
 # check whether there are scheduled mails need to be send for every <n> minutes
