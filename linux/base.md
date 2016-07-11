@@ -37,21 +37,52 @@ $ mkdir $(date "+%Y-%m-%d")                                # use another command
 $ mkdir `data "+%Y-%m-%d`
 ```
 
-**tools**
-```c
-# multiple screen terminal
+**multi-screen terminal**
+```shell
 $ sudo apt-get install terminator
+# modified settings
+Terminator Preferences | Global
+- Terminal separator size: [2]
+- Hide size from title: [check]
+- Unfocused terminal font brightness: [1.0]
+Terminator Preferences | Profiles | General
+- Font: [Ubuntu Mono | 13]
+- Show titilebar: [uncheck]
+Terminator Preferences | Profiles | Colors
+- Foreground and Background -> Built-in schemes: [Ambience]
+- Palette -> Build-in schemes: [Ambience]
+Terminator Preferences | Profiles | Scrolling
+- Srollback: [1000000] lines
+```
 
+**w3m**
+```shell
 # command line text broswer: http://wiki.ubuntu.org.cn/W3m
-# Space/B - next/prev page
-# J/K - scroll one line forward/backward
-# w/W - next/prev word
-# g/G - go to first/last line
-# Tab/C-u - next/prev hyperlink
-# u/c - show current hyperlink url, show current page url
-# i/I - show image url, open image
-# Enter - open hyperlink
 $ sudo apt-get install w3m w3m-img
+# usages:
+- Space/B: next/prev page
+- J/K: scroll one line forward/backward
+- w/W: next/prev word
+- g/G: go to first/last line
+- Tab/C-u: next/prev hyperlink
+- u/c: show current hyperlink url, show current page url
+- i/I: show image url, open image
+- Enter: open hyperlink
+```
+
+**send later for thunderbird**
+```c
+# install
+Tools | Add-ons | Get Add-ons | Search "Send Later" and install
+# check whether there are scheduled mails need to be send for every <n> minutes
+Tools | Add-ons | Extensions | Send Later x.x.x | Preferences | General
+- Check every: [3] minutes
+# trigger "Send Later" when click "Send" button
+Tools | Add-ons | Extensions | Send Later x.x.x | Preferences | General
+- "Send" does "Send Later"
+## configure a button for sending 3 minutes later
+Tools | Add-ons | Extensions | Send Later x.x.x | Preferences | Shortcut1
+- Button Label: [3 min later] Minutes: [3]
 ```
 
 **echo**
