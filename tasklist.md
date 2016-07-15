@@ -3,7 +3,7 @@
 
 每周积累至少一个命令的用法
 - [x] W28 07/04 ~ 07/10 `cp --parents, git status -s -b, git clean -df`
-- [ ] W29 07/11 ~ 07/17
+- [x] W29 07/11 ~ 07/17 `git log --oneline --graph, shadowsocks, proxychains`
 - [ ] W30 07/18 ~ 07/24
 - [ ] W31 07/25 ~ 07/31
 - [ ] W32 08/01 ~ 08/07
