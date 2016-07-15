@@ -37,6 +37,13 @@
 - [ ] pts report :bangbang:
 
 
+## Android
+
+- [ ] aosp build environment
+- [ ] auto touch test
+- [ ] auto print called functions, can do it?
+
+
 ## 文法和编译
 
 W28 07/04 ~ 07/10
