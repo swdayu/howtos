@@ -21,7 +21,7 @@ Preferences | Advanced | Network | Connection | Settings ...
 - SOCKS v5 [check]
 ```
 
-**shadowsocks/proxychains**
+**shadowsocks proxychains**
 ```shell
 # install shadowsocks on both remote machine and local
 $ git clone https://github.com/shadowsocks/shadowsocks-libev.git
@@ -32,11 +32,11 @@ $ sudo make install
 
 # start server as a daemon on remote machine
 $ ss-server -p 4400 -k <password> -m aes-256-cfb -t 120 -f ~/ss-server.pid
-$ kill $(pgrep ss-server | tr "\n" " ")  # stop server
+$ kill $(pgrep ss-server | tr "\n" " ")  # stop server if you dont use anymore
 
 # start a client as a daemon on local
 $ ss-local -s <server_host> -p 4400 -l 7070 -k <password> -m aes-256-cfb -f ~/ss-local.pid
-$ kill $(pgrep ss-local | tr "\n" " ")   # stop client
+$ kill $(pgrep ss-local | tr "\n" " ")   # stop client if you dont use anymore
 
 # using proxychains on local
 $ sudo apt-get install proxychains
