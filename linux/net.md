@@ -44,6 +44,14 @@ $ sudo vi /etc/proxychains.conf
 socks5 127.0.0.1 7070
 $ curl ip.gs
 $ proxychains curl ip.gs
+
+# configure proxy for git
+# repository level: .git/config
+$ git config http.proxy 'socks5://127.0.0.1:7070' 
+$ git config https.proxy 'socks5://127.0.0.1:7070'
+# user level: ~/.gitconfig
+$ git config --global http.proxy 'socks5://127.0.0.1:7070' 
+$ git config --global https.proxy 'socks5://127.0.0.1:7070'
 ```
 
 **scp**
