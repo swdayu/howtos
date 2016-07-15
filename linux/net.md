@@ -70,6 +70,10 @@ $ curl -R -O http://www.inf.puc-rio.br/~roberto/lpeg/lpeg-1.0.0.tar.gz
 **axel - mutithread download**
 - http://www.vpser.net/manage/axel.html
 
+**linode**
+node speed test
+- https://www.linode.com/speedtest
+
 **name.com**
 ```
 Annual Renewal: $10.99 - Renew Domain   Auto Renew: Enabled
