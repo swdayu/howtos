@@ -12,6 +12,31 @@ $ cat ~/.ssh/id_rsa.pub                              # copy your public key file
 $ ssh -T git@github.com                              # test the connection
 ```
 
+**shadowsocks/proxychains**
+```shell
+# install shadowsocks on both remote machine and local
+$ git clone https://github.com/shadowsocks/shadowsocks-libev.git
+$ cd shadowsocks-libev
+$ sudo apt-get install build-essential autoconf libtool libssl-dev asciidoc
+$ ./configure && make
+$ sudo make install
+
+# start server as a daemon on remote machine
+$ ss-server -p 4400 -k <password> -m aes-256-cfb -t 120 -f ~/ss-server.pid
+$ kill $(pgrep ss-server | tr "\n" " ")  # stop server
+
+# start a client as a daemon on local
+$ ss-local -s <server_host> -p 4400 -l 7070 -k <password> -m aes-256-cfb -f ~/ss-local.pid
+$ kill $(pgrep ss-local | tr "\n" " ")   # stop client
+
+# using proxychains on local
+$ sudo apt-get install proxychains
+$ sudo vi /etc/proxychains.conf
+socks5 127.0.0.1 7070
+$ curl ip.gs
+$ proxychains curl ip.gs
+```
+
 **scp**
 ```shell
 $ scp -r user@example.com:~/docs/ .                  # copy remote docs under to local current directory
