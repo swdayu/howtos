@@ -21,7 +21,7 @@ Preferences | Advanced | Network | Connection | Settings ...
 - SOCKS v5 [check]
 ```
 
-**shadowsocks proxychains**
+**shadowsocks, proxychains**
 ```shell
 # install shadowsocks on both remote machine and local
 $ git clone https://github.com/shadowsocks/shadowsocks-libev.git
