@@ -1,15 +1,24 @@
 
 **ssh**
 ```shell
-$ ls -al ~/.ssh                                      # check ssh key exist or not
-$ ssh-keygen -t rsa -b 4096 -C "your_github_email"   # gen a new ssh key (rsa key pair) with the email as a label
-$ ls -al ~/.ssh                                      # list generated key files
+# ssh key generation (take github for example)
+$ ls -al ~/.ssh                                     # check ssh key exist or not
+$ ssh-keygen -t rsa -b 4096 -C "your_github_email"  # gen a new rsa key pair with the email as a label
+$ ls -al ~/.ssh                                     # list generated key files
 -rw-------  1 usrname ... id_rsa
 -rw-r--r--  1 usrname ... id_rsa.pub
-$ eval "$(ssh-agent -s)"                             # start ssh agent
-$ ssh-add ~/.ssh/id_rsa                              # add your private key to ssh agent
-$ cat ~/.ssh/id_rsa.pub                              # copy your public key file content to github ssh key list
-$ ssh -T git@github.com                              # test the connection
+$ eval "$(ssh-agent -s)"                            # start ssh agent
+$ ssh-add ~/.ssh/id_rsa                             # add your private key to ssh agent
+$ cat ~/.ssh/id_rsa.pub                             # show and copy public key to github ssh key list
+$ ssh -T git@github.com                             # test the connection
+
+# ssh proxy (take firefox for example)
+$ ssh -fND 7070 user@example.com
+# configure firefox
+Preferences | Advanced | Network | Connection | Settings ...
+- Manual proxy configuration [check]
+- SOCKS Host: [127.0.0.1]  Port: [7070]
+- SOCKS v5 [check]
 ```
 
 **shadowsocks/proxychains**
@@ -39,7 +48,7 @@ $ proxychains curl ip.gs
 
 **scp**
 ```shell
-$ scp -r user@example.com:~/docs/ .                  # copy remote docs under to local current directory
+$ scp -r user@example.com:~/docs/ .                  # copy remote docs to local current directory
 $ scp /home/a.mp3 user@example.com:~/music/          # copy to remote
 $ scp /home/a.mp3 user@example.com:~/music/001.mp3   # copy from remote
 ```
