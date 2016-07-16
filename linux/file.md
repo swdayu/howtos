@@ -1,6 +1,20 @@
 
 cut sort wc uniq tr col join paste expand split xargs -
 
+**df**
+```shell
+$ df -hl  # show human (-h) readable info about the local (-l) file systems
+```
+
+**du**
+```shell
+$ du -h                # show size of all files and directories in current folder
+$ du -h folder/        # show size of all files and directories in the folder
+$ du -h --max-depth=1  # only show first level files and directories in current folder
+$ du -h folder/ -d 1   # only show first level files and directories in the folder
+$ du -h mental/file    # show specific file's size
+```
+
 **cp**
 ```shell
 $ cp --parents folder/struct/file.txt dest/folder/   # copy along with the folder structure
