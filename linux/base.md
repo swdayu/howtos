@@ -55,21 +55,6 @@ Terminator Preferences | Profiles | Scrolling
 - Srollback: [1000000] lines
 ```
 
-**w3m**
-```shell
-# command line text broswer: http://wiki.ubuntu.org.cn/W3m
-$ sudo apt-get install w3m w3m-img
-# usages:
-- Space/B: next/prev page
-- J/K: scroll one line forward/backward
-- w/W: next/prev word
-- g/G: go to first/last line
-- Tab/C-u: next/prev hyperlink
-- u/c: show current hyperlink url, show current page url
-- i/I: show image url, open image
-- Enter: open hyperlink
-```
-
 **send later for thunderbird**
 ```shell
 # install
