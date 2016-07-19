@@ -215,13 +215,16 @@ $ sudo apt-get install chromium-browser
 ```shell
 # Users of 64-bit Ubuntu, should enable MultiArch if it isn't already enabled by running the command:
 $ sudo dpkg --add-architecture i386
-
 # Since Ubuntu 10.04 (Lucid Lynx), Skype is part of the Canonical partner repository.
 # You can do this by running the command to add the Canonical Partner Repository:
 $ sudo add-apt-repository "deb http://archive.canonical.com/ $(lsb_release -sc) partner"
-
 $ sudo apt-get update
 $ sudo apt-get install skype
+
+Skype | Options
+- General:  Save files to: [skype]
+- Notifications: Chat Message Received: [n] Display pop-up notification
+- IM: [y] Show emoticons [y] Show animated emoticons
 ```
 
 **sogoupinyin**
