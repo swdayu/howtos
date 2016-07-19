@@ -108,7 +108,7 @@ $ apt-cache policy pkgname   # show policy settings of a package
 ```shell
 # The APT package index is essentially a database of available packages from the repositories
 # defined in the `/etc/apt/sources.list` file and in the `/etc/apt/sources.list.d` directory.
-# Use `apt-get update` to update the local package index with the latest changes made in the repositories.
+# Use `apt-get update` to update the local package index in the repositories.
 
 $ apt-get update             # retrieve new lists of packages
 $ apt-get upgrade            # perform an upgrade
