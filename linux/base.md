@@ -130,6 +130,11 @@ $ sudo vi /etc/hosts
 # and the name on the Terminal [username@hostname:~$].
 ```
 
+**passwd**
+```shell
+$ passwd <usrname>  # change password for specific user
+```
+
 **env**
 ```shell
 $ env
