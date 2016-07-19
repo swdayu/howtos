@@ -230,6 +230,10 @@ $ sudo apt-get install skype
 # click it to install
 # select "fcitx" in "System Settings|Language Support|Keyboard input method system"
 # reboot system, and choose "sogoupinyin" for input
+Input Method Configuration | Input Method | Click "+" Button
+- Only Show Current Language [uncheck]
+- search "sogou" in search box, and select "Sogou Pinyin", and click "OK"
+Then you can use "Shift" key to switch between input methods.
 ```
 
 **monitor**
