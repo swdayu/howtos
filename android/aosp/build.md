@@ -30,9 +30,10 @@
 
 ## USB configuration
 
-Temporary solution:
+### Temporary solution:
 ```shell
 $ adb remount
+error: insufficient permissions for device: verify udev rules
 $ adb devices
 List of devices attached
 cf7b6337	no permissions
@@ -43,7 +44,7 @@ $ sudo chmod +s adb
 $ adb kill-server
 ```
 
-- http://source.android.com/source/initializing.html
+### [Establishing a Build Environment](http://source.android.com/source/initializing.html)
 
 Under GNU/Linux systems (and specifically under Ubuntu systems), regular users can't directly access USB devices by default. The recommended approach is to create a file at `/etc/udev/rules.d/51-android.rules` (as the root user). To do this, run the following command to download the [51-android.rules](http://source.android.com/source/51-android.rules) file, modify it to include your username, and place it in the correct location.
 
@@ -91,7 +92,7 @@ SUBSYSTEM=="usb", ATTR{idVendor}=="18d1", ATTR{idProduct}=="4ee0", MODE="0600", 
 SUBSYSTEM=="usb", ATTR{idVendor}=="18d1", ATTR{idProduct}=="4ee1", MODE="0600", OWNER="<username>"
 ```
 
-- https://developer.android.com/studio/run/device.html
+### [Setting up a Device for Development](https://developer.android.com/studio/run/device.html)
 
 If you're developing on Ubuntu Linux, you need to add a udev rules file that contains a USB configuration for each type of device you want to use for development. In the rules file, each device manufacturer is identified by a unique vendor ID, as specified by the `ATTR{idVendor}` property.
 
