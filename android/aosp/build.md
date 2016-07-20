@@ -30,6 +30,19 @@
 
 ## USB configuration
 
+Temporary solution:
+```shell
+$ adb remount
+$ adb devices
+List of devices attached
+cf7b6337	no permissions
+$ which adb
+$ cd /home/shenxin/shenxin/android/Sdk/platform-tools/
+$ sudo chown root:root adb
+$ sudo chmod +s adb
+$ adb kill-server
+```
+
 - http://source.android.com/source/initializing.html
 
 Under GNU/Linux systems (and specifically under Ubuntu systems), regular users can't directly access USB devices by default. The recommended approach is to create a file at `/etc/udev/rules.d/51-android.rules` (as the root user). To do this, run the following command to download the [51-android.rules](http://source.android.com/source/51-android.rules) file, modify it to include your username, and place it in the correct location.
@@ -84,12 +97,16 @@ If you're developing on Ubuntu Linux, you need to add a udev rules file that con
 
 To set up device detection on Ubuntu Linux:
 ```shell
+$ lsusb  # `lsusb -v` show detail info
 $ sudo vi /etc/udev/rules.d/51-android.rules
 # use this format to add each vendor to the file ("0bb4" for HTC):
 # the MODE assignment specifies read/write permissions,
 # and GROUP defines which Unix group owns the device node. 
 SUBSYSTEM=="usb", ATTR{idVendor}=="0bb4", MODE="0666", GROUP="plugdev"
 $ chmod a+r /etc/udev/rules.d/51-android.rules
+$ sudo udevadm control --reload-rules
+$ adb kill-server
+$ adb start-server
 ```
 
 USB Vendor IDs:
