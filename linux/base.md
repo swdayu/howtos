@@ -37,6 +37,12 @@ $ mkdir $(date "+%Y-%m-%d")                                # use another command
 $ mkdir `data "+%Y-%m-%d`
 ```
 
+**terminal**
+```shell
+Profiles | Profile Preferences | Scrolling
+- Scrollback [1000000] lines
+```
+
 **multi-screen terminal**
 ```shell
 $ sudo apt-get install terminator
