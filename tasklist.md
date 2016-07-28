@@ -1,7 +1,7 @@
 
 ## develop plan
 
-- [ ] code flow sequence tool (vulkan)
+- [ ] code flow sequence tool (svg/vulkan)
 - [ ] android auto test and screen reading
 
 ## vi/git/shell
