@@ -1,4 +1,9 @@
 
+## Develop plan
+
+- [ ] code flow sequence tool (vulkan)
+- [ ] android auto test and screen reading
+
 ## vi/git/shell
 
 每周积累至少一个命令的用法
