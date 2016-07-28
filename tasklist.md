@@ -1,5 +1,5 @@
 
-## Develop plan
+## develop plan
 
 - [ ] code flow sequence tool (vulkan)
 - [ ] android auto test and screen reading
