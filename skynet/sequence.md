@@ -1,13 +1,13 @@
 
 ## Sequence Flow
 ```c
-lft:left
+lhs:left           // left hand side
+rhs:right          // right hand side
 snl:skynet.lua     // skynet lua
 snm:lua-skynet.lua // skynet middle
 
-lft:snl.start(start_func)
+lhs:snl.start(start_func)
 sn1:snm.callback(skynet.dispatch_message)
 snm:snm.lcallback(L) lstack[dispatch_message]
-
 
 ```
