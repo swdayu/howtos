@@ -1,5 +1,5 @@
 
-## flow
+## Flow
 ```c
 snl:skynet.lua     // skynet lua
 snm:lua-skynet.lua // skynet middle
