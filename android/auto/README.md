@@ -15,9 +15,9 @@ The key features of the UI Automator testing framework include:
 - An API to retrieve state information and perform operations on the target device. For more information, see Access to device state.
 - APIs that support cross-app UI testing. For more information, see UI Automator APIs .
 
- The UI Automator APIs let you interact with visible elements on a device, regardless of which Activity is in focus. Your test can look up a UI component by using convenient descriptors such as the text displayed in that component or its content description. UI Automator tests can run on devices running Android 4.3 (API level 18) or higher.
- 
- The UI Automator testing framework is an instrumentation-based API and works with the `AndroidJUnitRunner` test runner.
+The UI Automator APIs let you interact with visible elements on a device, regardless of which Activity is in focus. Your test can look up a UI component by using convenient descriptors such as the text displayed in that component or its content description. UI Automator tests can run on devices running Android 4.3 (API level 18) or higher.
+
+The UI Automator testing framework is an instrumentation-based API and works with the `AndroidJUnitRunner` test runner.
 
 
 Automate UI tests with Android Studio:
@@ -146,18 +146,21 @@ public class ChangeTextBehaviorTest {
         okButton.click();
     }
     
-    // If more than one matching element is found, the first matching element in the layout hierarchy is returned
-    // as the target UiObject. When constructing a UiSelector, you can chain together multiple properties to refine
-    // your search. If no matching UI element is found, a UiAutomatorObjectNotFoundException is thrown.
+    // If more than one matching element is found, the first matching element in the layout hierarchy
+    // is returned as the target UiObject. When constructing a UiSelector, you can chain together
+    // multiple properties to refine your search. If no matching UI element is found, a
+    // UiAutomatorObjectNotFoundException is thrown.
 
-    // You can use the childSelector() method to nest multiple UiSelector instances. For example, the following code
-    // example shows how your test might specify a search to find the first ListView in the currently displayed UI,
-    // then search within that ListView to find a UI element with the text property Apps.
+    // You can use the childSelector() method to nest multiple UiSelector instances. For example,
+    // the following code example shows how your test might specify a search to find the first
+    // ListView in the currently displayed UI, then search within that ListView to find a UI element
+    // with the text property Apps.
 
-    // As a best practice, when specifying a selector, you should use a Resource ID (if one is assigned to a UI element)
-    // instead of a text element or content-descriptor. Not all elements have a text element (for example, icons in a
-    // toolbar). Text selectors are brittle and can lead to test failures if there are minor changes to the UI.
-    // They may also not scale across different languages; your text selectors may not match translated strings.
+    // As a best practice, when specifying a selector, you should use a Resource ID (if one is assigned
+    // to a UI element) instead of a text element or content-descriptor. Not all elements have a text
+    // element (for example, icons in a toolbar). Text selectors are brittle and can lead to test
+    // failures if there are minor changes to the UI. They may also not scale across different
+    // languages; your text selectors may not match translated strings.
 
     UiObject appItem = new UiObject(new UiSelector()
         .className("android.widget.ListView")
@@ -165,11 +168,12 @@ public class ChangeTextBehaviorTest {
         .childSelector(new UiSelector()
         .text("Apps")));
     
-    // The UI Automator testing framework allows you to send an Intent or launch an Activity without using shell
-    // commands, by getting a Context object through getContext().
+    // The UI Automator testing framework allows you to send an Intent or launch an Activity without
+    // using shell commands, by getting a Context object through getContext().
 
-    // The following snippet shows how your test can use an Intent to launch the app under test. This approach is
-    // useful when you are only interested in testing the calculator app, and don't care about the launcher.
+    // The following snippet shows how your test can use an Intent to launch the app under test. This
+    // approach is useful when you are only interested in testing the calculator app, and don't care
+    // about the launcher.
     
     // Launch a simple calculator app
     Context context = getInstrumentation().getContext();
@@ -178,13 +182,13 @@ public class ChangeTextBehaviorTest {
     context.startActivity(intent);
     mDevice.wait(Until.hasObject(By.pkg(CALC_PACKAGE).depth(0)), TIMEOUT);
 
-    // Use the UiCollection class if you want to simulate user interactions on a collection of items (for example,
-    // songs in a music album or a list of emails in an Inbox). To create a UiCollection object, specify a UiSelector
-    // that searches for a UI container or a wrapper of other child UI elements, such as a layout view that contains
-    // child UI elements.
+    // Use the UiCollection class if you want to simulate user interactions on a collection of items
+    // (for example, songs in a music album or a list of emails in an Inbox). To create a UiCollection
+    // object, specify a UiSelector that searches for a UI container or a wrapper of other child UI
+    // elements, such as a layout view that contains child UI elements.
 
-    // The following code snippet shows how your test might construct a UiCollection to represent a video album that
-    // is displayed within a FrameLayout.
+    // The following code snippet shows how your test might construct a UiCollection to represent a
+    // video album that is displayed within a FrameLayout.
 
     UiCollection videos = new UiCollection(new UiSelector()
         .className("android.widget.FrameLayout"));
@@ -203,11 +207,12 @@ public class ChangeTextBehaviorTest {
         .className("android.widget.Checkbox"));
     if(!checkBox.isSelected()) checkbox.click();
 
-    // Use the UiScrollable class to simulate vertical or horizontal scrolling across a display. This technique is
-    // helpful when a UI element is positioned off-screen and you need to scroll to bring it into view.
+    // Use the UiScrollable class to simulate vertical or horizontal scrolling across a display.
+    // This technique is helpful when a UI element is positioned off-screen and you need to scroll
+    // to bring it into view.
 
-    // The following code snippet shows how to simulate scrolling down the Settings menu and clicking on an About
-    // tablet option.
+    // The following code snippet shows how to simulate scrolling down the Settings menu and
+    // clicking on an About tablet option.
 
     UiScrollable settingsItem = new UiScrollable(new UiSelector()
         .className("android.widget.ListView"));
@@ -215,11 +220,11 @@ public class ChangeTextBehaviorTest {
         .className("android.widget.LinearLayout"), "About tablet");
     about.click();
 
-    // The InstrumentationTestCase extends TestCase, so you can use standard JUnit Assert methods to test
-    // that UI components in the app return the expected results.
+    // The InstrumentationTestCase extends TestCase, so you can use standard JUnit Assert methods
+    // to test that UI components in the app return the expected results.
 
-    // The following snippet shows how your test can locate several buttons in a calculator app, click on them
-    // in order, then verify that the correct result is displayed.
+    // The following snippet shows how your test can locate several buttons in a calculator app,
+    // click on them in order, then verify that the correct result is displayed.
 
     // Enter an equation: 2 + 3 = ?
     mDevice.findObject(new UiSelector()
@@ -237,4 +242,4 @@ public class ChangeTextBehaviorTest {
   }
 }
 ```
-      
+
