@@ -22,11 +22,11 @@ The UI Automator testing framework is an instrumentation-based API and works wit
 
 Automate UI tests with Android Studio:
 
-- download [Android Testing Support Library](https://developer.android.com/tools/testing-support-library/index.html) in  Android SDK Manager
+- Download [Android Testing Support Library](https://developer.android.com/tools/testing-support-library/index.html) in  Android SDK Manager
 
-- after download, the library is installed under the folder `<android-sdk>/extra/android/m2repository/`, and related classes are located under the `android.support.test` package
+- After download, the library is installed under the folder `<android-sdk>/extra/android/m2repository/`, and related classes are located under the `android.support.test` package
 
-- to use the Android Testing Support Library in Gradle project, add these dependencies in your `build.gradle` file
+- To use the Android Testing Support Library in Gradle project, add these dependencies in your `build.gradle` file
 
         dependencies {
           androidTestCompile 'com.android.support.test:runner:0.4'
@@ -38,7 +38,7 @@ Automate UI tests with Android Studio:
           androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
         }
 
-- to set `AndroidJUnitRunner` as the default test instrumentation runner in Gradle project, specify this dependency in your `build.gradle` file
+- To set `AndroidJUnitRunner` as the default test instrumentation runner in Gradle project, specify this dependency in your `build.gradle` file
 
         android {
           defaultConfig {
@@ -46,7 +46,7 @@ Automate UI tests with Android Studio:
           }
         }
 
-- inspect the layout hierarchy and view the properties of target app's UI components using `uiautomatorviewer`
+- Inspect the layout hierarchy and view the properties of target app's UI components using `uiautomatorviewer`
 
   > Generally, app developers get accessibility support for free, courtesy of the `View` and `ViewGroup` classes. However, some apps use custom view elements to provide a richer user experience. Such custom elements won't get the accessibility support that is provided by the standard Android UI elements. If this applies to your app, make sure that it exposes the custom-drawn UI element to Android accessibility services by implementing the `AccessibilityNodeProvider` class.
 
@@ -54,7 +54,7 @@ Automate UI tests with Android Studio:
 
   > For more information about implementing and testing accessibility, see [Making Applications Accessible](https://developer.android.com/guide/topics/ui/accessibility/apps.html).
 
-- implement your test code in a separate Android test folder (`src/androidTest/java`)
+- Implement your test code in a separate Android test folder (`src/androidTest/java`)
 
   > Your UI Automator test class should be written the same way as a JUnit 4 test class. To learn more about creating JUnit 4 test classes and using JUnit 4 assertions and annotations, see [Create an Instrumented Unit Test Class](https://developer.android.com/training/testing/unit-testing/instrumented-unit-tests.html#build). 
   
@@ -68,7 +68,7 @@ Automate UI tests with Android Studio:
   
   > Check that the UI reflects the expected state or behavior, after these user interactions are performed. 
 
-- to run your UI Automator test, refer to https://github.com/googlesamples/android-testing, https://developer.android.com/training/testing/index.html
+- To run your UI Automator test, refer to https://github.com/googlesamples/android-testing, https://developer.android.com/training/testing/index.html
 
 In your JUnit 4 test class, you can call out sections in your test code for special processing by using the following annotations:
 
