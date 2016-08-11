@@ -22,6 +22,8 @@ The UI Automator testing framework is an instrumentation-based API and works wit
 
 Automate UI tests with Android Studio:
 
+- Android tests are based on [JUnit](http://junit.org/), and you can run them either as local unit tests on the JVM or as instrumented tests on an Android device. [Download and install JUnit4](https://github.com/junit-team/junit4/wiki/Download-and-Install)
+
 - Download [Android Testing Support Library](https://developer.android.com/tools/testing-support-library/index.html) in  Android SDK Manager
 
 - After download, the library is installed under the folder `<android-sdk>/extra/android/m2repository/`, and related classes are located under the `android.support.test` package
