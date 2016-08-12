@@ -249,10 +249,11 @@ public class ChangeTextBehaviorTest {
 原文地址：https://developer.android.com/studio/build/building-cmdline.html
 
 使用Gradle编译有两种模式：调试模式和发布模式。
-但不管是哪种模式，应用再安装到目标设备上之前必须进行签名。
+但不管是哪种模式，应用在安装到目标设备上之前必须进行签名。
 在调试模式下编译时会使用调试密钥，而发布模式会使用你自己的私有密钥。
 
 1. 下载和安装[Gradle](https://gradle.org/)，并将Gradle加入可执行路径PATH
-2. 设置Java SDK安装目录的环境变量JAVA_HOME
-3. 在工程目录下运行`gradle wrapper --gradle-version version-number`生成Gradle wrapper，它能保证其他人使用一致的环境来编译你的工程
-4. 接下来就可以使用`./gradlew <task>`运行工程中的gradle任务
+2. 设置Java SDK环境变量JAVA_HOME，例如`export JAVA_HOME="/usr/lib/jvm/java-7-openjdk-amd64/"`
+3. 在工程目录下运行`gradle wrapper --gradle-version <version-number>`生成Gradle wrapper，它能保证其他人使用一致的环境来编译你的工程
+4. 接下来就可以使用`./gradlew <task>`运行工程中的gradle任务（运行`./gradlew tasks`可以查看所有的Gradle任务）
+5. 运行`./gradew assembleDebug`或`./gradew assembleRelease`构建应用
