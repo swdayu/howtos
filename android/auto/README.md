@@ -70,7 +70,7 @@ Automate UI tests with Android Studio:
   
   > Check that the UI reflects the expected state or behavior, after these user interactions are performed. 
 
-- To run your UI Automator test, refer to https://github.com/googlesamples/android-testing, https://developer.android.com/training/testing/index.html
+- To run your UI Automator test, refer to https://github.com/googlesamples/android-testing, https://developer.android.com/training/testing/index.html, https://developer.android.com/training/testing/unit-testing/instrumented-unit-tests.html#run
 
 In your JUnit 4 test class, you can call out sections in your test code for special processing by using the following annotations:
 
