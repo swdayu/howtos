@@ -36,7 +36,6 @@ Comment:       # Comment is replaced using one space after preprocess
   BlockComment
 
 LineComment:
-  "#" Characters EndOfLine
   "//" Characters EndOfLine
 
 BlockComment:
@@ -120,9 +119,7 @@ double - 64-bit                       double: default float point type
 // integer suffix and user defined suffix
 var a = 12int8
 var b = 12byte
-var double len = 100km
-var byte a = 12float
-var b = 243
+var len = 100.0km
 var len = 100km.toDouble
 var a = 12float.toByte
 
@@ -245,7 +242,6 @@ CharacterSequence:
   EscapeSequence CharacterSequence
 
 SingleQuotedString:
-  "`" CharacterSequence "`"
   `'''` CharacterSequence `'''`
 
 HexadecimalString:
@@ -261,10 +257,10 @@ CurlyBracketString:
   CurlyBracketStringHead RawCharSequence CurlyBracketStringTail
 
 CurlyBracketStringHead:
-  "q{"
-  "q" CurlyBracketStringTag "{"
-  "q" CurlyBracketStringTag NumberOfIndentSpaces "{"
-  "q" CurlyBracketStringTag NumberOfIndentSpaces InsertExprQualifierString "{"
+  'q"{'
+  'q"' CurlyBracketStringTag "{"
+  'q"' CurlyBracketStringTag NumberOfIndentSpaces "{"
+  'q"' CurlyBracketStringTag NumberOfIndentSpaces InsertExprQualifierString "{"
 
 RawCharSequence:
   NormalCharacter
@@ -291,26 +287,26 @@ InsertExprQualifierString:
 InsertExprQualifierChar:
   ~`!@#$%^&*+=-|\:;'"?/
 
-var str = "double = $(a)"
-var s2 = "complex calculate $(add(a, b, c))"
+var str = "double = !(a)"
+var s2 = "complex calculate !(add(a, b, c))"
 // 插入表达式(interpolated expression)
-var normalString = "abc\n2nd_line $(str)" ~ """include double quote " in string"""
+var normalString = "abc\n2nd_line !(str)" ~ """include double quote " in string"""
 var nstr2 = '''str"using"double"quote'''
-var quoteString = q{C:\data.txt} ~ qTAG{string here}TAG
-var qstr2 = q{
+var quoteString = q"{C:\data.txt} ~ q"tag{string here}tag
+var qstr2 = q"{
 string line 1
 string line 2
 }
-var qstr3 = q2!!{
+var qstr3 = q"2!!{
   string line 1 
   string line 2 !!(val)
 }
-var qstr2 = qTAG2{
+var qstr2 = q"tag2{
   string line 1
   string line 2
-}TAG
+}tag
 var hexstr = x"0A 00 F BCD 32" // "\x0A\x00\xFB\xCD\x32"
-var qstr2: qzzz2{
+var qstr2: q"zzz2{
   string line 1
   string line 2
 }zzz
@@ -418,9 +414,9 @@ var a = 0
 var b = 0.0
 var s = "123"
 var hval = 'bm'half
-var int ival = "12".toInt
-var int ival   // no default value
-var ival = int  // with default value of int
+var ival = "12".toInt
+var ival ?int  // no default value (var ival ?0, var str ?"")
+var ival = int // with default value of int
 
 http://stackoverflow.com/questions/25846561/swift-printing-optional-variable
 You have to understand what an Optional really is.
