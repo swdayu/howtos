@@ -2,21 +2,6 @@
 - http://www.lua.org/manual/5.3/manual.html
 - http://www.lua.org/cgi-bin/demo
 
-## 安装
-```
-$ curl -R -O http://www.lua.org/ftp/lua-5.3.2.tar.gz
-$ tar zxf lua-5.3.2.tar.gz
-$ cd lua-5.3.2
-$ make linux test # make macosx test
-$ sudo make install
-
-# if fatal error: readline/readline.h: No such file or directory
-# install this library first
-$ sudo apt-get install libreadline-dev 
-```
-
-## 简介
-
 > Lua is an extension programming language designed to support 
 general procedural programming with data description facilities. 
 Lua also offers good support for object-oriented programming, functional programming, and data-driven programming. 
@@ -53,10 +38,105 @@ Lua是免费软件，如使用许可陈述，其使用过程不提供任何担�
 像其他参考手册一样，这份文档是枯燥的。关于Lua背后为什么这样设计的讨论，可以查看Lua官方网站上的技术论文。
 关于Lua编程的详细介绍，可以参考Reberto的书《Programming in Lua》。
 
-## 示例
+## Install
+```
+$ curl -R -O http://www.lua.org/ftp/lua-5.3.2.tar.gz
+$ tar zxf lua-5.3.2.tar.gz
+$ cd lua-5.3.2
+$ make linux test # make macosx test
+$ sudo make install
 
-哑变量`_`
+# if fatal error: readline/readline.h: No such file or directory
+# install this library first
+$ sudo apt-get install libreadline-dev 
+```
+
+## Quick reference
+
+Lua primary type
+- nil (the variable has no value)
+- boolean (only nil and false is false)
+- number (including integer and float, 64-bit default)
+- string (immutable byte sequence)
+- function
+- userdata (including full userdata and light userdata)
+- thread (coroutine)
+- table
 ```lua
+type(v) -- "nil", "boolean", "thread" ...
+```
+
+Value and reference
+- nil, boolean, number, string, light userdata is value type
+- function, full userdata, thread, table is reference type
+- variables of reference type don't actually contain their values
+
+Lua function
+- Lua can call functions written in Lua and in C
+- they are both represented by the type function
+- function can access external local variables outside function
+- these kind of variables are called upvalues
+
+Lua userdata
+- Full userdata is a block of memory managed by lua
+- Light userdata is simply a C pointer value
+- Userdata cannot be created or modified in Lua, only through the C API
+
+Lua table
+- The table can be indexed with any Lua value except nil and NaN
+- Tables can contain values of all Lua types except nil
+```lua
+t.name --> syntactic sugar for t["name"]
+```
+
+Lua variables
+- Kinds of variables: global variables, local variables, and table fields
+- Variable is assumed to be global unless explicitly declared as a local
+- Global variable 'x' is equivalent to '_ENV.x', '_ENV' is the upvalue of current chunk
+- Every chunk is compiled in the scope of an external local variable named _ENV
+- Lua keeps a distinguished environment called the global environment '_G' (LUA_RIDX_GLOBALS)
+
+Lua expressions
+```lua
+and or not  --> logical and, or, not
+&  |  ~     --> bitwise and, or, not
+==  ~=      --> equality, inequality
+```
+
+Lua statements
+```lua
+{ <stat>... }                 --> block is a list of statements
+;                             --> empty statement
+;(print or io.write)('done')  --> add ';' before '(' to avoid ambiguity
+do <block> end                --> do end
+<chunk>                       --> a compilation unit of Lua, represented as an anonymous function
+::Lable::
+goto Lable
+break
+return <explist>
+local <namelist>
+local <namelist> = <explist>
+while <exp> do <block> end
+repeat <block> until <exp>
+if <exp> then <block> end
+if <exp> then <block> else <block> end
+if <exp> then <block> elseif <exp> then <block> end
+for v = <exp>, <exp> do <block> end         --> for (val=i; i<=j; i+=1) {}
+for v = <exp>, <exp>, <exp> do <block> end  --> for (val=i; i<=j; i+=k) {} or for (val=i; i>=j; i-=k) {}
+for <varlist> in <explist> do <block> end   --> func, state, val = explist; only evaluated once
+```
+
+Lua assignment
+- Lua allows multiple assignments, "varlist = explist"
+- First, the list of values is adjusted to the length of the varialbes
+- Extra values are thrown away, or nil values are appended to the tail
+- if the explist ends with a function call, all values are counted (except the call is enclosed in parentheses)
+
+======
+
+```lua
+-- dumb varaible `_`
+
 function foo()
   return 1, 2, 3, 4, 5, 6, 7
 end
