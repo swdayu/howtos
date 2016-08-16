@@ -29,11 +29,11 @@ Lua通常作为强大、轻量、可嵌入的脚本语言用在其他程序中�
 Lua是用clean C（标准C和C++的通用子集）实现的程序库。
 
 作为一种扩展语言，Lua没有main程序概念：它仅在宿主程序中工作。
-宿主程序可以调用函数执行Lua代码、读写Lua变量、也可以注册C函数让其在Lua中调用。
-通过使用C函数，Lua可以共享相同的语法框架来定制编程语言，使其扩展应用到不同领域中。
-Lua发布版中包含了一个叫lua的宿主程序，它用Lua库实现了一个完整独立的Lua解释器，可用于交互式应用或批处理。
+宿主程序可以调用函数执行Lua代码、读写Lua变量、也可以注册C函数在Lua中调用。
+通过使用C函数，Lua可以共享相同的语法框架来定制编程语言，扩展其应用到不同领域中。
+Lua发布版中包含了一个叫lua的宿主程序，它使用Lua库实现了一个完整的Lua解释器，可用于交互式应用或批处理。
 
-Lua是免费软件，如使用许可陈述，其使用过程不提供任何担保。
+Lua是免费软件，如使用许可陈述，其对使用过程不提供任何担保。
 这份手册中描述的实现也可以在Lua官方网站（[www.lua.org](www.lua.org)）上找到。
 像其他参考手册一样，这份文档是枯燥的。关于Lua背后为什么这样设计的讨论，可以查看Lua官方网站上的技术论文。
 关于Lua编程的详细介绍，可以参考Reberto的书《Programming in Lua》。
@@ -67,13 +67,13 @@ type(v) -- "nil", "boolean", "thread" ...
 ```
 
 Value and reference
-- nil, boolean, number, string, light userdata is value type
-- function, full userdata, thread, table is reference type
+- nil, boolean, number, string, light userdata are value types
+- function, full userdata, thread, table are reference types
 - variables of reference type don't actually contain their values
 
 Lua function
 - Lua can call functions written in Lua and in C, they are both represented by the type function
-- function can access external local variables outside function, these kind of variables are called upvalues
+- Function can access external local variables outside function, these kind of variables are called upvalues
 
 Lua userdata
 - Full userdata is a block of memory managed by lua, light userdata is simply a C pointer value
@@ -127,12 +127,11 @@ Lua assignment
 - Lua allows multiple assignments, "varlist = explist"
 - First, the list of values is adjusted to the length of the varialbes
 - Extra values are thrown away, or nil values are appended to the tail
-- if the explist ends with a function call, all values are counted (except the call is enclosed in parentheses)
+- If the explist ends with a function call, all values are counted (except the call is enclosed in parentheses)
 
-Lua extra code
+Extra examples
 ```lua
 -- dumb varaible `_`
-
 function foo()
   return 1, 2, 3, 4, 5, 6, 7
 end
