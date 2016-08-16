@@ -122,16 +122,29 @@ else
   end
 end
 
+-- return utf8 byte sequence string
+function getUtf8Char(str)
+end
+
+-- return 64-bit integer
+function toUnicode(utf8_str)
+end
+
+
 Token:
+  Blank
+  Comment
   Keyword
-  Identifier
-  FloatLiteral
-  IntegerLiteral
-  StringLiteral
-  CharacterLiteral
-  "." | ".." | "..."
-  "+" | "+=" | "-" | "-=" | "*" \ "*=" | "/" | "/="
+  StringLiteral                      // start with identifier char or " or '
+  CharLiteral                        // start with identifier char or '
+  SpecialSequenceWithIdnetifierStart // start with _ or letter
+  Identifier                         // start with _ or letter
+  FloatLiteral                       // start with number
+  IntegerLiteral                     // start with number
+  SpecialSequenceWithOpearatorStart  // start with operator char
+  "." | ".." | "..." | "+" | "+="    // start with operator char
   ... ...
+
 
 Identifier:
   IdentifierStartChar
@@ -155,15 +168,15 @@ IdentifierChar:
 ```c
 bool - true false                     bool
 char - unsigned byte                  char
-byte - unsigned byte                  byte
-int8 - signed byte                    int8
-half/uhalf - 16-bit                   half/uh
+byte - unsigned byte                  byte ub
+int8 - signed byte                    int8 i8
+half/uhalf - 16-bit                   half/uh  
 full/ufull - 32-bit                   full/uf
 long/ulong - 64-bit                   long/ul
 cent/ucent - 128-bit                  cent/uc
 iptr/uptr  - machine word size        iptr/up
-float/real - 32/128-bit float point   float/real
 int/uint - at least 64-bit            int/ui: default int type
+float/real - 32/128-bit float point   float/real
 double - 64-bit                       double: default float point type
 
 // integer suffix and user defined suffix
@@ -208,6 +221,7 @@ BoolLiteral:
 
 CharLiteral:
   "'" CharacterByte "'"
+  "'" CharacterByte "'" IdentifierSuffix
 
 CharacterByte:
   "\" EscapeChar
@@ -219,11 +233,11 @@ IntegerLiteral:
   BinaryInteger
   OctalInteger
   HexInteger
-  ByteSequence IntegerSuffix
-  DecimalInteger IntegerSuffix
-  BinaryInteger IntegerSuffix
-  OctalInteger IntegerSuffix
-  HexInteger IntegerSuffix
+  ByteSequence IdentifierSuffix
+  DecimalInteger IdentifierSuffix
+  BinaryInteger IdentifierSuffix
+  OctalInteger IdentifierSuffix
+  HexInteger IdentifierSuffix
 
 ByteSequence: // notice byte-order problem
   "'" CharacterBytes "'"
@@ -280,6 +294,10 @@ StringLiteral:
   SingleQuotedString
   HexadecimalString
   CurlyBracketString
+  DoubleQuotedString IdentifierSuffix
+  SingleQuotedString IdentifierSuffix
+  HexadecimalString IdentifierSuffix
+  CurlyBracketString IdentifierSuffix
 
 DoubleQuotedString:
   `"` CharacterSequence `"`
