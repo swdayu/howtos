@@ -55,7 +55,7 @@ $ sudo apt-get install libreadline-dev
 
 Lua primary type
 - nil (the variable has no value)
-- boolean (only nil and false is false)
+- boolean (only nil and false are false)
 - number (including integer and float, 64-bit default)
 - string (immutable byte sequence)
 - function
@@ -72,14 +72,11 @@ Value and reference
 - variables of reference type don't actually contain their values
 
 Lua function
-- Lua can call functions written in Lua and in C
-- they are both represented by the type function
-- function can access external local variables outside function
-- these kind of variables are called upvalues
+- Lua can call functions written in Lua and in C, they are both represented by the type function
+- function can access external local variables outside function, these kind of variables are called upvalues
 
 Lua userdata
-- Full userdata is a block of memory managed by lua
-- Light userdata is simply a C pointer value
+- Full userdata is a block of memory managed by lua, light userdata is simply a C pointer value
 - Userdata cannot be created or modified in Lua, only through the C API
 
 Lua table
@@ -132,8 +129,7 @@ Lua assignment
 - Extra values are thrown away, or nil values are appended to the tail
 - if the explist ends with a function call, all values are counted (except the call is enclosed in parentheses)
 
-======
-
+Lua extra code
 ```lua
 -- dumb varaible `_`
 
