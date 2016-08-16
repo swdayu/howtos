@@ -53,7 +53,7 @@ $ sudo apt-get install libreadline-dev
 
 ## Quick reference
 
-Lua primary type
+### Lua primary type
 - nil (the variable has no value)
 - boolean (only nil and false are false)
 - number (including integer and float, 64-bit default)
@@ -66,41 +66,41 @@ Lua primary type
 type(v) -- "nil", "boolean", "thread" ...
 ```
 
-Value and reference
+### Value and reference
 - nil, boolean, number, string, light userdata are value types
 - function, full userdata, thread, table are reference types
 - variables of reference type don't actually contain their values
 
-Lua function
+### Lua function
 - Lua can call functions written in Lua and in C, they are both represented by the type function
 - Function can access external local variables outside function, these kind of variables are called upvalues
 
-Lua userdata
+### Lua userdata
 - Full userdata is a block of memory managed by lua, light userdata is simply a C pointer value
 - Userdata cannot be created or modified in Lua, only through the C API
 
-Lua table
+### Lua table
 - The table can be indexed with any Lua value except nil and NaN
 - Tables can contain values of all Lua types except nil
 ```lua
 t.name --> syntactic sugar for t["name"]
 ```
 
-Lua variables
+### Lua variables
 - Kinds of variables: global variables, local variables, and table fields
 - Variable is assumed to be global unless explicitly declared as a local
 - Global variable 'x' is equivalent to '_ENV.x', '_ENV' is the upvalue of current chunk
 - Every chunk is compiled in the scope of an external local variable named _ENV
 - Lua keeps a distinguished environment called the global environment '_G' (LUA_RIDX_GLOBALS)
 
-Lua expressions
+### Lua expressions
 ```lua
 and or not  --> logical and, or, not
 &  |  ~     --> bitwise and, or, not
 ==  ~=      --> equality, inequality
 ```
 
-Lua statements
+### Lua statements
 ```lua
 { <stat>... }                 --> block is a list of statements
 ;                             --> empty statement
@@ -123,13 +123,13 @@ for v = <exp>, <exp>, <exp> do <block> end  --> for (val=i; i<=j; i+=k) {} or fo
 for <varlist> in <explist> do <block> end   --> func, state, val = explist; only evaluated once
 ```
 
-Lua assignment
+### Lua assignment
 - Lua allows multiple assignments, "varlist = explist"
 - First, the list of values is adjusted to the length of the varialbes
 - Extra values are thrown away, or nil values are appended to the tail
 - If the explist ends with a function call, all values are counted (except the call is enclosed in parentheses)
 
-Extra examples
+### Extra examples
 ```lua
 -- dumb varaible `_`
 function foo()
