@@ -85,6 +85,43 @@ UTF8字符规则：
                        | 11111101_10111111_10111111_10111111_10111111_10111111 [FD->FD] [80->BF]
 -----------------------+------------------------------------------------------
 
+local utf8_t = lpeg.R("\x80\xBF") --> utf8 encoding tail
+local utf8_1 = lpeg.R("\x00\x7F")
+local utf8_2 = lpeg.R("\xC2\xDF") * utf8_t
+local utf8_3 = lpeg.R("\xE1\xEF") * utf8_t * utf8_t + lpeg.P("\xE0") * lpeg.R("\xA0\xBF") * utf8_t 
+local utf8_4 = lpeg.R("\xF1\xF7") * utf8_t * utf8_t * utf8_t + lpeg.P("\xF0") * lpeg.R("\x90\xBF") * utf8_t * utf8_t
+local utf8_5 = lpeg.R("\xF9\xFB") * utf8_t * utf8_t * utf8_t * utf8_t +
+               lpeg.P("\xF8") * lpeg.R("\x88\xBF") * utf8_t * utf8_t * utf8_t
+local utf8_6 = lpeg.P("\xFC") * lpeg.R("\x84\xBF") * utf8_t * utf8_t * utf8_t * utf8_t +
+               lpeg.P("\xFD") * utf8_t * utf8_t * utf8_t * utf8_t * utf8_t
+
+local utf8_seq_patt = utf8_1 + utf8_2 + utf8_3 + utf8_4 + utf8_5 + utf8_6
+
+local utf8_byte_0 = lpeg.R("\x00\x7F")
+local utf8_byte_10 = lpeg.R("\x80\xBF")
+local utf8_byte_110 = lpeg.R("\xC0\xDF")
+local utf8_byte_1110 = lpeg.R("\xE0\xEF")
+local utf8_byte_11110 = lpeg.R("\xF0\xF7")
+local utf8_byte_111110 = lpeg.R("\xF8\xFB")
+local utf8_byte_1111110 = lpeg.R("\xFC\xFD")
+
+-- error handle when utf8_seq_patt match failed
+local skip_error_patt
+if b == 0xFE or b == 0xFF then
+  --> the byte is not a utf8-style byte
+  skip_error_patt = lpeg.P(1)
+else
+  if utf8_byte_0:match(b) then
+    print("[E] should match ok")
+    return
+  end
+  if utf8_byte_10:match(b) then
+    skip_error_patt = (#(utf8_byte_0 + utf8_byte_10) * lpeg.P(1))^1
+  else
+    skip_error_patt = lpeg.P(1) * (#(utf8_byte_0 + utf8_byte_10) * lpeg.P(1))^0
+  end
+end
+
 Token:
   Keyword
   Identifier
