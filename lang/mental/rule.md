@@ -124,10 +124,14 @@ end
 
 -- return a table contain the file data
 function readFile(filename)
-  local file = io.open(filename, "rb")
-  local str = file:read("a")
-  if str == nil or str == "" then
-    print("[E] the file '" .. filename .. "' is not exist or empty")
+  local file, err = io.open(filename, "rb")
+  if file == nil then
+    print("[E] open file '" .. filename .. "' to read failed " .. err)
+    return nil
+  end
+  local str, err = file:read("a")
+  if str == nil then
+    print("[E] read file '" .. filename .. "' failed " .. err)
     return nil
   end
   return {data = str; start = 1}
