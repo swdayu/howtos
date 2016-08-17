@@ -137,19 +137,19 @@ function readFile(filename)
   return {data = str; start = 1}
 end
 
--- return current utf8 char position [start, end]
+-- return current utf8 char position [idx1, idx2]
 function utf8Pos(infile)
-  local end = utf8_seq_patt:match(infile.data, infile.start)
-  if end == nil then
+  local idx = utf8_seq_patt:match(infile.data, infile.start)
+  if idx == nil then
     return nil, nil
   end
-  if end == infile.start then
-    return infile.start, end
+  if idx == infile.start then
+    return infile.start, idx
   end
   local start = infile.start
-  infile.start = end
-  assert(end > start)
-  return start, end-1
+  infile.start = idx
+  assert(idx > start)
+  return start, idx-1
 end
 
 -- return current uft8 char
