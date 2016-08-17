@@ -1,5 +1,11 @@
 
+Lpeg
+- http://www.inf.puc-rio.br/~roberto/lpeg/
+- http://www.inf.puc-rio.br/~roberto/docs/peg.pdf
+- http://www.inf.puc-rio.br/~roberto/lpeg/lpeg-1.0.0.tar.gz
+- http://bford.info/packrat/
 - http://lua-users.org/wiki/LpegTutorial
+- https://en.wikipedia.org/wiki/Parsing_expression_grammar
 
 Group capture
 - group capture (lpeg.Cg) groups all captures inside into a single capture
