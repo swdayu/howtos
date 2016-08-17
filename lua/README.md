@@ -124,6 +124,7 @@ if <exp> then <block> elseif <exp> then <block> end
 for v = <exp>, <exp> do <block> end         --> for (val=i; i<=j; i+=1) {}
 for v = <exp>, <exp>, <exp> do <block> end  --> for (val=i; i<=j; i+=k) {} or for (val=i; i>=j; i-=k) {}
 for <varlist> in <explist> do <block> end   --> func, state, val = explist; only evaluated once
+for i,v in ipairs(t) do print(i,v) end      --> t = {"a", "b", "c", "d"}
 ```
 
 ### Lua assignment
