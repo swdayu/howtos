@@ -40,6 +40,11 @@ LineComment:
 
 BlockComment:
   "/*" Characters "*/"
+  
+local endOfLine = lpeg.P("\xFE\xBF") + lpeg.P("\x0D\x0A") + lpeg.P("\x0A\x0D") +
+    lpeg.S("\x00\x1A\x0D\x0A") + lpeg.P(toUtf8(0x2028)) + lpeg.P(toUtf8(0x2029))
+local whiteSpace = lpeg.S("\x20\x09\x0B\x0C")^1
+local lineComment = lpeg.P("//") * ((-endOfLine * 1)^0 + endOfLine)
 
 Characters:
   Character
@@ -154,11 +159,11 @@ end
 
 -- return current uft8 char
 function utf8Char(infile)
-  local start, end = utf8Pos(infile)
-  if start == nil then
+  local i, j = utf8Pos(infile)
+  if i == nil then
     return nil
   end
-  return infile.data:sub(start, end)
+  return infile.data:sub(i, j)
 end
 
 -- return utf8 byte sequence string
