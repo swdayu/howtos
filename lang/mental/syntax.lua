@@ -73,11 +73,6 @@ local function f_comment(s)
   return s
 end
 
-local function f_blockcomment(s)
-  token(BLOCKCOMMENT, s)
-  return s
-end
-
 
 local function l_keyword()
   return Cst(keyword) / f_keyword
