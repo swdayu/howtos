@@ -46,6 +46,54 @@ local endOfLine = lpeg.P("\xFE\xBF") + lpeg.P("\x0D\x0A") + lpeg.P("\x0A\x0D") +
 local whiteSpace = lpeg.S("\x20\x09\x0B\x0C")^1
 local lineComment = lpeg.P("//") * ((-endOfLine * 1)^0 + endOfLine)
 
+#!/usr/bin/env lua -l "lpeg"
+local lpeg = require "lpeg"
+local P = lpeg.P
+local C = lpeg.C
+local Cg = lpeg.Cg
+local Cb = lpeg.Cb
+local Cs = lpeg.Cs
+local Ct = lpeg.Ct
+local Cmt = lpeg.Cmt
+
+local function match_time_func(dstr, pos, val)
+  local newPos = P(val):match(dstr, pos)
+  -- print(dstr, pos, "match " .. val .. " newPos " .. (newPos or "nil"))
+  if newPos == nil then
+    return nil
+  end
+  return newPos, val
+end
+
+local blockCommentStart = Cg(P("/") * C(P("*")^1), "stars")
+local blockCommentEnd = Cb("stars") / "%1/"
+local blockComment = blockCommentStart * (Cb("stars") / "/%1") *
+    (C("/") + (-Cmt(blockCommentEnd, match_time_func) * 1)^1 * Cmt(blockCommentEnd, match_time_func))
+local testpatt = blockCommentStart * (Cb("stars") / "/%1") * 1 * Cmt(blockCommentEnd, match_time_func)
+
+local a, b = 0, 0
+a, b = blockComment:match("/*/")
+assert(a == "/*" and b == "/")
+a, b = blockComment:match("/**/")
+assert(a == "/**" and b == "/")
+a, b = blockComment:match("/***/")
+assert(a == "/***" and b == "/")
+a, b = testpatt:match("/* */")
+print(a, b)
+a, b = blockComment:match("/* */")
+print(a, b)
+assert(a == "/*" and b == "*/")
+a, b = blockComment:match("/** **/")
+print(a, b)
+assert(a == "/**" and b == "**/")
+a, b = blockComment:match("/* ***/")
+print(a, b)
+assert(a == "/*" and b == "*/")
+a, b = blockComment:match("/** */")
+print(a, b)
+assert(a == nil and b == nil)
+
+
 Characters:
   Character
   Character Characters
