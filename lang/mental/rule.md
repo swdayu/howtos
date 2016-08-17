@@ -4,7 +4,7 @@
 
 ## lexical
 
-```c
+```lua
 Character:
   AnyUtf8Char
 
@@ -122,12 +122,47 @@ else
   end
 end
 
+-- return a table contain the file data
+function readFile(filename)
+  local file = io.open(filename, "rb")
+  local str = file:read("a")
+  if str == nil or str == "" then
+    print("[E] the file '" .. filename .. "' is not exist or empty")
+    return nil
+  end
+  return {data = str; start = 1}
+end
+
+-- return current utf8 char position [start, end]
+function utf8Pos(infile)
+  local end = utf8_seq_patt:match(infile.data, infile.start)
+  if end == nil then
+    return nil, nil
+  end
+  if end == infile.start then
+    return infile.start, end
+  end
+  local start = infile.start
+  infile.start = end
+  assert(end > start)
+  return start, end-1
+end
+
+-- return current uft8 char
+function utf8Char(infile)
+  local start, end = utf8Pos(infile)
+  if start == nil then
+    return nil
+  end
+  return infile.data:sub(start, end)
+end
+
 -- return utf8 byte sequence string
-function getUtf8Char(str)
+function toUtf8(code)
 end
 
 -- return 64-bit integer
-function toUnicode(utf8_str)
+function toUnicode(utf8Char)
 end
 
 
@@ -144,7 +179,6 @@ Token:
   SpecialSequenceWithOpearatorStart  // start with operator char
   "." | ".." | "..." | "+" | "+="    // start with operator char
   ... ...
-
 
 Identifier:
   IdentifierStartChar
