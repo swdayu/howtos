@@ -165,5 +165,57 @@ local function l_blockcomment()
   return (start * P"/" + start * (1 - Cmt(tail, f_matchtime))^1 * Cmt(tail, f_matchtime)) / f_blockcomment
 end
 
+local function l_character()
+  local l_hex = R("09", "af", "AF")
+  local l_char =  P"\\x" * l_hex * l_hex + P"\\x" * l_hex + P"\\" * 1 + (1 - P"'")
+  return P"'" * l_char * P"'" + P"'" * l_char * P"'" * l_identifier()
+end
 
+local function l_special_identifier()
+end
+
+local function l_identifier()
+  local letter = R("az", "AZ")
+  local number = R("09")
+  return ((P"_" + letter) * (P"_" + letter + number)^0) / f_identifier
+end
+
+local function l_integertail(...)
+  return (P"_" + R(...))^1
+end
+
+local l_decimalinteger = R"09" + R"09" * l_integertail("09")
+
+local function l_float()
+  local l_exponent = S"eE" + P"e+" + P"E+" + P"e-" + P"E-"
+  local l_decimalfloat = l_decimalinteger * P"." * l_integertail("09") +
+      l_decimalinteger * P"." * l_integertail("09") * l_exponent * l_integertail("09")
+  return l_decimalfloat + l_decimalfloat * l_identifier()
+end
+
+local function l_integer()
+  local l_binaryinteger = (P"0b" + P"0B") * l_integertail("01")
+  local l_octalinteger = (P"0o" + P"0O") * l_integertail("07")
+  local l_hexinteger = (P"0x" + P"0X") * l_integertail("09", "af", "AF")
+  return l_binaryinteger + l_binaryinteger * l_identifier() +
+      l_decimalinteger + l_decimalinteger * l_identifier() +
+      l_octalinteger + l_octalinteger * l_identifier() +
+      l_hexinteger + l_hexinteger * l_identifier()
+end
+
+local function l_special_operator()
+end
+
+local function l_operator()
+  return S"`~!@#$%^&*-+=|'\":;<,>.?/"^1
+end
+
+-- backslash can only appear in comment, char and string
+local function l_backslash()
+  return P"\\"^1
+end
+
+local function l_bracket()
+  return S"(){}[]"
+end
 ```
