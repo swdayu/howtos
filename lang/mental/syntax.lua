@@ -137,9 +137,10 @@ end
 
 -- block (multi-line) comment
 
-local function match_blockcomment_tail(subject, pos, val)
-  local newpos = P(val):match(subject, pos)
-  print(pos, val .. " matched newpos ", newpos or "nil")
+local function match_blockcomment_tail(subject, pos, tail)
+  -- check if the subject string match the tail at the pos
+  local newpos = P(tail):match(subject, pos)
+  print(pos, tail .. " matched newpos ", newpos or "nil")
   if newpos == nil then
     return false
   end
