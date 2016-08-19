@@ -176,10 +176,10 @@ end
 local function y.match_blockcomment()
   local start = Cg(P"/" * C(P"*"^1), "asterisk")
   local match_newline = (Cst(newlines) * Cp()) / found_newline_in_blockcomment
-  local match_tail = Cmt(Cb"asterisk"/"%1/", match_blockcomment_tail)
+  local match_tail = Cmt(Cb"asterisk" / "%1/", match_blockcomment_tail)
   local capture_tail = match_tail * Cc(1) + (-1) * Cc(0)
   return (C(start * P"/") * Cp()) / empty_blockcomment_matched +
-         (C(start * Cb"asterisk" * (match_newline + (1 - match_tail))^1 * capture_tail * Cp()) / f_blockcomment
+         (C(start * Cb"asterisk" * (match_newline + (1 - match_tail))^1 * capture_tail * Cp()) / blockcomment_matched
 end
 
 
