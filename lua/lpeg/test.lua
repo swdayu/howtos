@@ -524,12 +524,12 @@ result = anonymousGroupCapture:match""
 assert(ltest(result, nil))
 result = anonymousGroupCapture:match"abxz"
 assert(ltest(result, nil))
-result = anonymousGroupCapture:match"abxcd"
-assert(ltest(result, "ab"))               -- group capture groups all captureis inside into a single capture
+a, b = anonymousGroupCapture:match"abxcd"
+assert(a == "ab" and b == "cd")
 
 anonymousGroupCapture = lpeg.Cg(lpeg.Cc(3.12) * lpeg.Cc(3) * lpeg.Cc(false) * lpeg.Cc(nil) * lpeg.Cc"abc")
-result = anonymousGroupCapture:match""
-assert(ltest(result, 3.12))               -- anonymous group capture only return the first capture's value in group
+a, b, c, d, e = anonymousGroupCapture:match""
+assert(a == 3.12 and b == 3 and c == false and d == nil and e == "abc")
 
 namedGroupCapture = lpeg.Cg(lpeg.C"a" * lpeg.P"z" * lpeg.C"b", "GroupName")
 res1 = lpeg.match(lpeg.P"11" * namedGroupCapture * lpeg.P"22", "11azb22")
