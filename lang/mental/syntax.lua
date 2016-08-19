@@ -1,5 +1,4 @@
 
-```lua
 local lpeg = require "lpeg"
 
 function lpeg.St(t)
@@ -138,132 +137,162 @@ end
 
 -- block (multi-line) comment
 
-local function f_newline_in_blockcomment(i, pos)
-  print(pos, "NEWLINE in BLOCKCOMMENT #" .. #newlines[i])
-  y.lineno = y.lineno + 1
-  y.colno = 1
-  y.curpos = pos
-  -- return no value to avoid produce capture values
-end
-
-local function f_match_blockcomment_tail(subject, pos, val)
+local function match_blockcomment_tail(subject, pos, val)
   local newpos = P(val):match(subject, pos)
-  print(pos, val .. " matched ", newpos or "failure")
+  print(pos, val .. " matched newpos ", newpos or "nil")
   if newpos == nil then
     return false
   end
   return newpos
 end
 
-local function f_empty_blockcomment(s, pos)
-  print("[" .. (pos - #s) .. "," .. pos ..")", s)
+local function found_newline_in_blockcomment(i, pos)
+  y.colno = y.colno + (pos - y.curpos)
+  y.curpos = pos
+  print(pos, "NEWLINE in BLOCKCOMMENT #" .. #newlines[i])
+  y.lineno = y.lineno + 1
+  y.colno = 1
+  -- return no value to avoid produce capture values
+end
+
+local function empty_blockcomment_matched(s, pos)
+  y.colno = y.colno + #s
+  y.curpos = pos
+  print(y.info(), "EMPTY BLOCKCOMMENT", s)
   return s
 end
 
-local function f_blockcomment(s, asterisk, pos)
+local function blockcomment_matched(s, asterisk, matched, pos)
   local levels = #asterisk
-  print(pos, "BLOCKCOMMENT"..levels, s)
+  y.colno = y.colno + (pos - y.curpos)
+  y.curpos = pos
+  print(pos, "BLOCKCOMMENT"..levels, "matched "..matched, s)
+  if matched ~= 1 then
+    -- match failed, print error message
+  end
   return s
 end
 
-local function l_blockcomment()
+local function y.match_blockcomment()
   local start = Cg(P"/" * C(P"*"^1), "asterisk")
-  local match_newline = (Cst(newlines) * Cp()) / f_newline_in_blockcomment
-  local match_tail = Cmt(Cb"asterisk"/"%1/", f_match_blockcomment_tail)
-  return (C(start * P"/") * Cp()) / f_empty_blockcomment +
-         (C(start * Cb"asterisk" * (match_newline + (1 - match_tail))^1 * match_tail) * Cp()) / f_blockcomment
+  local match_newline = (Cst(newlines) * Cp()) / found_newline_in_blockcomment
+  local match_tail = Cmt(Cb"asterisk"/"%1/", match_blockcomment_tail)
+  local capture_tail = match_tail * Cc(1) + (-1) * Cc(0)
+  return (C(start * P"/") * Cp()) / empty_blockcomment_matched +
+         (C(start * Cb"asterisk" * (match_newline + (1 - match_tail))^1 * capture_tail * Cp()) / f_blockcomment
 end
 
 
+-- special identifier
 
-function f_printtoken(s, type)
-  local len = #s
-  y.colno = y.colno + len
-  y.curpos = y.curpos + len
-  print(y.curpos, type, s)
+local function y.match_special_identifier()
+end
+
+
+-- identifier
+
+local function token_matched(s, pos, tstr)
+  y.colno = y.colno + #s
+  y.curpos = pos
+  print(y.info(), tstr, s)
   return s
 end
 
-local function f_character(s)
-  return f_printtoken(s, "CHARACTER")
+local function identifier_matched(s, pos)
+  return token_matched(s, pos, "IDENTIFIER")
 end
 
-local function f_identifier(s)
-  return f_printtoken(s, "IDENTIFIER")
-end
-
-local function f_float(s)
-  return f_printtoken(s, "FLOAT")
-end
-
-local function f_integer(s)
-  return f_printtoken(s, "INTEGER")
-end
-
-local function f_operator(s)
-  return f_printtoken(s, "OPERATOR")
-end
-
-local function f_backslash(s)
-  return f_printtoken(s, "BACKSLASH")
-end
-
-local function f_bracket(s)
-  return f_printtoken(s, "BRACKET")
-end
-
-local function l_character()
-  local l_hex = R("09", "af", "AF")
-  local l_char =  P"\\x" * l_hex * l_hex + P"\\x" * l_hex + P"\\" * 1 + (1 - P"'")
-  return (P"'" * l_char * P"'" + P"'" * l_char * P"'" * l_identifier()) / f_character
-end
-
-local function l_special_identifier()
-end
-
-local function l_identifier()
+local function y.match_identifier()
   local letter = R("az", "AZ")
   local number = R("09")
-  return ((P"_" + letter) * (P"_" + letter + number)^0) / f_identifier
+  return (C((P"_" + letter) * (P"_" + letter + number)^0) * Cp()) / identifier_matched
 end
 
-local function l_integertail(...)
+
+-- character
+
+local function character_matched(s, pos)
+  return token_matched(s, pos, "CHARACTER")
+end
+
+local function y.match_character()
+  local hex = R("09", "af", "AF")
+  local singlechar =  P"\\x" * hex * hex + P"\\x" * hex + P"\\" * 1 + (1 - P"'")
+  return (C(P"'" * singlechar * P"'" + P"'" * singlechar * P"'" * y.match_identifier()) * Cp()) / character_matched
+end
+
+
+-- float
+
+local decimalinteger = R"09" + R"09" * match_integertail("09")
+
+local function match_integertail(...)
   return (P"_" + R(...))^1
 end
 
-local l_decimalinteger = R"09" + R"09" * l_integertail("09")
-
-local function l_float()
-  local l_exponent = S"eE" + P"e+" + P"E+" + P"e-" + P"E-"
-  local l_decimalfloat = l_decimalinteger * P"." * l_integertail("09") +
-      l_decimalinteger * P"." * l_integertail("09") * l_exponent * l_integertail("09")
-  return (l_decimalfloat + l_decimalfloat * l_identifier()) / f_float
+local function float_matched(s, pos)
+  return token_matched(s, pos, "FLOAT")
 end
 
-local function l_integer()
-  local l_binaryinteger = (P"0b" + P"0B") * l_integertail("01")
-  local l_octalinteger = (P"0o" + P"0O") * l_integertail("07")
-  local l_hexinteger = (P"0x" + P"0X") * l_integertail("09", "af", "AF")
-  return (l_binaryinteger + l_binaryinteger * l_identifier() +
-      l_decimalinteger + l_decimalinteger * l_identifier() +
-      l_octalinteger + l_octalinteger * l_identifier() +
-      l_hexinteger + l_hexinteger * l_identifier()) / f_integer
+local function y.match_float()
+  local exponent = S"eE" + P"e+" + P"E+" + P"e-" + P"E-"
+  local decimalfloat = decimalinteger * P"." * match_integertail("09") +
+      decimalinteger * P"." * match_integertail("09") * exponent * match_integertail("09")
+  return (C(decimalfloat + decimalfloat * y.match_identifier()) + Cp()) / float_matched
 end
 
-local function l_special_operator()
+
+-- integer
+
+local function integer_matched(s, pos)
+  return token_matched(s, pos, "INTEGER")
 end
 
-local function l_operator()
-  return (S"`~!@#$%^&*-+=|'\":;<,>.?/"^1) / f_operator
+local function y.match_integer()
+  local binaryinteger = (P"0b" + P"0B") * match_integertail("01")
+  local octalinteger = (P"0o" + P"0O") * match_integertail("07")
+  local hexinteger = (P"0x" + P"0X") * match_integertail("09", "af", "AF")
+  return (C(binaryinteger + binaryinteger * y.match_identifier() +
+      decimalinteger + decimalinteger * y.match_identifier() +
+      octalinteger + octalinteger * y.match_identifier() +
+      hexinteger + hexinteger * y.match_identifier()) * Cp()) / integer_matched
 end
+
+
+-- special operator
+
+local function y.match_special_operator()
+end
+
+
+-- operator
+
+local function operator_matched(s, pos)
+  return token_matched(s, pos, "OPERATOR")
+end
+
+local function y.match_operator()
+  return (C(S"`~!@#$%^&*-+=|'\":;<,>.?/"^1) * Cp()) / operator_matched
+end
+
 
 -- backslash can only appear in comment, char and string
-local function l_backslash()
-  return (P"\\"^1) / f_backslash
+
+local function backslash_matched(s, pos)
+  return token_matched(s, pos, "BACKSLASH")
 end
 
-local function l_bracket()
-  return S"(){}[]" / f_bracket
+local function y.match_backslash()
+  return (C(P"\\"^1) * Cp()) / backslash_matched
 end
 
-```
+
+-- bracket
+
+local function bracket_matched(s, pos)
+  return token_matched(s, pos, "BRACKET")
+end
+
+local function y.match_bracket()
+  return (C(S"(){}[]") * Cp()) / bracket_matched
+end
