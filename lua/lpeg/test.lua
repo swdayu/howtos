@@ -572,10 +572,32 @@ assert(ltest(result.Group2, "a"))
 
 -- Match-time Capture
 
--- usually, lpeg evaluates all captures only after the entire match succeeds.
--- during match time it only gathers enough information to produce the capture values later.
--- so normally, the capture cannot affect the way a pattern to match a subject.
--- the only exception is the match-time capture.
--- when a match-time capture matches, it forces the immediate evaluation of all its nested captures and then
--- calls its corresponding function, which defines whether the match succeeds and also what values are produced.
+function f_matchtime_return_fail(subject, curpos, ...)
+  print(subject, curpos, ...)
+end
 
+function f_matchtime(subject, curpos, ...)
+  print(subject, curpos, ...)
+  return curpos
+end
+
+function f_matchtime_return_capture_value(subject, curpos, ...)
+ print(subject, curpos, ...)
+ return curpos, "capture value"
+end
+
+function f_call_function_in_the_middle_of_match(subject, curpos, s)
+  print(subject, curpos, '"' .. s .. '"')
+  return true
+end
+
+result = lpeg.Cmt(lpeg.P"abc", f_matchtime_return_fail):match("abcdefg")
+assert(result == nil)
+result = lpeg.Cmt(lpeg.P"abc", f_matchtime):match("abcdefg")
+assert(result == 4)
+result = lpeg.Cmt(lpeg.P"abc", f_matchtime_return_capture_value):match("abcdefg")
+assert(result == "capture value")
+result = lpeg.Cmt(lpeg.P"abc" * lpeg.C"de" * lpeg.P"f" * lpeg.C"g", f_matchtime):match("abcdefg")
+assert(result == 8)
+result = lpeg.C(lpeg.P"ab" * lpeg.P(f_call_function_in_the_middle_of_match) * lpeg.P"cd"):match("abcd")
+assert(result == "abcd")
