@@ -316,6 +316,27 @@ assert(ltest(result, 3))
 result = matchBalancedParenthesizedExpr:match("(())))")
 assert(ltest(result, 5))
 
+P = lpeg.P
+R = lpeg.R
+S = lpeg.S
+V = lpeg.V
+C = lpeg.C
+Ct = lpeg.Ct
+
+space = S" \n\t\r"^0
+addop = C"+" * space
+mulop = C"*" * space
+openbracket = P"(" * space
+closebracket = P")" * space
+number = C((P"-" + P"") * R"09"^1) * space
+
+G = space * P{ "Expr";
+  Expr = Ct(V"HigherPriority" * (addop * V"HigherPriority")^0)             -- {table, "+", table} 
+  HigherPriority = Ct(V"HighestPriority" * (mulop * V"HighestPriority")^0) -- {table/number, "*", table/number}
+  HighestPriority = number + openbracket * V"Expr" * closebracket
+}
+-- {{"3"}, "+", {"5", "*", "9", "*", {{"1"}, "+", {"1"}}, "+", {"-12"}}
+t = G:match"3 + 5 * 9 * (1 + 1) + -12"
 
 -- Simple Capture
 
