@@ -473,17 +473,34 @@ var qstr2: q"zzz2{
 Q字符串可以跨行书写，换行处会自动插入换行符号，但是在字符串开头或结尾换行不会插入换行符。
 相邻的字符串字面量会自动合并。
 
-__DATE__
-__TIME__
-__FUNC__
-__LINE__
-__CMPL__
+__date__
+__time__
+__func__
+__line__
+__cmpl__
 ```
 
 ## syntax
 
 **expr**
 ```c
+,                                          PriorityComma
+= += -= *= /= %= &= |= ^= ~= <<= >>= ^^=   PriorityAssign
+?:                                         PriorityCondition
+||                                         PriorityLogicalOr
+&&                                         PriorityLogicalAnd
+== != < <= > >=                            PriorityComparation
+|                                          PriorityBitwiseOr
+^                                          PriorityBitwiseXor
+&                                          PriorityBitwiseAnd
+<< >>                                      PriorityBitwiseShift
++ - ~                                      PrioritySubtract
+* / %                                      PriorityDivision
+^^                                         PriorityPower
+! ~ + - * &                                PriorityUnary
+a.b call(arglist) a[1] s[1..3]             PriorityPostfix
+identifer .identifier literals (expr)      PriorityPrimary
+
 ```
 
 **var/imm/enum**
