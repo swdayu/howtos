@@ -491,13 +491,13 @@ __cmpl__
 &&                                         PriorityLogicalAnd
 == != < <= > >=                            PriorityComparation
 |                                          PriorityBitwiseOr
-^                                          PriorityBitwiseXor
+^ ~                                        PriorityBitwiseXor
 &                                          PriorityBitwiseAnd
 << >>                                      PriorityBitwiseShift
-+ - ~                                      PrioritySubtract
++ - ~ ..                                   PrioritySubtract
 * / %                                      PriorityDivision
 ^^                                         PriorityPower
-! ~ + - * &                                PriorityUnary
+! ~ + - * & #                              PriorityUnary
 a.b call(arglist) a[1] s[1..3]             PriorityPostfix
 identifer .identifier literals (expr)      PriorityPrimary
 
