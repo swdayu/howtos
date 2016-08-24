@@ -1,6 +1,6 @@
-local lpeg = require "lpeg"
+lpeg = require "lpeg"
 
-local function ltest(expr, value)
+function ltest(expr, value)
   if expr == value then
     return true
   end
@@ -331,12 +331,24 @@ closebracket = P")" * space
 number = C((P"-" + P"") * R"09"^1) * space
 
 G = space * P{ "Expr";
-  Expr = Ct(V"HigherPriority" * (addop * V"HigherPriority")^0)             -- {table, "+", table} 
-  HigherPriority = Ct(V"HighestPriority" * (mulop * V"HighestPriority")^0) -- {table/number, "*", table/number}
-  HighestPriority = number + openbracket * V"Expr" * closebracket
+  Expr = Ct(V"HigherPriority" * (addop * V"HigherPriority")^0);             -- {table, "+", table} 
+  HigherPriority = Ct(V"HighestPriority" * (mulop * V"HighestPriority")^0); -- {table/number, "*", table/number}
+  HighestPriority = number + openbracket * V"Expr" * closebracket;
 }
 -- {{"3"}, "+", {"5", "*", "9", "*", {{"1"}, "+", {"1"}}, "+", {"-12"}}
 t = G:match"3 + 5 * 9 * (1 + 1) + -12"
+assert(ltest(t[1][1], "3"))
+assert(ltest(t[2], "+"))
+assert(ltest(t[3][1], "5"))
+assert(ltest(t[3][2], "*"))
+assert(ltest(t[3][3], "9"))
+assert(ltest(t[3][4], "*"))
+assert(ltest(t[3][5][1][1], "1"))
+assert(ltest(t[3][5][2], "+"))
+assert(ltest(t[3][5][3][1], "1"))
+assert(ltest(t[4], "+"))
+assert(ltest(t[5][1], "-12"))
+
 
 -- Simple Capture
 
