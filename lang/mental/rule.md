@@ -501,6 +501,63 @@ __cmpl__
 a.b call(arglist) a[1] s[1..3]             PriorityPostfix
 identifer .identifier literals (expr)      PriorityPrimary
 
+P, R, S, V = lpeg.P, lpeg.R, lpeg.S, lepg.V
+C, Ct = lpeg.C, lpeg.Ct
+Blank = (space + capture_newline)^0
+Lparen = C"(" * Blank
+Rparen = C")" * Blank
+Lbracket = C"[" * Blank
+Rbracket = C"]" * Blank
+Lcurl = C"{" * Blank
+Rcurl = C"}" * Blank
+
+EQU = C(P"=" + S"+-*/%&|^~" * P"=" + P"<<=" + P">>=" + P"^^=") * Blank
+LOR = C"||" * Blank
+LAD = C"&&" * Blank
+CMP = C(S"=!><" * P"=" + P"<" + P">") * Blank
+BOR = C"|" * Blank
+XOR = C"^" * Blank
+BAD = C"&" * Blank
+SHT = C(P"<<" + P">>") * Blank
+ADD = C(S"+-~") * Blank
+MUL = C(S"*/%") * Blank
+POW = C(P"^^") * Blank
+UNA = C(S"!~+=*&#") * Blank
+DOT = C"." * Blank
+
+LogicalOr = V"LogicalOr"
+LogicalAnd = V"LogicalAnd"
+Comparation = V"Comparation"
+BitwiseOr = V"BitwiseOr"
+BitwiseXor = V"BitwiseXor"
+BitwiseAnd = V"BitwiseAnd"
+BitwiseShift = V"BitwiseShift"
+AddExpr = V"AddExpr"
+MulExpr = V"MulExpr"
+PowExpr = V"PowExpr"
+UnaryExpr = V"UnaryExpr"
+PostfixExpr = V"PostfixExpr"
+PrimaryExpr = V"PrimaryExpr"
+
+Expr = P{"S";
+    S = Ct(LogicalOr * (LOR * LogicalOr)^0);
+    LogicalOr = Ct(LogicalAnd * (LAD * LogicalAnd)^0);
+    LogicalAnd = Ct(Comparation * (CMP * Comparation)^0);
+    Comparation = Ct(BitwiseOr * (BOR * BitwiseOr)^0);
+    BitwiseOr = Ct(BitwiseXor * (XOR * BitwiseXor)^0);
+    BitwiseXor = Ct(BitwiseAnd * (BAD * BitwiseAnd)^0);
+    BitwiseAnd = Ct(BitwiseShift * (SHT * BitwiseShift)^0);
+    BitwiseShift = Ct(AddExpr * (ADD * AddExpr)^0);
+    AddExpr = Ct(MulExpr * (MUL * MulExpr)^0);
+    MulExpr = Ct(PowExpr * (POW * PowExpr)^0);
+    PowExpr = Ct(Blank * PostfixExpr + UnaryExpr);
+    UnaryExpr = Ct(UNA * UnaryExpr + Blank * PostfixExpr);
+    PostfixExpr = Ct(PrimaryExpr * (DOT * PrimaryExpr)^0);
+    PrimaryExpr = Idnetifier + Lparen * V"S" * Rparen + Literals +
+                  DOT * Identifier + BasicTypeX * DOT * Identifier +
+                  BasicTypeX * Lparen * ArgumentList * Rparen;
+}
+
 ```
 
 **var/imm/enum**
