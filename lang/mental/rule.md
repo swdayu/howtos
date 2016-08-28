@@ -1119,7 +1119,15 @@ import lucy.core.Print, Scanf //只需要导入struct/class名称，文件作用
 import lucy.base.Fopen as FileOpen, Fclose as FileClose, Fread as BaseFileRead
 import lucy.stream.* //提示所有同名标识符，using只能占用一行
 
+package main
+// package search: install folder, projects under LANGPATH/src folders
 import "lucy/stream" Print Scanf
+import lstm "lucy/stream"
+import "lucy/stream" {
+  lsPrint Print 
+  lsScanf Scanf 
+  lsFormat Format
+}
 
 // possible global prefix, multiple defines can be group in { and }
 // - module
