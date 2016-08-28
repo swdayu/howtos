@@ -539,7 +539,12 @@ MUL = C(S"*/%") * Blank
 POW = C(P"^^") * Blank
 UNA = C(S"!~+=*&#") * Blank
 DOT = C"." * Blank
+CMA = C"," * Blank
+QST = C"?" * Blank
+COL = C":" * Blank
 
+CondExpr = V"CondExpr"
+BinaryExpr = V"BinaryExpr"
 LogicalOr = V"LogicalOr"
 LogicalAnd = V"LogicalAnd"
 Comparation = V"Comparation"
@@ -555,22 +560,25 @@ PostfixExpr = V"PostfixExpr"
 PrimaryExpr = V"PrimaryExpr"
 
 Expr = P{"S";
-    S = Ct(LogicalOr * (LOR * LogicalOr)^0);
-    LogicalOr = Ct(LogicalAnd * (LAD * LogicalAnd)^0);
-    LogicalAnd = Ct(Comparation * (CMP * Comparation)^0);
-    Comparation = Ct(BitwiseOr * (BOR * BitwiseOr)^0);
-    BitwiseOr = Ct(BitwiseXor * (XOR * BitwiseXor)^0);
-    BitwiseXor = Ct(BitwiseAnd * (BAD * BitwiseAnd)^0);
-    BitwiseAnd = Ct(BitwiseShift * (SHT * BitwiseShift)^0);
-    BitwiseShift = Ct(AddExpr * (ADD * AddExpr)^0);
-    AddExpr = Ct(MulExpr * (MUL * MulExpr)^0);
-    MulExpr = Ct(PowExpr * (POW * PowExpr)^0);
-    PowExpr = Ct(Blank * PostfixExpr + UnaryExpr);
-    UnaryExpr = Ct(UNA * UnaryExpr + Blank * PostfixExpr);
-    PostfixExpr = Ct(PrimaryExpr * (DOT * PrimaryExpr)^0);
-    PrimaryExpr = Idnetifier + Lparen * V"S" * Rparen + Literals +
-                  DOT * Identifier + BasicTypeX * DOT * Identifier +
-                  BasicTypeX * Lparen * ArgumentList * Rparen;
+  S = V"CommaExpr"；
+  CommaExpr = Ct(CondExpr * CMA * V"S" + CondExpr);
+  CondExpr = Ct(BinaryExpr * QST * V"S" * COL * CondExpr + BinaryExpr);
+  BinaryExpr = Ct(LogicalOr * (LOR * LogicalOr)^0);
+  LogicalOr = Ct(LogicalAnd * (LAD * LogicalAnd)^0);
+  LogicalAnd = Ct(Comparation * (CMP * Comparation)^0);
+  Comparation = Ct(BitwiseOr * (BOR * BitwiseOr)^0);
+  BitwiseOr = Ct(BitwiseXor * (XOR * BitwiseXor)^0);
+  BitwiseXor = Ct(BitwiseAnd * (BAD * BitwiseAnd)^0);
+  BitwiseAnd = Ct(BitwiseShift * (SHT * BitwiseShift)^0);
+  BitwiseShift = Ct(AddExpr * (ADD * AddExpr)^0);
+  AddExpr = Ct(MulExpr * (MUL * MulExpr)^0);
+  MulExpr = Ct(PowExpr * (POW * PowExpr)^0);
+  PowExpr = Ct(Blank * PostfixExpr + UnaryExpr);
+  UnaryExpr = Ct(UNA * UnaryExpr + Blank * PostfixExpr);
+  PostfixExpr = Ct(PrimaryExpr * (DOT * PrimaryExpr)^0);
+  PrimaryExpr = Idnetifier + Lparen * V"S" * Rparen + Literals +
+      DOT * Identifier + BasicTypeX * DOT * Identifier +
+      BasicTypeX * Lparen * ArgumentList * Rparen;
 }
 
 ```
