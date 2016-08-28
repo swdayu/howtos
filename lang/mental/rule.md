@@ -480,6 +480,11 @@ var qstr2: q"zzz2{
   string line 2
 }zzz
 
+var s = r"2tag\E{
+  <html \E(@lang="" or del(1))>
+  </html>
+}tag"
+
 Q字符串可以跨行书写，换行处会自动插入换行符号，但是在字符串开头或结尾换行不会插入换行符。
 相邻的字符串字面量会自动合并。
 
@@ -497,8 +502,8 @@ __cmpl__
 ,                                          PriorityComma
 = += -= *= /= %= &= |= ^= ~= <<= >>= ^^=   PriorityAssign
 ?:                                         PriorityCondition
-||                                         PriorityLogicalOr
-&&                                         PriorityLogicalAnd
+||    or                                   PriorityLogicalOr
+&&    and                                  PriorityLogicalAnd
 == != < <= > >=                            PriorityComparation
 |                                          PriorityBitwiseOr
 ^ ~                                        PriorityBitwiseXor
@@ -522,8 +527,8 @@ Lcurl = C"{" * Blank
 Rcurl = C"}" * Blank
 
 EQU = C(P"=" + S"+-*/%&|^~" * P"=" + P"<<=" + P">>=" + P"^^=") * Blank
-LOR = C"||" * Blank
-LAD = C"&&" * Blank
+LOR = C(P"||" + P"or") * Blank
+LAD = C(P"&&" + P"and") * Blank
 CMP = C(S"=!><" * P"=" + P"<" + P">") * Blank
 BOR = C"|" * Blank
 XOR = C"^" * Blank
