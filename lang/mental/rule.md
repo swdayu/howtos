@@ -258,17 +258,27 @@ IdentifierChar:
 **interger/float**
 ```c
 bool - true false                     bool
-char - unsigned byte                  char
+rune/char - unsigned byte             rune/char
 byte - unsigned byte                  byte ub
 int8 - signed byte                    int8 i8
-half/uhalf - 16-bit                   half/uh  
-full/ufull - 32-bit                   full/uf
-long/ulong - 64-bit                   long/ul
-cent/ucent - 128-bit                  cent/uc
+ihalf/uhalf - 16-bit                   half/uh  
+ifull/ufull - 32-bit                   full/uf
+ilong/ulong - 64-bit                   long/ul
+icent/ucent - 128-bit                  cent/uc
 iptr/uptr  - machine word size        iptr/up
 int/uint - at least 64-bit            int/ui: default int type
 float/real - 32/128-bit float point   float/real
 double - 64-bit                       double: default float point type
+
+bool rune string    // b/c/s
+byte int8           // ub/ib
+ihalf uhalf         // ih/uh
+ifull ufull         // if/uf
+ilong ulong         // il/ul
+icent ucent         // ic/uc
+int uint uptr       // i/u/up
+float double freal  // f/fd/fr
+pointer array slice map struct interface func
 
 // integer suffix and user defined suffix
 var a = 12int8
@@ -1095,6 +1105,8 @@ module lucy.test
 import lucy.core.Print, Scanf //只需要导入struct/class名称，文件作用域内的全局变量名、函数名、常量名、函数类型名称
 import lucy.base.Fopen as FileOpen, Fclose as FileClose, Fread as BaseFileRead
 import lucy.stream.* //提示所有同名标识符，using只能占用一行
+
+import "lucy/stream" Print Scanf
 
 // possible global prefix, multiple defines can be group in { and }
 // - module
