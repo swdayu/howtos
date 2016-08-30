@@ -114,16 +114,60 @@ local function token_matched(s, p, t)
   return y.token_type, y.token_string
 end
 
+local Lcontext = {
+  tkstring = ""
+  startpos = 1
+  nextpos = 1
+  
+  tokenlineno = 1;
+  tokencolumn = 1;
+  lineno = 1;
+  column = 1;
+  blanklist = nil;
+  blanktail = nil;
+}
 
--- keyword
+local Pstartmatch = P(function () {
+  Lcontext.tokenlineno = Lcontext.lineno
+  Lcontext.tokencolumn = Lcontext.column
+})
 
-local function keyword_matched(i, pos)
-  return token_matched(keywords[i], pos, y.KEYWORD)
+--[[token:
+  type = Lcontext.KEYWORD;
+  tokenstr = "";
+  startpos = 1;
+  lineno = 1;
+  column = 1;
+  occupiedlines = 1;
+  tailingblank = nil; -- will pointer to SPACE or NEWLINE
+]]
+
+local function LfuncNewToken(tokentype, str, start)
+  local tbl = {
+    type = tokentype;
+    tokenstr = str;
+    startpos = start;
+    lineno = Lcontext.tokenlineno;
+    column = Lcontext.tokencolumn;
+    occupiedlines = 1;
+    tailingblank = nil;
+  }
+  if tokentype ~= Lcontext.SPACE and tokentype ~= Lcontext.NEWLINE then
+    tbl.tailingblank = Lcontext.blanklist
+    Lcontext.blanklist = nil
+    Lcontext.blanktail = nil
+    return tbl
+  end
+  if Lcontext.blanklist == nil then
+    Lcontext.blanklist = tbl
+    Lcontext.blanktail = tbl
+  else
+    Lcontext.blanktail.tailingblank = tbl
+    Lcontext.blanktail = tbl
+  end
+  return tbl
 end
 
-function y.match_keyword()
-  return (Cst(keywords) * Cp()) / keyword_matched
-end
 
 -- space
 
@@ -137,6 +181,12 @@ function y.match_space()
   return (C(space^1) * Cp()) / space_matched
 end
 
+local Cspace = C(S"\x20\x09\x0B\x0C"^1)
+
+local Pspace = (Pstartmatch * Cp() * Cspace) / function (startpos, tokenstr)
+  LfuncNewToken(Lcontext.SPACE, startpos, tokenstr) -- space token is stored in the blanklist
+  return nil                                        -- return no capture value for space
+end
 
 -- newline
 
@@ -151,13 +201,41 @@ end
 
 local capture_newline = Cmt(Cst(newlines), mtfunc_capture_newline)
 
-
 local function newline_matched(i, pos)
   return token_matched(newlines[i], pos, y.NEWLINE)
 end
 
 function y.match_newline()
   return (Cst(newlines) * Cp()) / newline_matched
+end
+
+local Cnewline = Cmt(Cst(newlines), function (subject, curpos, i)
+  Lcontext.lineno = Lcontext.lineno + 1
+  Lcontext.column = 1
+  return curpos, newlines[i]
+end) 
+
+local Pnewline = (Pstartmatch * Cp() * Cnewline) / function (startpos, tokenstr)
+  LfuncNewToken(Lcontext.NEWLINE, startpos, tokenstr) -- newline token is stored in the blanklist
+  return nil                                          -- return no capture value for newline
+end
+
+local Pblankopt = (Pnewline + Pspace)^1 + P""
+
+-- keyword
+
+local function keyword_matched(i, pos)
+  return token_matched(keywords[i], pos, y.KEYWORD)
+end
+
+function y.match_keyword()
+  return (Cst(keywords) * Cp()) / keyword_matched
+end
+
+local Ckeyword = Cst(keywords) / function (i) return keywords[i] end
+
+local LKeyword = (Pstartmatch * Cp() * Ckeyword * Pblankopt) / function (startpos, tokenstr, blank)
+  return LfuncNewToken(Lcontext.KEYWORD, startpos, tokenstr)
 end
 
 
