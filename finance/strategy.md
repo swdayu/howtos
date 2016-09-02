@@ -20,17 +20,17 @@
 ```c
                                                [C:30(46),P:78]>[P:48]涨持有,跌买一份之后涨卖出本金
         1.30 [C:100(100),P:130]>[C:30(46),P:60]^-->涨卖出本金,跌买一份之后涨卖出本金
-        ^                                                                                   [C:040(100),P:130]>[P:090]
-Level0: 1.00 [D:+1N~C:000+100=100(100),P:000+100=100]                    [C:040(100),P:100]^
-        v                                             [C:240(300),P:300]^                   [C:150(300),P:300]>[P:100]
-Level1: 0.70 [D:+2N~C:100+140=240(300),P:070+140=210]^                   [C:150(300),P:210]^
-        v                                             [C:360(600),P:420]^
+        ^                                                              [C:040(100),P:130]>[P:090]
+Level0: 1.00 [D:+1N~C:000+100=100(100),P:000+100=100]     [C:040(100),P:100]^
+        v                                      [C:240(300),P:300]^     [C:150(300),P:300]>[P:100]
+Level1: 0.70 [D:+2N~C:100+140=240(300),P:070+140=210]^     [C:150(300),P:210]^
+        v                                      [C:360(600),P:420]^
 Level2: 0.40 [D:+3N~C:240+120=360(600),P:120+120=240]^
         v
         0.10
 ----
 Stage one: net price is below 1.30 and great equal 0.40
-- N is first hands, drop into the i-st level buy (1+i)N hands, rise into the i-st level sell (2+i)N hands
+- drop into the i-st level buy (1+i)N hands, rise into the i-st level sell (2+i)N hands
 Stage two: net price is below 0.40
 - todo
 Stage three: principal is out or almost out
