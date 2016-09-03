@@ -86,6 +86,7 @@ CFLAGS= $(CWRANS) -g -O3 -I/usr/bin/lua/include -DLUA_RELEASE
 LDFLAGS = -L/usr/bin/lua/lib
 LDLIBS = -lpthread -lm -ldl -lbroad -lgeneral
 
+# -pg: gprof executable_file > profile.txt
 # -Lpath -Wl,-Rpath
 # linux:  -fPIC -shared -Wl,-E
 # macosx: -fPIC -dynamiclib -Wl,-undefined,dynamic_lookup # -bundle -undefined dynamic_lookup
@@ -94,4 +95,7 @@ LDLIBS = -lpthread -lm -ldl -lbroad -lgeneral
 $(CC) $(CFLAGS) $(LDFLAGS) -o $@ $*.c
 # from .o to execute
 $(CC) $(LDFLAGS) first.o second.o $(LDLIBS)
+
+make CFLAGS="-g -Wall"  # set a makefile variable
+CFLAGS="-g -Wall" make  # set a environment variable used only for make and its subprocess
 ```
