@@ -76,21 +76,6 @@ lpvm.o: lpvm.c lpcap.h lptypes.h lpvm.h lpprint.h lptree.h
 ```
 
 ```make
-P= program_name
-OBJECTS= 
-$(P): $(OBJECTS)
-
-CC= gcc -std=c99 
-CWARNS = -Wall -Wextra -Werror -pedantic-errors
-CFLAGS= $(CWRANS) -g -O3 -I/usr/bin/lua/include -DLUA_RELEASE
-LDFLAGS = -L/usr/bin/lua/lib
-LDLIBS = -lpthread -lm -ldl -lbroad -lgeneral
-
-# -pg: gprof executable_file > profile.txt
-# -Lpath -Wl,-Rpath
-# linux:  -fPIC -shared -Wl,-E
-# macosx: -fPIC -dynamiclib -Wl,-undefined,dynamic_lookup # -bundle -undefined dynamic_lookup
- 
 # from .c to .o
 $(CC) $(CFLAGS) $(LDFLAGS) -o $@ $*.c
 # from .o to execute
@@ -98,4 +83,88 @@ $(CC) $(LDFLAGS) first.o second.o $(LDLIBS)
 
 make CFLAGS="-g -Wall"  # set a makefile variable
 CFLAGS="-g -Wall" make  # set a environment variable used only for make and its subprocess
+
+# @: run the command but don't dispaly any output to the screen
+# -: if the comand return zero then continue run, otherwise stop at the first non-zero return
+@echo "Please do 'make PLATFORM' where PLATFORM is one of these:"
+@echo "   $(PLATS)"
+
+P = program_name
+OBJECTS = 
+$(P): $(OBJECTS)
+
+CC = gcc -std=c99 
+CWARNS = -Wall -Wextra -Werror -pedantic-errors
+CFLAGS = $(CWRANS) -g -O2 -I/usr/bin/lua/include -DLUA_RELEASE
+LDFLAGS = -L/usr/bin/lua/lib
+LDLIBS = -lpthread -lm -ldl -lbroad -lgeneral
+SHARED = -fPIC -shared -Wl,-E
+
+# linux:  -fPIC -shared -Wl,-E -ldl
+# macosx: -fPIC -dynamiclib -Wl,-undefined,dynamic_lookup -ldl
+# macosx: -fPIC -bundle -undefined dynamic_lookup
+
+# -Lpath -Wl,-Rpath  # -Wl,options: pass options to linker
+# -pg: gprof executable_file > profile.txt
+
+# 输出预处理后/汇编后/编译后的结果，如果不使用这些选项则生成可执行文件 
+$ gcc -E/S/c source-file.c -o out-file-name
+$ man gcc   # see gcc options
+-undefined
+    These options are passed to the Darwin linker. The Darwin linker man page describes them in detail.
+-bundle
+    Produce a Mach-o bundle format file. See man ld(1) for more information.
+-dynamiclib
+    When passed this option, GCC produces a dynamic library instead of an executable when linking, using the
+    Darwin libtool command
+-g  Produce debugging information in the operating system's native format (stabs, COFF, XCOFF, or DWARF 2).
+    GDB can work with this debugging information.
+    GCC allows you to use -g with -O.  The shortcuts taken by optimized code may occasionally produce
+    surprising results: some variables you declared may not exist at all; flow of control may briefly
+    move where you did not expect it; some statements may not be executed because they compute constant
+    results or their values are already at hand; some statements may execute in different places because
+    they have been moved out of loops.
+    Nevertheless it proves possible to debug optimized output. This makes it reasonable to use the optimizer
+    for programs that might have bugs.
+-pg Generate extra code to write profile information suitable for the analysis program gprof. You must use
+    this option when compiling the source files you want data about, and you must also use it when linking.
+$ man ld    # see GNU linker options
+-s
+--strip-all
+   Omit all symbol information from the output file.
+-S
+--strip-debug
+    Omit debugger symbol information (but not all symbols) from the output file.
+-O level
+    If level is a numeric values greater than zero ld optimizes the output. This might take significantly
+    longer and therefore probably should only be enabled for the final binary. At the moment this option only
+    affects ELF shared library generation.
+    Future releases of the linker may make more use of this option. Also currently there is no difference in
+    the linker's behaviour for different non-zero values of this option. Again this may change with future releases.
+-E  When creating a dynamically linked executable, using the -E option or the --export-dynamic option causes
+    the linker to add all symbols to the dynamic symbol table. The dynamic symbol table is the set of symbols
+    which are visible from dynamic objects at run time.
+    If you do not use either of these options (or use the --no-export-dynamic option to restore the default behavior),
+    the dynamic symbol table will normally contain only those symbols which are referenced by some dynamic object
+    mentioned in the link.
+    If you use "dlopen" to load a dynamic object which needs to refer back to the symbols defined by the program,
+    rather than some other dynamic object, then you will probably need to use this option when linking the
+    program itself.
+    You can also use the dynamic list to control what symbols should be added to the dynamic symbol table
+    if the output format supports it.  See the description of --dynamic-list.
+    Note that this option is specific to ELF targeted ports. PE targets support a similar function to export
+    all symbols from a DLL or EXE; see the description of --export-all-symbols below.
+-rpath=dir
+    Add a directory to the runtime library search path. This is used when linking an ELF executable with
+    shared objects. All -rpath arguments are concatenated and passed to the runtime linker, which uses them
+    to locate shared objects at runtime. The -rpath option is also used when locating shared objects which
+    are needed by shared objects explicitly included in the link; see the description of the -rpath-link option.
+    If -rpath is not used when linking an ELF executable, the contents of the environment variable "LD_RUN_PATH"
+    will be used if it is defined.
+    The -rpath option may also be used on SunOS. By default, on SunOS, the linker will form a runtime search
+    path out of all the -L options it is given. If a -rpath option is used, the runtime search path will be formed
+    exclusively using the -rpath options, ignoring the -L options. This can be useful when using gcc, which adds
+    many -L options which may be on NFS mounted file systems.
+    For compatibility with other ELF linkers, if the -R option is followed by a directory name, rather than a file
+    name, it is treated as the -rpath option.
 ```
