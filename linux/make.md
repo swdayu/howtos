@@ -75,4 +75,23 @@ lptree.o: lptree.c lptypes.h lpcap.h lpcode.h lptree.h lpvm.h lpprint.h
 lpvm.o: lpvm.c lpcap.h lptypes.h lpvm.h lpprint.h lptree.h
 ```
 
+```make
+P= program_name
+OBJECTS= 
+$(P): $(OBJECTS)
 
+CC= gcc -std=c99 
+CWARNS = -Wall -Wextra -Werror -pedantic-errors
+CFLAGS= $(CWRANS) -g -O3 -I/usr/bin/lua/include -DLUA_RELEASE
+LDFLAGS = -L/usr/bin/lua/lib
+LDLIBS = -lpthread -lm -ldl -lbroad -lgeneral
+
+# -Lpath -Wl,-Rpath
+# linux:  -fPIC -shared -Wl,-E
+# macosx: -fPIC -dynamiclib -Wl,-undefined,dynamic_lookup # -bundle -undefined dynamic_lookup
+ 
+# from .c to .o
+$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $*.c
+# from .o to execute
+$(CC) $(LDFLAGS) first.o second.o $(LDLIBS)
+```
