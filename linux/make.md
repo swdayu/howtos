@@ -110,14 +110,15 @@ SHARED = -fPIC -shared -Wl,-E
 # 输出预处理后/汇编后/编译后的结果，如果不使用这些选项则生成可执行文件 
 $ gcc -E/S/c source-file.c -o out-file-name
 $ man gcc   # see gcc options
--undefined
+  -undefined
     These options are passed to the Darwin linker. The Darwin linker man page describes them in detail.
--bundle
+  -bundle
     Produce a Mach-o bundle format file. See man ld(1) for more information.
--dynamiclib
+  -dynamiclib
     When passed this option, GCC produces a dynamic library instead of an executable when linking, using the
     Darwin libtool command
--g  Produce debugging information in the operating system's native format (stabs, COFF, XCOFF, or DWARF 2).
+  -g
+    Produce debugging information in the operating system's native format (stabs, COFF, XCOFF, or DWARF 2).
     GDB can work with this debugging information.
     GCC allows you to use -g with -O.  The shortcuts taken by optimized code may occasionally produce
     surprising results: some variables you declared may not exist at all; flow of control may briefly
@@ -126,22 +127,24 @@ $ man gcc   # see gcc options
     they have been moved out of loops.
     Nevertheless it proves possible to debug optimized output. This makes it reasonable to use the optimizer
     for programs that might have bugs.
--pg Generate extra code to write profile information suitable for the analysis program gprof. You must use
+  -pg
+    Generate extra code to write profile information suitable for the analysis program gprof. You must use
     this option when compiling the source files you want data about, and you must also use it when linking.
 $ man ld    # see GNU linker options
--s
---strip-all
-   Omit all symbol information from the output file.
--S
---strip-debug
+  -s
+  --strip-all
+    Omit all symbol information from the output file.
+  -S
+  --strip-debug
     Omit debugger symbol information (but not all symbols) from the output file.
--O level
+  -O level
     If level is a numeric values greater than zero ld optimizes the output. This might take significantly
     longer and therefore probably should only be enabled for the final binary. At the moment this option only
     affects ELF shared library generation.
     Future releases of the linker may make more use of this option. Also currently there is no difference in
     the linker's behaviour for different non-zero values of this option. Again this may change with future releases.
--E  When creating a dynamically linked executable, using the -E option or the --export-dynamic option causes
+  -E
+    When creating a dynamically linked executable, using the -E option or the --export-dynamic option causes
     the linker to add all symbols to the dynamic symbol table. The dynamic symbol table is the set of symbols
     which are visible from dynamic objects at run time.
     If you do not use either of these options (or use the --no-export-dynamic option to restore the default behavior),
@@ -154,7 +157,7 @@ $ man ld    # see GNU linker options
     if the output format supports it.  See the description of --dynamic-list.
     Note that this option is specific to ELF targeted ports. PE targets support a similar function to export
     all symbols from a DLL or EXE; see the description of --export-all-symbols below.
--rpath=dir
+  -rpath=dir
     Add a directory to the runtime library search path. This is used when linking an ELF executable with
     shared objects. All -rpath arguments are concatenated and passed to the runtime linker, which uses them
     to locate shared objects at runtime. The -rpath option is also used when locating shared objects which
