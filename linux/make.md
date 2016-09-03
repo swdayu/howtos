@@ -95,7 +95,7 @@ $(P): $(OBJECTS)
 
 CC = gcc -std=c99 
 CWARNS = -Wall -Wextra -Werror -pedantic-errors
-CFLAGS = $(CWRANS) -g -O2 -I/usr/bin/lua/include -DLUA_RELEASE
+CFLAGS = $(CWRANS) -g -O2 -I/usr/bin/lua/include -DLUA_RELEASE -DMAX_SIZE=64 -UMAX_SIZE
 LDFLAGS = -L/usr/bin/lua/lib
 LDLIBS = -lpthread -lm -ldl -lbroad -lgeneral
 SHARED = -fPIC -shared -Wl,-E
@@ -109,14 +109,15 @@ SHARED = -fPIC -shared -Wl,-E
 
 # 输出预处理后/汇编后/编译后的结果，如果不使用这些选项则生成可执行文件 
 $ gcc -E/S/c source-file.c -o out-file-name
+$ gcc main.c @opt_file   # options can stored in a file
 $ man gcc   # see gcc options
   -undefined
     These options are passed to the Darwin linker. The Darwin linker man page describes them in detail.
   -bundle
     Produce a Mach-o bundle format file. See man ld(1) for more information.
   -dynamiclib
-    When passed this option, GCC produces a dynamic library instead of an executable when linking, using the
-    Darwin libtool command
+    When passed this option, GCC produces a dynamic library instead of an executable when linking, using
+    the Darwin libtool command
   -g
     Produce debugging information in the operating system's native format (stabs, COFF, XCOFF, or DWARF 2).
     GDB can work with this debugging information.
