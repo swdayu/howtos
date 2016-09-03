@@ -89,6 +89,15 @@ CFLAGS="-g -Wall" make  # set a environment variable used only for make and its 
 @echo "Please do 'make PLATFORM' where PLATFORM is one of these:"
 @echo "   $(PLATS)"
 
+VARIABLE = value
+# 在执行时扩展，允许递归扩展。
+VARIABLE := value
+# 在定义时扩展。
+VARIABLE ?= value
+# 只有在该变量为空时才设置值。
+VARIABLE += value
+# 将值追加到变量的尾端。
+
 P = program_name
 OBJECTS = 
 $(P): $(OBJECTS)
@@ -107,6 +116,19 @@ SHARED = -fPIC -shared -Wl,-E
 # -Lpath -Wl,-Rpath  # -Wl,options: pass options to linker
 # -pg: gprof executable_file > profile.txt
 
+GCC的-static选项可以使链接器执行静态链接。但简单地使用-static显得有些’暴力’，
+因为他会把命令行中-static后面的所有-l指明的库都静态链接，更主要的是，有些库
+可能并没有提供静态库（.a），而只提供了动态库（.so）。这样的话，使用-static就
+会造成链接错误。
+之前的链接选项大致是这样的:
+CORE_LIBS="$CORE_LIBS -L/usr/lib64/mysql -lmysqlclient -lz -lcrypt -lnsl -lm -L/usr/lib64 -lssl -lcrypto"
+修改过是这样的:
+CORE_LIBS="$CORE_LIBS -L/usr/lib64/mysql -Wl,-Bstatic -lmysqlclient \
+-Wl,-Bdynamic -lz -lcrypt -lnsl -lm -L/usr/lib64 -lssl -lcrypto"
+其中用到的两个选项：-Wl,-Bstatic和-Wl,-Bdynamic。这两个选项是gcc的特殊选项，它会将选项的参数传递给链接器，
+作为链接器的选项。比如-Wl,-Bstatic告诉链接器使用-Bstatic选项，该选项是告诉链接器，对接下来的-l选项使用
+静态链接；-Wl,-Bdynamic就是告诉链接器对接下来的-l选项使用动态链接。
+　　
 # 输出预处理后/汇编后/编译后的结果，如果不使用这些选项则生成可执行文件 
 $ gcc -E/S/c source-file.c -o out-file-name
 $ gcc main.c @opt_file   # options can stored in a file
