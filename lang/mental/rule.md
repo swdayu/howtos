@@ -583,6 +583,13 @@ Expr = P{"S";
 
 ```
 
+symbols: enum, var, imm, struct, func
+```
+1. variable visible rules
+2. variable pass rules
+3. loop reference problem
+```
+
 **var/imm/enum**
 ```c
 enum PI = 3.14
