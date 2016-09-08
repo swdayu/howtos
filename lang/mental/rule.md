@@ -583,8 +583,8 @@ Expr = P{"S";
 
 ```
 
-symbols: enum, var, imm, struct, func
-```
+**symbols: enum, var, imm, struct, func**
+```c
 1. name visible rules
 
 Package Scope: enum/var/imm/struct/func
