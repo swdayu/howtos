@@ -585,7 +585,18 @@ Expr = P{"S";
 
 symbols: enum, var, imm, struct, func
 ```
-1. variable visible rules
+1. name visible rules
+
+Package Scope: enum/var/imm/struct/func
+-  
+
+Struct Scope: enum/var/imm static
+- 
+
+Func Scope: enum/var/imm static
+- 
+
+
 2. variable pass rules
 3. loop reference problem
 ```
