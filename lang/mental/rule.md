@@ -626,8 +626,9 @@ var/imm {
 }
 
 var/imm x, y, z = getXyz()
-var/imm a, b, c = 1, 0, 1
 var/imm x, y, z = y, x, y, // need create temp varaible for x and y
+var/imm a, b, c = 1, 0, 1
+var a, imm b, var c = 1, 0, 1
 
 struct/interface camera // private
 struct/interface Camera // public
@@ -649,7 +650,7 @@ func addOne(Person a)       // "const Person*const a"
 func addOne(inout Person a) // "Person*const a"
 var p1 = Person(1, 2, 3)    // "Person"
 ref p2 = Person(2, 3, 4)    // "Person*"
-int a = 3
+var a = 3
 addOne(a)  addOne(&a)
 addOne(p1) addOne(&p1)
 addOne(p2) addOne(&p2)
