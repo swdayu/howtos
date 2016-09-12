@@ -676,15 +676,43 @@ public:
 };
 GlobalRefSlots globalRefSlots;
 struct Ref { // p2.size => ((Person*)p2.access())->size
-  const uptr globalIndex;
-  Ref(long index): globalIndex(index) {
-    globalRefSlots.inc(index);
+  uptr globalIndex;
+  Ref(Null n = Null()): globalIndex(0) {}
+  void increaseCount() {
+    if (index != 0) {
+      globalRefSlots.inc(index);
+    }
+  }
+  void decreaseCount() {
+    if (index != 0) {
+      globalRefSlots.dec(index);
+      index = 0;
+    }
+  }
+  Ref(uptr index): globalIndex(index) {
+    increaseCount()
+  }
+  Ref(const Ref& rhs): globalIndex(rhs.globalIndex) {
+    increaseCount();
+  }
+  Ref& operator=(const Ref& rhs) {
+    if (&rhs == this) {
+      return *this;
+    }
+    decreaseCount();
+    globalIndex = rhs.globalIndex;
+    increaseCount();
+    return *this;
+  }
+  Ref& operator=(Null) {
+    decreaseCount();
+    return *this;
   }
   void* access() {
     return globalRefSlots[index];
   }
   ~Ref() {
-    globalRefSlots.dec(index);
+    decreaseCount();
   }
 };
 
