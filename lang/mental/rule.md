@@ -585,20 +585,109 @@ Expr = P{"S";
 
 **symbols: enum, var, imm, struct, func**
 ```c
-1. name visible rules
+# Name visible rules
+- private names are visible in this package
+- public names are visible to anyone
+- package scope: enum/var/imm/struct/func
+  * a package is a singleton after it is initialized
+- interface scope: enum/func static
+  * all names are private if interface is private
+- struct scope: enum/var/imm/ref static
+  * all names are private if struct is private 
+- func scope: enum/var/imm/ref static
+  * all names in a func are local names 
 
-Package Scope: enum/var/imm/struct/func
--  
+enum maxSize = 5    // private
+enum MaxSize = 3    // public
 
-Struct Scope: enum/var/imm static
-- 
+enum {
+  lightBlue = 6  // private
+  LightBlue = 4  // public
+}
 
-Func Scope: enum/var/imm static
-- 
+enum color {
+  Red = 0        // private
+  LightBlue      // private
+  numberOfColors // private
+}
 
+enum Color {
+  Red = 0        // public
+  LightBlue      // public
+  numberOfColors // private
+}
 
-2. variable pass rules
-3. loop reference problem
+var/imm size // private
+var/imm Size // public
+
+var/imm {
+  count = 0 // private
+  Count = 1 // public
+}
+
+var/imm x, y, z = getXyz()
+var/imm a, b, c = 1, 0, 1
+var/imm x, y, z = y, x, y, // need create temp varaible for x and y
+
+struct/interface camera // private
+struct/interface Camera // public
+
+func getSize() int // private
+func GetSize() int // public
+func camera.capture() image // private
+func camera.Capture() image // private
+func Camera.capture() image // private
+func Camera.Capture() image // public
+func Camera:createCapture() Camera // private
+func Camera:CreateCapture() Camera // public
+
+# Variable passing rules
+
+func addOne(int a)          // "const int a"
+func addOne(inout int a)    // "int*const a"
+func addOne(Person a)       // "const Person*const a"
+func addOne(inout Person a) // "Person*const a"
+var p1 = Person(1, 2, 3)    // "Person"
+ref p2 = Person(2, 3, 4)    // "Person*"
+int a = 3
+addOne(a)  addOne(&a)
+addOne(p1) addOne(&p1)
+addOne(p2) addOne(&p2)
+
+var p1, ref p2 = testReturn() // the definition order is not critial in a file
+func testReturn() {
+  var p1 = Person()
+  ref p2 = Person()  // ref can only be used to user defined objects
+  return p1, p2      // p1 will make a copy of person, p2 just return the ref
+}
+
+class GlobalRefSlots {
+  struct Slot {
+    void* pmemory;
+    uptr refcount;
+    Slot(): pmemory(0), refcount(0) {}
+  };
+  std::vector<Slot> slots;
+public:
+  void* operator[](uptr index) {
+    return slots[index].pmemory;
+  }
+};
+GlobalRefSlots globalRefSlots;
+struct Ref { // p2.size => ((Person*)p2.access())->size
+  const uptr globalIndex;
+  Ref(long index): globalIndex(index) {
+    globalRefSlots.inc(index);
+  }
+  void* access() {
+    return globalRefSlots[index];
+  }
+  ~Ref() {
+    globalRefSlots.dec(index);
+  }
+};
+
+# Looping reference problem
 ```
 
 **var/imm/enum**
