@@ -34,13 +34,13 @@
 盈利增长率 G
 > (EPS this year - EPS last year) / EPS last year
 
-市盈率（PE）
+市盈率 PE
 > 股价除以每股年度净盈利，滚动市盈率 TTM (Tailing Twelve Months) 拿最近四个季度的净盈利进行计算，静态市盈率 LYR (Last Year Ratio) 拿上一年度的净盈利进行计算
 
-市净率（PB）
+市净率 PB
 > 股价除以每股净资产
 
-净资产收益率（ROE）
+净资产收益率 ROE
 > 每股净盈利除以每股净资产，相当于 PB 除以 PE，代表了净资产的运作效率
 
 上市公司财务报表披露时间
