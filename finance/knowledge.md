@@ -28,8 +28,14 @@
 委比
 > 衡量买卖盘相对强弱的指标，买盘数量大于卖盘则为正，否则为0或为负
 
+每股年度净盈利 EPS
+> 归属于普通股股东的当期净利润除以流通普通股加权平均数
+
+盈利增长率 G
+> (EPS this year - EPS last year) / EPS last year
+
 市盈率（PE）
-> 股价除以每股净盈利，一般采用 TTM (Tailing Twelve Month) 计算，即拿过去12个月的每股净盈利计算
+> 股价除以每股年度净盈利，滚动市盈率 TTM (Tailing Twelve Months) 拿最近四个季度的净盈利进行计算，静态市盈率 LYR (Last Year Ratio) 拿上一年度的净盈利进行计算
 
 市净率（PB）
 > 股价除以每股净资产
