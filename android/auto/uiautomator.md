@@ -1,5 +1,6 @@
 # UiAutomator
 - https://developer.android.com/reference/android/support/test/uiautomator/package-summary.html
+- https://developer.android.com/reference/android/support/test/runner/AndroidJUnitRunner.html
 
 ## UiDevice (android.support.test.uiautomator.UiDevice)
 > provide access to state information about the device  
