@@ -50,4 +50,58 @@ InstrumentationRegistry.getArguments()
 ## Util (android.support.test.uiautomator.Until)
 > provide factory methods for constructing common conditions
 
+SearchCondition<Boolean> Util.hasObject(BySelector selector)
+> return a SearchCondition that is satisfied when at least one element matching the selector can be found
+
+SearchCondition<Boolean> Util.gone(BySelector selector)
+> return a SearchCondition that is satisfied when no elements matching the seletor can be found
+
+SearchCondition<UiObject2> Util.findObject(BySelector selector)
+> return a SearchCondition that is satisfied when at least one element matching the selector can be found  
+> the condition will return the first matching element
+
+SearchCondition<List<UiObject2>> Util.findObjects(BySelector selector)
+> return a SearchCondition that is satisfied when at least one element matching the selector can be found  
+> the condition will return all matching elements
+
+EventCondition<Boolean> Util.newWindow()
+> return a condition that depends on a new window having appeared
+
+EventCondition<Boolean> Util.scrollFinished(Direction direction)
+> return a condition that depends on a scroll having reached the end in the given direction
+
+## By (android.support.test.uiautomator.By)
+> By is a utility class which enables the creation of BySelector in a concise manner  
+> its primary function is to provide static factory methods for constructing BySelector using a shortened syntax  
+> for example, you would use findObject(By.text("foo")) rather than findObject(new BySelector().text("foo")) to select UI elements with the text value "foo"
+
+BySelector By.pkg(String/Pattern applicationPackage)
+> select the application package name
+
+BySelector By.depth(int depth)
+> select the depth
+
+BySelector By.text(String/Pattern text)
+> select the text value
+
+BySelector By.textContains(String substring)
+> select the containing text value
+
+BySelector By.textStartsWith(String substring)
+> select the starting text value
+
+BySelector By.textEndsWith(String substring)
+> select the ending text value
+
+## UiObject (android.support.test.uiautomator.UiObject)
+> a UiObject is a representation of a view  
+> it contains information to help it locate a matching view at runtime based on the UiSelector properties  
+> once you create an instance of a UiObject, it can be reused for different views that match the selector criteria   
+
+UiObject UiDevice.findObject(UiSelector selector)  
+List<UiObject> UiDevice.findObjects(UiSelector selector)
+> create a UiObject or a list of UiObject matching the selector
+
+## UiScrollable (android.support.test.uiautomator.UiScrollable)
+## UiCollection (android.support.test.uiautomator.UiCollection)
 
