@@ -35,7 +35,7 @@ boolean pressEnter()
 
 String getLauncherPackageName()
 > retrieve default launcher package name  
-> Launcher - the default running application after press HOME button
+> Launcher - the default application that running after press HOME button
 
 R wait(SearchCondition<R> condition, long timeout)
 > wait for given condition to be met, timeout is the maximum amount of time to wait in ms  
