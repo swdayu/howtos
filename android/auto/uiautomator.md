@@ -3,8 +3,8 @@
 - https://developer.android.com/reference/android/support/test/runner/AndroidJUnitRunner.html
 
 ## UiDevice (android.support.test.uiautomator.UiDevice)
-> it provides access to state information about the device    
-> it can be used to simulate user actions on the device, such as pressing p-pad or Home and Menu buttons   
+> it provides access to state information about the device, and also    
+> can be used to simulate user actions on the device, such as pressing p-pad or Home and Menu buttons   
 
 UiDevice.getInstance(Instrumentation instrumentation)
 > retrieve a singleton instance of UiDevice
