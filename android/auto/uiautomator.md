@@ -127,19 +127,19 @@ InstrumentationRegistry.getArguments()
 > return a copy of instrumentation arguments Bundle
 
 
-## Util (android.support.test.uiautomator.Until)
+## Until (android.support.test.uiautomator.Until)
 > provide factory methods for constructing common conditions
 
-SearchCondition<Boolean> Util.hasObject(BySelector selector)
+SearchCondition<Boolean> Until.hasObject(BySelector selector)
 > return a SearchCondition that is satisfied when at least one element matching the selector can be found
 
-SearchCondition<Boolean> Util.gone(BySelector selector)
+SearchCondition<Boolean> Until.gone(BySelector selector)
 > return a SearchCondition that is satisfied when no elements matching the seletor can be found
 
-EventCondition<Boolean> Util.newWindow()
+EventCondition<Boolean> Until.newWindow()
 > return a condition that depends on a new window having appeared
 
-EventCondition<Boolean> Util.scrollFinished(Direction direction)
+EventCondition<Boolean> Until.scrollFinished(Direction direction)
 > return a condition that depends on a scroll having reached the end in the given direction
 
 
