@@ -5,9 +5,9 @@
 > the uiautomator testing framework is an instrumentation-based API and works with the AndroidJUnitRunner test runner
 
 Use resource-id as possible
-> when specifying a selector, you should use a Resource ID instead of a text or content-descriptor　　
-> text selectors are brittle and can lead to test failures if there are minor changes to the UI　　
-> they may also not scale across different languages; your text selectors may not match translated strings　　
+> when specifying a selector, you should use a Resource ID instead of a text or content-descriptor  
+> text selectors are brittle and can lead to test failures if there are minor changes to the UI  
+> they may also not scale across different languages; your text selectors may not match translated strings  
 
 Send Intent or launch an Activity
 > the uiautomator testing framework allows you to send an Intent or launch an Activity without using shell commands, by getting a Context object through getContext() or getting a Instrumentation object through getInstrumentation()
