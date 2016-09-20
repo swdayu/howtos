@@ -2,6 +2,25 @@
 - https://developer.android.com/reference/android/support/test/uiautomator/package-summary.html
 - https://developer.android.com/reference/android/support/test/runner/AndroidJUnitRunner.html
 
+> the uiautomator testing framework is an instrumentation-based API and works with the AndroidJUnitRunner test runner
+
+Use resourc-id as possible
+> when specifying a selector, you should use a Resource ID instead of a text or content-descriptor　　
+> text selectors are brittle and can lead to test failures if there are minor changes to the UI　　
+> they may also not scale across different languages; your text selectors may not match translated strings　　
+
+Send Intent or launch an Activity
+> the uiautomator testing framework allows you to send an Intent or launch an Activity without using shell commands, by getting a Context object through getContext() or getting a Instrumentation object through getInstrumentation()
+```java
+Context context = InstrumentationRegistry.getContext();
+context.startActivity(intent);
+context.sendBroadcast(intent);
+Instrumentation instrument = InstrumentationRegistry.getInstrumentation();
+Activity activity = instrument.startActivitySync(intent);
+```
+
+Verifying results
+> the InstrumentationTestCase extends TestCase, so you can use standard JUnit Assert methods to test that UI components in the app return the expected results (http://junit.org/junit4/javadoc/latest/org/junit/Assert.html).
 
 ## UiDevice (android.support.test.uiautomator.UiDevice)
 > it provides access to state information about the device, and also    
@@ -203,6 +222,10 @@ UiSelector packageName(String name) packageNameMatches(String regex)
 UiSelector instance(int instance)
 > select the element matches the specified instance number  
 > the instance value must be 0 or greater, where the first instance is 0  
+```java
+// select the third image is enabled in a UI screen
+new UiSelector().className("android.widget.ImageView") .enabled(true).instance(2); 
+```
 
 UiSelector index(int index)
 > select the element matches the specified node index in the layout hierarchy  
