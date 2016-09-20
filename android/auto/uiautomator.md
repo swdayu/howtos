@@ -4,7 +4,7 @@
 
 > the uiautomator testing framework is an instrumentation-based API and works with the AndroidJUnitRunner test runner
 
-Use resourc-id as possible
+Use resource-id as possible
 > when specifying a selector, you should use a Resource ID instead of a text or content-descriptor　　
 > text selectors are brittle and can lead to test failures if there are minor changes to the UI　　
 > they may also not scale across different languages; your text selectors may not match translated strings　　
@@ -199,6 +199,17 @@ String toString()
 UiSelector childSelector(UiSelector selector)
 > add a child UiSelector to this selector  
 > use this selector to narrow the search scope to child widgets under a specific parent widget  
+```java
+//(0) LinearLayout
+//    (0) FrameLayout
+//    (1) FrameLayout
+//        (0) TextView
+//        (1) TextView
+UiObject textView0 = mDevice.findObject(new UiSelector()
+    .className("android.widget.LinearLayout").index(0)
+      .childSelector(new UiSelector().className("android.widget.FrameLayout").index(1)
+        .childSelector(new UiSelector().className("android.widget.TextView").instance(0))));
+```
 
 UiSelector fromParent(UiSelector selector)
 > adds a child UiSelector to this selector which is used to start search from the parent widget  
