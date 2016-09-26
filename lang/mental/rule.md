@@ -581,6 +581,8 @@ Expr = P{"S";
       BasicTypeX * Lparen * ArgumentList * Rparen;
 }
 
+File file = openFile("a.txt")
+return if file == null
 ```
 
 **symbols: enum, var, imm, struct, func**
