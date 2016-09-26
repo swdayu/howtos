@@ -16,13 +16,12 @@ Steps to register and using Line app on SQ tablet
 > 验证完电话号码后，LINE账号需要你使用电子邮件来注册，如果这个电子邮件你原来注册过，原来的账号会清除  
 
 ATA from bt headset
-```java
-[com_android_bluetooth_hfp]answer_call_callback
-[HeadsetStateMachine]onAnswerCall 
-[HeadsetStateMachine]Connected/AudioOn.processMessage EVENT_TYPE_ANSWER_CALL
-[HeadsetStateMachine]processAnswerCall
-[BluetoothPhoneServiceImpl]answerCall
-[CallsManager]answerCall
+> [com_android_bluetooth_hfp]answer_call_callback  
+> [HeadsetStateMachine]onAnswerCall   
+> [HeadsetStateMachine]Connected/AudioOn.processMessage EVENT_TYPE_ANSWER_CALL  
+> [HeadsetStateMachine]processAnswerCall  
+> [BluetoothPhoneServiceImpl]answerCall  
+> [CallsManager]answerCall  
 ```
 
 ## Bluetooth Low Energy (BLE)
