@@ -26,22 +26,22 @@ void element
 
 special element
 ```html
-Add
+add
 <article> <aside> <figcaption> <figure> <footer> <header> <nav> <section> <details> <summary>
 <mark> <time> <wbr>
 <datalist> <keygen> <meter> <progress> <command> <menu> <output>
 <audio> <video> <source> <embed> <canvas>
 <bdo> <rp> <rt> <ruby>
     
-Delete
+delete
 <big> <center> <font> <tt> <strike>
 
-Remain
+remain
 <iframe>
 <abbr> is better than <acronym>
 <object> is better than <applet>
 
-Change
+change
 <small> small print
 <hr> topic switch
 <s> no longer correct or relative
