@@ -152,11 +152,11 @@ Sectioning element and Section root element
 <article> <aside> <nav> <section>
 Each sectioning element ends the previous section and start a new section.
 The headers <h?> in a section are independent from headers in other sections.
-All headers in a section forms a sub-outline, all sub-outlines combined together to form the document outline. 
+All headers in a section form a sub-outline, they combined together to form the document outline. 
 
 <body> <blockquote> <td> <fieldset> <figure> <details>
-Section root elements have their own document outlines, they are invisible to the main document outline.
-The <body> element is a little different, because the document outline in it is the main document outline.
+The section root element has its own document outline, it's invisible to the main document outline.
+The <body> element is a little different due to its outline is the main document outline.
 ```
 
 Untitiled root section
@@ -196,8 +196,7 @@ Titiled root section
     - Header2
 ```
 
-A section has the same or a greater header level as the header above it,
-except that the header is untitled or is the 1st level header.
+A section has a level equal to the super section level + 1.
 ```html
 <body>
   <article>
@@ -207,32 +206,36 @@ except that the header is untitled or is the 1st level header.
 </body>
 
 - Untitled Section
-  - Article    # above header is untitled
-    - Section  # above header is 1st level header
+  - Article
+    - Section
     
 <article>
   <h1>Article</h1>
     <h2>Header2</h2>
-    <section><h1>Section header1</h1></section>
-</article>
-
-- Untitled Section <body>
-  - Article
-    - Header2          # not a untitled or 1st level header
-    - Section header1  # became the same level (the minimum section level is the super section level + 1)
-  
-<article>
-  <h1>Article</h1>
-    <h2>Header2</h2>
-      <h3>Header3</h3>
-    <section><h2>Section header2</h2></section>
+    <section><h1>Section1</h1></section>
 </article>
 
 - Untitled Section <body>
   - Article
     - Header2
-      - Header3        # not a untitled or 1st level header 
-    - Section header2  # became a greater level
+    - Section1
+  
+<article>
+  <h1>Article</h1>
+    <h2>Header2</h2>
+      <h3>Header3</h3>
+    <section><h4>Section4</h4></section>
+    <section><h3>Section3</h3></section>
+    <section><h2>Section2</h2></section>
+</article>
+
+- Untitled Section <body>
+  - Article
+    - Header2
+      - Header3 
+    - Section4
+    - Section3
+    - Section2
 ```
 
 A header has the same or a greater level as the section above it.
