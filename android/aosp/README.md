@@ -22,16 +22,14 @@ Flash a system image
 > Start the device in fastboot mode again and execute `fastboot flashing lock` or `fastboot oem lock`.  
 
 An example for the `flash-all` script
-```shell
-fastboot flash bootloader bootloader-bullhead-bhz11f.img
-fastboot reboot-bootloader
-sleep 5
-fastboot flash radio radio-bullhead-m8994f-2.6.33.2.14.img
-fastboot reboot-bootloader
-sleep 5
-# files in this zip: boot.img cache.img recovery.img system.img userdata.img vendor.img
-fastboot -w update image-bullhead-nbd90w.zip
-```
+>     fastboot flash bootloader bootloader-bullhead-bhz11f.img
+    fastboot reboot-bootloader
+    sleep 5
+    fastboot flash radio radio-bullhead-m8994f-2.6.33.2.14.img
+    fastboot reboot-bootloader
+    sleep 5
+    # files in this zip: boot.img cache.img recovery.img system.img userdata.img vendor.img
+    fastboot -w update image-bullhead-nbd90w.zip
 
 ## OTA images
 - https://developers.google.com/android/nexus/ota
