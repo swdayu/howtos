@@ -159,30 +159,31 @@ The section root element has its own document outline, it's invisible to the mai
 The <body> element is a little different due to its outline is the main document outline.
 ```
 
-Untitiled root section
+Untitiled section
 ```html
 <body>
   <article>
-    <h1>Header1</h1>
-    <h1>Header1</h1>
-    <h2>Header2</h2>
-    <h2>Header2</h2>
+    <section>
+      <h1>Titiled Section</h1>
+      <h2>Header2</h2>
+      <h2>Header2</h2>
+    </section>
   </article>
 </body>
 
-- Untitiled Section
-  - Header1
-  - Header1
-    - Header2
-    - Header2
+- Untitiled Section <body>
+  - Untitiled Section <article>
+    - Titled Section
+      - Header2
+      - Header2
 ```
 
-Titiled root section
+Titiled section
 ```html
 <body>
   <h3>Body</h3>
   <article>
-    <header><h1>Header1</h1></header>
+    <header><h1>Article</h1></header>
     <h1>Header1</h1>
     <h2>header2</h2>
     <h2>header2</h2>
@@ -190,7 +191,7 @@ Titiled root section
 </body>
 
 - Body
-  - Header1
+  - Article
   - Header1
     - Header2
     - Header2
