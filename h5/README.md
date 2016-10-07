@@ -16,7 +16,7 @@
 - http://microformats.org/wiki/
 - http://www.ietf.org/rfc/bcp/bcp47.txt
 
-void element
+Void element
 ```html
 <img>
 <br>
@@ -24,24 +24,24 @@ void element
 <hr>
 ```
 
-special element
+Special element
 ```html
-add
+Add
 <article> <aside> <figcaption> <figure> <footer> <header> <nav> <section> <details> <summary>
 <mark> <time> <wbr>
 <datalist> <keygen> <meter> <progress> <command> <menu> <output>
 <audio> <video> <source> <embed> <canvas>
 <bdo> <rp> <rt> <ruby>
     
-delete
+Delete
 <big> <center> <font> <tt> <strike>
 
-remain
+Remain
 <iframe>
 <abbr> is better than <acronym>
 <object> is better than <applet>
 
-change
+Change
 <small> small print
 <hr> topic switch
 <s> no longer correct or relative
@@ -54,7 +54,7 @@ change
 <a> can contain anything like text/list/image
 ```
 
-structure
+Structure
 ```html
 <header> page/article header, should contain a <h?> element
 <footer> page/article footer, page footer usually can only contain copyright/links/law limitation
@@ -74,47 +74,47 @@ structure
 <footer></footer>
 </body>
 
-article header
-1. <h1>...</h1>
-2. <header>
-     <img>
-     <h1>...</h1>
-     ...
-   </header>
-3. <header>
-     <h1>...</h1>
-     <p class="subtitle">...</p>
-     <p class="bywho">...</p>
-     ...
-   </header>
-4. <header>
-     <hgroup>
-       <h1>...</h1>
-       <h2>...</h2>
-     </hgroup>
-     <p>...</p>
-   </header>
+Article header
+<h1>...</h1>
+<header>
+  <img>
+  <h1>...</h1>
+  ...
+</header>
+<header>
+  <h1>...</h1>
+  <p class="subtitle">...</p>
+  <p class="bywho">...</p>
+  ...
+</header>
+<header>
+  <hgroup>
+    <h1>...</h1>
+    <h2>...</h2>
+  </hgroup>
+  <p>...</p>
+</header>
    
- article
- <article>
- <header></header>
- <section></section>
- <aside></aside>
- <section></section>
- <figure><figcaption></figcaption></figure>
- <section></section>
- <footer></footer>
- </article>
+Article
+<article>
+<header></header>
+<section></section>
+<aside></aside>
+<section></section>
+<figure><figcaption></figcaption></figure>
+<section></section>
+<footer></footer>
+</article>
 ```
 
-avoid old browaser apply inline to unknown elements
+Avoid old browaser apply inline to unknown elements
 ```css
 article, aside, figure, figcaption, footer, section {
   display: block;
 }
 ```
 
-avoid old browser dont apply styles to unknown elements
+Avoid old browser dont apply styles to unknown elements
 ```html
 <!-- create out new elements to ask IE to apply styles -->
 <!--[if lt IE 9]> 
@@ -126,6 +126,152 @@ avoid old browser dont apply styles to unknown elements
 <![endif]-->
 ```
 
-document outline
+Document outline
 ```html
+<body>
+<h1>header1</h1>
+<h1>header1</h1>
+<h2>header2</h2>
+<h3>header3</h3>
+<h2>header2</h2>
+<h4>header4</h4>
+<h3>header3</h3>
+</body>
+
+- header1
+- header1
+  - header2
+    - header3
+  - header2
+    - header4
+    - header3
+```
+
+Sectioning element and Section root element
+```html
+<article> <aside> <nav> <section>
+Each sectioning element ends the previous section and start a new section.
+The headers <h?> in a section are independent from headers in other sections.
+All headers in a section forms a sub-outline, all sub-outlines combined together to form the document outline. 
+
+<body> <blockquote> <td> <fieldset> <figure> <details>
+Section root elements have their own document outlines, they are invisible to the main document outline.
+The <body> element is a little different, because the document outline in it is the main document outline.
+```
+
+Untitiled root section
+```html
+<body>
+  <article>
+    <h1>Header1</h1>
+    <h1>Header1</h1>
+    <h2>Header2</h2>
+    <h2>Header2</h2>
+  </article>
+</body>
+
+- Untitiled Section
+  - Header1
+  - Header1
+    - Header2
+    - Header2
+```
+
+Titiled root section
+```html
+<body>
+  <h3>Body</h3>
+  <article>
+    <header><h1>Header1</h1></header>
+    <h1>Header1</h1>
+    <h2>header2</h2>
+    <h2>header2</h2>
+  </article>
+</body>
+
+- Body
+  - Header1
+  - Header1
+    - Header2
+    - Header2
+```
+
+A section has the same or a greater header level as the header above it,
+except that the header is untitled or is the 1st level header.
+```html
+<body>
+  <article>
+    <h3>Article</h3>
+    <section><h1>Section</h1></section>
+  </article>
+</body>
+
+- Untitled Section
+  - Article    # above header is untitled
+    - Section  # above header is 1st level header
+    
+<article>
+  <h1>Article</h1>
+    <h2>Header2</h2>
+    <section><h1>Section header1</h1></section>
+</article>
+
+- Untitled Section <body>
+  - Article
+    - Header2          # not a untitled or 1st level header
+    - Section header1  # became the same level (the minimum section level is the super section level + 1)
+  
+<article>
+  <h1>Article</h1>
+    <h2>Header2</h2>
+      <h3>Header3</h3>
+    <section><h2>Section header2</h2></section>
+</article>
+
+- Untitled Section <body>
+  - Article
+    - Header2
+      - Header3        # not a untitled or 1st level header 
+    - Section header2  # became a greater level
+```
+
+A header has the same or a greater level as the section above it.
+```html
+<article>
+  <h1>Article</h1>
+  <h2>Header2</h2>
+  <section>
+    <h1>Section</h1>
+    <h2>Section header2</h2>
+    <h3>Section header3</h3>
+  </section>
+  <h3>Header3</h3>
+</article>
+
+- Untitled Section <body>
+  - Article
+    - Header2
+    - Section  # the level is 2
+      - Section header2
+        - Section header3
+    - Header3  # no greater than level2
+ 
+<article>
+  <h1>Article</h1>
+  <h2>Header2</h2>
+  <section>
+    <h1>Section</h1>
+    <h2>Section header2</h2>
+    <h3>Section header3</h3>
+  </section>
+  <h1>Header1</h1>
+</article>
+
+- Untitiled Section <body>
+  - Article
+    - Header2
+    - Section  # the level is 2
+      - Section header2
+        - Section header3
+  - Header1    # is greater than level2
 ```
