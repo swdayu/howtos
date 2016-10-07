@@ -67,9 +67,10 @@ $ scp /home/a.mp3 user@example.com:~/music/001.mp3   # copy from remote
 $ curl -R -O http://www.inf.puc-rio.br/~roberto/lpeg/lpeg-1.0.0.tar.gz
 ```
 
-**axel - mutithread download**
+**download**
 ```shell
-# http://www.vpser.net/manage/axel.html
+$ axel url # http://www.vpser.net/manage/axel.html
+$ wget url
 ```
 
 **w3m**
