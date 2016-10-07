@@ -54,7 +54,9 @@ Change
 <a> can contain anything like text/list/image
 ```
 
-Structure
+## Document structure
+
+Structure element
 ```html
 <header> page/article header, should contain a <h?> element
 <footer> page/article footer, page footer usually can only contain copyright/links/law limitation
@@ -279,3 +281,5 @@ A header has the same or a greater level as the section above it.
         - Section header3
   - Header1    # is greater than level2
 ```
+
+## Meaningful content
