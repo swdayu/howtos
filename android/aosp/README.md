@@ -13,7 +13,8 @@
 
 Flash a system image
 > Download the appropriate system image for your device, then unzip it to a safe directory.  
-> Connect your device to your computer over USB.  
+> Switch on "OEM unlocking" in "Developer options" on your device.  
+> Connect the device to your computer over USB.  
 > Start fastboot mode using `adb reboot bootloader` or press [Volume Down + Power](https://source.android.com/source/running.html#booting-into-fastboot-mode) for example when device off.  
 > If necessary, unlock the device's bootloader by `fastboot flashing/oem unlock`, later is for older devices.  
 > Open a terminal and navigate to the unzipped system image directory.  
