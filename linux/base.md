@@ -257,6 +257,14 @@ $ sudo apt-get install subversion
 $ svn export http://192.168.7.3/svn/ --username <user> --password <password>
 # export files to local folder, the last component of url is used as the root folder name
 # the above command will sync all files from remote to the folder "./svn/"
+
+# checkout and commit
+$ svn checkout svn/subfolder/
+$ cd subfolder/
+$ svn lock "filename" # lock a file
+$ svn commit -m "write_your_comment" "filename"  # commit files after modify
+$ svn update          # update to latest files
+$ svn log "filename"  # check commit history of the file 
 ```
 
 **vpn server**
