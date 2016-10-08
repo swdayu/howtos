@@ -1,11 +1,11 @@
 
-## BT Power ON/OFF
+## BT power on/off
 ```c
 BluetoothManagerService
 BT_VND_OP_POWER_CTRL
 ```
 
-## Handsfree Profile (HFP)
+## HFP (handsfree profile)
 
 Steps to register and using Line app on SQ tablet 
 > 需要连上WIFI以及插入SIM卡后才能进行注册  
@@ -22,9 +22,8 @@ ATA from bt headset
 > [HeadsetStateMachine]processAnswerCall  
 > [BluetoothPhoneServiceImpl]answerCall  
 > [CallsManager]answerCall  
-```
 
-## Bluetooth Low Energy (BLE)
+## BLE (bluetooth low energy)
 
 BLE scanning (device searching)
 > if using startScan() to perform ble device searching, the result scan results can be received only when GPS is ON  
