@@ -44,3 +44,23 @@ Stage two: net price is below 0.40
 Stage three: principal is out or almost out
 - todo
 ```
+
+指数/大类商品/外汇
+```c
+each subtype dont exceed 20% (except bonds), 6~7 types, each 15%~20% 资产配置，风险平价, 动态估值平衡
+70% A big, A small, A bonds, hk/dac/usa oversee developed contry stocks; stocks/bonds 25%~75%
+4 10% stock pool
+2 5% oil (industry use) may refer oil/golden ratio, silver/golden ratio
+2 5% mental (barely no use) 20*1000
+4 10% waihui dollar/jp/uk/oyuan 10% bank waihui jiaoyi, wang ying gouhui,
+  invest most developed contry waihui, consider will not always so cheap
+
+所有投资100%应投资在均值以下，目标是金字塔比例投资
+1. 预估均值下最大跌幅，在相应跌幅点放置金额
+2. 同时在多个品种进行，一个没机会不一定另外一个也没有机会达到目标
+
+难点如何止盈或动态高抛低吸呢
+1. 100%在均值以上止盈或高抛，注意这里指的是能够比较容易估值的指基或其他大概率估值不会出错的品种，
+   说的不是个股（个股可能相反要尽快抛掉低价垃圾股投资到优秀成长股上）
+2. 如果高抛或止盈，目标市值？倒金字塔放置资金比例？注意不管怎样都要季度或半年动态平衡一次（资金和估值）
+```
