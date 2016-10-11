@@ -37,6 +37,11 @@ L2: 0.40 [D:+3N~C:240+120=360(600),P:120+120=240]^
     v
     0.10
 ----
+ 1.30 [C:100(100),P:130]>[P:30]
+*1.00 [D:+1N~C:000+100=100(100),P:000+100=100]  [C:240(300),P:300]>[60]
+ 0.70 [D:+2N~C:100+140=240(300),P:070+140=210]--^  [C:480(900),P:630]>[P:150]
+ 0.40 [D:+3N~C:240+240=480(900),P:120+240=360]-----^
+----
 Stage one: net price is below 1.30 and great equal 0.40
 - drop into the i-st level buy (1+i)N hands, rise into the i-st level sell (2+i)N hands
 Stage two: net price is below 0.40
@@ -52,7 +57,7 @@ each subtype dont exceed 20% (except bonds), 6~7 types, each 15%~20% 资产配�
 4 10% stock pool
 2 5% oil (industry use) may refer oil/golden ratio, silver/golden ratio
 2 5% mental (barely no use) 20*1000
-4 10% waihui dollar/jp/uk/oyuan 10% bank waihui jiaoyi, wang ying gouhui,
+3 10% waihui dollar/jp/uk/oyuan 10% bank waihui jiaoyi, wang ying gouhui,
   invest most developed contry waihui, consider will not always so cheap
 
 所有投资100%应投资在均值以下，目标是金字塔比例投资
@@ -92,5 +97,4 @@ Pound
 747 7.50 04 06
 705 7.00 05 08
 664 6.60 06 10
-622 6.20 07 12
 ```
