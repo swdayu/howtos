@@ -1,5 +1,6 @@
 
-## Basic
+# vi/vim
+
 ```shell
 INSERT - change to insert mode
 ESC - exit from editor mode to command mode
@@ -15,7 +16,18 @@ n - next match
 N - prev match
 ```
 
-## Skills
+comment/uncomment multiple lines
+```shell
+<c-v>   # enter visual block mode
+j       # select multiple lines
+I       # enter insert mode
+//      # input the comment characters
+ESC     # finish
+
+<c-v>   # enter visual block mode
+j and k # select multiple lines and columns
+d       # delete comments
+```
 
 ```c
 x   删除光标下的字符
