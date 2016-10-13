@@ -1,5 +1,5 @@
 
-# vi/vim
+# vim
 
 ```shell
 INSERT - change to insert mode
