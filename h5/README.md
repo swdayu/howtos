@@ -1,20 +1,30 @@
-# HTML5
 
-- http://missingmanuals.com/cds/html5tmm2e
-- http://caniuse.com/
-- http://www.prosetech.com/html5/
-- http://www.w3.org/TR/html5/
-- https://html.spec.whatwg.org/multipage/
-- http://validator.w3.org/
-- http://dev.w3.org/html5/markup/
-- http://gs.statcounter.com
-- http://modernizr.com/docs/
-- http://tinyurl.com/polyfill
-- https://www.w3.org/WAI/
-- http://html5doctor.com/
-- http://gsnedders.html5.org/outliner/
-- http://microformats.org/wiki/
-- http://www.ietf.org/rfc/bcp/bcp47.txt
+JSON 数据格式
+
+* _数字_ `3, 12`
+* _空值_ `null`
+* _布尔值_ `false, true`
+* _字符串_ `"abc" /* 必须用双引号 */`
+* _数组_ `[3, null, "abc", [1, "a"], {"size":8, "data":"12345678"}]`
+* _对象_ `{"size":8, "user":{"name":"john", "id":13}, "data":[1, 2]} /* 冒号前的名称必须使用双括号引起 */`
+
+HTML 相关链接
+
+* http://missingmanuals.com/cds/html5tmm2e
+* http://caniuse.com/
+* http://www.prosetech.com/html5/
+* http://www.w3.org/TR/html5/
+* https://html.spec.whatwg.org/multipage/
+* http://validator.w3.org/
+* http://dev.w3.org/html5/markup/
+* http://gs.statcounter.com
+* http://modernizr.com/docs/
+* http://tinyurl.com/polyfill
+* https://www.w3.org/WAI/
+* http://html5doctor.com/
+* http://gsnedders.html5.org/outliner/
+* http://microformats.org/wiki/
+* http://www.ietf.org/rfc/bcp/bcp47.txt
 
 Void element
 ```html
