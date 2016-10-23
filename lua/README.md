@@ -62,9 +62,6 @@ $ sudo apt-get install libreadline-dev
 - userdata (including full userdata and light userdata)
 - thread (coroutine)
 - table
-```lua
-type(v) -- "nil", "boolean", "thread" ...
-```
 
 ### Value and reference
 - nil, boolean, number, string, light userdata are value types
@@ -135,7 +132,22 @@ for i,v in ipairs(t) do print(i,v) end      --> t = {"a", "b", "c", "d"}
 
 ### Extra examples
 ```lua
--- dumb varaible `_`
+-- basic --
+type(v)　--> "nil", "boolean", "number", "string", "table", "function", "userdate", "thread"
+
+-- string --
+local s = "xyz"
+s:len()
+s:sub(1, 2) --> "xy"
+s:upper()
+s:lower()
+s = string.format("%4d%02d", 2016, 8)
+
+-- table--
+for k,v in pairs(t) do body end
+for i,v in ipairs(t) do body end
+
+-- dumb varaible --
 function foo()
   return 1, 2, 3, 4, 5, 6, 7
 end
