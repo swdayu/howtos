@@ -60,7 +60,7 @@ each subtype dont exceed 20% (except bonds), 6~7 types, each 15%~20% 资产配�
 3 10% waihui dollar/jp/uk/oyuan 10% bank waihui jiaoyi, wang ying gouhui,
   invest most developed contry waihui, consider will not always so cheap
 
-所有投资100%应投资在均值以下，目标是金字塔比例投资
+所有投资100%应投在均值以下并按金字塔比例投资，投资原则是不轻易进行投资而一旦投资绝不亏损卖出任何品种
 1. 预估均值下最大跌幅，在相应跌幅点放置金额
 2. 同时在多个品种进行，一个没机会不一定另外一个也没有机会达到目标
 
