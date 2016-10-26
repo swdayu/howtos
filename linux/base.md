@@ -262,6 +262,7 @@ $ svn export http://192.168.7.3/svn/ --username <user> --password <password>
 $ svn checkout svn/subfolder/
 $ cd subfolder/
 $ svn lock "filename" # lock a file
+$ svn add "new_file_need_to_add"
 $ svn commit -m "write_your_comment" "filename"  # commit files after modify
 $ svn update          # update to latest files
 $ svn log "filename"  # check commit history of the file 
