@@ -1,9 +1,9 @@
 
 ```
-Qiu Wei Ee Ruan T_ue_ve Yun shU chI O_uo Pie
-秋求 微　依　软弯　 Ｔ约　  云　 书　 翅　哦说 撇 瞥
-Aa Song_iong Dai Fen Geng Hang J_an King_uai Liang_uang
-啊　　松 慵　　 黛　 粉　 更　　航　　J安   KING快    亮 望
+Qiu  Wei  Ee  Ruan T_ue_ve YunshU chI.uo Pie
+秋求  微诶 衣婀  软弯   Ｔ约    云书   翅窝　 瞥耶
+Aa Song_iong DaiFen GengHang J_an King_uai Liang_uang
+A啊   松慵     粉黛     更航    J安   KING快     亮望
 Zou Xia_ua Cao zhui_V Bin Niao Mian
-走藕 夏 娃   草   追V    滨  鸟腰  面烟
+走藕  夏娃  草袄   追V  滨阴 鸟腰  面烟
 ```
