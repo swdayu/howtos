@@ -583,6 +583,7 @@ Expr = P{"S";
 
 File file = openFile("a.txt")
 return if file == null
+var x, y = document.documentElement.scrollLeft, /scrollTop
 ```
 
 **symbols: enum, var, imm, struct, func**
