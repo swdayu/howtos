@@ -80,6 +80,7 @@ mark: <letter>
 **find**
 ```shell
 $ find folder -name name      # find directories or files contain the name
+$ find . -type f | xargs grep "file content"  # search all files under current folder
 $ find . -path ./out -prune -o -type f -print | xargs grep "file content"  # search all files but not in ./out
 ```
 
