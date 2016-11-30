@@ -1,8 +1,31 @@
 
-## BT power on/off
+Bluetooth ON/OFF
 ```c
-BluetoothManagerService
-BT_VND_OP_POWER_CTRL
+* KW: BluetoothAdapterProperties|BluetoothAdapterState|BluetoothManagerService|bt_vendor|BT_VND_OP_POWER_CTRL
+* ON: BluetoothAdapter.STATE_OFF (10)
+      STATE_BLE_TURNING_ON (14)
+      (BT_VND_OP_POWER_CTRL: On)
+      STATE_BLE_ON (15)
+      STATE_TURNING_ON (11)
+      STATE_ON (12)
+* OFF:BluetoothAdapter.STATE_ON (12)
+      STATE_TURNING_OFF (13)
+      STATE_BLE_ON (15)
+      STATE_BLE_TURNING_OFF (16)
+      (BT_VND_OP_POWER_CTRL: Off)
+      STATE_OFF (10)
+* AdapterState.BleOnState.BLE_TURN_OFF
+    notifyAdapterStateChange(BluetoothAdapter.STATE_BLE_TURNING_OFF);
+    adapterService.disableNative();
+    bluetooth.c$disable()
+    stack_manager.c$shut_down_stack_async()
+    stack_manager.c$event_shut_down_stack(context)
+    btif_disable_bluetooth();
+    module_shut_down(get_module(BTIF_CONFIG_MODULE));
+    future_await(local_hack_future);
+    module_shut_down(get_module(CONTROLLER_MODULE));
+    stack_manager.c$event_signal_stack_down(context)
+    HAL_CBACK(bt_hal_cbacks, adapter_state_changed_cb, BT_STATE_OFF)
 ```
 
 ## HFP (handsfree profile)
