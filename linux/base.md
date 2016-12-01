@@ -265,7 +265,13 @@ $ svn lock "filename" # lock a file
 $ svn add "new_file_need_to_add"
 $ svn commit -m "write_your_comment" "filename"  # commit files after modify
 $ svn update          # update to latest files
-$ svn log "filename"  # check commit history of the file 
+$ svn log "filename"  # check commit history of the file
+$ cd subfolder/ 
+$ add files in a folder
+$ svn status
+$ svn add "folder"
+$ svn status
+$ svn commit -m "comment" "folder"
 ```
 
 **vpn server**
