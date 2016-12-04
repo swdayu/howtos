@@ -1,7 +1,13 @@
 
-蓝牙 ON/OFF
-```c
-* BluetoothManagerService|bt_vendor|BT_VND_OP_POWER_CTRL
+流程关键字
+```
+* BluetoothManagerService|bt_vendor|BT_VND_OP_POWER_CTRL|disable timeout
+* btm_acl_created|L2CA_DisconnectReq|W4_L2CAP_DISC_RSP|btm_sec_disconnected
+* AV Sevent
+```
+
+蓝牙开关
+```
 * BluetoothAdapter.STATE_OFF (10) -> STATE_BLE_TURNING_ON (14) -> (BT_VND_OP_POWER_CTRL: On) ->
 * STATE_BLE_ON (15) -> STATE_TURNING_ON (11) -> STATE_ON (12)
 * BluetoothAdapter.STATE_ON (12) -> STATE_TURNING_OFF (13) -> STATE_BLE_ON (15) ->
