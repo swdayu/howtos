@@ -3,7 +3,9 @@
 ```
 * BluetoothManagerService|bt_vendor|BT_VND_OP_POWER_CTRL|disable timeout
 * btm_acl_created|L2CA_DisconnectReq|W4_L2CAP_DISC_RSP|btm_sec_disconnected
-* AV Sevent
+* A2DP COMMAND|skt_connect|skt_disconnect|AV Sevent
+* AG SCO State|AG_AUDIO|setBluetoothScoOn
+* HFP AT cmd|bta_ag_hfp_result
 ```
 
 蓝牙开关
