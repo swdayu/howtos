@@ -7,7 +7,7 @@
 * HFP AT cmd|bta_ag_hfp_result
 ---
 * system/bt/audio_a2dp_h2: audio.a2dp.default_32 libbthost_if_32
-* AVDT_CONNECT => a2dp_stream_common_init => skt_connect(common->ctrl_fd) * "/data/misc/bluedroid/.a2dp_ctrl"
+* AVDT_CONNECT => a2dp_stream_common_init => skt_connect(common->ctrl_fd) /data/misc/bluedroid/.a2dp_ctrl
 * AVDT_DISCONNECT => adev_close_output_stream => skt_disconnect(common->ctrl_fd)
 * AVDT_DISCONNECT => BT_VND_OP_POWER_CTRL: Off => a2dp_ctrl_receive => skt_disconnect(common->ctrl_fd)
 ```
