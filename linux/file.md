@@ -87,6 +87,9 @@ $ find . -path ./out -prune -o -type f -print | xargs grep "file content"  # sea
 **grep**
 ```shell
 $ grep -iE "str|str2" files   # grep files' content
+$ grep "str" files -A3 -B3    # grep and show context after and before the match line
+$ grep -vE "str|abc" files    # select non-matching lines
+$ grep -rn "xxx" files        # recursive and print line number
 $ pgrep ssh                   # grep current running processes
 
 # grep strings started with `android.` in `.java` and `.aidl` files
