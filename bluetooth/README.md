@@ -1,19 +1,8 @@
 
-```
-* BluetoothManagerService|bt_vendor|BT_VND_OP_POWER_CTRL|disable timeout
-* btm_acl_created|L2CA_DisconnectReq|W4_L2CAP_DISC_RSP|btm_sec_disconnected
-* A2DP COMMAND|skt_connect|skt_disconnect|AV Sevent
-* AG SCO State|AG_AUDIO|setBluetoothScoOn
-* HFP AT cmd|bta_ag_hfp_result
----
-* system/bt/audio_a2dp_h2: audio.a2dp.default_32 libbthost_if_32
-* AVDT_CONNECT => a2dp_stream_common_init => skt_connect(common->ctrl_fd) /data/misc/bluedroid/.a2dp_ctrl
-* AVDT_DISCONNECT => adev_close_output_stream => skt_disconnect(common->ctrl_fd)
-* AVDT_DISCONNECT => BT_VND_OP_POWER_CTRL: Off => a2dp_ctrl_receive => skt_disconnect(common->ctrl_fd)
-```
-
 蓝牙开关
 ```
+* BluetoothManagerService|bt_vendor|BT_VND_OP_POWER_CTRL|disable timeout
+---
 * BluetoothAdapter.STATE_OFF (10) -> STATE_BLE_TURNING_ON (14) -> (BT_VND_OP_POWER_CTRL: On) ->
 * STATE_BLE_ON (15) -> STATE_TURNING_ON (11) -> STATE_ON (12)
 * BluetoothAdapter.STATE_ON (12) -> STATE_TURNING_OFF (13) -> STATE_BLE_ON (15) ->
@@ -81,8 +70,37 @@
 * run_reactor => reactor_object->read_ready => internal_dequeue_ready => queue->dequeue_ready => btu_bta_msg_ready
 ```
 
-## HFP (handsfree profile)
+搜索配对连接
+```
+* btm_acl_created|L2CA_DisconnectReq|W4_L2CAP_DISC_RSP|btm_sec_disconnected
+---
+* BluetoothSettings.onOptionsItemSelected() BluetoothSettings.MENU_ID_SCAN
+* BluetoothSettings.startScanning(): mAvailableDevicesCategory.removeAll(); mInitialScanStarted = true;
+* LocalBluetoothAdapter.startScanning(force:true)
+* BluetoothAdapter.startDiscovery()
+* AdapterService.startDiscovery(): if a2dp multicast is ongoing then ignore discovery
+* AdapterService.startDiscoveryNative()
+* bluetooth.c$start_discovery() => btif_dm_start_discovery()
+* BTA_DmSearch(&inq_params, services, bte_search_devices_evt)
+* btif_dm.c$bte_search_devices_evt(BTA_DM_INQ_RES_EVT, p_data)
+* btif_dm.c$btif_dm_search_devices_evt(BTA_DM_INQ_RES_EVT, p_param): will get bdname and alias BT_PROPERTY_BDNAME (0x1)
+* bt_hal_cbacks->device_found_cb(num_properties, properties): bt_callbacks_t { device_found_callback device_found_cb; }
+* com_android_bluetooth_btservice_AdapterService.cpp$device_found_callback(num_properties, properties):
+* - remote_device_properties_callback => RemoteDevices.devicePropertyChangedCallback(address, types, vals)
+* - method_deviceFoundCallback => RemoteDevices.deviceFoundCallback(address)
+* RemoteDevices.deviceFoundCallback send Intent BluetoothDevice.ACTION_FOUND with cod, rssi, name
+* BluetoothEventManager.DeviceFoundHandler.onReceive(context, intent, device) 
+* - for new device: new CachedBluetoothDevice() -> fillData() -> fetchName() -> BluetoothDevice.getAliasName()
+* - and then set rssi/cod/name and dispatchAttributesChanged
+* CachedBluetoothDevice.dispatchAttributesChanged
+* BluetoothDevicePreference.onDeviceAttributesChanged()
+```
 
+HSP/HFP/SCO
+```
+* AG SCO State|AG_AUDIO|setBluetoothScoOn
+* HFP AT cmd|bta_ag_hfp_result
+---
 Steps to register and using Line app on SQ tablet 
 > 需要连上WIFI以及插入SIM卡后才能进行注册  
 > 注册LINE首先要验证电话号码，而LINE默认使用电话语音进行验证码验证  
@@ -98,9 +116,19 @@ ATA from bt headset
 > [HeadsetStateMachine]processAnswerCall  
 > [BluetoothPhoneServiceImpl]answerCall  
 > [CallsManager]answerCall  
+```
 
-## BLE (bluetooth low energy)
+AVRCP/A2DP
+```
+* system/bt/audio_a2dp_h2: audio.a2dp.default_32 libbthost_if_32
+* A2DP COMMAND|skt_connect|skt_disconnect|AV Sevent
+* AVDT_CONNECT => a2dp_stream_common_init => skt_connect(common->ctrl_fd) /data/misc/bluedroid/.a2dp_ctrl
+* AVDT_DISCONNECT => adev_close_output_stream => skt_disconnect(common->ctrl_fd)
+* AVDT_DISCONNECT => BT_VND_OP_POWER_CTRL: Off => a2dp_ctrl_receive => skt_disconnect(common->ctrl_fd)
+```
 
+BLE
+```
 BLE scanning (device searching)
 > if using startScan() to perform ble device searching, the result scan results can be received only when GPS is ON  
 > batch scan doesn't have this limitation  
@@ -113,4 +141,4 @@ ELECOM M-BT11BB Series BLE Mouse
 > 搜索配对连接，鼠标不摇动可以成功连上，摇动鼠标则加快连接  
 > 连接后在手机上主动断开，再点击手机上的鼠标去连接，需要摇动鼠标才能连上，如果不摇动连接会失败  
 > 如果主动断开后只摇动鼠标而不主动选择手机上的鼠标去连接，也会连接失败（因为主动断开的情况下，手机不会发起背景连接）  
-
+```
