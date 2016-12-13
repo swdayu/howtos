@@ -127,6 +127,42 @@ AVRCP/A2DP
 * AVDT_DISCONNECT => BT_VND_OP_POWER_CTRL: Off => a2dp_ctrl_receive => skt_disconnect(common->ctrl_fd)
 ```
 
+OBEX/OPP/PBAP/MAP
+```
+发送文件
+* BluetoothOppReceiver.onReceive() ACTION_DEVICE_SELECTED: pick a device to send
+* - BluetoothOppManager.getInstance(context).startTransfer(remoteDevice)
+* Create a new InsertShareInfoThread(), and call InsertShareInfoThread.start() => InsertShareInfoThread.run()
+* InsertShareInfoThread.insertSingleShare() or InsertShareInfoThread.insertMultipleShare()
+* - mContext.getContentResolver().insert(BluetoothShare.CONTENT_URI, values)
+* BluetoothOppService.BluetoothShareContentObserver.onChange()
+* BluetoothOppService.updateFromProvider(): create a new UpdateThread and start => UpdateThread.run()
+* BluetoothOppService.insertShare/updateShare(): create a new BluetoothOppTransfer and start
+* BluetoothOppTransfer.start(): if DIRECTION_OUTBOUND then call startConnectSession()
+* BluetoothOppTransfer.startConnectSession(): create a new SocketConnectThread and start
+* SocketConnectThread.run(): wait connect and then send TRANSPORT_CONNECTED to mSessionHandler
+* BluetoothOppTransfer.EventHandler.handleMessage(TRANSPORT_CONNECTED)
+* BluetoothOppTransfer.startObexSession() DIRECTION_OUTBOUND
+* - create a new BluetoothOppObexClientSession and start
+* BluetoothOppObexClientSession.ClientThread.run() "BtOppObexClient Start!"
+* BluetoothOppObexClientSession.ClientThread.doSend()
+* BluetoothOppObexClientSession.ClientThread.sendFile()
+---
+* BluetoothOppReceiver.onReceive() ACTION_OPEN/LIST "android.btopp.intent.action.OPEN/LIST"
+* - if DIRECTION_OUTBOUND then start BluetoothOppTransferActivity with related uri
+* BluetoothOppTransferActivity.onCreate() => get mUri and mTransInfo from Intent and setUpDialog():
+* - if DIALOG_SEND/RECEIVE_ONGOING: mNegativeButtonText/mPositiveButtonText = download_cancel/ok: "Stop/Hide"
+* BluetoothOppTransferActivity.onClick() BUTTON_NEGATIVE to Stop sending
+* - getContentResolver().delete(mUri, null, null)
+* - getSystemService(NOTIFICATION_SERVICE)).cancel(mTransInfo.mID)
+---
+发送文件等待对方接收时取消
+* Master  2  Final Packet          Conn.     26                   0:04:55.136594  #1 OBEX 发起连接
+* Slave   2  Final Packet          OK        26  00:00:00.030980  0:04:55.167574  #2 对方接受连接
+* Master  2  More Packets Follow   Put      203  00:00:00.052447  0:04:55.220021  #3 OBEX 发送数据等待对方接收
+* Master  2  0x18     12           DISC   1  13  00:00:09.947835  0:05:05.167856  #4 10s后取消发送，RFCOMM 发起断连
+```
+
 BLE
 ```
 BLE scanning (device searching)
