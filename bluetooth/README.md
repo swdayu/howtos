@@ -157,10 +157,20 @@ OBEX/OPP/PBAP/MAP
 * - getSystemService(NOTIFICATION_SERVICE)).cancel(mTransInfo.mID)
 ---
 发送文件等待对方接收时取消
-* Master  2  Final Packet          Conn.     26                   0:04:55.136594  #1 OBEX 发起连接
-* Slave   2  Final Packet          OK        26  00:00:00.030980  0:04:55.167574  #2 对方接受连接
-* Master  2  More Packets Follow   Put      203  00:00:00.052447  0:04:55.220021  #3 OBEX 发送数据等待对方接收
-* Master  2  0x18     12           DISC   1  13  00:00:09.947835  0:05:05.167856  #4 10s后取消发送，RFCOMM 发起断连
+* Master  Final Packet         Conn.     26                   0:04:55.136594  #1 OBEX 发起连接
+* Slave   Final Packet         OK        26  00:00:00.030980  0:04:55.167574  #2 对方接受连接
+* Master  More Packets Follow  Put      203  00:00:00.052447  0:04:55.220021  #3 OBEX 发送数据等待对方接收
+* Master  0x18     12          DISC          00:00:09.947835  0:05:05.167856  #4 10s后取消发送，RFCOMM 发起断连
+---
+发送文件正常流程
+* Master  Final Packet         Conn.                          0:02:34.939579  #1 OBEX 发起连接
+* Slave   Final Packet         OK        26  00:00:00.029467  0:02:34.969046  #2 对方接受连接
+* Master  More Packets Follow  Put      205  00:00:00.048157  0:02:35.017203  #3 Put 第一包数据等待对方接收
+* Slave   Final Packet         Continue  22  00:00:27.179526  0:03:02.196729  #4 对方27s后确认接收，发送 Continue
+* Master  Final Packet         Put       25  00:00:00.019530  0:03:02.216259  #5 发送 Put 的 Final 包表示发送完毕
+* Slave   Final Packet         OK        25  00:00:00.056341  0:03:02.272600  #6 对方 OK
+* Master  Final Packet         Disc.     22  00:00:00.057979  0:03:02.330579  #7 断连 OBEX
+* Slave   Final Packet         OK        22  00:00:00.031721  0:03:02.362300  #8 对方 OK
 ```
 
 BLE
