@@ -4,6 +4,9 @@
 
 ## adb
 ```shell
+# check app meminfo
+$ adb shell dumpsys meminfo <package-name>/<pid> -d
+
 $ adb shell dumpsys
 $ adb logcat -v threadtime
 $ adb shell logcat -v threadtime > /sdcard/logcat.txt &
