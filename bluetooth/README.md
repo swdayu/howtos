@@ -2,11 +2,14 @@
 蓝牙开关
 ```
 * BluetoothManagerService|bt_vendor|BT_VND_OP_POWER_CTRL|disable timeout
----
 * BluetoothAdapter.STATE_OFF (10) -> STATE_BLE_TURNING_ON (14) -> (BT_VND_OP_POWER_CTRL: On) ->
 * STATE_BLE_ON (15) -> STATE_TURNING_ON (11) -> STATE_ON (12)
 * BluetoothAdapter.STATE_ON (12) -> STATE_TURNING_OFF (13) -> STATE_BLE_ON (15) ->
 * STATE_BLE_TURNING_OFF (16) -> (BT_VND_OP_POWER_CTRL: Off) -> STATE_OFF (10)
+* Bluetooth EAS policy: AdapterService.enable():
+* - DevicePolicyManager mDPM =(DevicePolicyManager)getSystemService(Context.DEVICE_POLICY_SERVICE);
+* - if (mDPM != null && mDPM.getBluetoothDisabled(null)) "enable() Bluetooth is disabled by EAS policy"
+* DevicePolicyManager.getBluetoothDisabled() => DevicePolicyManagerService.getBluetoothDisabled()
 ---
 * Adapter状态变为STATE_BLE_ON(15)之后会触发 AdapterState.BleOnState.BLE_TURN_OFF 调用 disableNative() 关闭蓝牙：
 * notifyAdapterStateChange(BluetoothAdapter.STATE_BLE_TURNING_OFF)
