@@ -123,11 +123,19 @@ ATA from bt headset
 
 AVRCP/A2DP
 ```
-* system/bt/audio_a2dp_h2: audio.a2dp.default_32 libbthost_if_32
+* system/bt/audio_a2dp_h2: audio.a2dp.default_32 libbthost_if_32 (system/lib/hw, system/lib)
 * A2DP COMMAND|skt_connect|skt_disconnect|AV Sevent
 * AVDT_CONNECT => a2dp_stream_common_init => skt_connect(common->ctrl_fd) /data/misc/bluedroid/.a2dp_ctrl
 * AVDT_DISCONNECT => adev_close_output_stream => skt_disconnect(common->ctrl_fd)
 * AVDT_DISCONNECT => BT_VND_OP_POWER_CTRL: Off => a2dp_ctrl_receive => skt_disconnect(common->ctrl_fd)
+* avdt_ccb_action:avdt_ccb_hdl_start_rsp => avdt_scb_action:avdt_scb_hdl_start_rsp => AVDT_START_CFM_EVT =>
+* bta_av_proc_stream_evt => BTA_AV_STR_START_OK/FAIL_EVT => bta_av_hdl_event => bta_av_ssm_execute "AV Sevent"
+---
+NuPlayerRenderer/AudioSink/AudioOutput/AudioTrack: libmediaplayerservice_32 (system/lib)
+* "possible video time jump|AudioSink write would block"
+* frameworks/av/media/libmediaplayerservice/MediaPlayerService.cpp
+* frameworks/av/media/libmediaplayerservice/nuplayer/NuPlayerRenderer.cpp
+* NuPlayer::Renderer::onResume() => mAudioSink->start()
 ```
 
 OBEX/OPP/PBAP/MAP
