@@ -10,6 +10,7 @@ $ pstack
 - http://www.ruanyifeng.com/blog/2015/02/make.html
 - https://www.gnu.org/software/make/manual/make.html
 - https://gist.github.com/isaacs/62a2d1825d04437c6f08
+- http://www3.ntu.edu.sg/home/ehchua/programming/cpp/gcc_make.html
 
 Makefile文件由一系列规则（rules）构成，每条规则的格式是：
 ```make
@@ -57,6 +58,8 @@ clean:
 CC= gcc -std=c99
 CFLAGS= -I/usr/bin/lua/include -DLUA_RELEASE -g -O3 -Wall -Wextra
 CLIBS= -L/usr/bin/lua/lib -lweirdlib
+
+GCC预定义宏：gcc -E -dM - </dev/null
 
 MKDIR= mkdir -p
 RM= rm -f
