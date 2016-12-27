@@ -38,7 +38,7 @@ $ adb devices
 List of devices attached
 cf7b6337	no permissions
 $ which adb
-$ cd /home/shenxin/shenxin/android/Sdk/platform-tools/
+$ cd android/Sdk/platform-tools/
 $ sudo chown root:root adb
 $ sudo chmod +s adb
 $ adb kill-server
