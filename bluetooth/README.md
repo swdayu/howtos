@@ -73,6 +73,19 @@
 * run_reactor => reactor_object->read_ready => internal_dequeue_ready => queue->dequeue_ready => btu_bta_msg_ready
 ```
 
+HCI/SNOOP
+```
+* hci_layer.c$hal_says_data_ready() 接收 hci event 和 acl data
+* hci_layer.c$transmit_fragment() 发送 hci command 和 acl data
+* btsnoop.c$capture() 用于抓取 hci log，该函数被上面两个函数调用
+* hci command 和 hci event 定义在头文件 hcidefs.h 和 vendor_hcidefs.h 中
+* 接收 hci event 和 acl data 处理流程如下：
+* hal_says_data_ready() => dispatch event/data to btu_hci_msg_queue
+* btu_hci_msg_ready(btu_hci_msg_queue)
+* btu_hci_msg_process(p_msg) 
+* - BT_EVT_TO_BTU_HCI_ACL: l2c_rcv_acl_data(p_msg)
+```
+
 搜索配对连接
 ```
 * btm_acl_created|L2CA_DisconnectReq|W4_L2CAP_DISC_RSP|btm_sec_disconnected
