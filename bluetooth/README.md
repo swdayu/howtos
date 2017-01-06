@@ -76,7 +76,12 @@
 HCI/SNOOP
 ```
 * hci_layer.c$hal_says_data_ready() 接收 hci event 和 acl data
+* - acl data: packet_fragmenter->reassemble_and_dispatch() => dispatch to btu_hci_msg_queue
+* - acl event: dispatch to btu_hci_msg_queue, the queue is registered as following:
+*   data_dispatcher_register_default(hci->event_dispatcher, btu_hci_msg_queue);
+*   hci->set_data_queue(btu_hci_msg_queue);
 * hci_layer.c$transmit_fragment() 发送 hci command 和 acl data
+* - hal->transmit_data(type, date, length)
 * btsnoop.c$capture() 用于抓取 hci log，该函数被上面两个函数调用
 * hci command 和 hci event 定义在头文件 hcidefs.h 和 vendor_hcidefs.h 中
 * 接收 hci event 和 acl data 处理流程如下：
