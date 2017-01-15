@@ -35,4 +35,13 @@ com.example.user.pkgname.test/android.support.test.runner.AndroidJUnitRunner
 $ android list targets
 $ mkdir UiTestExample && cd UiTestExample
 $ android create uitest-project --name UiTestExample --path . --target "android-23"
+# Out of memory error (version 1.2-rc4 'Carnac' (298900 ... by android-jack-team@google.com)).
+# GC overhead limit exceeded.
+# Try increasing heap size with java option '-Xmx<size>'.
+# 1) offical solution
+$ vi ~/.jack  # changing SERVER_NB_COMPILE to a lower value
+# 2) stackoverflow solution
+$ export JACK_SERVER_VM_ARGUMENTS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4g"
+$ ./prebuilts/sdk/tools/jack-admin kill-server
+$ ./prebuilts/sdk/tools/jack-admin start-server
 ```
