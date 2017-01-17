@@ -4,6 +4,16 @@
 
 ## adb
 ```shell
+# adb remount error: insufficient permissions for device: verify udev rules.
+$ vi /etc/udev/rules.d/51-android.rules # add a line of text below
+SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", MODE="0666"
+$ sudo chmod a+rx /etc/udev/rules.d/51-android.rules
+$ sudo service udev restart
+$ adb kill-server
+$ adb start-server
+$ # unplug and plug the usb device
+$ adb remount
+
 # check app meminfo
 $ adb shell dumpsys meminfo <package-name>/<pid> -d
 
