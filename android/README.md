@@ -24,6 +24,8 @@ $ adb shell cat /proc/kmsg  # android kernel log
 
 # force stop everything associated with the package name
 $ adb shell am force-stop com.example.user.pkgname
+# start an activity
+$ adb shell am start -n com.android.settings/com.android.settings.bluetooth.BluetoothSettings
 
 # install a package and replace existing application if already exists
 $ adb push ~/pkgname-demo.apk /data/local/tmp/com.example.user.pkgname
