@@ -205,15 +205,24 @@ OBEX/OPP/PBAP/MAP
 BLE
 ```
 BLE scanning (device searching)
-> if using startScan() to perform ble device searching, the result scan results can be received only when GPS is ON  
-> batch scan doesn't have this limitation  
+* if using startScan() to perform ble device searching, the result scan results can be received only when GPS is ON  
+* batch scan doesn't have this limitation 
+* BluetoothLeScanner.startScan(List<ScanFilter> filters, ScanSettings settings, ...)
+* startScan 在搜索BLE设备时可以通过 filters 参数设置过滤条件，可以指定多个条件，只要一个条件满足就会上报结果
+* 每个 ScanFilter 可以指定设备的名字、设备的地址、服务UUID、服务数据、厂商数据等
+* BluetoothLeScanner.startScan 后等注册 clientIf 完成后，在 onClientRegistered 中调用 GattService 的 startScan 真正执行搜索
+* 然后，GattService 再调用 ScanManager 的　startScan，然后 ScanManager 调用 configureScanFilters 设置过滤条件
+* ScanManager.configureScanFilters -> ScanManager.addFilterToController -> gattClientScanFilterAddNative ->
+* gattClientScanFilterAddRemoveNative -> btgatt_interface_t.btgatt_client_interface_t->scan_filter_add_remove ->
+* btif_gattc_scan_filter_add_remove -> BTA_DmBleCfgFilterCondition
+* 搜到BLE设备后，GattService.onScanResult 会收到设备信息，该函数还会调用 matchesFilters 判断过滤条件是否满足
 
 Guest user limitation when using ble profiles
-> guest user cannot receive FMP notification and the time is also not synced using TIP  
-> it is needed to switch to owner user  
+* guest user cannot receive FMP notification and the time is also not synced using TIP  
+* it is needed to switch to owner user  
 
 ELECOM M-BT11BB Series BLE Mouse
-> 搜索配对连接，鼠标不摇动可以成功连上，摇动鼠标则加快连接  
-> 连接后在手机上主动断开，再点击手机上的鼠标去连接，需要摇动鼠标才能连上，如果不摇动连接会失败  
-> 如果主动断开后只摇动鼠标而不主动选择手机上的鼠标去连接，也会连接失败（因为主动断开的情况下，手机不会发起背景连接）  
+* 搜索配对连接，鼠标不摇动可以成功连上，摇动鼠标则加快连接  
+* 连接后在手机上主动断开，再点击手机上的鼠标去连接，需要摇动鼠标才能连上，如果不摇动连接会失败  
+* 如果主动断开后只摇动鼠标而不主动选择手机上的鼠标去连接，也会连接失败（因为主动断开的情况下，手机不会发起背景连接） 
 ```
