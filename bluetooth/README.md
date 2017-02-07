@@ -216,6 +216,16 @@ BLE scanning (device searching)
 * gattClientScanFilterAddRemoveNative -> btgatt_interface_t.btgatt_client_interface_t->scan_filter_add_remove ->
 * btif_gattc_scan_filter_add_remove -> BTA_DmBleCfgFilterCondition
 * 搜到BLE设备后，GattService.onScanResult 会收到设备信息，该函数还会调用 matchesFilters 判断过滤条件是否满足
+* 在 GattService.onScanResult 中查看服务数据的代码：
+Map<ParcelUuid, byte[]> serviceData = record.getServiceData();
+if (serviceData == null || serviceData.isEmpty()) {
+  Log.e(TAG, "onScanResult serviceData is empty");
+} else {
+  for (Map.Entry<ParcelUuid, byte[]> entry : serviceData.entrySet()) {
+    String data = new String(entry.getValue());
+    Log.e(TAG, "onScanResult uuid " + entry.getKey().toString() + " data " + data);
+  }
+}
 
 Guest user limitation when using ble profiles
 * guest user cannot receive FMP notification and the time is also not synced using TIP  
