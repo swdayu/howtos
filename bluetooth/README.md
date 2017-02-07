@@ -217,6 +217,7 @@ BLE scanning (device searching)
 * btif_gattc_scan_filter_add_remove -> BTA_DmBleCfgFilterCondition
 * 搜到BLE设备后，GattService.onScanResult 会收到设备信息，该函数还会调用 matchesFilters 判断过滤条件是否满足
 * 在 GattService.onScanResult 中查看服务数据的代码：
+ScanRecord record = result.getScanRecord();
 Map<ParcelUuid, byte[]> serviceData = record.getServiceData();
 if (serviceData == null || serviceData.isEmpty()) {
   Log.e(TAG, "onScanResult serviceData is empty");
