@@ -154,6 +154,64 @@ NuPlayerRenderer/AudioSink/AudioOutput/AudioTrack: libmediaplayerservice_32 (sys
 * frameworks/av/media/libmediaplayerservice/MediaPlayerService.cpp
 * frameworks/av/media/libmediaplayerservice/nuplayer/NuPlayerRenderer.cpp
 * NuPlayer::Renderer::onResume() => mAudioSink->start()
+SCMS-T
+* 支持 SCMS-T 的设备会在 AVDTP_GET_CAPABILITIES 的响应数据包中包含 SCMS-T 信息:
+* AVDTP Signaling:
+        Message Type: Response Accept
+        Signaling Identifier: AVDTP_GET_CAPABILITIES
+        Service Category: Content Protection
+                Length Of Service Capability (LOSC): 2
+                Content Protection Type: SCMS-T
+* 连接 A2DP 时首先发送 AVDTP_DISCOVER 发现对方设备可连接 SEP（Stream EndPoint）
+* 然后发送 AVDTP_GET_CAPABILITIES 获取每个 SEP 的信息，DISCOVER　返回的 SEP 信息如下：
+* AVDTP Signaling:
+        Message Type: Response Accept
+        Signaling Identifier: AVDTP_DISCOVER
+        ACP Stream Endpoint ID: 1
+                In-use: No
+                Media Type: Audio
+                TSEP: SNK
+        ACP Stream Endpoint ID: 2
+                In-use: No
+                Media Type: Audio
+                TSEP: SNK
+* AVDTP_GET_CAPABILITIES 的大致流程是：
+* bta_av_disc_results()
+* bta_av_next_getcap()
+* AVDT_GetCapReq()/AVDT_GetAllCapReq() set getcap.p_cback to bta_av_dt_cback[i]
+* avdt_get_cap_req()
+* avdt_ccb_event AVDT_CCB_API_GETCAP_REQ_EVT
+* avdt_ccb_action AVDT_CCB_SND_GETCAP_CMD
+* avdt_ccb_snd_getcap_cmd
+* avdt_ccb_hdl_getcap_rsp
+* bta_av_stream0_cback/bta_av_stream1_cback
+* bta_av_proc_stream_evt AVDT_GETCAP_CFM_EVT => bta_sys_sendmsg()
+* btu_bta_msg_ready() => bta_sys_event() => bta_av_hdl_event()
+* bta_av_ssm_execute => p_scb->p_act_tbl[action])()
+* STR_GETCAP_OK_EVT => BTA_AV_GETCAP_RESULTS => bta_av_a2d_action|bta_av_getcap_results
+* STR_GETCAP_FAIL_EVT => BTA_AV_OPEN_FAILED => bta_av_a2d_action|bta_av_open_failed => AVDT_DisconnectReq
+* ---
+* bta_av_getcap_results() 会调用 bta_av_co_peer_has_scms_t() 检查对方是否支持 scms-t
+* 其调用流程为 bta_av_co_peer_has_scms_t => bta_av_co_peer_cp_supported => bta_av_co_audio_sink_has_scmst => bta_av_co_cp_is_scmst
+* 对方支持 scms-t 的情况会回调给上层，上层应用判断对方设备不支持 scms-t 时会弹出通知提示 non-SCMS-T-compliant:
+* Connected Bluetooth device does not support SCMS-T audio protection. Content-protected audio may fail to be output.
+* 在播放音乐传送 A2DP 数据时，audio_a2dp_hw.c$out_write(..., uint8_t cp_info) 会传入内容保护标识信息，这个信息也会在该函数中打印 DEBUG("cp_info x%x ", cp_info)
+* 这个保护信息会传递到 btif_media_task.c$btif_recv_scms_data() 函数中，调用 bta_av_co_cp_set_flag(cp_info & BTA_AV_CP_SCMS_COPY_MASK) 保存起来
+* 最后在函数　btif_media_send_vendor_selected_codec()　中调用 bta_av_co_cp_get_flag() 写入 A2DP 数据包，拥有内容保护信息的数据头部格式为：
+* A2DP
+    Role: Master (Audio Source)
+    Contents Protection header
+        Cp-bit: 1
+        L-bit: 1
+    Codec: APT-X
+    Audio Frame: 0x 27 8b 3e 8b 3e a9 1f 8e e0 ...
+* 即音频数据包包含一个 Contents Protection 头部信息，其中 Cp-bit L-bit 11 表示禁止拷贝（copy prohibited）
+* 其他的值包括 copy allowed (00), copy once (10)，如果对方设备不支持 SCMS-T 则不会有这个头部
+* 但如果是受版权保护的音乐，对方设备不支持 SCMS-T 的话会导致播放失败，问题 LAT1SYS228 有更详细的关于这个问题的信息
+* 其中当使用非 SCMS-T 设备播放受保护内容时会提示："Error occurred before play This content is unable to play(0)(2)(0)"
+* 原本 Contents Protection 头部的信息的值是 11，即 copy prohibited，这会导致对方设备接收数据后如果进行拷贝会失败
+* 后来问题 LAT1SYS1538 将这个值改成了 00，使音乐可以任意拷贝
+* 宏 AUDIO_SCMST 定义在 system/media/audio/include/system/audio.h 文件中
 ```
 
 OBEX/OPP/PBAP/MAP
