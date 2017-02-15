@@ -1,12 +1,48 @@
 
 蓝牙开关
 ```
-* BluetoothManagerService|bt_vendor|BT_VND_OP_POWER_CTRL|disable timeout
+* 涉及主要的类：BluetoothAdapter, BluetoothManagerService，AdapterState，AdapterProperties
+* 关键字：adapter state changed|bt_vendor|BT_VND_OP_POWER_CTRL|disable timeout
+* ---
+* 开蓝牙流程:
 * BluetoothAdapter.STATE_OFF (10) -> STATE_BLE_TURNING_ON (14) -> (BT_VND_OP_POWER_CTRL: On) ->
 * STATE_BLE_ON (15) -> STATE_TURNING_ON (11) -> STATE_ON (12)
+*     03:41:29.188 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 10-> 14
+*     03:41:29.228 23906 24199 I bt_vendor: bt-vendor : BT_VND_OP_POWER_CTRL: On
+*     03:41:29.422 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 14-> 15
+*     03:41:29.430 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 15-> 11
+*     03:41:29.594 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 11-> 12
+* 关蓝牙流程：
 * BluetoothAdapter.STATE_ON (12) -> STATE_TURNING_OFF (13) -> STATE_BLE_ON (15) ->
 * STATE_BLE_TURNING_OFF (16) -> (BT_VND_OP_POWER_CTRL: Off) -> STATE_OFF (10)
-* Bluetooth EAS policy: AdapterService.enable():
+*     03:41:39.918 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 12-> 13
+*     03:41:39.947 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 13-> 15
+*     03:41:40.036 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 15-> 16
+*     03:41:40.574 23906 24204 I bt_vendor: bt-vendor : BT_VND_OP_POWER_CTRL: Off
+*     03:41:40.663 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 16-> 10
+* 从 13-> 15 到 15->16 的流程：
+*     00:07:56.396  9796  9830 I BluetoothAdapterState: Bluetooth adapter state changed: 13-> 15
+*     00:07:56.399  1888  1910 D BluetoothManagerService: Message: 60
+*     00:07:56.399  1888  1910 D BluetoothManagerService: MESSAGE_BLUETOOTH_STATE_CHANGE: prevState = 13, newState=15
+*     00:07:56.399  1888  1910 D BluetoothManagerService: Intermediate off, back to LE only mode
+*     00:07:56.399  1888  1910 D BluetoothManagerService: BLE State Change Intent: 13 -> 15
+*     00:07:56.399  1888  1910 D BluetoothManagerService: Broadcasting onBluetoothStateChange(false) to 18 receivers.
+*     00:07:56.408  9796  9830 I BluetoothAdapterState: Entering BleOnState
+*     00:07:56.781  1888  1910 D BluetoothManagerService: Calling sendBrEdrDownCallback callbacks
+*     00:07:56.781  1888  1910 D BluetoothManagerService: isBleAppPresent() count: 0
+*     00:07:56.782  9796  9830 D BluetoothAdapterState: Current state: BLE ON, message: 20
+*     00:07:56.782  9796  9830 D BluetoothAdapterProperties: Setting state to 16
+*     00:07:56.782  9796  9830 I BluetoothAdapterState: Bluetooth adapter state changed: 15-> 16
+* 关底层蓝牙超时（BT_VND_OP_POWER_CTRL OFF 没执行到）的一种流程：
+*     00:17:29.539  1470  1619 D BluetoothManagerService: BLE State Change Intent: 15 -> 16
+*     00:17:29.539  8924  8958 D BluetoothAdapterProperties: onBleDisable
+*     00:17:29.539  8924  8958 I BluetoothAdapterState: Entering PendingCommandState
+*     00:17:29.553  8924  8964 D BluetoothAdapterProperties: Scan Mode:20
+*     00:17:37.548  8924  8958 D BluetoothAdapterState: Current state: PENDING_COMMAND, message: 103
+*     00:17:37.548  8924  8958 E BluetoothAdapterState: Error disabling Bluetooth (disable timeout) ****
+* ---
+* 有种叫 EAS policy 的策略用于禁止不符合策略的用户开启蓝牙：
+* Bluetooth EAS policy: AdapterService.enable()
 * - DevicePolicyManager mDPM =(DevicePolicyManager)getSystemService(Context.DEVICE_POLICY_SERVICE);
 * - if (mDPM != null && mDPM.getBluetoothDisabled(null)) "enable() Bluetooth is disabled by EAS policy"
 * DevicePolicyManager.getBluetoothDisabled() => DevicePolicyManagerService.getBluetoothDisabled()
@@ -93,7 +129,9 @@ HCI/SNOOP
 
 搜索配对连接
 ```
-* btm_acl_created|L2CA_DisconnectReq|W4_L2CAP_DISC_RSP|btm_sec_disconnected
+* 连接相关：btm_acl_created|btm_sec_disconnected|L2CA_DisconnectReq|W4_L2CAP_DISC_RSP
+* Write_Scan_Enable 对应的上层参数：BluetoothAdapterProperties: Scan Mode:20/21/23
+* BluetoothAdapter.SCAN_MODE_NONE(20) SCAN_MODE_CONNECTABLE(21) SCAN_MODE_CONNECTABLE_DISCOVERABLE(23)
 ---
 * BluetoothSettings.onOptionsItemSelected() BluetoothSettings.MENU_ID_SCAN
 * BluetoothSettings.startScanning(): mAvailableDevicesCategory.removeAll(); mInitialScanStarted = true;
@@ -285,12 +323,26 @@ if (serviceData == null || serviceData.isEmpty()) {
     Log.e(TAG, "onScanResult uuid " + entry.getKey().toString() + " data " + data);
   }
 }
-
-Guest user limitation when using ble profiles
+---
+* BLE ANS 没有通知提示问题的确认
+* 1. 对应的开关有没有打开：
+*    Bluetooth Settings | Menu | Bluetooth Low Energy | Alert Notification Detail Setting | check related items ON
+* 2. 相应的通知有没有出现的手机通知栏中，通知栏中的通知才有传给蓝牙设备
+* ANS 通知关键LOG
+*    03:50:00.156  9895  9895 D ANS     : mAlertReceiver onReceive()
+*    03:50:00.156  9895  9895 D ANS     :     action = ans.action.NEW_ALERT
+*    03:50:00.156  9895  9895 D ANS     :     ledOffMS = 0
+*    03:50:00.156  9895  9895 D ANS     :     defaults = 0
+*    03:50:00.156  9895  9895 D ANS     :     count = 1
+*    03:50:00.156  9895  9895 D ANS     :  recordID: 0 cancelflg: true pkgname: android.schedulememo
+*    03:50:00.156  9895  9895 D ANS     : catOrd: 11 sendMsg: false
+* 其中 sendMsg: false 表示不会发送给蓝牙穿戴设备，可以与 cancelflg 为 true 或 pkgname 有关
+* ---
+* Guest用户使用BLE profiles的限制：
 * guest user cannot receive FMP notification and the time is also not synced using TIP  
-* it is needed to switch to owner user  
-
-ELECOM M-BT11BB Series BLE Mouse
+* it is needed to switch to owner user
+* ---
+* ELECOM M-BT11BB Series BLE Mouse
 * 搜索配对连接，鼠标不摇动可以成功连上，摇动鼠标则加快连接  
 * 连接后在手机上主动断开，再点击手机上的鼠标去连接，需要摇动鼠标才能连上，如果不摇动连接会失败  
 * 如果主动断开后只摇动鼠标而不主动选择手机上的鼠标去连接，也会连接失败（因为主动断开的情况下，手机不会发起背景连接） 
