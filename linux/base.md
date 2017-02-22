@@ -35,6 +35,9 @@ $ ping -c 1 -w 15 -n 72.14.203.104 || echo "server down"   # execute next only i
 $ echo first cmd; echo second cmd                          # these two commands are not logical related
 $ mkdir $(date "+%Y-%m-%d")                                # use another command's result as parameters
 $ mkdir `data "+%Y-%m-%d`
+
+# FileZilla字符编码设置
+# Site Manager|Charset|Use custom charset|Encoding: Shift-JIS
 ```
 
 **terminal**
