@@ -125,6 +125,52 @@ HCI/SNOOP
 * btu_hci_msg_ready(btu_hci_msg_queue)
 * btu_hci_msg_process(p_msg) 
 * - BT_EVT_TO_BTU_HCI_ACL: l2c_rcv_acl_data(p_msg)
+HCI数据发送流程
+* hci_thread管理两个队列，command_queue和packet_queue，分别用于发送HCI命令和ACL数据
+* 上层发送HCI命令时，可以调用hci->transmit_command()或hci->transmit_downward()插入command_queue等待发送
+* 上层发送ACL数据时，可以调用hci->transmit_downward()插入packet_queue等待发送
+* hci接口在hci_layer.c$init_layer_interface()函数中初始化，并通过调用hci_layer.c$hci_layer_get_interface()获取该接口
+* 队列中有数据后，Bluedroid的线程机制会触发队列中数据处理，线程机制的处理流程如下：
+* => run_reactor()
+* => reactor_object->read_ready(command_queue/packet_queue)
+* => internal_dequeue_ready(command_queue/packet_queue)
+* => queue->dequeue_ready(queue, queue->context)
+* => event_command_ready(queue, context) / event_packet_ready(queue, context)
+* HCI层的这两个函数event_command_ready/event_packet_ready调用后，便从队列中取出数据开始发送，数据从队列取出后的发送流程为：
+* => packet_fragmenter->fragment_and_dispatch(packet)
+* => packet_fragmenter.c$fragment_and_dispatch(packet)
+* => packet_fragmenter_callbacks->fragmented(packet, finished)
+* => hci_layer.c$transmit_fragment(packet, finished)
+* => btsnoop->capture(packet, receive=false); hal->transmit_data(type, data, len)
+* packet_fragmenter接口在packet_fragmenter.c文件中的interface结构体中初始化，并通过packet_fragmenter_get_interface()获取该接口
+* packet_fragmenter_callbacks接口在hci_layer.c中同名结构体中初始化，并通过packet_fragmenter->init(cb)传给packet_fragmenter接口
+* btsnoop接口在btsnoop.c中的interface接口体中初始化，并通过btsnoop_get_interface()获取该接口
+* hal接口通过hci_hal.c$hci_hal_get_interface()获取，并在hci_hal_h4.c或hci_hal_mct.c中初始化
+* 最后数据会通过vendor提供的串口发送给蓝牙芯片，vendor接口在vendor.c中的interface结构体中定义，调用vendor_get_interface()可以获取给接口
+* HCI层通过vendor->open() => vendor.c$vendor_open() => "libbt-vendor.so"bt_vendor_interface_t->init()开启vendor
+* hal接口在初始化时通过ports=vendor->send_command(VENDOR_OPEN_USERIAL, &fds)打开串口，之后便可以在对应串口发送数据
+BTSNOOP
+* HCI发送数据的抓取在 fragmenter_callbacks->fragmented(packet, finished)　=> hci_layer.c$transmit_fragment(packet, finished) 函数中
+* HCI接收数据的抓取在 hci_hal_callbacks->data_ready(type => hci_layer.c$hal_says_data_ready(type) 函数中
+* btsnoop->capture(packet, receive) => btsnoop.c$capture(packet, receive)
+* btsnoop接口在btsnoop.c中的interface接口体中初始化，并通过btsnoop_get_interface()获取该接口
+* BTSNOOP的开关，最终在capture中起作用的是变量logfile_fd，即log文件如果打开了即抓取log，否则不抓取
+* logfile_fd在update_logging()函数中进行更新，start_up()和set_api_wants_to_log()两个函数调用了该函数
+* 打开蓝牙时会调用 start_up() 函数，该函数检查 bt_stack.conf 中的设定来决定是否打开log
+* 另外在开发者选项中打开"Enable Bluetooth HCI snoop log"，会触发调用set_api_wants_to_log()函数，然后logging_enabled_via_api会设为真
+* 此时如果蓝牙已经打开，BTSNOOP的抓取会即时开启（当然如果bt_stac.conf已经开启了则继续开启），如果蓝牙没有打开则会在蓝牙打开时开启BTSNOOP的抓取
+* 上层开启BTSNOOP的接口是 BluetoothAdapter.java$configHciSnoopLog(enable)，配置文件的位置为 /etc/bluetooth/bt_stack.conf
+* 总的来说3个开关中任意一个打开BTSNOOP都会打开：开发者选项打开（logging_enabled_via_api），配置文件中的BtSnoopExtDump打开（hci_ext_dump_enabled）
+* 或者打开配置文件中的BtSnoopLogOutput，对应判断函数为 stack_config->get_btsnoop_turned_on() => stack_config.c$get_btsnoop_turned_on()
+Bluedroid中的线程
+* hci_thread负责command_queue，packet_queue，串口相关操作，low_power_manager的相关操作
+* bt_workqueue线程负责btu_bta_msg_queue，btu_hci_msg_queue，btu_general_alarm_queue
+* media_worker线程负责btif_media_cmd_msg_queue
+* aptx_media_worker线程负责aptx编码处理
+* alarm_dispatcher线程负责定时器分发处理
+* bt_jni_workqueue线程负责jni相关处理
+* btif_sock线程负责btsock相关处理
+* stack_manager线程负责stack管理相关处理
 ```
 
 搜索配对连接
