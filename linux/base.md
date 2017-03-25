@@ -38,6 +38,12 @@ $ mkdir `data "+%Y-%m-%d`
 
 # FileZilla字符编码设置
 # Site Manager|Charset|Use custom charset|Encoding: Shift-JIS
+
+# Ubuntu上将大小写切换键变成CTRL键
+# 执行以下命令后在 System Settings | Text Entry | Keyboard Map 中可以查看键盘映射是否生效
+$ sudo vim /etc/default/keyboard
+XKBOPTIONS="ctrl:nocaps"
+$ sudo dpkg-reconfigure keyboard-configuration
 ```
 
 **terminal**
