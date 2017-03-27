@@ -1,45 +1,43 @@
 
-蓝牙开关
+蓝牙开关和重连
 ```
-* 涉及主要的类：BluetoothAdapter, BluetoothManagerService，AdapterState，AdapterProperties
-* 关键字：adapter state changed|bt_vendor|BT_VND_OP_POWER_CTRL|disable timeout
-* ---
-* 开蓝牙流程:
-* BluetoothAdapter.STATE_OFF (10) -> STATE_BLE_TURNING_ON (14) -> (BT_VND_OP_POWER_CTRL: On) ->
+* 开关蓝牙涉及的类：BluetoothAdapter, BluetoothManagerService，AdapterState，AdapterProperties
+* adapter state changed|isBleAppPresent|BT_VND_OP_POWER_CTRL|bt_vendor|disable timeout｜onProfileServiceStateChange
+* AdapterState关蓝牙状态机：BEGIN_BREDR_CLEANUP => BEGIN_DISABLE => BREDR_STOPPED (BleOnState) => DISABLED (OffState)
+* 开蓝牙：BluetoothAdapter.STATE_OFF (10) -> STATE_BLE_TURNING_ON (14) -> (BT_VND_OP_POWER_CTRL: On) ->
 * STATE_BLE_ON (15) -> STATE_TURNING_ON (11) -> STATE_ON (12)
-*     03:41:29.188 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 10-> 14
-*     03:41:29.228 23906 24199 I bt_vendor: bt-vendor : BT_VND_OP_POWER_CTRL: On
-*     03:41:29.422 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 14-> 15
-*     03:41:29.430 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 15-> 11
-*     03:41:29.594 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 11-> 12
-* 关蓝牙流程：
-* BluetoothAdapter.STATE_ON (12) -> STATE_TURNING_OFF (13) -> STATE_BLE_ON (15) ->
+* 03:41:29.188 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 10-> 14
+* 03:41:29.228 23906 24199 I bt_vendor: bt-vendor : BT_VND_OP_POWER_CTRL: On
+* 03:41:29.422 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 14-> 15
+* 03:41:29.430 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 15-> 11
+* 03:41:29.594 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 11-> 12
+* 关蓝牙：BluetoothAdapter.STATE_ON (12) -> STATE_TURNING_OFF (13) -> STATE_BLE_ON (15) ->
 * STATE_BLE_TURNING_OFF (16) -> (BT_VND_OP_POWER_CTRL: Off) -> STATE_OFF (10)
-*     03:41:39.918 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 12-> 13
-*     03:41:39.947 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 13-> 15
-*     03:41:40.036 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 15-> 16
-*     03:41:40.574 23906 24204 I bt_vendor: bt-vendor : BT_VND_OP_POWER_CTRL: Off
-*     03:41:40.663 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 16-> 10
+* 03:41:39.918 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 12-> 13
+* 03:41:39.947 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 13-> 15
+* 03:41:40.036 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 15-> 16
+* 03:41:40.574 23906 24204 I bt_vendor: bt-vendor : BT_VND_OP_POWER_CTRL: Off
+* 03:41:40.663 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 16-> 10
 * 从 13-> 15 到 15->16 的流程：
-*     00:07:56.396  9796  9830 I BluetoothAdapterState: Bluetooth adapter state changed: 13-> 15
-*     00:07:56.399  1888  1910 D BluetoothManagerService: Message: 60
-*     00:07:56.399  1888  1910 D BluetoothManagerService: MESSAGE_BLUETOOTH_STATE_CHANGE: prevState = 13, newState=15
-*     00:07:56.399  1888  1910 D BluetoothManagerService: Intermediate off, back to LE only mode
-*     00:07:56.399  1888  1910 D BluetoothManagerService: BLE State Change Intent: 13 -> 15
-*     00:07:56.399  1888  1910 D BluetoothManagerService: Broadcasting onBluetoothStateChange(false) to 18 receivers.
-*     00:07:56.408  9796  9830 I BluetoothAdapterState: Entering BleOnState
-*     00:07:56.781  1888  1910 D BluetoothManagerService: Calling sendBrEdrDownCallback callbacks
-*     00:07:56.781  1888  1910 D BluetoothManagerService: isBleAppPresent() count: 0
-*     00:07:56.782  9796  9830 D BluetoothAdapterState: Current state: BLE ON, message: 20
-*     00:07:56.782  9796  9830 D BluetoothAdapterProperties: Setting state to 16
-*     00:07:56.782  9796  9830 I BluetoothAdapterState: Bluetooth adapter state changed: 15-> 16
+* 00:07:56.396  9796  9830 I BluetoothAdapterState: Bluetooth adapter state changed: 13-> 15
+* 00:07:56.399  1888  1910 D BluetoothManagerService: Message: 60
+* 00:07:56.399  1888  1910 D BluetoothManagerService: MESSAGE_BLUETOOTH_STATE_CHANGE: prevState = 13, newState=15
+* 00:07:56.399  1888  1910 D BluetoothManagerService: Intermediate off, back to LE only mode
+* 00:07:56.399  1888  1910 D BluetoothManagerService: BLE State Change Intent: 13 -> 15
+* 00:07:56.399  1888  1910 D BluetoothManagerService: Broadcasting onBluetoothStateChange(false) to 18 receivers.
+* 00:07:56.408  9796  9830 I BluetoothAdapterState: Entering BleOnState
+* 00:07:56.781  1888  1910 D BluetoothManagerService: Calling sendBrEdrDownCallback callbacks
+* 00:07:56.781  1888  1910 D BluetoothManagerService: isBleAppPresent() count: 0
+* 00:07:56.782  9796  9830 D BluetoothAdapterState: Current state: BLE ON, message: 20
+* 00:07:56.782  9796  9830 D BluetoothAdapterProperties: Setting state to 16
+* 00:07:56.782  9796  9830 I BluetoothAdapterState: Bluetooth adapter state changed: 15-> 16
 * 关底层蓝牙超时（BT_VND_OP_POWER_CTRL OFF 没执行到）的一种流程：
-*     00:17:29.539  1470  1619 D BluetoothManagerService: BLE State Change Intent: 15 -> 16
-*     00:17:29.539  8924  8958 D BluetoothAdapterProperties: onBleDisable
-*     00:17:29.539  8924  8958 I BluetoothAdapterState: Entering PendingCommandState
-*     00:17:29.553  8924  8964 D BluetoothAdapterProperties: Scan Mode:20
-*     00:17:37.548  8924  8958 D BluetoothAdapterState: Current state: PENDING_COMMAND, message: 103
-*     00:17:37.548  8924  8958 E BluetoothAdapterState: Error disabling Bluetooth (disable timeout) ****
+* 00:17:29.539  1470  1619 D BluetoothManagerService: BLE State Change Intent: 15 -> 16
+* 00:17:29.539  8924  8958 D BluetoothAdapterProperties: onBleDisable
+* 00:17:29.539  8924  8958 I BluetoothAdapterState: Entering PendingCommandState
+* 00:17:29.553  8924  8964 D BluetoothAdapterProperties: Scan Mode:20
+* 00:17:37.548  8924  8958 D BluetoothAdapterState: Current state: PENDING_COMMAND, message: 103
+* 00:17:37.548  8924  8958 E BluetoothAdapterState: Error disabling Bluetooth (disable timeout) ****
 * ---
 * 有种叫 EAS policy 的策略用于禁止不符合策略的用户开启蓝牙：
 * Bluetooth EAS policy: AdapterService.enable()
@@ -175,9 +173,17 @@ Bluedroid中的线程
 
 搜索配对连接
 ```
-* 连接相关：btm_acl_created|btm_sec_disconnected|L2CA_DisconnectReq|W4_L2CAP_DISC_RSP
+* 底层连接：Scan Mode:|btm_acl_created|btm_sec_disconnected|L2CA_DisconnectReq|W4_L2CAP_DISC_RSP
 * Write_Scan_Enable 对应的上层参数：BluetoothAdapterProperties: Scan Mode:20/21/23
 * BluetoothAdapter.SCAN_MODE_NONE(20) SCAN_MODE_CONNECTABLE(21) SCAN_MODE_CONNECTABLE_DISCOVERABLE(23)
+* 上层连接：onProfileServiceStateChange|onProfileStateChanged|connectA2dpNative|A2dpStateMachine|
+* connectHfpNative|HeadsetStateMachine|HeadsetService|BTA_AG|AG State Change|onProfileStateChanged
+* HFP从connnecting到connected状态：
+* => HeadsetStateMachine$Pending.processMessage
+* => HeadsetStateMachine$Pending.processConnectionEvent
+* => HeadsetStateMachine.broadcastConnectionState
+* => btservice.ProfileService.notifyProfileConnectionStateChanged
+* => btservice.AdapterService.onProfileConnectionStateChanged
 ---
 * BluetoothSettings.onOptionsItemSelected() BluetoothSettings.MENU_ID_SCAN
 * BluetoothSettings.startScanning(): mAvailableDevicesCategory.removeAll(); mInitialScanStarted = true;
@@ -201,9 +207,20 @@ Bluedroid中的线程
 * BluetoothDevicePreference.onDeviceAttributesChanged()
 ```
 
+状态栏蓝牙图标
+```
+* => PhoneStatusBarPolicy()/ACTION_DUN_STATE_CHANGED/onBluetoothDevicesChanged/onBluetoothStateChange
+* => PhoneStatusBarPolicy.java$updateBluetooth()
+* => BluetoothControllerImpl.isBluetoothConnected() || mIsDunConnected
+*    getBluetoothAdapter().getConnectionState() == BluetoothAdapter.STATE_CONNECTED ||
+*    BluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
+* => AdapterService.getAdapterConnectionState() => AdapterProperties.mConnectionState
+*    GattService.getDevicesMatchingConnectionStates(new int[] { BluetoothProfile.STATE_CONNECTED })
+```
+
 HSP/HFP/SCO
 ```
-* AG SCO State|AG_AUDIO|setBluetoothScoOn
+* BTA_AG|AG State|AG SCO State|AG_AUDIO|setBluetoothScoOn
 * HFP AT cmd|bta_ag_hfp_result
 ---
 Steps to register and using Line app on SQ tablet 
@@ -371,10 +388,10 @@ if (serviceData == null || serviceData.isEmpty()) {
 }
 ---
 * BLE ANS 没有通知提示问题的确认
-* 1. 对应的开关有没有打开：
-*    Bluetooth Settings | Menu | Bluetooth Low Energy | Alert Notification Detail Setting | check related items ON
-* 2. 相应的通知有没有出现的手机通知栏中，通知栏中的通知才有传给蓝牙设备
-* ANS 通知关键LOG
+* 1. 对应的开关有没有打开：Bluetooth Settings | Menu | Bluetooth Low Energy | Alert Notification Detail Setting | check related items ON
+* 2. 有通知出现到通知栏，并且该通知有震动或铃声或闪光的设置
+* => NotificationManagerService.java$buzzBeepBlinkLocked(record)
+* => NotifyAnsUpdate(record, (buzz || beep || blink))
 *    03:50:00.156  9895  9895 D ANS     : mAlertReceiver onReceive()
 *    03:50:00.156  9895  9895 D ANS     :     action = ans.action.NEW_ALERT
 *    03:50:00.156  9895  9895 D ANS     :     ledOffMS = 0
