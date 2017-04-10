@@ -45,7 +45,7 @@ com.example.user.pkgname.test/android.support.test.runner.AndroidJUnitRunner
 ## android
 ```shell
 # fatal analysis using addr2line
-$ addr2line -f -e out/debug/target/product/F01J/symbols/system/lib/hw/bluetooth.default.so 00019325
+$ addr2line -f -e out/debug/target/product/name/symbols/system/lib/hw/bluetooth.default.so 00019325
 
 $ android list targets
 $ mkdir UiTestExample && cd UiTestExample
