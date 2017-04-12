@@ -250,6 +250,32 @@ AVRCP/A2DP
 * avdt_ccb_action:avdt_ccb_hdl_start_rsp => avdt_scb_action:avdt_scb_hdl_start_rsp => AVDT_START_CFM_EVT =>
 * bta_av_proc_stream_evt => BTA_AV_STR_START_OK/FAIL_EVT => bta_av_hdl_event => bta_av_ssm_execute "AV Sevent"
 ---
+* AVRCP.sendTrackChangedRsp trackNum
+* 1. Music player app set track number by calling MediaSession.setMetadata()
+* MediaSession: setMetadata traceNum 88
+* MediaSession:    at android.media.session.MediaSession.setMetadata(MediaSession.java:420)
+* MediaSession:    at android.support.v4.media.session.MediaSessionCompatApi21.setMetadata(MediaSessionCompatApi21.java:104)
+* MediaSession:    at android.support.v4.media.session.MediaSessionCompat$MediaSessionImplApi21.setMetadata(MediaSessionCompat.java:2333)
+* MediaSession:    at android.support.v4.media.session.MediaSessionCompat.setMetadata(MediaSessionCompat.java:436)
+* MediaSession:    at com.google.android.music.playback.MusicPlaybackService.updateMediaSessionMetadata(MusicPlaybackService.java:2877)
+* MediaSession:    at com.google.android.music.playback.MusicPlaybackService.updateNotificationAndMediaSessionMetadata(MusicPlaybackService.java:2219)
+* MediaSession:    at com.google.android.music.playback.MusicPlaybackService.access$3400(MusicPlaybackService.java:137)
+* MediaSession:    at com.google.android.music.playback.MusicPlaybackService$15.onArtRequestComplete(MusicPlaybackService.java:1787)
+* MediaSession:    at com.google.android.music.art.ArtResolverImpl$NotifyListenersRunnable.run(ArtResolverImpl.java:338)
+* MediaSession:    at android.os.Handler.handleCallback(Handler.java:751)
+* MediaSession:    at android.os.Handler.dispatchMessage(Handler.java:95)
+* MediaSession:    at android.os.Looper.loop(Looper.java:154)
+* MediaSession:    at android.os.HandlerThread.run(HandlerThread.java:61)
+* 2. Avrcp.MediaControllerListener.onMetadataChanged()
+* Avrcp   : MediaController metadata changed
+* Avrcp   : updateMetadata
+* Avrcp   : MediaAttributes Changed to [MediaAttributes: ... - ... by ... (88/88) Pop]
+* Avrcp   : sending track change for device 0
+* Avrcp   : device found at index 0
+* Avrcp   : mCurrentPlayStatePlaybackState {state=3, position=0, buffered position=0, speed=1.0, ...}
+* Avrcp   : Current music player is = com.google.android.music
+* Avrcp   :  TrackNumberRsp = 88for notification type 1
+---
 NuPlayerRenderer/AudioSink/AudioOutput/AudioTrack: libmediaplayerservice_32 (system/lib)
 * "possible video time jump|AudioSink write would block"
 * frameworks/av/media/libmediaplayerservice/MediaPlayerService.cpp
