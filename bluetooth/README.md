@@ -109,6 +109,7 @@
 
 HCI/SNOOP
 ```
+* hci receive: event_uart_has_bytes() => hal_says_data_ready() => btu_hci_msg_queue => btu_hci_msg_ready()
 * hci_layer.c$hal_says_data_ready() 接收 hci event 和 acl data
 * - acl data: packet_fragmenter->reassemble_and_dispatch() => dispatch to btu_hci_msg_queue
 * - acl event: dispatch to btu_hci_msg_queue, the queue is registered as following:
