@@ -39,6 +39,10 @@
 * 00:17:37.548  8924  8958 D BluetoothAdapterState: Current state: PENDING_COMMAND, message: 103
 * 00:17:37.548  8924  8958 E BluetoothAdapterState: Error disabling Bluetooth (disable timeout) ****
 * ---
+* 关蓝牙是ProfileService的关闭流程
+* 关闭GattService的对应函数为setGattProfileServiceState(names,OFF)，其他ProfileService为setProfileServiceState(names,OFF)
+* startService(service, OFF) => onStartCommand() => doStop() => stop() => stopSelf() => onDestroy() => cleanup()
+* ---
 * 有种叫 EAS policy 的策略用于禁止不符合策略的用户开启蓝牙：
 * Bluetooth EAS policy: AdapterService.enable()
 * - DevicePolicyManager mDPM =(DevicePolicyManager)getSystemService(Context.DEVICE_POLICY_SERVICE);
