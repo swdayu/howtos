@@ -1,6 +1,8 @@
 # Android
 - https://developer.android.com/sdk/index.html
 - http://androidxref.com/
+- https://android.googlesource.com/platform/
+- https://source.codeaurora.org/quic/la/platform/
 
 ## adb
 ```shell
