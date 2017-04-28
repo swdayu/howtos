@@ -205,4 +205,6 @@ MONTHLY* PREDICTED           MARKET        TRADE    RESULT                 COSTS
 1227.00
 1231.00
 1304.00
+---
+[002588] 13.040 08.750
 ```
