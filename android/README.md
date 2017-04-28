@@ -37,6 +37,9 @@ $ adb shell pm install -r "/data/local/tmp/com.example.user.pkgname"
 # list all packages installed
 $ adb shell pm list packages
 
+$ adb pull /data/system/packages.xml  # search which module the package belong to
+$ vim packages.xml # and search package name, such as "fs1seg"
+
 # start an instrumentation
 # -w: wait for instrumentation to finish before returning, required for test runners
 # -r: print raw results
