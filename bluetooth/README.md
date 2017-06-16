@@ -231,7 +231,8 @@ Bluedroid中的线程
 * Write_Scan_Enable 对应的上层参数：BluetoothAdapterProperties: Scan Mode:20/21/23
 * BluetoothAdapter.SCAN_MODE_NONE(20) SCAN_MODE_CONNECTABLE(21) SCAN_MODE_CONNECTABLE_DISCOVERABLE(23)
 * 上层连接：onProfileServiceStateChange|onProfileStateChanged|connectA2dpNative|A2dpStateMachine|
-* connectHfpNative|HeadsetStateMachine|HeadsetService|BTA_AG|AG State Change|onProfileStateChanged
+* connectHfpNative|HeadsetStateMachine|HeadsetService|BTA_AG|AG State Change|onProfileStateChanged|
+* Connection state|bt_btif : BTHF|connect timeout|bt_btif : AV Sevent
 * HFP从connnecting到connected状态：
 * => HeadsetStateMachine$Pending.processMessage
 * => HeadsetStateMachine$Pending.processConnectionEvent
