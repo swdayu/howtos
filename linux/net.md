@@ -1,4 +1,53 @@
 
+**ipv6**
+```shell
+$ adb shell ifconfig
+bt-pan    Link encap:Ethernet  HWaddr 22:22:4d:06:45:8d
+          inet addr:192.168.44.141  Bcast:192.168.44.255  Mask:255.255.255.0 
+          inet6 addr: fe80::2022:4dff:fe06:458d/64 Scope: Link
+
+$ adb shell ip -4 route
+192.168.44.0/24 dev bt-pan  proto kernel  scope link  src 192.168.44.141
+
+$ adb shell ping -I 192.168.44.141 -c 10 baidu.com
+PING baidu.com (180.149.132.47) from 192.168.44.141 : 56(84) bytes of data.
+64 bytes from 180.149.132.47: icmp_seq=1 ttl=52 time=300 ms
+64 bytes from 180.149.132.47: icmp_seq=2 ttl=52 time=213 ms
+64 bytes from 180.149.132.47: icmp_seq=3 ttl=52 time=498 ms
+64 bytes from 180.149.132.47: icmp_seq=4 ttl=52 time=127 ms
+64 bytes from 180.149.132.47: icmp_seq=5 ttl=52 time=163 ms
+64 bytes from 180.149.132.47: icmp_seq=6 ttl=52 time=157 ms
+64 bytes from 180.149.132.47: icmp_seq=7 ttl=52 time=138 ms
+64 bytes from 180.149.132.47: icmp_seq=8 ttl=52 time=323 ms
+64 bytes from 180.149.132.47: icmp_seq=9 ttl=52 time=166 ms
+64 bytes from 180.149.132.47: icmp_seq=10 ttl=52 time=260 ms
+
+--- baidu.com ping statistics ---
+10 packets transmitted, 10 received, 0% packet loss, time 9033ms
+rtt min/avg/max/mdev = 127.877/235.019/498.876/109.345 ms
+
+$ adb shell route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+192.168.44.0    0.0.0.0         255.255.255.0   U     0      0        0 bt-pan
+
+$ adb shell netstat -r
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
+192.168.44.0    *               255.255.255.0   U         0 0          0 bt-pan
+
+$ host -t AAAA www.qq.com
+www.qq.com has IPv6 address 240e:e1:8100:28::2:16
+
+$ adb shell [ -f /proc/net/if_inet6 ] && echo 'IPv6 ready system!' || echo 'No IPv6 support found! Compile the kernel!!'
+IPv6 ready system!
+
+$ adb shell lsmod | grep -qw ipv6 && echo "IPv6 kernel driver loaded and configured." || echo "IPv6 not configured and/or driver loaded on the system."
+IPv6 not configured and/or driver loaded on the system.
+
+$ ipv6 local address (fe80::), public address (2xxx:: or 3xxx::)
+```
+
 **ssh**
 ```shell
 # ssh key generation (take github for example)
