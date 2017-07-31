@@ -1,4 +1,10 @@
 
+```
+Perhaps our paths will cross again.
+I hope they do.
+
+```
+
 字词练习
 ```
 [ian]
