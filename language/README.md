@@ -3,6 +3,14 @@
 Perhaps our paths will cross again.
 I hope they do.
 
+The only trip I'll take in space is around the sun on the satellite here.
+If there's anything wrong with you, I can't see it from here.
+If you don't believe me. Here. Take it.
+If you're still interested. Let me know.
+I'm sorry. The wind caught it.
+If you're still interested. Let me know.
+Sorry. The wind caught it.
+
 ```
 
 字词练习
