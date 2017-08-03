@@ -674,10 +674,243 @@ public class ChangeTextBehaviorTest {
 }
 ```
 
-## 命令行运行Gradle
-原文地址：https://developer.android.com/studio/build/building-cmdline.html
+Testing Support Library
+> https://developer.android.com/topic/libraries/testing-support-library/index.html  
+> the android testing support library provides an extensive framework for testing android apps  
+> this library provides a set of apis that allow you to quickly build and run test code for your apps,  
+> including JUnit4 and functional user interfac (UI) tests  
+> you can run tests created using these apis from the android studio IDE or from the command line  
+> Esprosso - https://developer.android.com/training/testing/espresso/index.html  
+> UI Automator - is a UI testing framework suitable for corss-app functional UI testing across system and installed apps  
+> Android JUnit Runner - is a new unbundled test runner for android, it features:  
+> * junit4 support
+> * instrumentation registry
+> * test filters
+> * test timeouts
+> * sharding of tests
+> * RunListener support to hook into the test run life-cycle
+> * activity and application life-cycle monitoring
+> * intent monitoring and stubbing
+>
+> Test samples: https://developer.android.com/training/testing/samples.html  
+> Test APIs: https://developer.android.com/reference/android/support/test/packages.html  
 
-使用Gradle编译有两种模式：调试模式和发布模式。
+
+Instrumentation and InstrumentationRegistry
+> instrumentation is the base class for implementing application instrumentation code  
+> when running with instrumentation turned on, this class will be instantiated for you before any of the application code,  
+> allowing you to monitor all of the interaction the system has with the application.  
+> an instrumentation implementation is described to the system through an AndroidManifest.xml's <instrumentation> tag.  
+
+
+InstrumentationTestRunner and AndroidJUnitRunner
+> InstrumentationTestRunner extends Instrumentation implements TestSuiteProvider  
+> InstrumentationTestRunner was deprecated in API level 24. Use AndroidJUnitRunner instead  
+> new tests should be written using the Android Testing Support Library  
+> AndroidJUnitRunner extends MonitoringInstrumentation implements OrchestratedInstrumentationListener.OnConnectListener  
+> it based on and replacement for InstrumentationTestRunner. supports a superset of InstrumentationTestRunner features,  
+> while maintaining command/output format compatibility with that class.  
+> an Instrumentation that runs JUnit3 and JUnit4 tests against an Android package (application)  
+> write JUnit3 style TestCases and/or JUnit4 style Tests that perform tests againt the classes in your package,  
+> make use of the InstrumentationRegistry if needed  
+> in an appropriate AndroidManifest.xml, define an instrumentation with android:name set to AndroidJUnitRunner and  
+> the appropriate android:targetPackage set  
+> [Execution options] https://developer.android.com/reference/android/support/test/runner/AndroidJUnitRunner.html  
+> ```
+> # (1) Running all tests
+> $ adb shell am instrument -w com.android.foo/android.support.test.runner.AndroidJUnitRunner
+> # (2) Running all tests in a class
+> $ adb shell am instrument -w -e class com.android.foo.FooTest com.android.foo/android.support.test.runner.AndroidJUnitRunner
+> # (3) Running a single test
+> $ adb shell am instrument -w -e class com.android.foo.FooTest#testFoo com.android.foo/android.support.test.runner.AndroidJUnitRunner
+> # (4) Running all tests in multiple classes
+> $ adb shell am instrument -w -e class com.android.foo.FooTest,com.android.foo.TooTest com.android.foo/android.support.test.runner.AndroidJUnitRunner
+> # (5) Running all tests except those in a particular class
+> $ adb shell am instrument -w -e notClass com.android.foo.FooTest com.android.foo/android.support.test.runner.AndroidJUnitRunner
+> # (6) Running all but a single test
+> $ adb shell am instrument -w -e notClass com.android.foo.FooTest#testFoo com.android.foo/android.support.test.runner.AndroidJUnitRunner
+> # (7) Running all tests listed in a file
+> $ adb shell am instrument -w -e testFile /sdcard/tmp/testFile.txt com.android.foo/com.android.test.runner.AndroidJUnitRunner
+> # (8) Running all tests not listed in a file
+> $ adb shell am instrument -w -e notTestFile /sdcard/tmp/notTestFile.txt
+> # (9) Running all tests in a java package
+> $ adb shell am instrument -w -e package com.android.foo.bar com.android.foo/android.support.test.runner.AndroidJUnitRunner
+> # (10) Running all tests except a particular package
+> $ adb shell am instrument -w -e notPackage com.android.foo.bar com.android.foo/android.support.test.runner.AndroidJUnitRunner
+> # (11) To debug your tests, set a break point in your code and pass
+> $ -e debug true
+> # (12) Running a specific test size i.e. annotated with SmallTest or MediumTest or LargeTest
+> $ adb shell am instrument -w -e size [small|medium|large] com.android.foo/android.support.test.runner.AndroidJUnitRunner
+> # (13) To specify one or more RunListeners to observe the test run  
+> $ -e listener com.foo.Listener,com.foo.Listener2  
+> # (14) All arguments can also be specified in the AndroidManifest via a meta-data tag
+> <instrumentation
+>    android:name="android.support.test.runner.AndroidJUnitRunner"
+>    android:targetPackage="com.foo.Bar">
+>    <meta-data
+>        android:name="listener"
+>        android:value="com.foo.Listener,com.foo.Listener2" />
+> </instrumentation>
+> ```
+> Arguments specified via shell will override manifest specified arguments.  
+
+AndroidJUnitRunner and JUnit Rules  
+> the android testing support library includes a set of JUnit rules to be used with the AndroidJUnitRunner  
+> JUnit rules provide more flexibility and reduce the boilerplate code required in tests  
+> TestCase objects like ActivityInstrumentationTestCase2 and ServiceTestCase are deprecated  
+> in favor of ActivityTestRule or ServiceTestRule  
+> ActivityTestRule provides functional testing of a single activity, the activity under test  
+> will be launched before each test annotated with @Test and before any method annotated with @Before  
+> it will be terminated after the test is completed and all methods annotated with @After are finished  
+> the activity under test can be accessed during your test by calling ActivityTestRule.getActivity()  
+> the following code snippet demonstrates how to incorporate this rule into you testing logic:  
+> ```
+> @RunWith(AndroidJUnit4.class)
+> @LargeTest
+> public class MyClassTest {
+>     @Rule
+>     public ActivityTestRule<MyClass> mActivityRule = new ActivityTestRule(MyClass.class);
+>     @Test
+>     public void myClassMethod_ReturnsTrue() { /* ... */ }
+> }
+> ```
+> ServiceTestRule provides a simplified mechanism to start up and shut down your service before and after the duration of your test  
+> it also gurantees that the service is successfully connected when starting a service or binding to one.  
+> the service can be started or bound using one of the helper methods  
+> it will automatically be stopped or unbound after the test completes and any methods annotated with @After are finished  
+> note: this rule doesn't support IntentService. this is because the service is destroyed when IntentService.onHandleIntent(Intent)  
+> finishes all outstanding commands, so there is no guarantee to establish a successful connection in a timely manner.  
+> ```
+> @RunWith(AndroidJUnit4.class)
+> @MediumTest
+> public class MyServiceTest {
+> 　　　　@Rule
+>     public final ServiceTestRule mServiceRule = new ServiceTestRule();
+>     @Test
+>     public void testWithStartedService() {
+>         mServiceRule.startService(new Intent(InstrumentationRegistry.getTargetContext(), MyService.class));
+>         // add your test code here
+>     }
+>     @Test
+>     public void testWithBoundService() {
+>         IBinder binder = mServiceRule.bindService(new Intent(InstrumentationRegistry.getTargetContext(), MyService.class));
+>         MyService service = ((MyService.LocalBinder)binder).getService();
+>         assertTrue("Service didn't return true", service.doSomethingToReturnTrue());
+>     }
+> }
+> ```
+
+
+AndroidJUnitRunner
+> https://developer.android.com/training/testing/junit-runner.html  
+> https://developer.android.com/reference/android/support/test/runner/AndroidJUnitRunner.html  
+> This class is a JUnit test runner that lets you run JUnit3 or JUnit4 stype test classes on Android devices,  
+> including those using the Espresso and UI Automator testing frameworks  
+> the test runner handles loading your test package and the app under test to a device,  
+> running your tests, and reporting test results  
+> this class replaces the InstrumentationTestRunner class, which only supports JUnit 3 tests.  
+> this test runner supports several common testing tasks, including the following:  
+> [Writing JUnit tests], Accessing instrumentation information, Filtering tests, Sharding tests.  
+> the test runner is compatible with your JUnit 3 and JUnit 4 (up to JUnit 4.10) tests.  
+> however, you should avoid mixing JUnit 3 and JUnit 4 test code in the same package, as this might cause unexcepted results  
+> if you are creating an instrumented JUnit 4 test class to run on a device or emulator,  
+> your test class must be prefixed with the @RunWith(AndroidJUnit4.class) annotation  
+> when using AndroidJUnitRunner version 1.0 or higher, you have access to a tool called Android Test Orchestrator,  
+> which allow you to run each of your app's tests within its own invocation of Instrumentation.  
+> Android Test Orchestrator offers the following benefits for your testing environment:  
+> * No shared state - because each test runs in its own Instrumentation instance,  
+> any shared state between tests doesn't accumulate on your device's CPU or memory.  
+> for completeness, Android Test Orchestrator runs `pm clear` after each test.  
+> * Crashes are isolated - even if one test crashes, it takes down only its own instance of Instrumentation,  
+> so the other tests in your suite still run. 
+> 
+> Note: the deprecated test instrumentation runner, InstrumentationTestRunner,  
+> isn't compatible with Android Test Orchestator. If you use InstrumentationTestRunner,  
+> you might need to sue a different instrumentation runner to use on-device orchestration.  
+> Enable Android Test Orchestrator from the command line:  
+> ```
+> # install the test orchestrator
+> $ adb install -r path/to/m2repository/com/android/support/test/orchestrator/1.0.0/orchestrator-1.0.0.apk
+> # install test services
+> adb install -r path/to/m2repository/com/android/support/test/services/test-services/1.0.0/test-services-1.0.0.apk
+> # Replace "com.example.test" with the name of the package containing your tests
+> adb shell 'CLASSPATH=$(pm path android.support.test.services) app_process / \
+> android.support.test.services.shellexecutor.ShellMain am instrument -w -e \
+> targetInstrumentation com.example.test/android.support.test.runner.AndroidJUnitRunner \
+> android.support.test.orchestrator/.AndroidTestOrchestrator'
+> ```
+> If you don't know your target instrumentation, you can look it up by running the following command:
+> ```
+> adb shell pm list instrumentation  
+> ```
+> The Orchestrator service APK is stored in a process that's separate from the test APK and the APK of the app under test.  
+> Android Test Orchestrator collects JUnit tests at the beginning of your test suite run,  
+> but it then execute each test separately, in its own instance of Instrumentation.  
+> $ adb install appUnderTest  
+> $ adb install testApk  
+> $ adb install orchestrator  
+> $ adb am instrument  
+> [Accessing instrumentation information]  
+> you can use the InstrumentationRegistry class to access infromation related to your test run.  
+> this class includes the Instrumentation object, the target app Context object, the test app Context object,  
+> and the command line arguments passed into your test.  
+> this data is useful when you are writing tests using the UI Automator framework or when writing tests  
+> that have dependencies on the Intrumentation or Context objects.  
+> [Filtering tests]  
+> in your JUnit4.x tests, you can use annotations to configure the test run  
+> this feature minimizes the need to add boilerplate and conditional code in your tests  
+> in addition to the standard annotations supported by JUnit 4, the test runner also supports Android-specific  
+> annotations, including the following:  
+> * @RequireDevice - specifies that the test should run only on physical devices, not on emulators  
+> * @SdkSupress - suppresses the test from running on a lower Android API level then the given level  
+> for example, to suppress tests on all API levels lower than 23 from running, use @SdkSupress(minSdkVersion=23)  
+> * @SmallTest, @MediumTest, and @LargeTest - classify how long a test should take to run,  
+> and consequently, how frequently you can run the test  
+>
+> [Sharding tests]  
+> the test runner supports splitting a single test suite into multiple shards, so you can easily run tests  
+> belonging to the same shard together as a group, under the same Instrumentation instance.  
+> Each shard is identified by an index number. when running tests, use the `-e numShards` option to  
+> specify the number of separate shards to create and the `-e shardIndex` option to specify which shard to run  
+> for example, to split the test suite into 10 shards and run only the tests grouped in the second shard, use:  
+> adb shell am instrument -w -e numShards 10 -e shardIndex 2   
+
+
+
+UI Automator
+> https://developer.android.com/training/testing/ui-automator.html    
+> UI Automator is a UI testing framework suitable for cross-app functional UI testing across system and installed apps   
+> this framework requires Android 4.3 (API level 18) or higher   
+> the ui automator testing framework provides a set of apis to build UI tests that   
+> perform interactions on user apps and system apps.   
+> the ui automator apis allows you to perform operations such as opening the Settings menu or the app launcher in a test device   
+> the ui automator testing framework is well-suited for writing black box-style automated tests,   
+> where the test code does not rely on internal implementation details of the target app.   
+> the ui automator apis allow you to write robust tests without needing to know about   
+> the implementation details of the app that you are targeting.   
+> you can use these apis to capture and manipulate ui components across multiple apps:   
+> UiCollection - enumerates a container's ui elements for the purpose of counting,   
+> or targeting sub-elements by their visible text or content-description property   
+> UiObject - represents a UI element that is visible on the device   
+> UiScrollable - provides support for searching for items in a scrollable UI container   
+> UiSelector - represents a query for one or more target ui elements on a device   
+> Configurator - allows you to set key parameters for running ui automator tests   
+> [Testing UI for Multiple Apps] https://developer.android.com/training/testing/ui-testing/uiautomator-testing.html   
+> a user interface (UI) test that involves user interactions across multiple apps lets you   
+> verify that your app behaves correctly when the user flow crosses into other apps or into the system UI   
+> an example of such a user flow is a messaging app that lets the user enter a text message,   
+> launches the Android contact picker so that the users can select recipients to send the message to,   
+> and then returns control to the original app for the user to submit the message.   
+> this lesson covers how to write such UI tests using the ui aotumator testing framework provided by the android Testing Support Library.   
+> the ui automator apis let you interact with visible elements on a device, regardless of which Activity is in focus.   
+> your test can look up a ui component by using conveninent descriptors such as the text or content description   
+> the ui automator testing framework is an instrumentation-based api and works with the AndroidJUnitRunner test runner   
+
+
+## 命令行运行Gradle  
+原文地址：https://developer.android.com/studio/build/building-cmdline.html  
+
+使用Gradle编译有两种模式：调试模式和发布模式。  
 但不管是哪种模式，应用在安装到目标设备上之前必须进行签名。
 在调试模式下编译时会使用调试密钥，而发布模式会使用你自己的私有密钥。
 
