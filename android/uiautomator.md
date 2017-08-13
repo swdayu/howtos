@@ -906,6 +906,105 @@ UI Automator
 > your test can look up a ui component by using conveninent descriptors such as the text or content description   
 > the ui automator testing framework is an instrumentation-based api and works with the AndroidJUnitRunner test runner   
 
+UiAutomator输入事件的注入详情
+```
+UiDevice.click(x, y)
+=> Tracer.trace(x, y)
+=> getAutomatorBridge().getInteractionController().clickNoSync(x, y)
+   *** UiAutomatorBridge (public abstract), InteractionController (not public) ***
+=> InteractionController.touchDown(x, y)
+   => mDownTime = SystemClock.uptimeMillis()
+      event = MotionEvent.obtain(mDownTime, mDownTime, MotionEvent.ACTION_DOWN, x, y, 1)
+      event.setSource(InputDevice.SOURCE_TOUCHSCREEN)
+      injectEventSync(event)
+   SystemClock.sleep(REGULAR_CLICK_LENGTH) // 100
+   InteractionController.touchUp(x, y)
+   => event = MontionEvent.obtain(mDownTime, curTime, MontionEvent.ACTION_UP, x, y, 1)
+      event.setSource(InputDevice.SOURCE_TOUCHSCREEN)
+      mDownTime = 0
+      injectEventSync(event)
+=> InteractionController.injectEventSync(event)
+=> UiAutomatorBridge.injectInputEvent(event, true)
+=> UiAutomation.injectInputEvent(event, true)
+=> UiAutomationConnection.injectInputEvent(event, true)
+=> InputManager.getInstance().injectInputEvent(event, INJECT_INPUT_EVENT_MODE_WAIT_FOR_FINISH)
+
+UiObject.click()
+=> Tracer.trace()
+=> getInteractionController().clickAndSync(x, y, timeout)
+=> InteractionController.runAndWaitForEvents(clickRunnable(x, y), // => touchDown(x, y); sleep(100); touchUp(x, y)
+       new WaitForAnyEventPredicate(TYPE_WINDOW_CONTENT_CHANGED | TYPE_VIEW_SELECTED), timeout) != null
+=> UiAutomatorBridge.executeCommandAndWaitForAccessibilityEvent(command, filter, timeout)
+=> UiAutomation.executeAndWaitForEvent(command, filter, timeout)
+
+UiObject.clickAndWaitForNewWindow(timeout)
+=> Tracer.trace(timeout)
+=> getInteractionController().clickAndWaitForNewWindow(x, y, timeout)
+=> InteractionController.runAndWaitForEvents(clickRunnable(x, y),
+       new WaitForAllEventPredicate(TYPE_WINDOW_CONTENT_CHANGED | TYPE_WINDOW_CONTENT_CHANGED), timeout) != null
+
+UiObject.clickTopLeft()
+=> Tracer.trace()
+=> getInteractionController().clickNoSync(left + 5, top + 5)
+=> InteractionController.touchDown(x, y)
+   SystemClock.sleep(100)
+   InteractionController.touchUp(x, y)
+
+UiObject.longClick()
+=> Tracer.trace()
+=> getInteractionController().longTapNoSync(x, y)
+=> InteractionController.touchDown(x, y)
+   SystemClock.sleep(ms) // DEFAULT_LONG_PRESS_TIMEOUT 500, 
+   InteractionController.touchUp(x, y)
+
+UiObject.longClickTopLeft()
+=> Tracer.trace()
+=> getInteractionController(0.longTapNoSync(left + 5, top + 5)
+
+UiDevice.drag(x, y, x2, y2, steps)
+=> getAutomatorBridge().getInteractionController().swipe(x, y, x2, y2, steps, true)
+=> InteractionController.touchDown(x, y)
+   SystemClock.sleep(longPressTime) ***
+   InteractionController.touchMove(toX, toY)
+   SystemClock.sleep(MOTION_EVENT_INJECTION_DELAY_MILLIS) // 5ms
+   InteractionController.touchMove(toX2, toY2)
+   SystemClock.sleep(5)
+   InteractionController.touchMove(toX3, toY3)
+   SystemClock.sleep(5)
+   ... ...
+   SystemClock.sleep(REGULAR_CLICK_LENGTH) ***
+   InteractionController.touchUp(x2, y2)
+=> InteractionController.touchMove(xy, y)
+   => event = MotionEvent.obtain(mDownTime, curTime, MotionEvent.ACTION_MOVE, x, y, 1)
+      event.setSource(InputDevice.SOURCE_TOUCHSCREEN)
+      injectEventSync(event)
+
+UiDevice.swipe(x, y, x2, y2, steps)
+=> getAutomatorBridge().getInteractionController().swipe(x, y, x2, y2, steps)
+=> InteractionController.swipe(x, y, x2, y2, steps, /* drag */ false)
+=> InteractionController.touchDown(x, y)
+   InteractionController.touchMove(toX, toY)
+   SystemClock.sleep(MOTION_EVENT_INJECTION_DELAY_MILLIS) // 5ms
+   InteractionController.touchMove(toX2, toY2)
+   SystemClock.sleep(5)
+   InteractionController.touchMove(toX3, toY3)
+   SystemClock.sleep(5)
+   ... ...
+   InteractionController.touchUp(x2, y2)
+
+UiObject.dragTo(x, y, steps)
+=> getInteractionController().swipe(x, y, x2, y2, steps, true)
+
+UiObject.swipeUp(steps)
+=> getInteractionController().swipe(centerX, bottom - 5, centerX, top + 5, steps)
+
+UiObject.pintchIn(percent, steps)
+=> performTwoPointerGesture(startPoint1, startPoint2, endPoint1, endPoint2, steps)
+=> performMultiPointerGesture(points1, points2)
+
+UiObject.performMultiPointerGesture(touches)
+=> getInteractionController().performMultiPointerGesture(touches)
+```
 
 ## 命令行运行Gradle  
 原文地址：https://developer.android.com/studio/build/building-cmdline.html  
