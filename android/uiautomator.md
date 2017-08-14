@@ -1006,6 +1006,116 @@ UiObject.performMultiPointerGesture(touches)
 => getInteractionController().performMultiPointerGesture(touches)
 ```
 
+UiAutomator 2.0
+```
+* package is changed - `com.android.uiautomator.core.UiDevice` to `android.support.test.uiautomator.UiDevice`
+* the major change in the new UiAutomator 2.0 is that test packages produced are now APKs. Making UiAutomator 2.0
+  fully android instrumentation capable is definitely good way to go forward and most likely it will make this
+  framework usable by larger audience
+* command to run the tests is changed:
+  $ adb shell uiautomator runtest UiTest.jar -c package.name.ClassName
+  $ adb shell am instrument -e class com.example.app.MyTest com.example.app.test/android.support.test.runner.AndroidJUnitRunner
+* By, BySelector, UiObject2, Until are new classes added into UiAutomator 2.0
+```
+
+UiWatcher and StaleObjectException
+```
+* UiObject is not directly bound to the view. It just contains information to help it locate a matching view at runtime
+  once you create an instance of a UiObject, it can be reused for different views that match the selector
+* UiObject2 represents a UI element, it is bound to a particular view instance and may become stale
+  if underlying view object is destroyed. as a result, it may be necessary to call UiDevice.findObject(BySelector) to obtain a new instance
+* a StaleObjectException is thrown when a UiObject2 is used after the underlying View has been destroyed
+  in this case, it is necessary to call UiDevice.findObject(BySelector) to obtain a new UiObject2 instance
+* When the framework is in the process of matching a selector and it is unable to match any widget
+  based on the specified criteria in the selector, the framework will perform retries by calling registered watchers' checkForCondition()
+  this gives the registered watchers a chance to take a look at the display and see if there is a recongnized condition
+  that can be handled and in doing so allowing the current test to continue.
+* an example usage would be to look for dialogs popped due to other backgroud processes requesting user attention
+  and have nothing to do with the application currently under test.
+
+UiDevice.findObject(uiselector)
+=> new UiObject(this, selector)
+
+UiDevice.findObject(byselector)
+=> AccessibilityNodeInfo node = ByMatcher.findMatch(this, selector, getWindowRoots())
+   new UiObject2(this, selector, node) or null
+=> UiDevice.getWindowRoots() // returns a list containing the roots for each active window
+   - waitForIdle() ***
+   - UiAutomation.getWindows(), window.getRoot() for each window
+   ByMatcher.findMatch(device, selector, roots)
+   - ByMatcher matcher = new ByMatcher(device, selector, /* return early or not when the 1st match is found */ true)
+   - matcher.findMatches(root)
+     * findMatches(root, 0, 0, new SinglyLinkedList<PartialMatch>()) // will run watchers and try find again if empty
+     * if (empty) { mDevice.runWatchers(); findMatches(root, 0, 0, new SinglyLinkedList<ParticalMatch>()) }
+=> ByMatcher.findMatch(root, /* index of this node underneatch its parent */ index, /* distance to root node */ depth, particalMatches)
+   - if (!root.isVisibleToUser()) return; // don't search the subtree if it is not visible
+   - root.getChildCount(); root.getChild(i); // check for each child and try to match
+   - ret.add(AccessibilityNodeInfo.obtain(node)) // add matched node
+
+UiObject.exists()
+=> waitForExists(0)
+
+UiObject.waitForExists(timeout)
+=> findAccessibilityNodeInfo(timeout) != null
+   - node = getQueryController().findAccessibilityNodeInfo(mUiSelector)
+   - if (node != null) return node;
+   - mDevice.runWatchers(); SystemClock.sleep(WAIT_FOR_SELECTOR_POLL /* 1000 */) and try again
+=> QueryController.findAccessibilityNodeInfo(selector, /* isCounting */ false)
+   - UiAutomatorBridge.waitForIdle()
+   - AccessibilityNodeInfo rootNode = getRootNode(); => mUiAutomatorBridge.getRootInActiveWindow();
+   - translateCompoundSelector(new UiSelector(selector), rootNode, isCounting)
+
+UiObject.waitUntilGone(timeout)
+=> findAccessibilityNodeInfo(timeout) == null
+
+UiObject2.getParent()
+=> getAccessibilityNodeInfo()
+   - mDevice.waitForIdle() ***
+   - if (!mCachedNode.refresh()) { mDevice.runWatchers(); if (!mCachedNode.refresh()) throw new StaleObjectException(); *** }
+   - return mCachedNode
+   new UiObject2(mDevice, mSelector, mCachedNode.getParent()) or null
+
+UiObject2.getChildren()
+=> findObjects(By.deptch(1))
+
+UiObject2.findObject(byselector)
+=> ByMatcher.findMatch(mDevice, selector, getAccessibilityNodeInfo())
+   new UiObject2(mDevice, selector, node) or null
+
+UiObject2.hasObject(byselector)
+=> node = ByMatcher.findMatch(mDevice, selector, getAccessibilityNodeInfo())
+   if (node != null) { node.recycle(); return true; } return false;
+
+UiObject2.recycle()
+=> mCachedNode.recycle()
+=> mCachedNode = null
+
+AccessibilityNodeInfo.obtain() // returns a cached instance if such is avilable otherwise a new one and sets the source
+AccessibilityNodeInfo.recycle() // return an instance back to be reused
+
+AccessibilityNodeInfo.refresh()
+* refreshes this info with the latest state of the view it represents
+* Note: if this method returns false this info is obsolete since it represents a view that is no longer
+* in the view tree and should be recycled
+=> refresh(/* bypassCache */ true)
+=> AccessibilityInteractionClient.findAccessibilityNodeInfoByAccessibilityId(connid, wndid, srcNodeId, bypassCache, 0)
+
+AccessibilityNodeInfo.getChildCount()
+AccessibilityNodeInfo.getChild(i)
+
+UiDevice.waitForIdle() TOTAL_TIME_TO_WAIT_FOR_IDLE_STATE 1000*10 // 10s
+=> UiAutomatorBridge.waitForIdle(timeout)
+=> UiAutomation.waitForIdle(QUIET_TIME_TO_BE_CONSIDERD_IDLE_STATE /* 500ms */, timeout)
+   - enter a while loop to check "mLastEventTimeMillis", if no event occurred within 500ms then considered as idle
+   - onAccessibilityEvent(AccessibilityEvent event) => mLastEventTimeMillis = event.getEventTime()
+UiAutomation.getWindows()
+AccessibilityWindowInfo.getRoot()
+
+UiObject2.getText()
+=> getAccessibilityNodeInfo().getText()
+```
+
+
 ## 命令行运行Gradle  
 原文地址：https://developer.android.com/studio/build/building-cmdline.html  
 
