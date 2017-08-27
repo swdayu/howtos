@@ -88,13 +88,13 @@ Sorry. The wind caught it.
 还是胖笨笨的螃蟹棒。
 
 【方幌子和黄幌子】
-老方扛着个黄幌子
-老黄扛着个方幌子
-老方要拿老黄的方幌子
-老黄要拿老方的黄幌子
-老黄老方不相让
-方幌子碰破了黄幌子
-黄幌子碰破了方幌子
+老方扛着个黄幌子 (lao fang kang zhe ge huang huang zi)
+老黄扛着个方幌子 (lao huang kang zhe ge fang huang zi)
+老方要拿老黄的方幌子 (lao fang yao na lao huang de fang huang zi)
+老黄要拿老方的黄幌子 (lao huang yao na lao fang de huang huang zi)
+老黄老方不相让 (lao huang lao fang bu xiang rang)
+方幌子碰破了黄幌子 (fang huang zi peng po le huang huang zi)
+黄幌子碰破了方幌子 (huang huang zi peng po le fang huang zi)
 
 【女小吕和女老李】
 这天天下雨
