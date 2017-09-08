@@ -295,9 +295,15 @@ ATA from bt headset
 > [CallsManager]answerCall  
 ```
 
+HID/HOGP
+```
+* 将HID数据写入内核： bta_hh_co_write: UHID write
+```
+
 AVRCP/A2DP
 ```
-* audio_start_stream|a2dp_command|suspend_audio_datapath|ON A2DP|SCO State|audio_state
+* A2DP与SCO: audio_start_stream|a2dp_command|suspend_audio_datapath|ON A2DP|SCO State|audio_state
+* AVRCP发送的PLAY/STOP: handle_rc_passthrough_cmd|AVRCP: Send key|MediaSessionService: Sending KeyEvent|NuPlayerDriver: start|NuPlayerDriver: pause
 * Stopping VR|stopVoiceRecognition|Starting VR|startVoiceRecognition
 * system/bt/audio_a2dp_h2: audio.a2dp.default_32 libbthost_if_32 (system/lib/hw, system/lib)
 * A2DP COMMAND|skt_connect|skt_disconnect|AV Sevent
