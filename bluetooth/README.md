@@ -298,6 +298,7 @@ ATA from bt headset
 HID/HOGP
 ```
 * 将HID数据写入内核： bta_hh_co_write: UHID write
+* 查看Android事件： adb shell getevent -t -l | grep -iE "EV_KEY"
 ```
 
 AVRCP/A2DP
