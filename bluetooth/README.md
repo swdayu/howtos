@@ -299,12 +299,22 @@ HID/HOGP
 ```
 * 将HID数据写入内核： bta_hh_co_write: UHID write
 * 查看Android事件： adb shell getevent -t -l | grep -iE "EV_KEY"
+* This issue may be only caused by the APP interpreting LONG PRESS KEY to multiple characters.
+* Could we check the APP'code to see how it hanlde key events?
+* Android PFGr said below.
+* ---
+* repeatCount is working in the process of InputDispatcher.
+* Then, the timer called KeyRepeatTimeout works when it receive DOWN.
+* If the timer is over than 500msec, repeatCount will be incremented and Event is notified every 50msec.
+* In this case, since it takes 520msec from DOWN to UP about KEY_1,
+* repeatCoun might be incremented with 1 and the Event might be notified.
+* ---
 ```
 
 AVRCP/A2DP
 ```
 * A2DP与SCO: audio_start_stream|a2dp_command|suspend_audio_datapath|ON A2DP|SCO State|audio_state
-* AVRCP发送的PLAY/STOP: handle_rc_passthrough_cmd|AVRCP: Send key|MediaSessionService: Sending KeyEvent|NuPlayerDriver: start|NuPlayerDriver: pause
+* AVRCP发送的PLAY/STOP: handle_rc_passthrough_cmd|AVRCP: Send key|MediaSessionService: Sending KeyEvent|MediaButton|NuPlayerDriver: start|NuPlayerDriver: pause
 * Stopping VR|stopVoiceRecognition|Starting VR|startVoiceRecognition
 * system/bt/audio_a2dp_h2: audio.a2dp.default_32 libbthost_if_32 (system/lib/hw, system/lib)
 * A2DP COMMAND|skt_connect|skt_disconnect|AV Sevent
