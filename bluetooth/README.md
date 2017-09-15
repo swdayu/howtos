@@ -55,6 +55,8 @@ There is a RX thread of `bt_hc_workder_thread` used to read data from lower laye
 * AdapterState关蓝牙状态机：BEGIN_BREDR_CLEANUP => BEGIN_DISABLE => BREDR_STOPPED (BleOnState) => DISABLED (OffState)
 * 开蓝牙：BluetoothAdapter.STATE_OFF (10) -> STATE_BLE_TURNING_ON (14) -> (BT_VND_OP_POWER_CTRL: On) ->
 * STATE_BLE_ON (15) -> STATE_TURNING_ON (11) -> STATE_ON (12)
+* 开蓝牙最后一步启动蓝牙核心Profile服务： startCoreServices|setProfileServiceState|onProfileServiceStateChange
+* ---
 * 03:41:29.188 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 10-> 14
 * 03:41:29.228 23906 24199 I bt_vendor: bt-vendor : BT_VND_OP_POWER_CTRL: On
 * 03:41:29.422 23906 24198 I BluetoothAdapterState: Bluetooth adapter state changed: 14-> 15
