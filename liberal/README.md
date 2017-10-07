@@ -74,3 +74,54 @@ How to write anything
 * 死胖子：你能听到吗，你还能听到吗，你还有勇气直面你的恐惧吗
 * 死变态：妈妈，要下雨了…
 ```
+
+```
+开始都嘟（马未都）
+文明一定趋同    wen ming yi ding qu tong
+文化必须求异    wen hua bi xu qiu yi
+历史没有真相    li shi mei you zhen xiang
+只残存一个道理  zhi can cun yi ge dao li
+社会是锅粥      she hui shi guo zhou
+过了坎儿还有沟  guo le kaner hai you gou
+八卦如同算卦    ba gua ru tong suan gua
+算卦都是废话    suan gua dou shi fei hua
+有态度的脱口秀  you tai du de tuo kou xiu
+有玄机的脱手秀  you xuan ji de tou shou xiu
+
+晓说（高晓松）
+路，走了四十八年          lu zou le si shi ba nian
+方向，却不止一边          fang xiang que bu zhi yi bian
+服装，偏爱黑色            fu zhuang pian ai hei se
+内心，却仍是此间少年       nei xin que reng shi ci jian shao nian
+护照，四十八页            hu zhao si shi ba ye
+但每个终点，都值得赞颂千篇  dan mei ge zhong dian dou zhi de zan song qian pian
+旅程，左右万里            lv cheng zuo you wan li
+时差，却最多一天           shi cha que zui duo yi tian
+世事上下千年              shi shi shang xia qian nian
+却偏要说出瞬间             que pian yao shuo chu shun jian
+二零一七，世界依旧很大      er ling yi qi shi jie yi jiu hen da
+大到可以晓说               da dao ke yi xiao shuo
+与晓说一起聆听世界的天籁     yu xiao shuo yi qi ling ting shi jie de tian lai
+
+望岳（唐·杜甫）
+岱宗夫如何，齐鲁青未了。  dai zong fu ru he qi lu qing wei liao
+造化钟神秀，阴阳割昏晓。  zao hua zhong shen xiu yin yang ge hun xiao
+荡胸生曾云，决眦入归鸟。  dang xiong sheng ceng yun jue zi ru gui niao
+会当凌绝顶，一览众山小。  hui dang ling jue ding yi lan zhong shan xiao
+---
+* 岱宗即东岳泰山，为五岳之首，故称为宗，位于山东泰安市
+* 岱，就是泰山的别称；宗，有祖先、宗族、派别、长、大、排在首位的意思
+* 其他四岳是西岳华山（位于陕西渭南市），南岳衡山（湖南衡阳），北岳恒山（山西大同），中岳嵩山（河南郑州）
+* 五岳是古代民间山神崇拜、五行观念、帝王封禅祭祀相结合的产物，后为道教所继承，被视为道教名山
+* 夫，语气词；如何，怎么样；齐鲁，春秋国名，齐在泰山之北，鲁在泰山之南，都在今山东境内，后用齐鲁代指山东地区
+* 青，指苍翠、葱郁的泰山景色；未了，没有尽头
+* 造化，天地、大自然；钟，汇聚，聚集；神秀，神奇秀丽的景色；
+* 阴阳，山北为阴，山南为阳；割，划分；昏晓，山后为阴，因日光不到，所以易昏，山前为阳，日光先临，所以易晓
+* 荡胸，胸襟浩荡；曾，通“层”，重叠；决，裂开；眦，眼眶、眼角；
+* 决眦，眼角几乎要裂开，极目远眺的意思；入，收入眼底，看到；归鸟，归林的鸟儿
+* 会当，一定要；凌，登临，登上；绝顶，顶峰；一览，看、举目纵观；众山，群山；小，认为众山小的意思
+* 泰山景色怎么样呢？它横亘齐鲁之地，延绵没有尽头。
+* 这里汇聚了大自然的神奇景色，而且它巍峨耸立分割了昏晓。
+* 浩荡的山中生起层层白云，入林的归鸟尽收眼底。
+* 一定要登临泰山之巅，俯瞰群山一览天下。
+```
