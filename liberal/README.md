@@ -142,4 +142,10 @@ How to write anything
 * 这里汇聚了大自然的神奇景色，而且巍峨矗立分割了昏晓。
 * 浩荡的山中生起层层白云，入林的归鸟尽收眼底。
 * 一定要登临泰山之巅，俯瞰群山一览天下。
+
+题临安邸（宋·林升） ti ling an di
+山外青山楼外楼，    shan wai qing shan lou wai lou
+西湖歌舞几时休？    xi hu ge wu ji shi xiu
+暖风熏得游人醉，    luan feng xun de you ren zui
+直把杭州作汴州。    zhi ba hang zhou zuo bian zhou
 ```
