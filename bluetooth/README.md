@@ -278,6 +278,7 @@ AVRCP/A2DP
 * A2DP与SCO: audio_start_stream|a2dp_command|suspend_audio_datapath|ON A2DP|SCO State|audio_state
 * AVRCP发送的PLAY/STOP: handle_rc_passthrough_cmd|AVRCP: Send key|MediaSessionService: Sending KeyEvent|MediaButton|NuPlayerDriver: start|NuPlayerDriver: pause
 * Stopping VR|stopVoiceRecognition|Starting VR|startVoiceRecognition
+* Audio和Player信息：NuPlayerDriver｜MediaPlayer
 * system/bt/audio_a2dp_h2: audio.a2dp.default_32 libbthost_if_32 (system/lib/hw, system/lib)
 * A2DP COMMAND|skt_connect|skt_disconnect|AV Sevent
 * AVDT_CONNECT => a2dp_stream_common_init => skt_connect(common->ctrl_fd) /data/misc/bluedroid/.a2dp_ctrl
