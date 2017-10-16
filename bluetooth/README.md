@@ -453,6 +453,7 @@ if (serviceData == null || serviceData.isEmpty()) {
 * BLE ANS 没有通知提示问题的确认
 * 1. 对应的开关有没有打开：Bluetooth Settings | Menu | Bluetooth Low Energy | Alert Notification Detail Setting | check related items ON
 * 2. 有通知出现到通知栏，并且该通知有震动或铃声或闪光的设置
+* 3. APP的Notifications权限有没有禁用，如果禁用了就不会有通知，cancelflg将为true
 * => NotificationManagerService.java$buzzBeepBlinkLocked(record)
 * => NotifyAnsUpdate(record, (buzz || beep || blink))
 *    03:50:00.156  9895  9895 D ANS     : mAlertReceiver onReceive()
