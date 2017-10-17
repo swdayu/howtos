@@ -1,10 +1,12 @@
 
 ```
 * BARB - Bluetooth Architectural Review Board
+* /system/build.prop
 * /data/misc/bluetooth/.bt_nv.bin
 * /data/misc/bluetooth/logs/btsnoop_hci.log
 * /data/misc/bluedroid/bt_config.conf
 * /data/misc/bluedroid/bt_fw_version.txt
+* /bt_firmware/image/btnv32.bin
 * /etc/bluetooth/bt_stack.conf
 ---
 * 灭屏和点亮 "REC@0   : screen_toggled: 0|REC@0   : screen_toggled: 1"
