@@ -10,6 +10,8 @@
 * /etc/bluetooth/bt_stack.conf
 ---
 * 灭屏和点亮 "REC@0   : screen_toggled: 0|REC@0   : screen_toggled: 1"
+* BluetoothSettingsBatchPlugin: call onRestore on
+* DataProtectionService: RestoreExecutor onRestore() retVal :0
 ```
 
 蓝牙开关和重连
