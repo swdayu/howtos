@@ -130,6 +130,38 @@
 
 HCI/SNOOP
 ```
+vendor/qcom/opensource/bluetooth/bt_logger/
+vendor/qcom/opensource/bluetooth/btsnoop_dump/
+system/bt/hci/src/btsnoop
+---
+The log switch between hci_snoop.cfa and btsnoop_hci.log is START_SNOOP_LOGGING(), below is the flow:
+01. bluetooth.c will property_set("bluetooth.startbtlogger", "true") to start "bt_logger" service (vendor/qcom/opensource/bluetooth/bt_logger/)
+02. btsnoop.c$start_up()
+03. update_logging()
+04. btsnoop_net_open() -> listen_fn_() -> local_socket_create() -> using listen_socket_local_ to listen on socket "bthcitraffic"
+05. START_SNOOP_LOGGING() to send_event(START_SNOOP_SIGNAL)
+06. bt_logger/src/bt_logger.c: process_packet() -> start_snoop_logging()
+07. bt_logger/src/btsnoop_dump.c: snoop_dump_thread() -> snoop_connect_to_source()
+08. bt_logger/src/btsnoop_dump.c: connect the socket "bthcitraffic"
+09. hci/src/btsnoop_net.c: client_socket = accept(listen_socket_local_, ...);
+10. client_socket_btsnoop = client_socket;
+11. hci/src/btsnoop.c: btsnoop_net_write() -> send(client_socket_btsnoop, ...) -> write to "hci_btsnoopxxx.cfa"
+    if client_socket_btsnoop is -1, write to "btsnoop_hci.log".
+void btsnoop_write(const void *data, size_t length) {
+  if (client_socket_btsnoop != -1) {
+      btsnoop_net_write(data, length);
+      /* skip writing to file if external client is connected*/
+      return; 
+  }
+  if (logfile_fd != INVALID_FD)
+      write(logfile_fd, data, length);
+}
+---
+And btsnoop_net.c$listen_fn_() is not only listen on "bthcitraffic",
+but also listen on: LOCALHOST_ = 0x7F000001; LISTEN_PORT_ = 8872;
+And the priority of "0x7F000001:8872" is higher than "bthcitraffic".
+I think if we write an apk connect to "0x7F000001:8872", we can receive the hci log and store it any where.
+---
 * hci receive: event_uart_has_bytes() => hal_says_data_ready() => btu_hci_msg_queue => btu_hci_msg_ready()
 * hci_layer.c$hal_says_data_ready() 接收 hci event 和 acl data
 * - acl data: packet_fragmenter->reassemble_and_dispatch() => dispatch to btu_hci_msg_queue
