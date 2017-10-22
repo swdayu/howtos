@@ -227,6 +227,7 @@ Bluedroid中的线程
 
 搜索配对连接
 ```
+* 处理对方发起的connect request: l2c_link_hci_conn_req｜btm_acl_created｜btm_sec_disconnected
 * 底层连接：Scan Mode:|btm_acl_created|btm_sec_disconnected|L2CA_DisconnectReq|W4_L2CAP_DISC_RSP
 * Write_Scan_Enable 对应的上层参数：BluetoothAdapterProperties: Scan Mode:20/21/23
 * BluetoothAdapter.SCAN_MODE_NONE(20) SCAN_MODE_CONNECTABLE(21) SCAN_MODE_CONNECTABLE_DISCOVERABLE(23)
