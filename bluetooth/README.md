@@ -318,7 +318,10 @@ AVRCP/A2DP
 * AVRCP发送的PLAY/STOP: handle_rc_passthrough_cmd|AVRCP: Send key|MediaSessionService: Sending KeyEvent|MediaButton|NuPlayerDriver: start|NuPlayerDriver: pause
 * Stopping VR|stopVoiceRecognition|Starting VR|startVoiceRecognition
 * Audio和Player信息：NuPlayerDriver|MediaPlayer|updatePlayerPlayPauseState
-* 电话挂断之后，Audio什么时间点将音频写到蓝牙？Audio只要播放器有数据它就会一直写，写给谁只在于当前的选择的是手机还是蓝牙
+* SCO/A2DP/AVRCP交互: audio_start_stream|a2dp_command|suspend_audio_datapath|ON A2DP|SCO State|audio_state|
+*     AVRCP: Send key|ACTION_MEDIA_BUTTON|NuPlayerDriver: pause|NuPlayerDriver: start|
+*     BTIF_MEDIA_STOP_VS_CMD|BTIF_MEDIA_STOP_VS_CMD|BTIF_MEDIA_START_VS_CMD|BTIF_MEDIA_START_VS_CMD
+* 电话挂断之后，Audio什么时间点将音频写到蓝牙？ Audio只要播放器有数据它就会一直写，写给谁只在于当前的选择的是手机还是蓝牙
 * 那什么时候选择蓝牙呢？ AudioPolicyManager::checkA2dpSuspend() 当SCO断掉之后如果有A2DP就会切到A2DP
 * 只要切到了A2DP就不会漏音，只是A2DP start的时间导致延时问题；漏音问题是由手机端电话挂断后播放器开始播放音乐，与SCO真实断连之间的时间差导致
 * system/bt/audio_a2dp_h2: audio.a2dp.default_32 libbthost_if_32 (system/lib/hw, system/lib)
