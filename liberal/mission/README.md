@@ -6,7 +6,7 @@
 ```
 
 终极使命任务编号
-* [OMEGA001](./liberal/mission/omega001.md). 输出比较完整的海伯利安文章
+* [OMEGA001](./omega001.md). 输出比较完整的海伯利安文章
 *
 
 ```
