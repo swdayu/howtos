@@ -15,4 +15,7 @@ Ubuntu
 * sudo apt-get install libntdb1:amd64
 * sudo apt-get install libupstart1:amd64
 * reboot
+
+# rename file postfix name
+$ find -name '*.cc' | xargs rename -v 's/\.cc/\.c/' *
 ```
