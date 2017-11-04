@@ -257,14 +257,27 @@ IdentifierChar:
 
 **interger/float**
 ```c
+void/true/false
+bool/char/string     8-bit  /* b/c/s */
+int/uint      pointer-size  /* i/u   */
+int8/byte            8-bit  /* ib/ub */
+short/ushort        16-bit  /* is/us */
+medit/umedit        32-bit  /* im/um */
+long/ulong          64-bit  /* il/ul */
+cent/ucent         128-bit  /* ic/uc */
+float               32-bit  /* fl */
+freal               64-bit  /* fr */
+fcent              128-bit  /* fc */
+ffast     32-bit or 64 bit  /* ff */
+
 bool - true false                     bool
 rune/char - unsigned byte             rune/char
 byte - unsigned byte                  byte ub
 int8 - signed byte                    int8 i8
-ihalf/uhalf - 16-bit                   half/uh  
-ifull/ufull - 32-bit                   full/uf
-ilong/ulong - 64-bit                   long/ul
-icent/ucent - 128-bit                  cent/uc
+ihalf/uhalf - 16-bit                  half/uh  
+ifull/ufull - 32-bit                  full/uf
+ilong/ulong - 64-bit                  long/ul
+icent/ucent - 128-bit                 cent/uc
 iptr/uptr  - machine word size        iptr/up
 int/uint - at least 64-bit            int/ui: default int type
 float/real - 32/128-bit float point   float/real
