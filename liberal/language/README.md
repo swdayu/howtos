@@ -1,5 +1,51 @@
 
+英语地道发音
 ```
+1. 连读
+---
+about-you
+would-you
+look-after
+
+
+2. 失爆
+---
+si(t) down
+bed an(d) breakfast (bnb)
+jus(t) some guy　i work with
+going ou(t) with the guy
+ou(t) there
+didn'(t) have time to coo(k) breakfes(t) for
+the goo(d) TV
+hang ou(t) here tonight
+i will no(t) ta(ke) this abuse
+an(d) that's when-i(t) hi(t) me
+---
+* 单词词尾爆破音的一种省读方式
+* 爆破音 /p/ /b/ /t/ /d/ /k/ /g/
+* 人们发音送气往往寻求流畅优美，经由最小阻力一气呵成
+* 因此别扭费劲的音常常被省略掉，发音也变得省力流畅
+* 失爆并不是一个要刻意维持的技巧，它是人们因为懒得发爆破音自然形成的一种现象
+* 但不是什么爆破音都可以省略，能省略的爆破音一般都是单词的最后一个音
+* 而且这个爆破音常常不能流畅地跟后面的音怼在一起连读，如果能怼在一起就不能省去
+* 另外注意的是，失爆不是一个必须遵循的法则，它只是速读时的一种现象而已
+
+
+3. 弱读
+---
+(the) cows eat (the) grass
+(the) cows (are) eating (the) grass
+(the) cows (have been) eating (the) grass
+I'm (just so) angry
+how (is) everything going?
+No, (I) don't think so. (I've) got (a) lot (of) work (to) do.
+(do you) want me (to) get (you) anything there?
+---
+* 把句子读得有节奏有腔调，重读实词弱读虚词
+* 不知道那个词弱读的一个技巧是先将所有单词都重读，然后把听起来别扭的词换成弱读
+---
+
+
 Perhaps our paths will cross again.
 I hope they do.
 
