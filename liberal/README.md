@@ -149,6 +149,30 @@ How to write anything
 大到可以晓说               da dao ke yi xiao shuo
 与晓说一起聆听世界的天籁     yu xiao shuo yi qi ling ting shi jie de tian lai
 
+风清扬（MAN WITH THE WIND）
+马蹄声回荡在竹林间
+千山外江湖边月光纵横
+云掠过山鹰的背脊
+他冷眼看繁花乱掷地无声
+唱一曲出塞的歌谣
+沧海一声笑万籁俱寂
+风萧萧日落朝退去
+天地生太极
+剑在手星坠落雨瓢泼
+淋不湿万里独行的脚印
+阳关外天苍苍野茫茫
+吹不散大漠深处的背影
+君不见自古出征的男儿
+有几个照了汉青
+一个个事了拂衣去
+深藏身与名
+风起青萍之末
+千里烟波
+飞驰连夜的烽火
+清秋时分浊酒一壶
+挑灯看剑回望人海起落
+扬帆与岁月放歌
+
 望岳（唐·杜甫）
 岱宗夫如何？齐鲁青未了。  dai zong fu ru he qi lu qing wei liao
 造化钟神秀，阴阳割昏晓。  zao hua zhong shen xiu yin yang ge hun xiao
