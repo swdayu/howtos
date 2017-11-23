@@ -352,11 +352,12 @@ HID/HOGP
 
 AVRCP/A2DP
 ```
-* A2DP与SCO: audio_start_stream|a2dp_command|suspend_audio_datapath|ON A2DP|SCO State|audio_state
+* A2DP相关模块: bthost_ipc
+* A2DP与SCO: audio_start_stream|audio_stop_stream|a2dp_command|suspend_audio_datapath|ON A2DP|SCO State|audio_state
 * AVRCP发送的PLAY/STOP: handle_rc_passthrough_cmd|AVRCP: Send key|MediaSessionService: Sending KeyEvent|MediaButton|NuPlayerDriver: start|NuPlayerDriver: pause
 * Stopping VR|stopVoiceRecognition|Starting VR|startVoiceRecognition
 * Audio和Player信息：NuPlayerDriver|MediaPlayer|updatePlayerPlayPauseState
-* SCO/A2DP/AVRCP交互: audio_start_stream|a2dp_command|suspend_audio_datapath|ON A2DP|SCO State|audio_state|
+* SCO/A2DP/AVRCP交互: audio_start_stream|audio_stop_stream|a2dp_command|suspend_audio_datapath|ON A2DP|SCO State|audio_state|
 *     AVRCP: Send key|ACTION_MEDIA_BUTTON|NuPlayerDriver: pause|NuPlayerDriver: start|
 *     BTIF_MEDIA_STOP_VS_CMD|BTIF_MEDIA_STOP_VS_CMD|BTIF_MEDIA_START_VS_CMD|BTIF_MEDIA_START_VS_CMD
 * 电话挂断之后，Audio什么时间点将音频写到蓝牙？ Audio只要播放器有数据它就会一直写，写给谁只在于当前的选择的是手机还是蓝牙
