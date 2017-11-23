@@ -14,6 +14,44 @@
 * DataProtectionService: RestoreExecutor onRestore() retVal :0
 ```
 
+Android-O BT ON/OFF
+```
+BD_ADDR is set to BT controller when firmware patch download:
+* hci_module_start_up()
+* message_loop_run()
+* hci_initialize()
+* btHci->initialize(callbacks)
+* BluetoothHci::initialize()
+* DataHandler::Init(TYPE_BT, ...)
+* DataHandler::Open()
+CASE#1 {
+* UartController::Init()
+* PatchDLManager.PerformChipInit()
+* BluetoothAddress::GetLocalAddress(vnd_local_bd_addr_***)
+* PatchDLManager::SocInit()
+* PatchDLManager::DownloadTlvFile()
+* PatchDLManager::GetTlvFile() replace the BD Address before download:
+*   if (ptlv_header->tlv_type == TLV_TYPE_BT_NVM) {
+*     /* Write BD Address */
+*     if (nvm_ptr->tag_id == TAG_NUM_2) { memcpy(nvm_byte_ptr, vnd_local_bd_addr_***, 6);
+CASE#2 {
+* MctController::Init()
+* NvmTagsManager::SocInit()
+* BluetoothAddress::GetLocalAddress(vnd_local_bd_addr_***)
+* NvmTagsManager::DownloadNvmTags(vnd_local_bd_addr_***) replace the BD Address before download:
+*   if (cmds[i][MCT_TAG_NUM_OFFSET] == TAG_NUM_2) { memcpy(&cmds[i][MCT_TAG_BDADDR_OFFSET], bdaddr***, 6);
+---
+The BD Address priorities defined in the BluetoothAddress::GetLocalAddress():
+* vendor address "fetch_vendor_addr()" read address from "/data/misc/bluetooth/.bt_nv.bin" >
+* address in the path PROPERTY_BT_BDADDR_PATH "ro.bt.bdaddr_path" >
+* address in the property FACTORY_BDADDR_PROPERTY "ro.boot.btmacaddr" >
+* address in the property PERSIST_BDADDR_PROPERTY "persist.service.bdroid.bdaddr" >
+* random address "22:22:XX:XX:XX:XX" 
+At the beginning, the phone doesn't have the file "/data/misc/bluetooth/.bt_nv.bin" 
+and uses a random address. After the patch applied, the ".bt_nv.bin" is generated and the
+phone uses the vendor address from ".bt_nv.bin".
+```
+
 蓝牙开关和重连
 ```
 * 开关蓝牙涉及的类：BluetoothAdapter, BluetoothManagerService，AdapterState，AdapterProperties
