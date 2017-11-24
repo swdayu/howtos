@@ -12,6 +12,12 @@
 * 灭屏和点亮 "REC@0   : screen_toggled: 0|REC@0   : screen_toggled: 1"
 * BluetoothSettingsBatchPlugin: call onRestore on
 * DataProtectionService: RestoreExecutor onRestore() retVal :0
+---
+BT profiles
+* device/qcom/common/device/overlay/packages/apps/Bluetooth/res/values/config.xml
+* vendor/qcom/opensource/bluetooth/res/values/config.xml 
+* packages/apps/Bluetooth/res/values/config.xml
+* device/qcom/common/rootdir/etc/init.qcom.rc (services define)
 ```
 
 Android-O BT ON/OFF
