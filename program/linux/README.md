@@ -262,6 +262,10 @@ Skype | Options
 - General:  Save files to: [skype]
 - Notifications: Chat Message Received: [n] Display pop-up notification
 - IM: [y] Show emoticons [y] Show animated emoticons
+
+Skype for linux
+* Use a over sea IP to access "www.skype.com"
+* Then your can get latest linux version skype
 ```
 
 **sogoupinyin**
