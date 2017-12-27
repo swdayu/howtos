@@ -362,6 +362,9 @@ AVRCP/A2DP
 * A2DP与SCO: audio_start_stream|audio_stop_stream|a2dp_command|suspend_audio_datapath|ON A2DP|SCO State|audio_state
 * AVRCP发送的PLAY/STOP: handle_rc_passthrough_cmd|AVRCP: Send key|MediaSessionService: Sending KeyEvent|MediaButton|NuPlayerDriver: start|NuPlayerDriver: pause
 * Stopping VR|stopVoiceRecognition|Starting VR|startVoiceRecognition
+* AVRCP按键信息，安卓N的键映射"android/frameworks/base/data/keyboards/AVRCP.kl"
+* 安卓N的AVRCP按键：BTA_AV_REMOTE_CMD_EVT|handle_rc_passthrough_cmd|bt_btif : send_key|bt_btif : send_event|MediaSessionService: Sending KeyEvent
+* 安卓O的AVRCP按键：BTA_AV_REMOTE_CMD_EVT|MSG_NATIVE_REQ_PASS_THROUGH|MediaSessionService: Sending KeyEvent
 * Audio和Player信息：NuPlayerDriver|MediaPlayer|updatePlayerPlayPauseState
 * SCO/A2DP/AVRCP交互: audio_start_stream|audio_stop_stream|a2dp_command|suspend_audio_datapath|ON A2DP|SCO State|audio_state|
 *     AVRCP: Send key|ACTION_MEDIA_BUTTON|NuPlayerDriver: pause|NuPlayerDriver: start|
