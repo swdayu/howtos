@@ -12,6 +12,7 @@
 * 灭屏和点亮 "REC@0   : screen_toggled: 0|REC@0   : screen_toggled: 1"
 * BluetoothSettingsBatchPlugin: call onRestore on
 * DataProtectionService: RestoreExecutor onRestore() retVal :0
+* 查看鼠标键盘按键：adb shell getevent -t -l | grep "EV_KEY"
 ---
 BT profiles
 * device/qcom/common/device/overlay/packages/apps/Bluetooth/res/values/config.xml
