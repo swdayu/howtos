@@ -156,11 +156,18 @@ $ apt-get clean              # erase downloaded archive files
 $ apt-get autoclean          # erase old downloaded archive files
 ```
 
+**gparted**
+```shell
+this is another ubuntu disk tool if the original tool "disks" cannot meet your need
+$ sudo apt-get install gparted
+```
+
 **hostname**
 ```shell
 $ hostname  # show current hostname
 $ sudo vi /etc/hostname
 $ sudo vi /etc/hosts
+$ reboot
 
 # After physically reboot your device, the hostname will be updated permanently.
 # Check the name display in [System Settings | Details | Overview | Device name], 
@@ -170,6 +177,26 @@ $ sudo vi /etc/hosts
 **passwd**
 ```shell
 $ passwd <usrname>  # change password for specific user
+```
+
+**modify user name**
+```shell
+$ sudo su            # this is very important before modify ***
+$ vi /etc/passwd     # modify your <name>
+<name>:x:1000:1000:<name>:/home/<name>:/bin/bash
+$ vi /etc/shadow     # modify your <name>
+<name>:...........:17001:0:99999:7:::
+$ vi /etc/group      # modify all your old name to the new name
+$ cd /home           # enter home and move your old username folder to the new place with your new name
+$ mv <your-old-username-folder> <name>
+
+Enter "recovery mode" if you do something wrong and cannot login
+1. reboot your computer
+2. press SHIFT quickly to enter GRUB menu
+3. select with "advanced options" and choise "Ubuntu xxxxxx (recovery mode)"
+4. select something like "Drop to root shell prompt", the command line with root will be entered
+5. do your modification in the commandline using the editor "vi"
+6. if it is read-only, you need execute the command "mount -o remout,rw /" first
 ```
 
 **env**
