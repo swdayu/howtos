@@ -59,6 +59,13 @@ and uses a random address. After the patch applied, the ".bt_nv.bin" is generate
 phone uses the vendor address from ".bt_nv.bin".
 ```
 
+BT auto ON after FDR (Android O)
+```
+* R.bool.def_bluetooth_on is the default value after FDR for BT can trun on or not, this value is true on Android O.
+* Settings.Global.BLUETOOTH_ON is a gobal setting to record the BT status while BT on and off.
+* BluetoothManagerService.persistBluetoothSetting(int value) is the function used to modify this setting Settings.Global.BLUETOOTH_ON.
+```
+
 蓝牙开关和重连
 ```
 * 开关蓝牙涉及的类：BluetoothAdapter, BluetoothManagerService，AdapterState，AdapterProperties
@@ -355,6 +362,18 @@ HID/HOGP
 * In this case, since it takes 520msec from DOWN to UP about KEY_1,
 * repeatCoun might be incremented with 1 and the Event might be notified.
 * ---
+```
+
+AVRCP Media Key Receive Flow (Android-O)
+```
+btif_rc.handle_rc_passthrough_cmd()
+com_android_bluetooth_avrcp.btavrcp_passthrough_command_callback()
+Avrcp.handlePassthroughCmdRequestFromNative()
+Avrcp.handleMessage() MSG_NATIVE_REQ_PASS_THROUGH
+Avrcp.handlePassthroughCmd()
+MediaSessionManager.dispatchMediaKeyEvent(keyEvent)
+MediaSessionManager.dispatchMediaKeyEvent(keyEvent, needWakeLock:false)
+MediaSessionService.dispatchMediaKeyEvent(keyEvent, false)
 ```
 
 AVRCP/A2DP
