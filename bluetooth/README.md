@@ -317,6 +317,11 @@ Bluedroid中的线程
 
 状态栏蓝牙图标
 ```
+蓝牙状态栏相关文件
+* frameworks/base/services/core/java/com/android/server/BluetoothManagerService.java$bluetoothStateChangeHandler()
+* frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy/BluetoothControllerImpl.java
+* frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/phone/PhoneStatusBarPolicy.java
+连接状态相关
 * => PhoneStatusBarPolicy()/ACTION_DUN_STATE_CHANGED/onBluetoothDevicesChanged/onBluetoothStateChange
 * => PhoneStatusBarPolicy.java$updateBluetooth()
 * => BluetoothControllerImpl.isBluetoothConnected() || mIsDunConnected
