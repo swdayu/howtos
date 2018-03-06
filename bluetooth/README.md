@@ -392,7 +392,7 @@ AVRCP/A2DP
 * 安卓O的AVRCP按键：BTA_AV_REMOTE_CMD_EVT|MSG_NATIVE_REQ_PASS_THROUGH|MediaSessionService: Sending KeyEvent
 * Audio和Player信息：NuPlayerDriver|MediaPlayer|updatePlayerPlayPauseState
 * SCO/A2DP/AVRCP交互: audio_start_stream|audio_stop_stream|a2dp_command|suspend_audio_datapath|ON A2DP|SCO State|audio_state|
-*     AVRCP: Send key|ACTION_MEDIA_BUTTON|NuPlayerDriver: pause|NuPlayerDriver: start|
+*     AVRCP: Send key|ACTION_MEDIA_BUTTON|NuPlayerDriver: pause|NuPlayerDriver: start|updatePlayStatusForDevice|
 *     BTIF_MEDIA_STOP_VS_CMD|BTIF_MEDIA_STOP_VS_CMD|BTIF_MEDIA_START_VS_CMD|BTIF_MEDIA_START_VS_CMD
 * 电话挂断之后，Audio什么时间点将音频写到蓝牙？ Audio只要播放器有数据它就会一直写，写给谁只在于当前的选择的是手机还是蓝牙
 * 那什么时候选择蓝牙呢？ AudioPolicyManager::checkA2dpSuspend() 当SCO断掉之后如果有A2DP就会切到A2DP
