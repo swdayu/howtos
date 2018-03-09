@@ -329,6 +329,23 @@ Bluedroid中的线程
 *    BluetoothManager.getConnectedDevices(BluetoothProfile.GATT)
 * => AdapterService.getAdapterConnectionState() => AdapterProperties.mConnectionState
 *    GattService.getDevicesMatchingConnectionStates(new int[] { BluetoothProfile.STATE_CONNECTED })
+在QuickSetting点击开蓝牙
+* frameworks/base/packages/SystemUI/src/com/android/systemui/qs/tiles/BluetoothTile.java
+* frameworks/base/packages/SystemUI/src/com/android/systemui/qs/tileimpl/QSTileImpl.java
+* BluetoothTile.handleClick()
+  BluetoothControllerImpl.setBluetoothEnabled(!mState.value)
+  LocalBluetoothAdapter.setBluetoothEnabled(enable) => BluetoothAdapter.eanble() or disable()
+* QSTileImpl.handleRefreshState(arg)
+    BluetoothTile.handleUpdateState(mTmpState, arg);
+    final boolean changed = mTmpState.copyTo(mState***);
+  BluetoothTile.handleUpdateState(state, arg)
+    final boolean enabled = mController.isBluetoothEnabled();
+    state.value = enabled;
+* BluetoothControllerImpl.isBluetoothEnabled() { return mEnabled; }
+  BluetoothControllerImpl.onBluetoothStateChanged(int bluetoothState) {
+    mEnabled = bluetoothState == BluetoothAdapter.STATE_ON || bluetoothState == BluetoothAdapter.STATE_TURNING_ON;
+    mState = bluetoothState;
+    mHandler.sendEmptyMessage(H.MSG_STATE_CHANGED);
 ```
 
 HSP/HFP/SCO
