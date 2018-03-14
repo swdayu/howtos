@@ -318,6 +318,54 @@ Bluedroid中的线程
 * BluetoothDevicePreference.onDeviceAttributesChanged()
 ```
 
+对方设备电源关闭的情况下进行BT和BLE配对的流程
+```
+BluetoothDevicePreference.onClicked()
+CachedBluetoothDevice.startPairing() if (isBleDevice()) refreshGatt(GATT_STATE_BONDING)
+BluetoothDevice.createBond()
+AdapterService.createBond()
+BondStateMachine.sendMessage(BondStateMachine.CREATE_BOND)
+BondStateMachine.createBond()
+AdapterService.createBondNative()
+btif_dm_create_bond()
+btif_dm_cb_create_bond()
+bond_state_changed() BT_BOND_STATE_NONE -> BT_BOND_STATE_BONDING
+BTA_DmBondByTransport()
+bta_dm_bond()
+BTM_SecBondByTransport()
+btm_sec_bond_by_transport()
+=> (1.LE) SMP_Pair() sec_state:BTM_SEC_STATE_AUTHENTICATING, btm_sec_change_pairing_state(BTM_PAIR_STATE_WAIT_AUTH_COMPLETE)
+          L2CA_ConnectFixedChnl(L2CAP_SMP_CID)
+          L2CA_ConnectFixedChnl()
+          l2cu_create_conn()
+          l2cble_create_conn()
+          btm_send_hci_create_connection() link_state = LST_CONNECTING
+          l2c_lcb_timer_timeout() L2CAP_BLE_LINK_CONNECT_TIMEOUT_MS (30s)
+          l2c_link_timeout()
+          l2cu_release_lcb()
+          l2cu_process_fixed_disc_cback() pL2CA_FixedConn_Cb()
+          smp_connect_callback()
+          smp_sm_event() SMP_L2CAP_DISCONN_EVT
+          smp_idle_terminate()
+          smp_proc_pairing_cmpl()
+          SMP_COMPLT_EVT(7) SMP_FAIL(0x18)
+          btm_proc_smp_cback() SMP_COMPLT_EVT(7)
+          bta_dm_ble_smp_cback() BTM_LE_COMPLT_EVT
+          btif_dm_upstreams_evt() BTA_DM_BLE_AUTH_CMPL_EVT 
+          btif_dm_ble_auth_cmpl_evt()
+          bond_state_changed() BT_BOND_STATE_BONDING -> BT_BOND_STATE_NONE
+   (2.BT) BTM_ReadRemoteDeviceName(BR_EDR) btm_sec_change_pairing_state(BTM_PAIR_STATE_GET_REM_NAME)
+          btm_initiate_rem_name()
+          btsnd_hcic_rmt_name_req()
+          btu_hcif_rmt_name_request_comp_evt()
+          btm_sec_rmt_name_request_complete()
+          bta_security.p_auth_complete_callback()
+          bta_dm_authentication_complete_cback() bta_dm_cb.p_sec_cback(BTA_DM_AUTH_CMPL_EVT)
+          btif_dm_upstreams_evt() BTA_DM_AUTH_CMPL_EVT
+          btif_dm_auth_cmpl_evt() HCI_ERR_PAGE_TIMEOUT
+          bond_state_changed() BT_BOND_STATE_BONDING -> BT_BOND_STATE_NONE
+```
+
 状态栏蓝牙图标
 ```
 蓝牙状态栏相关文件
