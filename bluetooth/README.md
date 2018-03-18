@@ -611,6 +611,15 @@ OBEX/OPP/PBAP/MAP
 * Slave   Final Packet         OK        22  00:00:00.031721  0:03:02.362300  #8 对方 OK
 ```
 
+BLE Profiles Debug
+```
+$ adb shell setprop log.tag.tosbt DEBUG
+$ grep -E "adapter state changed|setProfileServiceState|onProfileServiceStateChange"
+$ grep -E " ANS| FMP| PASS | TIME  | PXP|btm_acl_created|gatt_disc_cmpl_cback|btm_sec_disconnected"
+$ "startANPServer|startPASPServer|startFMPTarget|startTIPServer|startANPServer"
+$ "connectTIP|connectANP|connectPXP|connectPASP|connectFMP"
+```
+
 BLE
 ```
 BLE scanning (device searching)
