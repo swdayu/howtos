@@ -615,8 +615,8 @@ BLE Profiles Debug
 ```
 $ adb shell setprop log.tag.tosbt DEBUG
 $ grep -E "adapter state changed|setProfileServiceState|onProfileServiceStateChange"
-$ grep -E " ANS| FMP| PASS | TIME  | PXP|btm_acl_created|gatt_disc_cmpl_cback|btm_sec_disconnected"
-$ "startANPServer|startPASPServer|startFMPTarget|startTIPServer|startANPServer"
+$ grep -E " ANS| FMP| PASS | TIME  | PXP|btm_acl_created|btm_sec_disconnected"
+$ "startANPServer|startPASPServer|startFMPTarget|startTIPServer|startPXPMonitor"
 $ "connectTIP|connectANP|connectPXP|connectPASP|connectFMP"
 ```
 
