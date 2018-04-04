@@ -449,10 +449,47 @@ MediaSessionManager.dispatchMediaKeyEvent(keyEvent, needWakeLock:false)
 MediaSessionService.dispatchMediaKeyEvent(keyEvent, false)
 ```
 
+A2DP Reconfig 相关流程
+```
+=> avdt_l2c_data_ind_cback()
+   avdt_ad_tc_data_ind()
+   avdt_msg_ind()
+   avdt_scb_hdl_setconfig_cmd() AVDT_CONFIG_IND_EVT
+   bta_av_config_ind() 
+   bta_av_co_audio_setconfig() ***p_peer->acp = true; and set p_peer->reconfig_needed
+   bta_av_co_set_codec_ota_config()
+   bta_av_co_cb.codecs->setCodecOtaConfig()
+   A2dpCodecConfig.setCodecUserConfig(codec_user_config, codec_audio_config, p_ota_codec_config, false)***
+   A2dpCodecConfigSbc.updateEncoderUserConfig()
+   a2dp_sbc_encoder_update() *** *p_restart_output always set to false
+
+=> bta_av_getcap_results()/bta_av_save_caps()
+   bta_av_co_audio_getconfig() ***set p_peer->reconfig_needed
+
+=> setCodecConfigPreferenceNative()
+   codec_config_src()/btif_recv_scms_data()
+   btif_av_state_idle/closing/opened/opening/started_handler() BTIF_AV_SOURCE_CONFIG_REQ_EVT
+   btif_update_source_codec()
+   btif_a2dp_source_encoder_user_config_update_req() BTIF_MEDIA_SOURCE_ENCODER_USER_CONFIG_UPDATE
+   btif_a2dp_source_encoder_user_config_update_event()
+   bta_av_co_set_codec_user_config() ***bta_av_co_cb.codecs->setCodecUserConfig() and determine whether to do BTA_AvReconfig()
+   A2dpCodecConfig.setCodecUserConfig(codec_user_config, codec_audio_config, p_peer_sink_capabilities, true) ***
+
+=> btif_a2dp_recv_ctrl_data() A2DP_CTRL_SET_OUTPUT_AUDIO_CONFIG
+   btif_a2dp_source_feeding_update_req() BTIF_MEDIA_AUDIO_FEEDING_UPDATE
+   btif_a2dp_source_audio_feeding_update_event()
+   bta_av_co_set_codec_audio_config() ***bta_av_co_cb.codecs->setCodecAudioConfig() and determine whether to do BTA_AvReconfig()
+   A2dpCodecConfig.setCodecUserConfig(codec_user_config, codec_audio_config, p_peer_sink_capabilities, true) ***
+
+当我们作为 A2DP Acceptor, 即对方发起连接，对方来 GetCapability => SetConfigration => Open => Start.
+当对方 SetConfiguration 时会触发我们自己 Discovery => GetCapability 查询对方 A2DP 的信息
+如果我们认为对方 SetConfigration 的参数需要 RECONFIG，我们会在对方 Start 后立即 Suspend，
+然后去做 RECONFIG (Close => SetConfiguration => Open => Start)
+```
+
 AVRCP/A2DP
 ```
-* A2DP相关模块: bthost_ipc
-* A2DP与SCO: audio_start_stream|audio_stop_stream|a2dp_command|suspend_audio_datapath|ON A2DP|SCO State|audio_state
+* A2DP与SCO: bthost_ipc|audio_start_stream|audio_stop_stream|a2dp_command|suspend_audio_datapath|ON A2DP|SCO State|audio_state
 * AVRCP发送的PLAY/STOP: handle_rc_passthrough_cmd|AVRCP: Send key|MediaSessionService: Sending KeyEvent|MediaButton|NuPlayerDriver: start|NuPlayerDriver: pause
 * Stopping VR|stopVoiceRecognition|Starting VR|startVoiceRecognition
 * AVRCP按键信息，安卓N的键映射"android/frameworks/base/data/keyboards/AVRCP.kl"，另外 gpio-keys.kl 里能修改音量键行为
