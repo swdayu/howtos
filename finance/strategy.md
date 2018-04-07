@@ -163,6 +163,7 @@ TYPE DATE  STOCKEXCHANGE PRICE  TRADINGAMOUNT           TOTALCOSTS        MARKET
 
 目标市值
 * 低估时期目标市值的提前买入算作定投，提前卖出含义不变
+* 高估时期目标市值不提前买入
 * 目标市值只做被动的高抛低吸，不控制总体仓位，总体仓位
 
 指数配置
