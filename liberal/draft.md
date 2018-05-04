@@ -1,4 +1,30 @@
 
+```
+青春不是年华，是心境，是无边的憧憬，是恢宏的想象，是生命的深泉在涌动，
+是炽热的感情，是美丽的象征，是无穷的希望，是力量的绽放，是勇气的勋章。
+ ——《芳华》
+
+青春不是年华，而是心境
+青春不是桃面丹唇柔膝
+而是深沉的意志，恢宏的想象，炽热的感情
+青春是生命的深泉在涌流
+ —— 塞缪尔·厄尔曼《青春》
+
+Youth is not a time of life.
+It is a state of mind.
+It is not a matter of rosy cheeks, red lips, and supple knees.
+It is a matter of the will, a quality of the imagination, a vigor of the emotions.
+It is the freshness of the deep springs of life.
+ —— Youth, by Samuel Ullman
+
+青春不是年华
+而是心境
+是深沉的意志
+是恢宏的想象
+是炽热的感情
+是生命的深泉在涌动
+```
+
 **搜索技巧**
 
 "如何用好谷歌／How to use google effectively"
