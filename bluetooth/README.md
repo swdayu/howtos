@@ -489,7 +489,7 @@ A2DP Reconfig 相关流程
 
 AVRCP/A2DP
 ```
-* A2DP与SCO: bthost_ipc|audio_start_stream|audio_stop_stream|a2dp_command|suspend_audio_datapath|ON A2DP|SCO State|audio_state
+* A2DP与SCO: bthost_ipc|audio_start_stream|audio_stop_stream|a2dp_command|suspend_audio_datapath|ON A2DP|SCO State|audio_state|onAudioStateChanged
 * AVRCP发送的PLAY/STOP: handle_rc_passthrough_cmd|AVRCP: Send key|MediaSessionService: Sending KeyEvent|MediaButton|NuPlayerDriver: start|NuPlayerDriver: pause
 * Stopping VR|stopVoiceRecognition|Starting VR|startVoiceRecognition
 * AVRCP按键信息，安卓N的键映射"android/frameworks/base/data/keyboards/AVRCP.kl"，另外 gpio-keys.kl 里能修改音量键行为
