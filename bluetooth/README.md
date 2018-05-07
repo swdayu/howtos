@@ -654,6 +654,7 @@ $ adb shell setprop log.tag.tosbt DEBUG
 $ grep -E "adapter state changed|setProfileServiceState|onProfileServiceStateChange"
 $ grep -E " ANS| FMP| PASS | TIME  | PXP|btm_acl_created|btm_sec_disconnected"
 $ "startANPServer|startPASPServer|startFMPTarget|startTIPServer|startPXPMonitor"
+$ "stopANPServer|stopFMPTarget|stopPASPServer|stopPXPMonitor|stopTIPServer"
 $ "connectTIP|connectANP|connectPXP|connectPASP|connectFMP"
 ```
 
