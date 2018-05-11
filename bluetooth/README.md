@@ -66,6 +66,11 @@ BT auto ON after FDR (Android O)
 * BluetoothManagerService.persistBluetoothSetting(int value) is the function used to modify this setting Settings.Global.BLUETOOTH_ON.
 ```
 
+重启问题分析(RESET)
+```
+* APNV_BOOT_COUNT_I|reset flg|shutdown reason|JNI ERROR|beginning of crash|SIGABRT
+```
+
 蓝牙开关和重连
 ```
 * 开关蓝牙涉及的类：BluetoothAdapter, BluetoothManagerService，AdapterState，AdapterProperties
