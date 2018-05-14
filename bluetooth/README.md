@@ -74,7 +74,7 @@ BT auto ON after FDR (Android O)
 蓝牙开关和重连
 ```
 * 开关蓝牙涉及的类：BluetoothAdapter, BluetoothManagerService，AdapterState，AdapterProperties
-* adapter state changed|isBleAppPresent|BT_VND_OP_POWER_CTRL|bt_vendor|disable timeout｜start timeout
+* adapter state changed|isBleAppPresent|BT_VND_OP_POWER_CTRL|bt_vendor|disable timeout|start timeout
 * AdapterState关蓝牙状态机：BEGIN_BREDR_CLEANUP => BEGIN_DISABLE => BREDR_STOPPED (BleOnState) => DISABLED (OffState)
 * 开蓝牙：BluetoothAdapter.STATE_OFF (10) -> STATE_BLE_TURNING_ON (14) -> (BT_VND_OP_POWER_CTRL: On) ->
 * STATE_BLE_ON (15) -> STATE_TURNING_ON (11) -> STATE_ON (12)
