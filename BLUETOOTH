@@ -1,0 +1,80 @@
+Bluetooth Wireless Technology
+=============================
+
+https://www.bluetooth.com/specifications
+https://source.android.com/devices/bluetooth/
+
+
+Bluetooth QCOM FTM (Factory Test Mode)
+--------------------------------------
+
+1. Make sure BT is turned off
+2. adb remount
+3. adb shell setprop sys.usb.config diag,serial_tty,serial_tty,adb
+4. adb shell ftmdaemon -n
+5. Start QRCT3 as an administrator
+6. Refresh and Set COM Port
+7. Menu > FTM Command > BT > Choose "HCI Commands" and Start BT HCI Commands
+8. Press HCI Reset button and confirm it succeeds
+9. Press DUT Mode button and confirm it suceeds
+0. Press Enable button which is in group of HCI Write Scan Enable and confirm it suceeds
+1. Press Set Filter button which is in group of HCI Set Event Filter and confirm it suceeds
+
+
+Bluetooth FTM source files
+--------------------------
+
+vendor/qcom/proprietary/ftm
+=> ftm_main.c
+   ftm_bt.c
+   ftm_bt_hci_pfal_linux.c
+
+
+Enable FTM debug logs
+---------------------
+
+> ftm_dbg.h
+
+#define DEBUG
+#define FTM_DBG_DEFAULT (0xff)
+
+> ftm_main.c, ftm_bt.c, ftm_bt_hci_pfal_linux.c
+
+#define FTM_DEBUG
+#define printf(...) fprintf(stderr, __VA_ARGS__)
+
+
+Bluetooth FTM code flow
+-----------------------
+
+1. enter main() and register bt_ftm_diag_func_table
+2. wait hci command queued by QRCT3 tool
+3. QRCT3 tool call bt_ftm_diag_func_table.bt_ftm_diag_dispatch() insert hci command
+4. main() waited semaphore_cmd_queued, and start send command
+5. for the 1st time, init BT and create ftm reader thread
+6. write hci command to BT controller
+7. wait previous hci command complete
+8. ftm reader thread handle hci event response from BT controller
+9. main() waited semaphore_cmd_complete, and try to wait next hci command
+
+```
+ftm_main.c$main()
+DIAGPKT_DISPATCH_TABLE_REGISTER(DIAG_SUBSYS_FTM, bt_ftm_diag_func_table) ★ (1)
+wait previous semaphore_cmd_complete ★ (7)
+wait semaphore_cmd_queued ★ (2) (9)
+dequeue_send() ★ (4)
+ftm_bt_dispatch()
+ftm_bt_hci_send_cmd()
+ftm_bt_hal_soc_init(MODE_BT) => ftm_bt_hci_pfal_init_transport() => pthread_create( &hci_cmd_thread_hdl, NULL, ftm_readerthread, NULL) ★ (5)
+ftm_bt_hci_pfal_nwrite(cmd, size) ★ (6)
+
+bt_ftm_diag_func_table.bt_ftm_diag_dispatch() ★ (3)
+qinsert_cmd(req_pkt)
+post semaphore_cmd_queued "Insert BT packet done"
+
+ftm_readerthread() ★ (8)
+ftm_bt_hci_qcomm_handle_event()
+ftm_bt_hci_hal_read_event()
+post semaphore_cmd_complete
+```
+
