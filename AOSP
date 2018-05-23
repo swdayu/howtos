@@ -1,0 +1,72 @@
+The Android Source Code
+=======================
+
+https://source.android.com/setup/
+https://developers.google.com/android/drivers
+https://developers.google.com/android/images
+
+Code name 	Version 	API level
+Oreo 	8.1.0 	API level 27
+Oreo 	8.0.0 	API level 26
+
+Build 	Branch 	Version 	Supported devices
+OPM4.171019.016.A1 	android-8.1.0_r27 	Oreo 	Nexus 5X
+OPM5.171019.017 	android-8.1.0_r18 	Oreo 	Nexus 5X, Nexus 6P
+OPM3.171019.016 	android-8.1.0_r17 	Oreo 	Nexus 5X, Nexus 6P
+OPM5.171019.015 	android-8.1.0_r14 	Oreo 	Nexus 5X, Nexus 6P
+OPM3.171019.014 	android-8.1.0_r13 	Oreo 	Nexus 5X, Nexus 6P
+OPM5.171019.014 	android-8.1.0_r9 	Oreo 	Nexus 5X, Nexus 6P
+OPM3.171019.013 	android-8.1.0_r7 	Oreo 	Nexus 5X, Nexus 6P
+
+Booting into fastboot mode
+Nexus 5X 	bullhead 	Press and hold Volume Down, then press and hold Power.
+
+Kernel location of the sources and binaries:
+Device 	Binary location 	Source location 	Build configuration
+bullhead 	device/lge/bullhead-kernel 	kernel/msm 	bullhead_defconfig
+
+
+Downloading the Source 
+----------------------
+
+curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+chmod a+x ~/bin/repo
+cd path/to/your/working_directory
+git config --global user.name "Your Name"
+git config --global user.email "you@example.com"
+repo init -u https://android.googlesource.com/platform/manifest -b android-8.1.0_r27
+repo sync
+
+It might be necessary to explicitly specify the proxy that is then used by Repo:
+export HTTP_PROXY=http://<proxy_user_id>:<proxy_password>@<proxy_server>:<proxy_port>
+export HTTPS_PROXY=http://<proxy_user_id>:<proxy_password>@<proxy_server>:<proxy_port>
+
+
+Download proprietary binaries
+-----------------------------
+
+You can download official binaries for the supported devices running tagged AOSP release branches
+from Google's drivers (https://developers.google.com/android/drivers).
+
+Each set of binaries comes as a self-extracting script in a compressed archive. Uncompress each
+archive, run the included self-extracting script from the root of the source tree, then confirm
+you agree the terms of the enclosed license agreement. The binaries and their matching makefiles
+will be installed in the vendor/ hierarchy of the source tree.
+
+To ensure the newly installed binaries are properly taken into account after being extracted,
+delete the existing output of any previous build using:
+make clobber
+
+
+Build the cod and Run
+---------------------
+
+. build/envsetup.sh  # set up environment
+lunch                # choose a target
+make -j4             # build the code
+make fastboot adb    # build fastboot and adb
+
+adb reboot bootloader
+fastboot flashing unlock  # fastboot oem unlock (2014 and earlier devices)
+fastboot flashall -w      # -w option wipes the /data can be used for the first time
+fastboot flashing lock    # fastboot oem lock (2014 and eariler devices)
