@@ -48,6 +48,17 @@ Download proprietary binaries
 You can download official binaries for the supported devices running tagged AOSP release branches
 from Google's drivers (https://developers.google.com/android/drivers).
 
+Nexus 5X binaries for Android 8.1.0 (OPM4.171019.016.A1)
+Hardware Component 	Company 	Download 	SHA-256 Checksum
+Vendor image 	LG 	Link[1] 	6813c8a033bc575e6aeadbb8c244117100ff7b0047200d7fe9982ea7731951fb
+GPS, Audio,   Qualcomm 	Link[2] 	50afbc78aaf32c66cbc7248132595378228771c7634c7cefc046861fcc878e05
+Camera, Gestures,
+Graphics, DRM,
+Video, Sensors
+
+[1] https://dl.google.com/dl/android/aosp/lge-bullhead-opm4.171019.016.a1-6ca0caeb.tgz
+[2] https://dl.google.com/dl/android/aosp/qcom-bullhead-opm4.171019.016.a1-adcef468.tgz 
+
 Each set of binaries comes as a self-extracting script in a compressed archive. Uncompress each
 archive, run the included self-extracting script from the root of the source tree, then confirm
 you agree the terms of the enclosed license agreement. The binaries and their matching makefiles
@@ -63,8 +74,9 @@ Build the cod and Run
 
 . build/envsetup.sh  # set up environment
 lunch                # choose a target (device/lge/bullhead/vendorsetup.sh)
+Which would you like? [aosp_arm-eng] aosp_bullhead-userdebug
 make -j4             # build the code
-make fastboot adb    # build fastboot and adb
+make fastboot adb    # build fastboot and adb if you need them first
 
 adb reboot bootloader
 fastboot flashing unlock  # fastboot oem unlock (2014 and earlier devices)
