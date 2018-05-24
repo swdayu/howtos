@@ -62,7 +62,7 @@ Build the cod and Run
 ---------------------
 
 . build/envsetup.sh  # set up environment
-lunch                # choose a target
+lunch                # choose a target (device/lge/bullhead/vendorsetup.sh)
 make -j4             # build the code
 make fastboot adb    # build fastboot and adb
 
