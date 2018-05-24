@@ -1,0 +1,24 @@
+Ubuntu 18.04 LTS
+================
+
+mkdir amaze
+cd amaze
+mkdir repo
+curl https://storage.googleapis.com/git-repo-downloads/repo > repo/repo
+chmod a+x repo/repo
+add "export PATH=~/amaze/repo/:$PATH" to the end of the file ~/.bashrc
+source ~/.bashrc
+apt-get update
+apt-get install python
+attach new volume
+mkfs.ext4 /dev/disk/by-id/new_volume_name
+mkdir /mnt/mount_name
+mount /dev/disk/by-id/new_volume_name /mnt/mount_name
+add "/dev/disk/by-id/new_volume_name /mnt/mount_name ext4 defaults 0 2" into the end of the file /etc/fstab
+cd path/to/your/working_directory
+mkdir code/nexusvx_oreo/android-8.1.0_r27
+cd code/nexusvx_oreo/android-8.1.0_r27
+git config --global user.name your-name
+git config --global user.email your-email
+repo init -u https://android.googlesource.com/platform/manifest -b android-8.1.0_r27
+repo sync
