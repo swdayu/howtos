@@ -22,3 +22,43 @@ git config --global user.name your-name
 git config --global user.email your-email
 repo init -u https://android.googlesource.com/platform/manifest -b android-8.1.0_r27
 repo sync
+wget https://dl.google.com/dl/android/aosp/lge-bullhead-opm4.171019.016.a1-6ca0caeb.tgz
+wget https://dl.google.com/dl/android/aosp/qcom-bullhead-opm4.171019.016.a1-adcef468.tgz
+tar -zxvf lge-bullhead-opm4.171019.016.a1-6ca0caeb.tgz
+tar -zxvf qcom-bullhead-opm4.171019.016.a1-adcef468.tgz
+./extract-lge-bullhead.sh
+./extract-qcom-bullhead.sh
+apt-get install make
+make clobber
+apt-get install openjdk-8-jdk
+update-alternatives --list java
+update-alternatives --config java
+update-alternatives --config javac
+java -version
+. build/envsetup.sh
+lunch
+Which would you like? [aosp_arm-eng] aosp_bullhead-userdebug
+make -j4
+
+
+Compress and extract
+--------------------
+
+=> tar
+   -c    create a new archive
+   -r    append new files to the end of an archive
+   -u    only append files newer than copy in archive
+   -x    extract files from an archive
+   -t    list the contents of an archive
+   -p    extract files with the same file permissions
+   -z    filter the archive through gzip
+   -j    filter the archive through bzip2
+   -v    verbosely list files processed
+   -f    specify the file name
+
+tar -czvf archive.tgz file1 file2   # create archive.tgz from files
+tar -czvf archive.tgz folder/       # create archive.tgz from folder
+tar -xzvf archive.tgz               # extract the archive.tgz to current folder
+tar -rzvf archive.tgz file3         # append new files
+tar -uzvf archive.tgz file2         # update exist files
+
