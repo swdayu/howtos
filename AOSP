@@ -11,7 +11,10 @@ Oreo 	8.1.0 	API level 27
 Oreo 	8.0.0 	API level 26
 
 Build 	Branch 	Version 	Supported devices
+OPM4.171019.016.B1 	android-8.1.0_r28 	Oreo 	Pixel XL, Pixel, Pixel 2 XL, Pixel 2
 OPM4.171019.016.A1 	android-8.1.0_r27 	Oreo 	Nexus 5X
+OPM2.171019.029.B1 	android-8.1.0_r26 	Oreo 	Pixel 2 XL, Pixel 2
+OPM4.171019.015.A1 	android-8.1.0_r23 	Oreo 	Pixel 2 XL, Pixel 2
 OPM5.171019.017 	android-8.1.0_r18 	Oreo 	Nexus 5X, Nexus 6P
 OPM3.171019.016 	android-8.1.0_r17 	Oreo 	Nexus 5X, Nexus 6P
 OPM5.171019.015 	android-8.1.0_r14 	Oreo 	Nexus 5X, Nexus 6P
@@ -20,11 +23,20 @@ OPM5.171019.014 	android-8.1.0_r9 	Oreo 	Nexus 5X, Nexus 6P
 OPM3.171019.013 	android-8.1.0_r7 	Oreo 	Nexus 5X, Nexus 6P
 
 Booting into fastboot mode
+Pixel XL 	marlin 	Press and hold Volume Down, then press and hold Power.
+Pixel 	sailfish 	Press and hold Volume Down, then press and hold Power.
 Nexus 5X 	bullhead 	Press and hold Volume Down, then press and hold Power.
 
 Kernel location of the sources and binaries:
 Device 	Binary location 	Source location 	Build configuration
+marlin 	device/google/marlin-kernel 	kernel/msm 	marlin_defconfig
+sailfish 	device/google/marlin-kernel 	kernel/msm 	marlin_defconfig
 bullhead 	device/lge/bullhead-kernel 	kernel/msm 	bullhead_defconfig
+
+Device 	Code name 	Build configuration
+Pixel XL 	marlin 	aosp_marlin-userdebug
+Pixel 	sailfish 	aosp_sailfish-userdebug
+Nexus 5X 	bullhead 	aosp_bullhead-userdebug
 
 
 Downloading the Source 
@@ -57,8 +69,18 @@ Camera, Gestures,
 Graphics, DRM,
 Video, Sensors
 
+Pixel 2 binaries for Android 8.1.0 (OPM4.171019.016.B1)
+Hardware Component 	Company 	Download 	SHA-256 Checksum
+Vendor image 	Google 	Link[3] 	b2df85e7f18f60beaa2de7b726e77e0e80ce1c9e31c08e23fa7347b7627bac51
+GPS, Audio,   Qualcomm 	Link[4] 	2505a61aab7ab19fa80c81ead1ed8701aac38af593c385065cfdc43edcde138b
+Camera, Gestures,
+Graphics, DRM,
+Video, Sensors
+
 [1] https://dl.google.com/dl/android/aosp/lge-bullhead-opm4.171019.016.a1-6ca0caeb.tgz
-[2] https://dl.google.com/dl/android/aosp/qcom-bullhead-opm4.171019.016.a1-adcef468.tgz 
+[2] https://dl.google.com/dl/android/aosp/qcom-bullhead-opm4.171019.016.a1-adcef468.tgz
+[3] https://dl.google.com/dl/android/aosp/google_devices-walleye-opm4.171019.016.b1-64afcde5.tgz
+[4] https://dl.google.com/dl/android/aosp/qcom-walleye-opm4.171019.016.b1-570426c5.tgz
 
 Each set of binaries comes as a self-extracting script in a compressed archive. Uncompress each
 archive, run the included self-extracting script from the root of the source tree, then confirm
