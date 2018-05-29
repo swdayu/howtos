@@ -62,3 +62,11 @@ tar -xzvf archive.tgz               # extract the archive.tgz to current folder
 tar -rzvf archive.tgz file3         # append new files
 tar -uzvf archive.tgz file2         # update exist files
 
+
+Networking
+----------
+
+apt-get install shadowsocks-libev
+kill `pgrep ss-server | tr "\n" " "`
+ss-server -p port -k password -m aes-256-cfb -t 120 -f ~/ss-server.pid
+pgrep ss-server
