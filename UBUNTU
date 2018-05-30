@@ -62,6 +62,11 @@ tar -xzvf archive.tgz               # extract the archive.tgz to current folder
 tar -rzvf archive.tgz file3         # append new files
 tar -uzvf archive.tgz file2         # update exist files
 
+zip dest.zip file1 file2 file3  # compress specified files
+zip dest.zip -r folder/         # compress all files in folder
+unzip dest.zip                  # extract to current folder
+unzip dest.zip -d folder/       # extract to specified folder
+
 
 Networking
 ----------
@@ -70,3 +75,14 @@ apt-get install shadowsocks-libev
 kill `pgrep ss-server | tr "\n" " "`
 ss-server -p port -k password -m aes-256-cfb -t 120 -f ~/ss-server.pid
 pgrep ss-server
+
+
+Disk
+----
+
+df -hl  # show human (-h) readable info about the local (-l) file systems
+du -hd 1            # show files and folders size only under current folder
+du -h folder/file   # show the size of the file
+du -h folder/       # show the size of all files and all folders in the folder
+du -h folder/ -d 1  # only for first depth files and folders
+
