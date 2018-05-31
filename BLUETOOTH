@@ -21,7 +21,7 @@ adb logcat -b all   # enable all log buffers
 ------------
 
 电量相关（toggled 0 为灭屏）
-screen_toggled|ThrmLimit:CHARGE|Thrm Limit
+screen_toggled|ThrmLimit:CHARGE|Thrm Limit|msm_mpm_exit_sleep
 谷歌GMS相关
 ro.com.google.gmsversion
 
