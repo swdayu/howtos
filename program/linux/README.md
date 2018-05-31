@@ -192,7 +192,7 @@ $ mv <your-old-username-folder> <name>
 
 Enter "recovery mode" if you do something wrong and cannot login
 1. reboot your computer
-2. press SHIFT quickly to enter GRUB menu
+2. press ESC or SHIFT quickly to enter GRUB menu
 3. select with "advanced options" and choise "Ubuntu xxxxxx (recovery mode)"
 4. select something like "Drop to root shell prompt", the command line with root will be entered
 5. do your modification in the commandline using the editor "vi"
