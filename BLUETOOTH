@@ -1,8 +1,29 @@
-Bluetooth Wireless Technology
+Bleutooth Wireless Technology
 =============================
 
 https://www.bluetooth.com/specifications
 https://source.android.com/devices/bluetooth/
+
+
+安卓ADB命令
+----------
+
+adb shell
+pm disable com.android.voicememo
+killall com.android.phonemotion
+dumpsys activity services | grep -i "ConnectionRecord.*headsetservice"| wc -l
+
+adb logcat -c       # clear log
+adb logcat -b all   # enable all log buffers
+
+
+安卓调试关键字
+------------
+
+电量相关（toggled 0 为灭屏）
+screen_toggled|ThrmLimit:CHARGE|Thrm Limit
+谷歌GMS相关
+ro.com.google.gmsversion
 
 
 Bluetooth QCOM FTM (Factory Test Mode)
