@@ -16,12 +16,37 @@ dumpsys activity services | grep -i "ConnectionRecord.*headsetservice"| wc -l
 adb logcat -c       # clear log
 adb logcat -b all   # enable all log buffers
 
+更新固件驱动
+----------
+
+cd ADSP.VT.4.0/adsp_proc/
+edit your modification
+cd ../..
+./project_build.sh -a eng <TARGET_PRODUCT>
+adb root
+adb remount
+adb shell mount -o rw,remount /firmware
+adb shell rm /firmware/image/adsp*
+adb push ADSP.VT.4.0/adsp_proc/obj/qdsp6v5_ReleaseG/660.adsp.prod/LA/system/etc/firmware/* /firmware/image/
+adb shell sync
+adb reboot
+
+cd RPM.BF.1.8/rpm_proc/
+edit your modification
+cd ../..
+./project_build.sh -r eng <TARGET_PRODUCT>
+cd RPM.BF.1.8/rpm_proc/
+find -name rpm.mbn
+adb reboot bootloader
+fastboot flash rpm build/ms/bin/AAAAANAZR/signed/rpm.mbn
+fastboot reboot
+
 
 安卓调试关键字
 ------------
 
-电量相关（toggled 0 为灭屏）
-screen_toggled|ThrmLimit:CHARGE|Thrm Limit|msm_mpm_exit_sleep|battery
+电量/灭屏/睡眠（toggled 0 为灭屏）
+screen_toggled|ThrmLimit:CHARGE|Thrm Limit|battery|Suspend entry \\-|msm_mpm_exit_sleep
 谷歌GMS相关
 ro.com.google.gmsversion
 
@@ -55,12 +80,10 @@ Enable FTM debug logs
 ---------------------
 
 > ftm_dbg.h
-
 #define DEBUG
 #define FTM_DBG_DEFAULT (0xff)
 
 > ftm_main.c, ftm_bt.c, ftm_bt_hci_pfal_linux.c
-
 #define FTM_DEBUG
 #define printf(...) fprintf(stderr, __VA_ARGS__)
 
