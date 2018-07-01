@@ -3,6 +3,11 @@
 * how to get a really cool hair cut
 ---
 
+(2018/07/02)
+* handle stop and destroy service
+* add start dynamic loading c service
+* add start lua service
+
 (2018/06/25)
 * skynet mq functions
 
