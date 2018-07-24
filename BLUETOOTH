@@ -122,3 +122,25 @@ ftm_bt_hci_hal_read_event()
 post semaphore_cmd_complete
 ```
 
+PBAP (Phonebook Access Profile)
+-------------------------------
+
+> Phone Own Number
+adb shell setprop log.tag.BluetoothPbap VERBOSE
+Connect to remote device and enable PBAP permission
+```
+BluetoothPbapObexServer: OnGet type is x-bt/phonebook; name is telecom/pb.vcf
+BluetoothPbapVcardManager: phone own number vcard
+```
+telecom/pb.vcf       - main phonebook object
+SIM1/telecom/pb.vcf 
+telecom/och.vcf      - outgoing calls history object
+SIM1/telecom/och.vcf 
+telecom/ich.vcf      - incoming calls history object
+SIM1/telecom/ich.vcf 
+telecom/mch.vcf      - missed calls history object
+SIM1/telecom/mch.vcf 
+cch.vcf              - combined calls history object
+spd.vcf              - speed-dial object
+fav.vcf              - favorite contacts object
+
