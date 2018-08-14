@@ -1,0 +1,11 @@
+
+$ gdb -q program   # use gdb to start the program
+(gdb) li 1,n       # list source file lines
+(gdb) b 2          # set break point at line 2
+(gdb) b 10         # set break point at line 10
+(gdb) func         # set break at the the function
+(gdb) run          # run the code, it will be stop at break points
+(gdb) info locals  # check function local variables
+(gdb) bt           # check backtrack
+(gdb) x/s 0x423580 # check the string at 0x423580
+(gdb) quit         # quit gdb
