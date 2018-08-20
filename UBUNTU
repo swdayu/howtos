@@ -1,12 +1,28 @@
-Ubuntu 18.04 LTS
-================
 
-mkdir amaze
-cd amaze
+GCC Debugging
+-------------
+
+$ gdb -q program   # use gdb to start the program
+(gdb) li 1,n       # list source file lines
+(gdb) b 2          # set break point at line 2
+(gdb) b 10         # set break point at line 10
+(gdb) func         # set break at the the function
+(gdb) run          # run the code, it will be stop at break points
+(gdb) info locals  # check function local variables
+(gdb) bt           # check backtrack
+(gdb) x/s 0x423580 # check the string at 0x423580
+(gdb) quit         # quit gdb
+
+
+Ubuntu 18.04 LTS
+----------------
+
+mkdir folder
+cd folder
 mkdir repo
 curl https://storage.googleapis.com/git-repo-downloads/repo > repo/repo
 chmod a+x repo/repo
-add "export PATH=~/amaze/repo/:$PATH" to the end of the file ~/.bashrc
+add "export PATH=~/folder/repo/:$PATH" to the end of the file ~/.bashrc
 source ~/.bashrc
 apt-get update
 apt-get install python
