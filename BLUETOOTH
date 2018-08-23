@@ -1,5 +1,5 @@
-Bleutooth Wireless Technology
-=============================
+Bleutooth
+=========
 
 https://www.bluetooth.com/specifications
 https://source.android.com/devices/bluetooth/
@@ -122,15 +122,48 @@ ftm_bt_hci_hal_read_event()
 post semaphore_cmd_complete
 ```
 
+OPP (Object Push Profile)
+-------------------------
+
+> BluetoothOppService
+
+BluetoothOppService 是一个 ProfileService，跟随蓝牙开关而 create 和 destroy。
+而如果有多个蓝牙用户比如（测试BYOD NFC Beam就是如此）
+```
+calligUid != Process.BLUETOOTH_UID && UserHandle.getAppId(calligUid) == Process.BLUETOOTH_UID 
+```
+需要在必要时手动启动 BluetoothOppService，像这样:
+```
+context.startService(new Intent(context, BluetoothOppService.class))
+```
+另外手动启动的 BluetoothOppService 需要手动关闭，可以在 mBluetoothReceiver.onReceive() 中
+追踪到蓝牙关闭时，调用 stopSelf() 关闭 BluetoothOppService，如果不关闭当蓝牙字啊次开启时，它会
+工作不正常，收不到 Intent 以及 BluetoothOppProvider 发送的 notifyChange。
+
+> BluetoothOppHandoverReceiver
+
+NFC Beam 通过蓝牙传输文件的流程：
+* BluetoothOppHandoverReceiver 收到 ACTION_HANDOVER_SEND 或 ACTION_HANDOVER_SEND_MULTIPLE
+* 此时如果 BluetoothOppService 在当前进程中没有启动，可以在这里先启动起来
+* 调用 BluetoothOppManager.saveSendingFileInfo() 保存文件信息
+* 调用 BluetoothOppManager.startTransfer() 启动传输
+* startTransfer() 会启动 InsertShareInfoThread 线程，执行 insertSingleShare 或 insertMultipleShare
+* 这个两个 insert 函数将文件信息插入到 BluetoothOppProvider 名为 BluetoothShare.CONTENT_URI 表中
+  mContext.getContentResolver().insert(BluetoothShare.CONTENT_URI, contentValues);
+* BluetoothOppProvider 的 insert 函数插入数据后，会调用 notifyChange() 通知 BluetoothOppService
+  context.getContentResolver().notifyChange(uri, null);
+* 实际上 BluetoothOppService 在创建时会注册 ContentObserver 监听 BluetoothShare.CONTENT_URI
+  getContentResolver().registerContentObserver(BluetoothShare.CONTENT_URI, true, mObserver);
+* BluetoothOppService 收到 notifyChange 通知后，会调用 updateFromProvider（） 来处理 UPDATE_PROVIDER
+* updateFromProvider（） 启动 UpdateThread 线程，最后调用到 insertShare() 触发 BluetoothOppTransfer 真正启动传输 
+
+
 PBAP (Phonebook Access Profile)
 -------------------------------
 
 > Phone Own Number
 adb shell setprop log.tag.BluetoothPbap VERBOSE
 Connect to remote device and enable PBAP permission
-```
-BluetoothPbapObexServer: OnGet type is x-bt/phonebook; name is telecom/pb.vcf
-BluetoothPbapVcardManager: phone own number vcard
 ```
 telecom/pb.vcf       - main phonebook object
 SIM1/telecom/pb.vcf 
@@ -143,4 +176,9 @@ SIM1/telecom/mch.vcf
 cch.vcf              - combined calls history object
 spd.vcf              - speed-dial object
 fav.vcf              - favorite contacts object
+---
+BluetoothPbapObexServer.java: OnGet type is x-bt/phonebook; name is telecom/pb.vcf
+BluetoothPbapVcardManager.java: phone own number vcard
+BluetoothPbapService.java: getLine1Number()
+---
 
