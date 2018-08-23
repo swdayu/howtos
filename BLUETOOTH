@@ -136,8 +136,8 @@ calligUid != Process.BLUETOOTH_UID && UserHandle.getAppId(calligUid) == Process.
 ```
 context.startService(new Intent(context, BluetoothOppService.class))
 ```
-另外手动启动的 BluetoothOppService 需要手动关闭，可以在 mBluetoothReceiver.onReceive() 中
-追踪到蓝牙关闭时，调用 stopSelf() 关闭 BluetoothOppService，如果不关闭当蓝牙字啊次开启时，它会
+另外手动启动的 BluetoothOppService 需要手动关闭，可以在 mBluetoothReceiver.onReceive()
+中追踪到蓝牙关闭时，调用 stopSelf() 关闭 BluetoothOppService，如果不关闭当蓝牙再次开启时，会
 工作不正常，收不到 Intent 以及 BluetoothOppProvider 发送的 notifyChange。
 
 > BluetoothOppHandoverReceiver
