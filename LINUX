@@ -13,6 +13,7 @@ $ gdb -q program   # use gdb to start the program
 (gdb) x/s 0x423580 # check the string at 0x423580
 (gdb) quit         # quit gdb
 
+> cheat.sh/gdb
 
 Ubuntu 18.04 LTS
 ----------------
