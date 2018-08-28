@@ -4,6 +4,20 @@ Bleutooth
 https://www.bluetooth.com/specifications
 https://source.android.com/devices/bluetooth/
 
+system/bt
+packages/apps/Bluetooth
+frameworks/base/core/java/android/bluetooth
+frameworks/base/packages/SettingsLib/src/com/android/settingslib/bluetooth
+frameworks/base/packages/SystemUI/src/com/android/systemui/qs/tiles
+frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy
+frameworks/base/services/core/java/com/android/server
+packages/apps/Settings/src/com/android/settings/bluetooth
+vendor/qcom/opensource/bluetooth
+vendor/qcom/opensource/bluetooth_ext
+vendor/qcom/proprietary/bt
+vendor/qcom/proprietary/bluetooth
+device/qcom/common/
+
 
 安卓ADB命令
 ----------
@@ -15,6 +29,7 @@ dumpsys activity services | grep -i "ConnectionRecord.*headsetservice"| wc -l
 
 adb logcat -c       # clear log
 adb logcat -b all   # enable all log buffers
+
 
 更新固件驱动
 ----------
@@ -40,6 +55,45 @@ find -name rpm.mbn
 adb reboot bootloader
 fastboot flash rpm build/ms/bin/AAAAANAZR/signed/rpm.mbn
 fastboot reboot
+
+
+Settings (packages/apps/Settings)
+---------------------------------
+
+> layout xml
+res/layout/preference_progress_category.xml
+src/com/android/settings/bluetooth/BluetoothProgressCategory.java
+
+> connected devices related
+CATEGORY_DEVICE
+connected_devices
+connected_devices_dashboard_title
+connected_devices_dashboard_summary
+bluetooth_settings_title
+com.android.settings.category.ia.device
+BluetoothSettingsActivity
+BluetoothSettings
+ConnectedDeviceDashboardActivity
+ConnectedDeviceDashboardFragment
+BluetoothMasterSwitchPreferenceController
+AndroidManifest.xml
+res/xml/connected_devices.xml
+
+> Pair new device flow
+BluetoothPairingPreferenceController.createBluetoothPairingPreference() // 初始化 Pair new device 元素界面
+BluetoothPairingPreferenceController.handlePreferenceTreeClick()　// 点击 Pair new device 元素
+startPreferencePanelAsUser(bluetooth_pairing_page_title => "Pair new device" BluetoothPairingDetail.class)
+BluetoothPairingDetail extends from DeviceListPreferenceFragment.java
+DeviceListPreferenceFragment.enableScanning()
+AdapterService.startScanning()
+startDiscoveryNative()
+device_found_callback()
+RemoteDevices.deviceFoundCallback() => BluetoothDevice.ACTION_FOUND
+BluetoothEventManager.DeviceFoundHandler.onReceive()
+BluetoothCallback.onDeviceAdded(cachedDevice)
+DeviceListPreferenceFragment.onDeviceAdded()
+DeviceListPreferenceFragment.createDevicePreference()
+PreferenceGroup.addPreference(new BluetoothDevicePreference())
 
 
 安卓调试关键字
