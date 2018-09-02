@@ -61,10 +61,12 @@ Settings (packages/apps/Settings)
 ---------------------------------
 
 > layout xml
+
 res/layout/preference_progress_category.xml
 src/com/android/settings/bluetooth/BluetoothProgressCategory.java
 
-> connected devices related
+> Connected devices 设置相关
+
 CATEGORY_DEVICE
 connected_devices
 connected_devices_dashboard_title
@@ -79,7 +81,8 @@ BluetoothMasterSwitchPreferenceController
 AndroidManifest.xml
 res/xml/connected_devices.xml
 
-> Pair new device flow
+> 配对新设备流程（Pair new device）
+
 BluetoothPairingPreferenceController.createBluetoothPairingPreference() // 初始化 Pair new device 元素界面
 BluetoothPairingPreferenceController.handlePreferenceTreeClick()　// 点击 Pair new device 元素
 startPreferencePanelAsUser(bluetooth_pairing_page_title => "Pair new device" BluetoothPairingDetail.class)
@@ -94,6 +97,67 @@ BluetoothCallback.onDeviceAdded(cachedDevice)
 DeviceListPreferenceFragment.onDeviceAdded()
 DeviceListPreferenceFragment.createDevicePreference()
 PreferenceGroup.addPreference(new BluetoothDevicePreference())
+
+> 蓝牙设定里的连接状态更新
+
+LocalBluetoothProfileManager.addProfile(profile, name, ACTION_CONNECTION_STATE_CHANGED)
+BluetoothEventManager.mBroadcastReceiver() => handler.onReceive()
+LocalBluetoothProfileManager.StateChangedHandler().onReceive()
+=> cachedDevice.onProfileStateChanged(mProfile, newState)
+   mProfileConnectionState.put(profile)
+=> cachedDevice.refresh()
+   BluetoothDevicePreference.onDeviceAttributesChanged()
+   cachedDevice.getConnectionSummary()
+   cachedDevice.getProfileConnectionState()
+
+> 状态栏里的蓝牙连接状态更新
+
+BluetoothEventManager.dispatchDeviceAdded() -> BluetoothCallback.onDeviceAdded()
+BluetoothEventManager.DeviceDisappearedHandler.onReceive() -> BluetoothCallback.onDeviceDeleted()
+BluetoothEventManager.BondStateChangedHandler.onReceive() -> BluetoothCallback.onDeviceBondStateChanged()
+BluetoothEventManager.dispatchConnectionStateChanged() -> BluetoothCallback.onConnectionStateChanged()
+CachedBluetoothDevice.dispatchAttributesChanged() -> CachedBluetoothDevice.Callback.onDeviceAttributesChanged()
+
+BluetoothControllerImpl.onDeviceAdded()
+| BluetoothControllerImpl.onDeviceDeleted()
+| BluetoothControllerImpl.onDeviceBondStateChanged()
+| BluetoothControllerImpl.onDeviceAttributesChanged()
+BluetoothControllerImpl.H.handleMessage() MSG_PAIRED_DEVICES_CHANGED
+BluetoothControllerImpl.H.firePairedDevicesChanged() -> onBluetoothDevicesChanged()
+PhoneStatusBarPolicy.updateBluetooth() *** [1]
+
+BluetoothControllerImpl.onDeviceAdded()
+| BluetoothControllerImpl.onDeviceDeleted()
+| BluetoothControllerImpl.onDeviceBondStateChanged()
+| BluetoothControllerImpl.onDeviceAttributesChanged()
+| BluetoothControllerImpl.onConnectionStateChanged()
+BluetoothControllerImpl.updateConnected() when connected state changed
+BluetoothControllerImpl.H.handleMessage() MSG_STATE_CHANGED
+BluetoothControllerImpl.H.fireStateChange() -> onBluetoothStateChange()
+PhoneStatusBarPolicy.onBluetoothStateChange()
+PhoneStatusBarPolicy.updateBluetooth() *** [2]
+
+BluetoothControllerImpl.onBluetoothStateChanged()
+| BluetoothControllerImpl.onConnectionStateChanged()
+BluetoothControllerImpl.H.handleMessage() MSG_STATE_CHANGED
+BluetoothControllerImpl.H.fireStateChange() -> onBluetoothStateChange()
+PhoneStatusBarPolicy.onBluetoothStateChange()
+PhoneStatusBarPolicy.updateBluetooth() *** [3]
+=> BluetoothControllerImpl.isBluetoothConnected()
+   LocalBluetoothManager.getBluetoothAdapter().getConnectionState()
+   BluetoothAdapter.getConnectionState()
+   AdapterService.getAdapterConnectionState()
+   AdapterProperties.getConnectionState()
+
+> BLE apk 连接后的状态栏状态更新
+
+. 在 GattService.onConnected()/onDisconnected()/onClientConnUpdate()/onClientConnected() 中跟踪 GATT 连接状态变化
+. 如广播 com.example.bluetooth.gatt.profile.action.CONNECTION_STATE_CHANGED 消息给上层
+. 然后在 BluetoothEventManager() 中注册监听这个广播 addHandler(...CONNECTION_STATE_CHANGED, new ConnectionStateChangedHandler())
+. 然后当 GATT 连接状态变化时，会触发 BluetoothControllerImpl.onBluetoothStateChanged() -> PhoneStatusBarPolicy.updateBluetooth()
+. PhoneStatusBarPolicy.updateBluetooth() 调用 BluetoothControllerImpl.isBluetoothConnected() 确认蓝牙是否处于连接状态
+. 可以在 isBluetoothConnected（） 中添加检查是否有 GATT 连接的代码，是的 BLE 在 apk 上的连接状态会同步到状态栏上
+. 获取 GATT 连接的代码: getSystemService(Context.BLUETOOTH_SERVICE).getConnectedDevices(BluetoothProfile.GATT)
 
 
 安卓调试关键字
