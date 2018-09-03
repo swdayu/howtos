@@ -159,6 +159,14 @@ PhoneStatusBarPolicy.updateBluetooth() *** [3]
 . 可以在 isBluetoothConnected（） 中添加检查是否有 GATT 连接的代码，是的 BLE 在 apk 上的连接状态会同步到状态栏上
 . 获取 GATT 连接的代码: getSystemService(Context.BLUETOOTH_SERVICE).getConnectedDevices(BluetoothProfile.GATT)
 
+> talkback 语音提示功能
+
+@Override
+public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
+  // build your hint text you wanted
+  event.getText().add(sb.toString());
+  return true
+}
 
 安卓调试关键字
 ------------
