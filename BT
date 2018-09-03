@@ -165,7 +165,7 @@ PhoneStatusBarPolicy.updateBluetooth() *** [3]
 public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
   // build your hint text you wanted
   event.getText().add(sb.toString());
-  return true
+  return true;
 }
 
 安卓调试关键字
