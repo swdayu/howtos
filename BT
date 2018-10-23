@@ -65,6 +65,10 @@ Settings (packages/apps/Settings)
 res/layout/preference_progress_category.xml
 src/com/android/settings/bluetooth/BluetoothProgressCategory.java
 
+> 蓝牙自动开启配置
+
+R.bool.def_bluetooth_on
+
 > Connected devices 设置相关
 
 CATEGORY_DEVICE
