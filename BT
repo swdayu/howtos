@@ -68,6 +68,7 @@ src/com/android/settings/bluetooth/BluetoothProgressCategory.java
 > 蓝牙自动开启配置
 
 R.bool.def_bluetooth_on
+config_supportBluetoothPersistedState
 
 > Connected devices 设置相关
 
