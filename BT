@@ -56,12 +56,84 @@ adb reboot bootloader
 fastboot flash rpm build/ms/bin/AAAAANAZR/signed/rpm.mbn
 fastboot reboot
 
+> Android.mk
+ifeq ($(TARGET_BUILD_VARIANT),user)  # eng,userdebug
+    LOCAL_CFLAGS += -DMACRO_ONLY_DEFINED_FOR_USER_BUILD
+endif
+LOCAL_PRIVATE_PLATFORM_APIS := true  # let apk access non-SDK interface for Android-P
+
+> bluetooth boot kenerl log
+01-02 06:47:01.943     0     0 I Bluetooth: Core ver 2.22
+01-02 06:47:01.950     0     0 I Bluetooth: HCI device and connection manager initialized
+01-02 06:47:01.954     0     0 I Bluetooth: HCI socket layer initialized
+01-02 06:47:01.960     0     0 I Bluetooth: L2CAP socket layer initialized
+
+> enforce
+
+$ adb shell
+<project>:/ $ getenforce
+Enforcing
+<project>:/ $ setenforce 0
+<project>:/ $ getenforce
+Permissive
+
+# disable enforce on boot
+device/<vendor>/<project>/BoardConfig.mk
+BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
+
+> run app and start service
+
+$ adb shell
+<project>:/ $ btnvtool
+<project>:/ $ start btnvtool
+
+# selinux permission autogen
+grep -rn avc log.txt | grep denied | audit2allow
+
+[device/<vendor>/sepolicy/name_vndprocess.te]
+type name_vndprocess, domain, mlstrustedsubject;
+type name_vndprocess_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(name_vndprocess)
+allow name_vndprocess name_vnddevice:chr_file { r_file_perms read ioctl open };
+allow name_vndprocess init:unix_stream_socket connectto;
+allow name_vndprocess property_socket:sock_file write;
+set_prop(name_vndprocess, vendor_bluetooth_prop)
+
+[device/<vendor>/sepolicy/vendor/common/file.te]
+type name_vnddevice, dev_type;
+
+[device/<vendor>/sepolicy/vendor/common/file_contexts]
+/dev/name_nv                            u:object_r:name_vnddevice:s0         # name_nv is a executable to read nv in kernel
+/(vendor|system/vendor)/bin/btnvtool    u:object_r:fx_vndprocess_exec:s0
+
+[device/<vendor>/sepolicy/vendor/common/property_contexts]
+vendor.<name>.bdaddr                    u:object_r:vendor_bluetooth_prop:s0  # btnvtool will write this prop
+
+[device/<vendor>/common/rootdir/etc/init.<vendor>.rc]
+on post-fs-data
+    ...
+    start btnvtool
+service btnvtool /vendor/bin/btnvtool -w
+    class core
+    user system
+    oneshot
+
+> android c funcs
+
+#include <utils/Log.h>            // for ALOGD/E/I/V/W
+#include <cutils/properties.h>    // for property_set/get
+
+char prop[PROPERTY_VALUE_MAX] = {0};
+int prop_len = 0;
+prop_len = property_get("property.name.string", prop, "unknown");
+property_set("property.name.string", prop);
+if (property_get("property.name.string", prop, "unknown") == 4 && strcmp(prop, "true") == 0)
+
 
 Settings (packages/apps/Settings)
 ---------------------------------
 
 > layout xml
-
 res/layout/preference_progress_category.xml
 src/com/android/settings/bluetooth/BluetoothProgressCategory.java
 
