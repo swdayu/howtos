@@ -12,8 +12,9 @@ frameworks/base/packages/SystemUI/src/com/android/systemui/qs/tiles
 frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy
 frameworks/base/services/core/java/com/android/server
 packages/apps/Settings/src/com/android/settings/bluetooth
-vendor/qcom/opensource/bluetooth
-vendor/qcom/opensource/bluetooth_ext
+vendor/qcom/opensource/[commonsys]/bluetooth
+vendor/qcom/opensource/[commonsys]/bluetooth_ext
+vendor/qcom/opensource/[commonsys]/system/bt
 vendor/qcom/proprietary/bt
 vendor/qcom/proprietary/bluetooth
 device/qcom/common/
