@@ -254,8 +254,9 @@ DATE     PRICE BUY-SELL SHARES FEE-RATE TRADE-STRATEGY TRADE-COST TOTAL-SHARES T
 
 
 上证五十 (510050) 2.583 -> (10) 2.324 (15) 2.195 (20) 2.066
-[1] 仓位还可以给四份左右，盈利中不着急投入，亏损后再投，现只做平衡
-[2] 下年一月目标市值
+[1] 仓位还可以给四份左右，盈利中不着急投入，亏损后再投（低于2.324），现只做平衡
+[2] 十一月底定投一次
+[3] 下年一月目标市值
 
 DATE     PRICE BUY-SELL SHARES FEE-RATE TRADE-STRATEGY TRADE-COST TOTAL-SHARES TOTAL-COST COST-PRICE MARKET-VALUE DEST-VALUE
 20160613 2.120 B          4200      3.0 DT                8906.67         4200    8906.67      2.121      8904.00    8906.67
@@ -292,9 +293,10 @@ DATE     PRICE BUY-SELL SHARES FEE-RATE TRADE-STRATEGY TRADE-COST TOTAL-SHARES T
 
 
 创业板指 (159915) 1.214 -> (10) 1.093 (15) 1.032 (20) 0.971
-[1] 还可增加八份左右仓位，按月定投增加仓位
-[2] 十一和十二月都可定投一次
-[3] 下年一月执行目标市值
+[1] 还可增加八份左右仓位，低于 1.093/1.032/0.971 可投 1/2/4 份
+[2] 十一月定投一份
+[3] 十二月定投一份
+[４] 下年一月执行目标市值
 
 DATE     PRICE BUY-SELL SHARES FEE-RATE TRADE-STRATEGY TRADE-COST TOTAL-SHARES TOTAL-COST COST-PRICE MARKET-VALUE DEST-VALUE
 20170630 1.737 B          2300      3.0 DT                3996.30         2300    3996.30      1.738      3995.10    3996.30
@@ -305,7 +307,8 @@ DATE     PRICE BUY-SELL SHARES FEE-RATE TRADE-STRATEGY TRADE-COST TOTAL-SHARES T
 
 
 沪深三百 (510300)　3.505 -> (10) 3.155 (15) 2.979
-[1] 还可投八份左右，可按月定投增加仓位
+[*] 还可投八份左右，可按月定投增加仓位，低于 3.155 可先投一份
+[1] 还可投七份左右，低于 2.979 可定投两份
 [2] 十一月执行第一次目标市值
 [3] 十二月定投一次
 
@@ -318,6 +321,7 @@ DATE     PRICE BUY-SELL SHARES FEE-RATE TRADE-STRATEGY TRADE-COST TOTAL-SHARES T
 20180816 3.350 B          1200      3.0 DT                4021.21         3100   10348.23      3.338     10385.00   10348.23
 20180903 3.361 B           800      3.0 DT                2689.61         3900   13037.84      3.343     13107.90   13037.84
 20180928 3.505 B           800      3.0 DT                2804.84         4700   15842.68      3.371     16473.50   15842.68
+20181029 3.136 B          1000      3.0 DT                3136.94         5700   18979.62      3.330     17875.20   18979.62
 20181105
 
 
