@@ -326,6 +326,36 @@ ftm_bt_hci_hal_read_event()
 post semaphore_cmd_complete
 ```
 
+A2DP/AVRCP
+----------
+
+> headset && call && music
+
+1. phone suspend a2dp before call ring
+---
+3,534	5	2	Single Packet	Master	SUSPEND	8	12	00:00:18.345577	2018/10/22 15:21:25.231359	
+3,538	2	Single Packet	Slave	SUSPEND	8	11	00:00:00.183662	2018/10/22 15:21:25.415021	
+
+2. call ring
+---
+3,543	Master	2	..+CIEV: 2,1..	Call Status indicator's status report	27	00:00:25.003626	2018/10/22 15:21:25.442057	
+3,544	Master	2	..RING..	Incoming Call/Call progress indication	21	00:00:00.000789	2018/10/22 15:21:25.442846	
+3,552	Master	2	..RING..	Incoming Call/Call progress indication	21	00:00:03.000820	2018/10/22 15:21:28.443666
+3,569	Master	2	..RING..	Incoming Call/Call progress indication	21	00:00:03.001197	2018/10/22 15:21:40.451718
+
+3. bt headset linkloss
+---
+3,575	Event Disconnection Complete	Success	0x0002 00:00:00.003266 2018/10/22 15:21:40.925480
+
+4. hang up call, player start to play
+---
+10-22 15:21:48.611  4237  4237 I Dialer  : InCallPresenter.onCallListChange - Phone switching state: NO_CALLS -> NO_CALLS
+10-22 15:21:48.625  1013  5742 D NuPlayerDriver: start(0xe54a1780), state is 6, eos is 0
+
+I think it is not a issue, because no matter bt headset is connected or not.
+Player should start to play after call hang up.
+
+
 OPP (Object Push Profile)
 -------------------------
 
