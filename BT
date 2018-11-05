@@ -355,6 +355,37 @@ A2DP/AVRCP
 I think it is not a issue, because no matter bt headset is connected or not.
 Player should start to play after call hang up.
 
+> 电话挂断后音乐没有自动播放 （08_IT_Navi）
+
+1. 电话挂断后，播放器会自动播放，然后A2DP进入stream started
+2. 但是车载也马上发送了play的AVRCP命令，但play被转换成了KEYCODE_MEDIA_PLAY_PAUSE（为解有些耳机只发pause问题）
+3. 这导致播放器又马上暂停，使得A2DP进入stream suspended
+
+(1. Call hung up)
+	9,986	Master	2	AT+CHUP.	Terminate the call			22	 00:00:01.241491	2018/11/5 20:12:42.139905	
+	9,987	Slave	2	..OK..			Success	20	 00:00:00.001328	2018/11/5 20:12:42.141233	
+	9,989	Slave	2	..+CIEV: 2,0..		Call Status indicator's status report		27	 00:00:00.510701	2018/11/5 20:12:42.651934	
+
+(2. Player start to play immediately after call hung, and A2DP started)
+11-05 20:12:42.470  2641  2641 I Telephony: : onDisconnect: callId=TC@1_1, cause=INCOMING_REJECTED
+11-05 20:12:42.555  1028  1336 D NuPlayerDriver: start(0xeb621600), state is 6, eos is 0
+	9,992	1		2		Single Packet	Slave	START	8	12	 00:00:04.820030	2018/11/5 20:12:42.667869	
+	10,004			2		Single Packet	Master	START	8	11	 00:00:00.043255	2018/11/5 20:12:42.711124	
+
+(3. Carkit send PLAY command at the same time, but it treated as KEYCODE_MEDIA_PLAY_PAUSE)
+	9,999	CT	2	CONTROL			PASS THROUGH	play	Button Pushed				17	 00:00:04.699134	2018/11/5 20:12:42.687681	
+	10,000	TG	2		ACCEPTED		PASS THROUGH	play	Button Pushed				17	 00:00:00.001157	2018/11/5 20:12:42.688838	
+	10,034	CT	2	CONTROL			PASS THROUGH	play	Button Released				17	 00:00:00.347799	2018/11/5 20:12:43.036637	
+	10,036	TG	2		ACCEPTED		PASS THROUGH	play	Button Released				17	 00:00:00.014471	2018/11/5 20:12:43.051108	
+11-05 20:12:43.308 21862 21862 V Avrcp_ext: recordKeyDispatched: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_MEDIA_PLAY_PAUSE
+11-05 20:12:43.309 21862 21862 V Avrcp_ext: recordKeyDispatched: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_MEDIA_PLAY_PAUSE
+
+(4. At the end, palyer paused)
+11-05 20:12:43.715 22078 22078 D MediaPlayerController: pause in state PLAYING
+11-05 20:12:43.715  1028 17322 D NuPlayerDriver: pause(0xeb621600)
+	10,579	1		2		Single Packet	Slave	SUSPEND	9	12	 00:00:04.019054	2018/11/5 20:12:46.730178	
+	10,587			2		Single Packet	Master	SUSPEND	9	11	 00:00:00.115116	2018/11/5 20:12:46.845294	
+
 
 OPP (Object Push Profile)
 -------------------------
