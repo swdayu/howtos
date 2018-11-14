@@ -329,6 +329,16 @@ post semaphore_cmd_complete
 A2DP/AVRCP
 ----------
 
+> 串联音箱通过主音箱中转，如何保证延时在合理范围内
+一种解决方法，通过采样率，动态调整发包快慢，将延时控制在一定范围内
+
+> 音频卡音问题
+1. 发得不够快： host延时，或controller多piconet没时间及时发送数据包
+2. 有过多的重传
+
+> 使用长数据包的问题
+数据包越长，在发送过程中错误的概率越大，实际应用中一般将最长的数据包禁用
+
 > headset && call && music
 
 1. phone suspend a2dp before call ring
