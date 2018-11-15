@@ -31,6 +31,10 @@ dumpsys activity services | grep -i "ConnectionRecord.*headsetservice"| wc -l
 adb logcat -c       # clear log
 adb logcat -b all   # enable all log buffers
 
+> adb 识别不了设备
+1. Developer options | USB debugging [ON]
+2. Developer options | Default USB configuration [File Transfer]
+3. <vnd>tools | <vnd>DevSettings | LSM Mode [OFF] and reboot
 
 更新固件驱动
 ----------
