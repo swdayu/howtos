@@ -19,6 +19,13 @@ vendor/qcom/proprietary/bt
 vendor/qcom/proprietary/bluetooth
 device/qcom/common/
 
+> profile config
+packages/apps/Bluetooth/src/com/android/bluetooth/btservice/Config.java
+device/qcom/common/product/overlay/packages/apps/Bluetooth/res/values/config.xml
+vendor/qcom/proprietary/resource-overlay/common/Bluetooth/res/values/config.xml
+vendor/qcom/opensource/commonsys/bluetooth/BluetoothExt/res/values/config.xml
+packages/apps/Bluetooth/res/values/config.xml
+
 
 安卓ADB命令
 ----------
