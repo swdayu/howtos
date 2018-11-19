@@ -26,6 +26,9 @@ vendor/qcom/proprietary/resource-overlay/common/Bluetooth/res/values/config.xml
 vendor/qcom/opensource/commonsys/bluetooth/BluetoothExt/res/values/config.xml
 packages/apps/Bluetooth/res/values/config.xml
 
+> Android-P 蓝牙界面
+关掉蓝牙之后，已配对的设备不会显示，Previously connected devices变灰
+打开蓝牙后才显示出来
 
 安卓ADB命令
 ----------
