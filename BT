@@ -30,6 +30,9 @@ packages/apps/Bluetooth/res/values/config.xml
 关掉蓝牙之后，已配对的设备不会显示，Previously connected devices变灰
 打开蓝牙后才显示出来
 
+> nouser 版本的 bin
+没有 userdata，烧这种版本不会覆盖手机原本的用户数据，常用于数据继承测试
+
 安卓ADB命令
 ----------
 
