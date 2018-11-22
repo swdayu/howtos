@@ -108,4 +108,6 @@ fastboot flashing lock    # fastboot oem lock (2014 and eariler devices)
 
 ADB
 ---
+make adb
+LA.UM.7.6/LINUX/android/out/host/linux-x86/bin/adb
 adb shell dumpsys activity service aptxalsService
