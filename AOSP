@@ -105,3 +105,7 @@ adb reboot bootloader
 fastboot flashing unlock  # fastboot oem unlock (2014 and earlier devices)
 fastboot flashall -w      # -w option wipes the /data can be used for the first time
 fastboot flashing lock    # fastboot oem lock (2014 and eariler devices)
+
+ADB
+---
+adb shell dumpsys activity service aptxalsService
