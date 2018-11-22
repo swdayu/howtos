@@ -111,3 +111,11 @@ ADB
 make adb
 LA.UM.7.6/LINUX/android/out/host/linux-x86/bin/adb
 adb shell dumpsys activity service aptxalsService
+
+Check notification settings for application: 
+* Go to Settings > Apps & notifications > App info 
+* Tap three dots and select 'Show system' 
+* Select 'com.qualcomm.qtil.aptxals...' 
+* Go to Notifications > aptxals > Behavior
+
+
