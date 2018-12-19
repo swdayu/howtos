@@ -1,3 +1,17 @@
 
+PS
+* 命令帮助 help command，help 会自动分页，可按 ctrl+c 返回
+* 更新帮助 update-help （需管理员权限）
+* get-help command [-online]，get-help 不会分页
+* 支持通配符查找命令 help *log*, help *event*
+* 详细帮助 help command -full
+* PS 将以逗号分隔的一组值读取为数组
+* 命令的单个参数值如果包含空格，需要用引号引起
+* 多个引号引起的参数也可用逗号分隔，形成参数数组
+* 命令的数组参数也可以单独放在文件里，每个参数占一行
+* 然后使用()指定命令的执行顺序，用 get-content file.txt 先将参数从文件中读出
+* 命令示例 help command -example
+* about 信息 help about*
+
 创建链接到目标文件夹的文件夹映射
 \> mklink /j link/folder path/to/dest/folder
