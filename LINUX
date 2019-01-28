@@ -8,11 +8,30 @@ https://www.fprintf.net/vimCheatSheet.html
 Windows 10 Linux Subsystem
 --------------------------
 
-文件位于此目录：
+## 系统目录和磁盘映射目录
 
 C:\Users\<username>\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc\LocalState\rootfs
+Windows 下的磁盘映射在子系统 /mnt/c/ /mnt/d/ ... 等目录下
 
-Windows 下的磁盘映射在子系统 /mnt/c/ /mnt/d/ ... 等目录下。
+## 安装 gcc arm 开发环境
+
+sudo apt-get install make
+make --version
+sudo apt-get install git
+tar jxvf gcc-arm-none-eabi-4_9-2015q3-20150921-linux.tar.bz2
+
+## 命令行多屏幕
+
+sudo apt-get install screen
+sudo screen
+ctrl+a ?   -   get help
+ctrl+a c   -   create new window
+ctrl+a k   -   kill a window
+ctrl+a w   -   show current windows
+ctrl+a n   -   next window
+ctrl+a p   -   previous window
+ctrl+a 0   -   select the 0-window
+ctrl+a 1   -   select the 1-window
 
 GCC Debugging
 -------------
