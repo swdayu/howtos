@@ -5,6 +5,15 @@ VIM
 http://vimdoc.sourceforge.net/
 https://www.fprintf.net/vimCheatSheet.html
 
+Windows 10 Linux Subsystem
+--------------------------
+
+文件位于此目录：
+
+C:\Users\<username>\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc\LocalState\rootfs
+
+Windows 下的磁盘映射在子系统 /mnt/c/ /mnt/d/ ... 等目录下。
+
 GCC Debugging
 -------------
 
