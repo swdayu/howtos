@@ -94,6 +94,8 @@ tar -xzvf archive.tgz               # extract the archive.tgz to current folder
 tar -rzvf archive.tgz file3         # append new files
 tar -uzvf archive.tgz file2         # update exist files
 
+tar jxvf file.tar.bz2
+
 zip dest.zip file1 file2 file3  # compress specified files
 zip dest.zip -r folder/         # compress all files in folder
 unzip dest.zip                  # extract to current folder
