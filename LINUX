@@ -17,7 +17,8 @@ Windows 下的磁盘映射在子系统 /mnt/c/ /mnt/d/ ... 等目录下
 
 sudo apt-get install make
 make --version
-sudo apt-get install git
+
+https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
 tar jxvf gcc-arm-none-eabi-4_9-2015q3-20150921-linux.tar.bz2
 
 ## 命令行多屏幕
