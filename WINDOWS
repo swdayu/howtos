@@ -13,5 +13,10 @@ PS
 * 命令示例 help command -example
 * about 信息 help about*
 
+NMAKE
+* NMAKE : fatal error U1045: spawn failed : Permission denied
+* 可能是杀毒软件防护的原因，关闭杀毒软件或添加额外规则
+* 我遇到的另一个情况是，运行可执行程序时把 ./$@ 改成 $@ 就好的
+
 创建链接到目标文件夹的文件夹映射
 \> mklink /j link/folder path/to/dest/folder
