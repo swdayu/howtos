@@ -53,6 +53,10 @@ $ gdb -q program   # use gdb to start the program
 Ubuntu 18.04 LTS
 ----------------
 
+## ssh
+ps -ef | grep ssh
+/etc/init.d/ssh start
+
 mkdir folder
 cd folder
 mkdir repo
