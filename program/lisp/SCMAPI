@@ -1,0 +1,1685 @@
+
+References
+
+[1] The Revised6 Report on the Algorithmic Language Scheme (http://www.r6rs.org/)
+[2] The Scheme Programming Language 4th Edition (https://www.scheme.com/tspl4/)
+[3] ChezScheme Version 9 User's Guide (http://cisco.github.io/ChezScheme/csug9.5/csug.html)
+[4] How to Debug ChezScheme Programs (https://www.cs.indiana.edu/chezscheme/debug/)
+[5] Common Lisp Hyperspec (http://www.lispworks.com/documentation/HyperSpec/Front/index.htm)
+
+    ;; Basic syntax
+
+    ; normal comment is between a semicolon (;) and the end of the line
+    #| block comments are delimited by #| |# pairs, and may be nested |#
+    #;(datum comments are typically used to comment out individual definitions
+       or expressions). Datum comments may also be nested, though #;#;(a)(b)
+       has the somewhat nonobvious effect of commenting out both (a) and (b).
+    #!r6rs         ;; comment directive
+    #!chezscheme   ;; comment directive, enable chezscheme extensions
+
+    The ChezScheme lexical extensions are disabled in an input stream after
+    an #!r6rs comment directive has been seen, unless a #!chezscheme comment
+    directive has been seen since.
+
+
+    ;; Libraries, Top-level Programs, and Modules
+
+    Libraries are typically stored in the file system, with one library per
+    file, and the library name typically identifiers the file-system path to
+    the library, possibly relative to a default or programmer-specified set
+    of library locations. The exact mechanism by which top-level programs are
+    run and libraries are loaded is implementation-dependent.
+
+    This chapter describes the mechanisms by which libraries and programs are
+    loaded in ChezScheme along with various features for controlling and
+    tracking this process. It also describes the set of built-in libraries
+    and syntactic forms for defining new libraries and top-level programs
+    outside of a library or top-level program file.
+
+    ChezScheme provides two additional libraries: (chezsheme) and
+    (chezscheme csv7). The former can also be referenced as (scheme) and the
+    latter can also be referenced as (scheme csv7).
+
+    The (scheme csv7) should be used only for old code. The (scheme) library
+    exports bindings for every identifier whose binding is described in this
+    document. In most cases where an identifier exported from the (scheme)
+    library corresponds to an identifier exported from one of the RNRS
+    libraries, the binding are identical. In some cases, however, the (scheme)
+    bindings extend the rnrs bindings in some way. For example, the (scheme)
+    syntax-rules form allows its clauses to have fenders, while the (rnrs)
+    syntax-rules form does not. Similarly, the (scheme) current-input-port
+    procedure accepts an optional port argument that, when specified, sets
+    the current input port to port, while the (rnrs) current-input-port
+    procedure does not. When the (scheme) library extends an RNRS binding
+    in some way, the (scheme) library also exports the RNRS version, with the
+    name prefixed by r6rs:, e.g., r6rs:syntax-rules or r6rs:current-input-port.
+
+    A top-level program residing in a file is run by one of three mechanisms:
+    the scheme-script command, the --program command-line argument, or the
+    load-program procedure. A top-level program may be compiled with the
+    compile-program procedure, it copies the #! line from the source file to
+    the object file, followed by a compiled version of the source code. Any
+    libraries upon which the top-level program depends, other than build-in
+    libraries, must be compiled first via compile-file or compile-library.
+    This can be done manually or by setting the parameter compile-imported-
+    libraries to #t before compiling the program. The program must be
+    recompiled if any of the libraries it depends are recompiled. A compiled
+    top-level program can be run just like a source top-level program via
+    each of the mechanisms described above.
+
+    scheme-script program-filename arg ...
+    #! /usr/bin/env scheme-script
+    scheme --program program-filename arg ...
+    #! /usr/bin/scheme --script
+    (load-program string)
+
+    In ChezScheme, a library may also be defined in the REPL or placed in a
+    file to be loaded via load or load-library. The syntax for a library is
+    the same whether the library is placed in its own file and implicitly
+    loaded via import, entered into the REPL, or placed in a file along
+    with other top-level expressions to be evaluated by load.
+
+    In the language of the R6RS, a top-level program is merely an unwrapped
+    sequence of subforms consisting of an import form and a body, delimited
+    only by the boundaries of the file in which it resides. In order for a
+    top-level program to be entered in the REPL or placed in a file to be
+    evaluated by load, ChezSheme allows top-level programs to be enclosed in
+    a top-level-program form.
+
+    (top-level-program import-spec program-body)
+    (library library-spec (export export-spec ...) (import import-spec ...) library-body)
+    import-spec  : import-set
+                 | (for import-set import-level ...)
+    import-level : run
+                 | expand
+                 | (meta level)   ;; level represents an exact integer
+    import-set   : library-spec
+                 | (only import-set identifier ...)     ;; import only identifiers in the library
+                 | (except import-set identifier ...)   ;; import all identifiers in the library except
+                 | (prefix import-set prefix)           ;; add a prefix to the imported identifiers
+                 | (add-prefix import-set prefix)       ;; same as prefix, chezscheme
+                 | (drop-prefix import-set prefix)      ;; chezscheme
+                 | (rename import-set (import-name internal-name) ...)
+                 | (alias import-set (import-name internal-name) ...)   ;; both names can be used, chezscheme
+    export-spec  : identifier
+                 | (rename (internal-name export-name) ...)
+                 | (import import-spec ...)                  ;; chezscheme
+    library-spec : library-ref
+                 | (library library-ref)
+    library-ref  : (identifier identifier ...)
+                 | (identifier identifier ... version-ref)
+    version-ref  : (subversion-ref ... subversion-ref)
+                 | (and version-ref)
+                 | (or version-ref)
+                 | (not version-ref)
+    subversion-ref : (>= subversion)
+                   | (<= subversion)
+                   | (and subversion-ref ...)
+                   | (or subversion-ref ...)
+                   | (not subversion-ref ...)
+
+    (import-only import-spec ...)
+    (indirect-export id indirect-id ...)
+    (implicit-exports #t)
+    (implicit-exports #f)
+
+    (module module-name (export-identifier ...) module-body)
+    (module (export-identifier ...) module-body)
+
+    (include path)
+
+    run and (meta 0) are equivalent and specify that the bindings imported
+    from a library might be referenced by the run-time expressions (define,
+    let, let*, ...). expand and (meta 1) are equivalent and specify that the
+    bindings imported from a library might be referenced by the transformer
+    expressions (define-syntax, let-syntax, or letrec-syntax, ...) of the
+    importing library. (meta 2) specifies that the bindings imported from a
+    library might be referenced by a transformer expression that appears
+    within a transformer expression of the importing library, and so on for
+    higher meta levels. Negative meta levels may also be specified and are
+    needed in certain circumstances when a transformer expands into the
+    transformer for another keyword binding used at a lower meta level.
+
+    A library export may have a non-zero export meta level, in which case the
+    effective import level is the sum of the level specified by for and the
+    export level. The exports of each standard library except (rnrs base) and
+    (rnrs) have export level zero. For (rnrs base), all exports have export
+    level zero except for syntax-rules, identifier-syntax, and their auxiliary
+    keywords _, ..., and set!. set! has export levels zero and one, while
+    the others have export level one. All exports of the (rnrs) library have
+    export levels zero and one.
+
+    It can be difficult for the programmer to specify the import levels that
+    allow a library or top-level program to compile or run properly. Moreover,
+    it is often impossible to cause a library's bindings to be made available
+    when they are needed without causing them to be made available in some
+    cases when they are not needed. Because of this, implementations are
+    permitted to ignore export levels and the for wrapper on an import-set and
+    instead automatically determine.
+    
+    Only one version of a library can be loaded at any given time, and an
+    exception is raised if a library is implicitly loaded via import when
+    another version of the library has already been loaded. ChezScheme permits
+    a different version of the library, or a new instance of the same version,
+    to be entered explicitly into the REPL or loaded explicitly from a file,
+    to facilitate interactive testing and debugging. The programmer should
+    take care to make sure that any code that uses the library is also
+    reentered or reloaded, to make sure that code accesses the bindings of
+    the new instance of the library.
+
+    (library (foo) (export a) (import (rnrs)) (define a 'a-from-foo))
+    (module bar (b) (define b 'b-from-bar))
+    (let () (import (foo) bar) (list a b))   => (a-from-foo b-from-bar)
+
+    Although not required by the R6RS, ChezScheme supports the use of
+    standalone import and export forms. The import forms can appear
+    anywhere other definitions can appear, including within a library
+    body, module body, lambda or other local body, and at top level.
+    The export forms can appear within the definitions of a library or
+    module body to specify additional exports for the library or module.
+
+    The library parameters described below control where import looks when
+    attempting to load a library, whether it compiles the libraries it loads,
+    and whether it displays tracking messages as it performs its search.
+
+    thread parameters: library-directories library-extensions
+                       compile-imported-libraries import-notify
+
+    library-directories determines where the files containing library source
+    and object code are located in the file system, and library-extensions
+    determines the filename extensions for the files holding the code. The
+    values of both parameters are lists of pairs of strings. The first string
+    in each library-directories pair identifier a source-file root directory,
+    and the second identifies the corresponding object-file root directory.
+    Similarly, the first string in each library-extensions pair identifies
+    a source file extension, and the second identifiers the corresponding
+    object-file extension. The full path of a library source or object file
+    consist of the source or object root followed by the components of the
+    library name prefixed by slashes, with the library extension added on the
+    end. For example, for root /usr/lib/scheme, library name (app lib1), and
+    extension .sls, the full path is /usr/lib/scheme/app/lib1.sls. If the
+    library name portion forms an absolute pathname, e.g., ~/.myappinit, the
+    library-directories parameter is ignored and no prefix is added. The
+    initial values of these parameters are shown below.
+
+    (library-directories) => (("." . "."))
+    (library-extensions) => ((".chezscheme.sls" . ".chezscheme.so")
+                             (".ss" . ".so") (".sls" . ".so")
+                             (".scm" . ".so") (".sch" . ".so"))
+
+    The default initial value of the compile-imported-libraries is #f. It can
+    be set to #t vai the command-line option --compile-imported-libraries. When
+    the parameter import-notify is set to a true value, import displays
+    messages to the console-output port as it searches for the file containing
+    each library it needs to load. The default value of this parameter is #f.
+
+    (library-list)  ;; a list of the libraries currently defined
+    (library-version library-ref)
+    (library-exports library-ref)
+
+    ;; system operations
+
+    (eval expr)      ;; use the env returned by interaction-environment
+    (eval expr env)
+    current-eval     ;; thread parameter, it determines the evluation procedure
+                        used by the procedure eval, load, and new-cafe. it is
+                        initially bound to the value of compile
+    (compile expr)   ;; expand, compile, and execute
+    (compile expr env)
+    (interpret expr) ;; interpret the expression, not compile it
+    (interpret expr env)
+    (load path)
+    (load path eval-proc)  ;; load and evaluate the contents of the file,
+                              the file may contain source or object code.
+                              by default, load employs eval to evaluate each
+                              source expression found in a source file.
+                              if eval-proc is specified, load uses this
+                              procedure instead.
+    (load-library path)
+    (load-library path eval-proc)
+    (load-program path)
+    (load-program path eval-proc)
+
+
+    ;; definitions
+
+    (define var expr)
+    (define var)  ;; equivalent to (define var <unspecified>)
+    (define (var1 ... varn) body1 body2 ...)
+    (define (var1 . args) body1 body2 ...)
+    (define (var1 ... varn . args) body1 body2 ...)
+
+    The first two forms, define creates a new bindgins of var to the value of
+    expr. The expr should not return more than once. That is, it should not
+    return both normally and via the invocation of a continuation obtained
+    during its evaluation, and it should not return twice via two invocations
+    of such a continuation. The remaining are shorthand forms for binding
+    variables to procedures; they are identical to the definitions in terms of
+    lambda.
+
+    (define func (lambda (x y) (display (+ x y))))
+    (func 1 2)   ;; 3
+    (define func (lambda z (display z)))          ;; z receives all arguments as a list
+    (func 1 2)   ;; (1 2)
+    (define func (lambda (x y . z) (display z)))  ;; z receives reminder arguments as a list
+    (func 1 2 3) ;; (3)
+
+    A Scheme lambda expression always produces a procedure with a fixed number
+    of arguments or with an indefinite number of arguments greater than or
+    equal to a certain number. In particular,
+
+    (lambda (var1 ... varn) body1 body2 ...) accepts exactly n arguments,
+    (lambda args body1 body2 ...) accepts zero or more arguments, and
+    (lambda (var1 ... varn . args) body1 body2 ...) accepts n or more arguments.
+
+    But lambda cannot directly produce, however, a procedure that accepts, say,
+    either two or three arguments. In particular, procedures that accept optional
+    arguments are not supported directly by lambda. The latter form of lambda
+    shown above can be used, in conjunction with length checks and compositions
+    of car and cdr, to implement procedures with optional arguments, though
+    at cost of clarity and efficiency.
+
+    The case-lambda syntactic form directly supports procedures with optional
+    arguments as well as procedures with fixed or indefinite numbers of
+    arguments. The case-lambda is based on the lambda* syntactic form introduced
+    in the article "A New Approach to Procedures with Variable Arity".
+
+    (lambda formals body1 body2 ...)
+    (case-lambda (formals body1 body2 ...) ...)
+
+    (define substring2
+      (case-lambda
+        ((s) (substring2 s 0 (string-length s)))
+        ((s start) (substring2 s start (string-length s)))
+        ((s start end) (substring s start end))))
+
+    When a procedure created with case-lambda is invoked, the clauses are
+    considered in order.
+
+    (define-syntax let
+      (syntax-rules ()
+        ((_ ((x e) ...) b1 b2 ...)
+         ((lambda (x ...) b1 b2 ...) e ...))))
+
+    (define-syntax let*
+      (syntax-rules ()
+        ((_ () e1 e2 ...)
+         (let () e1 e2 ...))
+        ((_ ((x1 v1) (x2 v2) ...) e1 e2 ...)
+         (let ((x1 v1))
+           (let* ((x2 v2) ...) e1 e2 ...)))))
+
+    (let name ((var expr) ...) body1 body2 ...)
+
+
+    ;; control operations
+
+    (proc expr1 ...)
+
+    Procedure application is the most basic Scheme control structure. Any
+    structured form without a syntax keyword in the first position is a
+    procedure application. If the first expression proc does not evaluate to
+    a procedure, or if the procedure does not accept the number of arguments
+    provided, an exception with condition type &assertion is raised.
+
+    The order in which the procedure and argument expressions are evaluated
+    is unspecified. It may be left to right, right to left, or any other
+    order. The evaluation is guaranteed to be sequential, however; whatever
+    order is chosen, each expression is fully evaluated before evaluation of
+    the next started.
+
+    (apply proc arg ... list)
+    (apply + '(4 5))
+    (apply min 5 1 3 '(6 8))
+    (apply vector 'a 'b '(c d))
+
+    The apply invokes proc, passing all arguments before list as its heading
+    arguments, and then passing all arguments in the list as the remaining
+    arguments. The apply is useful when some or all of the arguments to be
+    passed to a procedure are in a list, since it frees the programmer from
+    explicity destructuring the list.
+
+    (begin expr1 expr2 ...)
+
+    The expressions expr1 expr2 ... are evaluated in sequence from left to
+    right.
+
+    (if test consequent alternative)
+    (if test consequent)  ;; equvient to (if test consequent <unspecified>)
+    (not expr)
+    (and expr ...)
+    (or expr ...)
+    (cond clause1 clause2 ...)
+
+    Each clause in cond must take one of the forms below. And the "else clause"
+    can only be the last clause.
+
+    (test)                    ;; if test evaluated to true, the value of test is returned
+    (test => expr)            ;; if test evaluated to true, the value of the expr should be a procedure of one argument, return the value of (expr test)
+    (test expr1 expr2 ...)    ;; if test evaluated to ture, the value of the last expression is returned
+    (else expr1 expr2 ...)    ;; the value of the last expression is returned
+
+    If none of the tests evaluates to a true value and no else clause is
+    present, the value or values are unspecified.
+
+    (case expr clause1 clause2 ...)
+    clause => ((key ...) expr1 expr2 ...)
+              (else expr1 expr2 ...)
+
+    First, expr is evaluated and the result is compared (using eqv?) against
+    the keys of each clause in order. If a clause containing a matching key
+    is found, the expression expr1 expr2 ... are evaluated in sequence and
+    the values of the last expression are returned. If none of the clauses
+    contains a matching key and an else clause is present, the expressions
+    expr1 expr2 ... of the else clause are evaluated in sequence and the values
+    of the last expression are returned. If none of the clauses contains a
+    matching key and no else clause is present, the value or values are
+    unspecified.
+
+    (map proc list1 list2 ...)       ;; return a list of the resulting values
+    (for-each proc list1 list2 ...)  ;; same as map but doesn't return the list
+    (vector-map proc vec1 vec2 ...)  ;; return a vector of the resulting values
+    (vector-for-each proc vec1 vec2 ...)
+    (string-for-each proc str1 str2 ...)
+
+    (values obj ...)
+    (call-with-values vals proc)
+
+    While all Scheme primitives and most user-defined procedures return
+    exactly one value, some programming problems are best solved by returning
+    zero values, more than one value, or even a variable number of values.
+    For example, a procedure that partitions a list of values into two sublists
+    needs to return two values. While it is possible for the producer of
+    multiple values to package them into a data structure and for the consumer
+    to extract them, it is often cleaner to use the built-in multiple-values
+    interfaces. This interface consists of two procedures: values and
+    call-with-values. The former produces multiple values and the later links
+    procedures that produce multiple-value values with the procedures that
+    consume them.
+
+    ;; quotes
+
+    'expr is equivalent to (quote expr), the abbreviated form is converted into
+    the longer form by the Scheme reader. Quote inhibits the normal evaluation
+    rule for expr, allowing expr to be employed as data. Although any Scheme
+    object may be quoted, quotation is not neccessary for self-evaluated
+    constants, i.e., booleans, numbers, characters, strings, or bytevectors.
+    Quoted and self-evaluating constants are immutable (it is true in Racket,
+    but ChezScheme can modify string and bytevector constants).
+
+    The objects that need not to quoted, there are constants and self-evaluated:
+
+    #t
+    #f
+    #b1100            ;; 12
+    3.14
+    100
+    1/2
+    #\A
+    #\linefeed
+    "abc"
+    "abc\n"
+    #vu8(1 2 3)
+    #vu8(#xFE #xFF)   ;; #vu8(254 255)
+
+    Lists, pairs and vectors have their abbreviation form by using quotes:
+
+    '()                 ;; (list), a empty list
+    '(1 2 3)            ;; (list 1 2 3), a number list
+    '(a b c)            ;; (list 'a 'b 'c), a symbol list
+    `(,a ,b ,c)         ;; (list a b c), a list has three values
+    '#()                ;; (vector), a empty vector
+    '#(1 2 3)           ;; (vector 1 2 3), a number vector
+    '#(a b c)           ;; (vector 'a 'b 'c), a symbol vector
+    `#(,a ,b ,c)        ;; (vector a b c), a vector has three values
+
+    (list? '())         ;; #t
+    (list? '(1 2 3))    ;; #t
+    (vector? '#())      ;; #t
+    (vector? '#(1 2 3)) ;; #t
+    (symbol? #t)        ;; #f
+    (symbol? 12)        ;; #f
+    (symbol? #\a)       ;; #f
+    (symbol? "abc")     ;; #f
+    (symbol? #vu8())    ;; #f
+    (symbol? 'abc)      ;; #t
+
+
+    ;; booleans
+
+    While every Scheme object has a truth value when used in a conditional
+    context, whith every object but #f counting as true, Scheme provide the
+    dedicated true value #t for use.
+
+    (boolean=? b1 b2)  ;; eq? is typically more efficient than boolean=?
+
+    ;; numbers
+
+    Scheme numbers may be classified as integers, rational numbers, real
+    numbers, or complex numbers. A Scheme number may also be classified as
+    exact or inexact, depending upon the quality of operations used to derive
+    the number and the inputs to these operatons.
+
+    3
+    +19
+    -100000
+    208423089237489374
+    3/4
+    -6/5
+    1/1208203823
+    1.0
+    -200.00
+    1.5
+    0.034
+    -10e-10
+    1.5e-5
+    2e3
+    3+4i
+    3.2-3/4i
+    +i
+    -3e-5i     ;; rectangular form complex
+    1.1@1.764  ;; polar form complex
+    -1@-1/2
+    +inf.0     ;; positive infinity
+    -inf.0     ;; negative infinity
+    +nan.0     ;; not-a-number
+    -nan.0     ;; not-a-number
+    #b10101
+    #o72
+    #d100
+    #xC7
+
+
+    ;; symbols
+
+    Symbols are used for a variety of purpose as symbolic names in Scheme.
+    Strings could be used for most of the same purposes, but an important
+    characteristic of symbols makes comparisons between symbols much more
+    efficient. This characteristic is that two symbols with the same name
+    are identical in these sense of eq?. The reason is that the Scheme reader
+    (invoked by get-datum and read) and the procedure string->symbol catalog
+    symbols in an internal symbol table and always return the same symbol
+    whether the same name is encountered. It makes symbols ideally suited for
+    use as identifiers in the representation of programs, allowing fast
+    comparison of idnetifiers. This property also makes symbols useful for
+    a variety of other purpose. For example, symbols might be used as messages
+    passed between procedures, lables for list-structured records, or names
+    for objects stored in an association list.
+
+    (symbol=? s1 s2)    ;; eq? is typically more efficient than symbol=?
+    (string->symbol s)
+    (symbol->string s)
+
+
+    ;; characters
+
+    Characters are objects that represent Unicode scalar values. Not: Unicode
+    defines a standard mapping between sequences of Unicode scalar values
+    (integers in the range 0 to #x10FFFF, excluding the range #xD800 to #xDFFF)
+    in the latest version of the standard and human-readable "characters".
+    More precisely, Unicode distinguishes between glyphs, which are printed for
+    humans to read, and characters, which are abstract entities that map to
+    glyphs (sometimes in a way that's sensitive to surrounding chracters).
+    Furthermore, different sequences of scalar values sometimes correspond to
+    the same character. The relationships among scalar, characters, and glyphs
+    are subtle and complex. Despite this complexity, most things that a
+    literate human would call a "character" can be represented by a single
+    Unicode salar value. For example, Roman letters, Cyrillic letters, Hebrew
+    consonants, and most Chinese characters fall into this category.
+    Unicode scalar values exclude the range #xD800 to #xDFFF, which are part
+    of the range of Unicode code points. However, the Unicode code points in
+    this range, the so-called surrogates, are an artifact of the UTF-16
+    encoding, and can only appear in specific Unicode encodings, and even then
+    only in pairs that encode scalar values. Consequently, all characters
+    represent code points, but the surrogate code points do not have
+    representations as characters.
+
+    -- TSPL --
+
+    #\A                 ;; character A
+    #\x                 ;; character x
+    #\(                 ;; character (
+    #\nul               ;; U+0000
+    #\alarm             ;; U+0007
+    #\backspace         ;; U+0008
+    #\tab               ;; U+0009
+    #\newline           ;; U+000A, it is deprecated, use #\linefeed instead
+    #\linefeed          ;; U+000A
+    #\vtab              ;; U+000B
+    #\page              ;; U+000C
+    #\return            ;; U+000D
+    #\esc               ;; U+001B
+    #\space             ;; U+0020, preferred way to write a space
+    #\delete            ;; U+007F
+    #\xFF               ;; U+00FF
+    #\x03BB             ;; U+03BB
+    #\x00006587         ;; U+6587
+    (char? c)
+    (char->integer c)
+    (integer->char i)     ;; i must be a Unicode scalar value, i.e., a non-negative exact integer in [0, #xD7FF] and [#xE000, #x10FFFF]
+    (char=? c1 c2 ...)
+    (char<? c1 c2 ...)
+    (char-ci=? c1 c2 ...) ;; case insensitive version
+    (char-ci<? c1 c2 ...) ;; case insensitive version
+    (char-alphabetic? c)  ;; it is a letter or not
+    (char-numeric? c)     ;; it is a digit or not
+    (char-whitespace? c)  ;; it is whitespace or not
+    (char-lower-case? c)
+    (char-upper-case? c)
+    (char-general-category c)  ;; return a symbol representing the Unicode general category of the character
+    (char-upcase c) -> char    ;; it is one of the symbol Lu/l/t/m/o, Mn/c/e, Nd/l/o, Ps/e/i/f/d/c/o, Sc/m/k/o, Zs/p/l, Cc/f/s/o/n
+    (char-downcase c) -> char
+
+
+    ;; strings
+
+    Strings are sequences of characters. The length of a string is the number
+    of characters that it contains. This number is fixed when the string is
+    created. The valid indices of a string are the integers less than the
+    length of the string. The first character of a string has index 0.
+
+    -- TSPL --
+
+    Strings are sequences of characters and are often used as messages,
+    character buffers, or containers for blocks of text. Scheme provides
+    operations for creating strings, extracting characters from strings,
+    obtaining substrings, concatenating strings, and altering the contents
+    of strings. A string is written as a sequence of characters enclosed in
+    double quotes, e.g., "hi there". Various special characters can be inserted
+    with two-character sequences, e.g., \\ \" \a \b \f \v \n \r \t. Any Unicode
+    character may be inserted with the syntax #\xn; where n consists of one or
+    more hexadecimal digits and represents a valid Unicode scalar value.
+    A string can occupy multiple lines. A line ending that does not follow a
+    backslash stands for a linefeed (\n, U+000A) character. Strings are indexed
+    by exact nonnegative integers, and the index of the 1st element of any
+    string is 0. The highest valid index for a given string is on less than
+    its length.
+
+    (string)                    ;; ""
+    (string #\a #\b #\c)        ;; "abc"
+    (make-string 0)             ;; ""
+    (make-string 2)             ;; the elements are unspecified, but "\x0;\x0;" in ChezScheme and "\u0000\u0000" in Racket
+    (string-length "\x20;")     ;; 1 in ChezScheme, 2 in Racket because Racket has a different representation for Unicode character
+    (string-ref "Abc" 0)        ;; #\A
+    (string-ref "Abc" 1)        ;; #\b
+    (string-set! s index c)
+    (string-full! s c)
+    (string-copy s) -> string
+    (string-append s1 s2 ...) -> string   ;; concatenate s1, s2, ...
+    (substring "abc" 0 1)       ;; "a"
+    (substring "abc" 0 2)       ;; "ab"
+    (string-upcase s)
+    (string-downcase s)
+    (string-titlecase s)        ;; the word's first character becomes upcase and other characters become lowercase
+    (string->list s)            ;; return a list of characters
+    (list->string l)
+    (string=? s1 s2 s3 ...)
+    (string<? s1 s2 s3 ...)
+    (string-ci=? s1 s2 s3 ...)  ;; case insensitive version
+    (string-ci<? s1 s2 s3 ...)
+
+    (define s "abc")
+    (string-fill! s #\A)        ;; contract violation in Racket because string constant is immutable, but okey in ChezScheme
+    s                           ;; "AAA"
+    (define s (string #\a #\b #\c))
+    (string-fill! s #\A)        ;; both okey in Racket and ChezScheme
+    s                           ;; "AAA"
+    "abc 
+     fgh"                       ;; "abc \n fgh"
+    "abc\
+       fgh"                     ;; "abcfgh", but "abc  fgh" in Racket
+    "abc\                       ;; there are whitespaces after backslash
+            fgh"                ;; "abcfgh", but invalid in Racket, there is an unknown escape sequence \ in string
+
+    -- ChezScheme --
+
+    All strings are mutable by default, including constants. A program can
+    create immutable strings via string->immutable-string. Any attempt to
+    modify an immutable string causes an exception to be raised.
+
+    (format fmt arg ...)                      ;; construct a string
+    (format #f fmt arg ...)                   ;; construct a string
+    (format #t fmt arg ...)                   ;; print to current output port
+    (format textual-output-port fmt arg ...)  ;; print to the specified port
+    (printf fmt arg ...)                      ;; print to current output port
+    (fprintf textual-output-port fmt arg ...) ;; print to the specified port
+
+    ChezScheme's implementation of format supports all of Common Lisp format
+    directives except for those specific to the Common Lisp pretty printer.
+    Please consult a Common Lisp reference or the Common Lisp Hyperspec, for
+    complete documentation. A few of the most useful directives are described
+    below.
+
+    "~s"    print as write, it is actually ~mincol,colinc,minpad,padchars
+    "~a"    print as display
+    "~%"    print a newline
+    "~~"    print ~
+    "\n"    print a newline
+    "~f"    print in floating-point notation
+    "~e"    print in scientific notation
+    "~g"    print either floating-point or scientific notation based on the size of the input
+
+    (fasl-write obj binary-output-port)
+    (fasl-read binary-output-port)
+    (fasl-file input-file-name output-file-name)  ;; convert to fasl format
+
+    The procedures write and pretty-print print objects in a human readable
+    format. For objects with external datum representations, the output
+    produced by write and pretty-print is also machine-readable with read.
+    Objects with external datum representations include pairs, symbols,
+    vectors, strings, numbers, characters, booleans, and records but not
+    procedures and ports.
+
+    An alternative fast loading, or fasl, format may be used for objects with
+    external datum representations. The fasl format is not human readable,
+    but it is machine readable and both more compact and more quickly processed
+    by read. This format is always used for compiled code generated by
+    compile-file, but it may also be used for data that needs to be written
+    and read quickly, such as small databases encoded with Scheme data
+    structures.
+
+
+    ;; lists and pairs
+
+
+    ;; vectors
+
+    The length of a vector is the number of elements that it contains. This
+    number is a non-negative integer that is fixed when the vector is created.
+    Like list constants, vector constants must be quoted: '#(0 (1 2 3) "Anna").
+
+    -- TSPL --
+
+    Vectors are more convenient and efficient than lists for some applications.
+    Wheras accessing an arbitrary element in a list requires a linear traversal
+    of the lisp up to the selected element, arbitrary vector elements are
+    accessed in constant time. The length of a vector is the number of elements
+    it contains. Vectors are indexed by exact nonnegative integers, and the
+    index of the 1st element of any vector is 0. The highest valid index for
+    a given vector is one less than its length. As with lists, the elements of
+    a vector can be any type, and a single vector can hold more than one type
+    of object.
+
+    #(1 2 3)               ;; invalid syntax, should use '#(1 2 3)
+    (vector)               ;; abbr. form is '#(), a empty vector
+    (vector 1 2 3)         ;; abbr. form is '#(1 2 3), a number vector
+    (vector 'a 'b 'c)      ;; abbr. form is '#(a b c), a symbol vector
+    (vector a b c)         ;; abbr. from is `#(,a ,b ,c), a vector has three values
+    (vector? (vector))     ;; #t
+    (vector? '#())         ;; #t
+    (make-vector 0)        ;; '#()
+    (make-vector 2)        ;; the elements are unspecified, but '#(0 0) for both ChezScheme and Racket
+    (make-vector 2 "a")    ;; '#("a" "a"), a string vector with 2 same string
+    (vector-length '#())   ;; 0
+    (vector-ref '#(a) 0)   ;; 'a
+    (vector-ref '#('a) 0)  ;; ''a
+    (vector-ref '#("a") 0) ;; "a"
+    (vector-set! v n value)
+    (vector-fill! v value)
+    (vector->list v)
+    (list->vector l)
+    (vector-sort pred v) -> vector, pred must return true if the 1st arg's value preceded its 2nd arg's value
+    (vector-sort! pred v) -> unspecified
+    (vector-sort < '#(3 4 2 1 2 5))  ;; '#(1 2 2 3 4 5), should write (vector-sort '#(3 4 2 1 2 5) <) in Racket
+    (vector-sort > '#(0.5 3/4))      ;; '#(3/4 0.5), should write (vector-sort '#(0.5 3/4) >) in Racket
+
+    (define a 'symbol)
+    (define b "string")
+    (define c 3.14)
+    (define v '#(a b c))      ;; '#(a b c)
+    (vector-ref v 0)          ;; 'a
+    (vector-ref v 1)          ;; 'b
+    (vector-ref v 2)          ;; 'c
+    (define v `#(,a ,b ,c))   ;; '#(symbol "string" 3.14)
+    (vector-ref v 0)          ;; 'symbol
+    (vector-ref v 1)          ;; "string"
+    (vector-ref v 2)          ;; 3.14
+    (define v (vector a b c)) ;; '#(symbol "string" 3.14)
+    (vector-ref v 0)          ;; 'symbol
+    (vector-ref v 1)          ;; "string"
+    (vector-ref v 2)          ;; 3.14
+
+    -- ChezScheme --
+
+    All vectors are mutable by default, including constants. A program can
+    create immutable vectors via vector->immutable-vector. Any attempt to
+    modify an immutable vector causes an exception to be raised.
+
+    (vector-copy v) -> vector
+    (mutable-vector? v)
+    (immutable-vector? v)
+    (vector->immutable-vector v)
+
+
+    ;; bytevectors
+
+    Bytevectors are vectors of raw binary data. Although nominally organized as
+    a sequence of exact unsigned 8-bit integers, a bytevector can be interpreted
+    as a sequence of exact signed 8-bit integers, exact signed or unsigned
+    16-bit, 32-bit, 64-bit, or arbitrary-precision integers, IEEE single or
+    double floating-point numbers, or arbitrary combinations of the above.
+    The length of a bytevector is the number of 8-bit bytes it stores, and
+    indices into a bytevector are always given a byte offsets.
+
+    '#vu8(1 2 3)
+    #vu8(1 2 3)                ;; valid, bytevectors are self-evaluated like string, so they need not be quoted
+    (make-bytevector 0)        ;; #vu8()
+    (make-bytevector 2)        ;; the elements are unspecified, but #vu8(0 0) in ChezScheme
+    (make-bytevector 2 7)      ;; #vu8(7 7)
+    (bytevector-length #vu8()) ;; 0
+    (bytevector-u8-ref v index)
+    (bytevector-s8-ref v index)
+    (bytevector-u16/32/64-native-ref v index)
+    (bytevector-s16/32/64-native-ref v index)
+    (bytevector-u16/32/64-ref v index endian)
+    (bytevector-s16/32/64-ref v index endian)
+    (bytevector-ieee-single-native-ref v index)
+    (bytevector-ieee-double-native-ref v index)
+    (bytevector-ieee-single-ref v index endian)
+    (bytevector-ieee-double-ref v index endian)
+
+    -- ChezScheme --
+
+    ChezScheme extends the set of bytevector primitives, including primitives
+    for loading and storing 3, 5, 6, and 7-byte quantities. All bytevectors are
+    mutable by default, including constants. A program can create immutable
+    bytevectors via bytevector->immutable-bytevector. Any attempt to modify an
+    immutable bytevector causes an exception to be raised.
+
+
+    ;; hashtables
+
+    Hashtables grow as needed, but when the hashtable grows it generally must
+    rehash all of the existing elements. Providing a nonzero size can help
+    limit the amount of rehashing that must be done as the table is initially
+    populated. An eq hashtable compares keys using the eq? (pointer equality)
+    procedure and typically employs a hash function based on object address.
+    An eqv hashtable compares keys using the eqv? procedure and typically
+    employs a hash function based on object addresses for objects. Gernerally,
+    hashtable computes hash values using hash function and compares the keys
+    using equal function. The equal function should compare two keys and return
+    false only if the two keys should be distinguished. The hash function
+    accept a key as an argument and return a nonnegative exact integer value.
+
+    (make-eq-hashtable)
+    (make-eq-hashtable n)
+    (make-eqv-hashtable)
+    (make-eqv-hashtable n)
+    (make-hashtable hashfunc eqfunc)
+    (make-hashtable hashfunc eqfunc n)
+    (hashtable-hash-function h)        ;; return the hash function
+    (hashtable-equivalence-function h) ;; return the equal function
+    (symbol-hash s)    ;; suitable for using symbol=? as equal function
+    (string-hash s)    ;; suitable for using string=? as equal function
+    (string-ci-hash s) ;; suitable for using string-ci=? as equal function
+    (equal-hash key)   ;; suitable for using equal? as equal function
+    (hashtable-set! h key value)
+    (hashtable-delete! h key)
+    (hashtable-clear! h)           ;; clear all entries from hashtable
+    (hashtable-clear! h size)      ;; clear all entries from hashtable and reset the size
+    (hashtable-ref h key default)  ;; if no such key, return the default value
+    (hashtable-contains? h key)
+    (hashtable-size h)
+    (hashtable-copy h)             ;; returned hashtable is immutable
+    (hashtable-copy h mutable)     ;; can returned a mutable hashtable
+    (hashtable-mutable? h)
+    (hashtable-keys h)             ;; return a vector contains all keys
+    (hashtable-entries h)          ;; return two vectors for keys and values
+
+    -- ChezScheme --
+
+    ChezScheme provides several extensions to the hashtable mechanism, including
+    a mechanism for directly accessing a key, value pair in a hashtable, support
+    weak eq and eqv hashtables, and a set of procedures specialized to eq and
+    symbol hashtables.
+
+    The weak eq/eqv hashtables are like make-eq/eqv-hashtable except the keys
+    of the hashtable are held weakly, i.e., they are not protected from the
+    garbage collector. Keys reclaimed by the garbage collector are removed from
+    the table, and their associated values are dropped the next time the
+    table is modified, if not sonner. Values in the hashtable are referenced
+    normally as long as the key is not reclaimed, since keys are paired with
+    values using weak pairs. Consequently, if a value in the hashtable refers
+    to its own key, then garbage collection is prevented from reclaiming the
+    key. A copy of a weak hashtable created by hashtable-copy is also weak.
+    If the copy is immutable, inaccessible keys may still be dropped from the
+    hashtable, even though the contents of the table is otherwise unchanging.
+    The effect of this can be observed via hashtable-keys and hashtable-entries.
+
+    The ephemeron hashtables are like weak hashtable, but a value in the
+    hashtable can refer to a key in the hashtable (directly or indirectly)
+    without preventing garbage collection from reclaiming the key, because
+    keys are paired with values using ephemeron pairs. A copy of an ephemeron
+    hashtable created by hashtable-copy is also an ephemeron table, and an
+    inaccesible key can be dropped from an immutable ephemeron hashtable in
+    the same way as for an immutable weak hashtable.
+
+    (hashtable-values h)           ;; return a vector contains all values
+    (hashtable-cell h key default) ;; return a key/value pair
+    (make-weak-eq/eqv-hashtable)
+    (make-weak-eq/eqv-hashtable n)
+    (make-ephemeron-eq/eqv-hashtable)
+    (make-ephemeron-eq/eqv-hashtable n)
+    (hashtable-weak? h)
+    (hashtable-ephemeron? h)
+    (eq-hashtable-weak? h)
+    (eq-hashtable-ephemeron? h)
+    (eq/symbol-hashtable? h)
+    (eq/symbol-hashtable-set! h key value)
+    (eq/symbol-hashtable-ref h key default)
+    (eq/symbol-hashtable-contains? h key)
+    (eq/symbol-hashtable-cell h key default)
+    (eq/symbol-hashtable-delete! h key)
+
+    (define h (make-hashtable symbol-hash eq? 32))
+    (symbol-hashtable? h)                           ;; #t
+    (symbol-hashtable-set! h 'key-a "string")
+    (symbol-hashtable-set! h 'key-b 3.14)
+    (symbol-hashtable-ref h 'key-a "unknown")       ;; "string"
+    (symbol-hashtable-ref h 'key-b "unknown")       ;; 3.14
+    (symbol-hashtable-ref h 'key-x "unknown")       ;; "unknown"
+
+
+    ;; string port
+
+    (open-output-string)   ;; return a new string output port
+
+    A string output port is similar to a file output port, except that
+    characters and objects written to the port are placed in a string (which
+    grows as needed) rather than to a file. It is not necessary to close a
+    string port, although it is okay to do so.
+
+    (get-output-string string-output-port)  ;; return the associated string
+
+    As a side effect, get-output-string resets string-output-port so that
+    subsequent output to string-output-string is placed into a fresh string.
+
+    (with-output-to-string zero-arg-func)   ;; return a string
+
+    This function calls the zero-arg-func, and redirect its current output
+    port to a new string output port, and then returned the result string.
+
+    (block-write port s)
+    (block-write port s n)
+    (clear-output-port port)
+    (close-port port)
+    (port-output-index port)  ;; current position index
+    (port-output-size port)   ;; port current buffer size
+    (port-output-count port)  ;; current available buffer size (size - index)
+    (write s [port])
+    (write-char c [port])
+    (display s [port])
+    (newline [port])
+
+    The default port is current-output-port, its initial value is the same
+    port as the initial value of console-output-port. Other pre-defined ports
+    are including console-error-port, current-error-port.
+
+
+    ;; macros
+
+    Syntactic extensions, or macros, are used to simplify and regularize
+    repeated patterns in a program, to introduce syntactic forms with new
+    evaluation rules, and to perform transformations that help make programs
+    more efficient. A syntactic extension most often takes the form (keyword
+    subform ...), where keyword is the identifier that names the syntactic
+    extension. The syntax of each subform varies from one syntactic extension
+    to another. Syntactic extensions can also take the form of improper lists
+    or even singleton identifiers.
+
+    New syntacitic extensions are defined by associating keywords with
+    transformation procedures, or transformers. Syntactic extensions are
+    defined using define-syntax forms or using let-syntax or letrec-syntax.
+    Syntactic extensions are expanded into core forms at the start of
+    evaluation (before compilation or interpretation) by a syntax expander.
+    If the expander encounters a syntactic extension, it invokes the
+    associated transformer to expand the syntactic extension, then repeats
+    the expansion process for the form returned by the transformer. If the
+    expander encoutners a core syntactic form, it recursively processes the
+    subforms, if any, and reconstructs the form from the expanded subforms.
+    Information about identifier bindings is maintained during expansion to
+    enforce lexical scoping for variables and keywords.
+
+    (define-syntax <name> <transformer>)
+    (let-syntax ((<name> <transformer>) ...) <body-expression> ...)
+    (letrec-syntax ((<name> <transformer>) ...) <body-expression> ...)
+    (identifier? <syntax-object>)
+    (free-identifier=? <syntax-object> <syntax-object>)
+    (bound-identifier=? <syntax-object> <syntax-object>)
+
+    (define-syntax let*
+      (syntax-rules ()
+        ((_ () b1 b2 ...) (let () b1 b2 ...))
+        ((_ ((a1 e1) (a2 e2) ...) b1 b2 ...)
+         (let ((a1 e1))
+           (let* ((a2 e2) ...) b1 b2 ...)))))
+
+    (let ((f (lambda (x) (+ x 1))))
+      (let-syntax ((f (syntax-rules () ((_ x) x)))
+                   (g (syntax-rules () ((_ x) (f x))))  ;; f is the one in let
+        (list (f 1) (g 1))))) => (list 1 (f 1))
+                              => (list 1 2)
+
+    (let ((f (lambda (x) (+ x 1))))
+      (letrec-syntax ((f (syntax-rules () ((_ x) x)))
+                      (g (syntax-rules () ((_ x) (f x)))) ;; f is the previous f in letrec-syntax
+        (list (f 1) (g 1))))) => (list 1 (f 1))
+                              => (list 1 1)
+
+    (syntax-rules (literal ...) ((_ pattern) template) ...)
+
+    syntax-rules returns a transformer. Each literal must be an identifier
+    other than an underscore (_) or ellipsis (...). Each pattern specifies one
+    possible syntax that the input form might take, and the corresponding
+    template specifies how the output should appear.
+
+    匹配模式（pattern）用于匹配输入语法，模式中可以包含列表（list）、
+    数组（vector）、标识符（identifier）、和常量（constant）。标识符
+    （identifier）是一个字面量（literal）、匹配变量（pattern variable）、
+    下划线（underscore）、或省略号（ellipsis）。
+
+    列表和数组可以指定输入语法的基本语法结构，下划线和匹配变量用于匹配
+    对应位置的任意语法，省略号用于匹配上一个模式零次或多次，字面量和常量
+    必须在字面上精确匹配。
+
+    匹配模式中的元素
+    1. 列表和数组        -> 匹配指定结构
+    2. 字面量和常量      -> 字面精确匹配，字面量与匹配的语法标识符必须是相等的自由标识符（free-identifier=?）
+    3. 下划线和匹配变量  -> 匹配对应位置的语法片段，语法片段被绑定到匹配变量中能在后面的模板（template）中使用
+    4. 省略号（...）     -> 匹配前一个模式零次或多次
+    5. 点号（.）和 Px    -> 匹配后面所有项（零个或多个），这些项形成的列表被绑定到匹配变量 Px 中
+
+    模板（template）用于产生新的语法，模板可以是一个匹配变量，字面量和常量，
+    ，子模板列表 (S1 ... Sn)，子模板非正式（improper）列表 (S1 ... Sn . T)，
+    子模板数组 #(S1 ... Sn)，或省略号。
+
+    (syntax template)
+    #'template
+
+    A syntax expression is like a quote expression except that the values of
+    pattern variables appearing within template are inserted into template,
+    and contextual information is retained in the output to support lexical
+    scoping.
+
+    (free-identifier=? id1 id2)
+    (bound-identifier=? id1 id2)
+
+    Symbolic names alone do not distinguish identifiers unless the identifiers
+    are to be used only as symbolic data. The procedure free-identifier=? and
+    bound-identifier=? are used to compare identifiers according to their
+    intended use as free references or bound identifiers in a given context.
+
+    free-identifier=? is used to determine whether two identifiers would be
+    equivalent if they were to appear as free identifiers in the output of
+    a transformer. Because identifier references are lexically scoped, this
+    means (free-identifier=? id1 id2) is true if and only if the identifiers
+    id1 and id2 refer to the same binding.
+
+    两个相等的自由标识符表示这两个标识符指向同一个绑定，例如下面的例子：
+
+    (define-syntax (cond stx)
+      (syntax-case stx ()
+        ((_ (else-literal expr1 expr2 ...))
+         (and (identifier? #'else-literal) (free-identifier=> #'else-literal #'else))
+         #'(begin expr1 expr2 ...))))
+
+    (define-syntax (cond stx)
+      (syntax-case stx (else)
+        ((_ (else expr1 expr2 ...))
+         #'(begin expr1 expr2 ...))))
+
+    Similarly, bound-identifier=? is used to determine whether two identifiers
+    would be equivalent if they were to appear as bound identifiers in the
+    output of a transformer. In other words, if bound-identifier=? returns true
+    for two identifiers, a binding for one will capture references to the other
+    within its scope. In general, two identifiers are bound-identifier=? only
+    if both are present in the original program or both are introduced by the
+    same transformer application (perhaps implicitly, see datum->syntax).
+    bound-identifier=? can be used for detecting duplicate identifiers in a
+    binding construct or for other preprocessing of a binding construct that
+    requires detecting instances of the bound identifiers.
+
+    (with-syntax ((pattern expr) ...) body1 body2 ...)
+
+    It is sometimes useful to construct a transformer's output in separate
+    pieces, then put the pieces together. with-synatx facilitates this by
+    allowing the creation of local pattern bindings. pattern is identical in
+    form to a syntax-case pattern. The value of each expr is computed and
+    destructured according to the corresponding pattern.
+
+    (define-syntax (with-synatx stx)
+      (syntax-case stx ()
+        ((_ ((p e) ...) b1 b2 ...)
+         #'(syntax-case (list e ...) ()
+             ((p ...) (let () b1 b2 ...))))))
+
+    (datum->syntax template-identifier obj)
+
+    datum->syntax allows a transformer to "bend" lexical scoping rules by
+    creating implicit identifiers that behave as if they were present in
+    the input form, thus permitting the definition of syntactic extensions
+    that introduce visible bindings for or references to identifiers that
+    do not appear explicitly in the input form.
+
+    
+    
+
+    (define-syntax a (identifier-syntax <template>))  ;; identifier will expand to <template>
+    (define-syntax a
+      (identifier-syntax
+        (id (get-value))
+        ((set! id e) (set-value! e))))  ;; the identifier can be set!
+
+    identifier-syntax 是通过 make-variable-transformer 实现的。
+
+    -- TSPL --
+
+    
+
+
+
+    (define-syntax keyword transformer)
+    (let-syntax ((keyword transformer) ...) <expr> ...)
+    (letrec-syntax ((keyword transformer) ...) <expr> ...)
+
+    (define-syntax let*
+      (syntax-rules ()
+        ((_ () b1 b2 ...) (let () b1 b2 ...))
+        ((_ ((a1 e1) (a2 e2) ...) b1 b2 ...)
+         (let ((a1 e1))
+           (let* ((a2 e2) ...) b1 b2 ...)))))
+
+    (syntax-case stx (literal ...) <caluse> ...)
+    <caluse> = (pattern expr) | (pattern fender 
+
+    (syntax-rules (<literal> ...)
+      ((_ <pattern>) <template>)
+      ...)
+
+    (syntax-case <input-syntax-object> (<literal> ...)
+      <clause>
+      ...)
+
+    <clause> = (<pattern> <the-expression-that-can-generate-output-syntax-object>)
+             | (<pattern> <fender> <the-expression-that-can-generate-output-syntax-object>)
+
+
+    (define-syntax (syntax-rules stx)
+      (syntax-case stx ()
+        ((_ (literal ...) ((name . pattern) template) ...)
+         #'(lambda (stx)
+             (syntax-case stx (literal ...)
+               ((_ . pattern) #'template) ...)))))
+
+    (define-syntax foo
+      (syntax-rules ()
+        ((_ x y z) (g x y z)))
+
+ => (define-syntax foo
+      (lambda (stx)
+        (syntax-case stx ()
+          ((_ . (x y z)) #'(g x y z))))
+
+ => (define-syntax foo
+      (lambda (stx)
+        (syntax-case stx ()
+          ((_ x y z) #'(g x y z))))
+
+    -- syntax-case
+
+    (syntax-case <input-syntax-object-expression> (<literal> ...)
+      <clause>
+      ...)
+
+    <clause> = (<pattern> <output-syntax-object-expression>)
+             | (<pattern> <fender> <output-syntax-object-expression>)
+
+    (with-syntax ((<pattern> 
+
+    (define-syntax (with-syntax stx)
+      (syntax-case stx ()
+        ((_ ((p e) ...) b1 b2 ...)
+         #'(syntax-case (list e ...) ()
+             ((p ...) (let () b1 b2 ...))))))
+
+    语法形式 syntax-case 首先对输入语法对象表达式求值，然后依次与子句中的
+    模式进行匹配并检查过滤条件（如果存在），直到一个子句匹配成功，求值该
+    子句中的结果语法对象表达式，最后返回该语法对象。如果没有一个子句能够
+    匹配成功，会报语法错误。
+
+    A syntax object may be any of the following.
+
+      * a nonpair, nonvector, nonsymbol value
+      * a pair of syntax objects
+      * a vector of syntax objects
+      * a wrapped object
+
+    The wrapped object contains contextual information about a form in addition
+    to its structure. This contextual information is used by the expander to
+    maintain lexical scoping. It may also contain information used by the
+    implementation to correlate source and object code, e.g., track file, line,
+    and character information through the expansion and compilation process.
+
+    (syntax->datum stx) ;; all syntactic information of syntax object are striped
+    (datum->syntax <syntax-object> <datum>)
+
+    datum->syntax constructs a syntax object from <datum> that contains the
+    same contextual nformation as <sytax-object>, with the effect that the
+    it behaves as if it were introduced into the code when <syntax-object> was
+    introuduced. The <syntax-object> is often the keyword of an input form,
+    extracted from the from.
+
+    datum->syntax allows a transformer to "bend" lexical scoping rules by
+    creating implicit identifiers that behave as if they were present in the
+    input form, thus permitting the definition of syntactic extensions that
+    introduce visible bindings for or reference to identifiers that do not
+    appear explicitly in the input form. For example, we can define a loop
+    expression that binds the variable break to an escape procedure within
+    the loop body.
+
+    (define-syntax (loop stx)
+      (syntax-case stx ()
+        ((k e ...)
+         (with-syntax ((break (datum->syntax #'k 'break)))
+           #'(call/cc (lambda (break) (let f () e ... (f))))))))
+
+    (let ((n 3) (l '()))
+      (loop
+        (if (= n 0) (break l))
+        (set! ls (cons 'a l))
+        (set! n (- n 1)))
+
+    -- ChezScheme --
+
+    When defining sets of dependent macros, it is often convenient to attach
+    information to identifiers in the same compile time environment that the
+    expander uses to record information about variables, keywords, module
+    names, etc. ChezScheme provides two mechanisms for attaching information
+    to identifiers in the compile-time environment: compile-time values and
+    compile-time properties.
+
+    A compile-time value is a kind of transformer that can be associated with
+    an identifier via define-syntax, let-syntax, letrec-syntax. When an
+    identifier is associated with a compile-time value, it cannot also have
+    any other meaning, and an attempt to reference it as an ordinary identifier
+    results in a syntax error. A compile-time property, on the other hand, is
+    maintained alongside an existing binding, providing additional information
+    about the binding. Properties are ignored when ordinary references to an
+    identifier occur.
+
+    The mechanisms used by a macro to obtain compile-time values and properties
+    are similar. In both cases, the marcor's transformer returns a procedure p
+    rather than a syntax object. The expander invokes p with one argument, an
+    environment-lookup procedure lookup, which p can then use to obtain
+    compile-time values and properties for one or more identifiers before it
+    constructs the macro's final output. lookup accepts one or two identifer
+    arguments. With one argument, id, lookup returns the compile-time value of
+    id, or #f if id has no compile-time value. With two arguemnts, id and key,
+    lookup returns the value of id's key property, or #f if id has no key
+    property.
+
+
+    (define-property <identifier> <key> <value>)
+
+    Attaches a property to an existing identifier binding without disturbing
+    the existing meaning of the identifier in the scope of that binding. It
+    is typically used by one macro to record information about a binding for
+    use by another macro. Both <identifier> and <key> must be identifiers.
+    The <value> expression is evaluated when the define-property form is
+    expanded, and a new property associating <key> with the <value> is attached
+    to the existing binding of <identifier>, which must have a visible local
+    or top-level binding.
+
+    (define type)
+    (define x "x-value")
+    (define-property x type 'string)
+    (define-syntax (get-type stx)
+      (lambda (lookup)
+        (syntax-case stx ()
+          ((_ id)
+           (begin (define type (lookup #'id #'type))
+                  #`'#,(datum->syntax stx type))))))
+    (get-type x)
+
+
+    (module <name> (<export-interface> ...) <module-body>)
+    (module (<export-interface> ...) <module-body>)
+
+    Modules are used to help organize programs into separate parts that interact
+    cleanly via declared interfaces. Although modular programming is typically
+    used to facilitate the development of large programs possibly written by
+    many individuals, it may also be used in ChezScheme at a "micro-modular"
+    level, since ChezCheme module and import forms are definitions and may
+    appear anywhere any other kind of definition may appear, including within
+    a lambda body or other local scope.
+
+    Modules control visibility of bindings and can be viewed as extending
+    lexical scoping to allow more precise control over where bindings are or
+    not visible. Modules export identifier bindings, i.e., variable bindings,
+    keyword bindings, or module name bindings. Modules may be named or
+    anonymous. Bindings exported from a named module may be made visible via an
+    import form whereever the module's name is visible. Bindings exported from
+    an anonymouse module are implicity imported where the module from appears.
+    Anonymous modules are useful for hiding some of a set of bindgins while
+    allowing the remaining bindings in the set to be visible.
+
+
+    (meta define x 3)
+    (meta define (f a b) <body>)
+    (meta begin <expr> ...)
+    (meta module (export-interface> ...) <module-body>)
+    (meta include "path")
+
+    The meta keyword is actually a prefix that can be placed in front of any
+    definition keyword. It tells the expander that any variable definition
+    resulting from the definition is to be an expand-time definition available
+    only to the right-hand sides of other meta definitions and, most
+    importantly, transformer expressions. It is used to define expand-time
+    helpers and other information for use by one or more syntax-case
+    transformers.
+
+    The right-hand-side expressions of a syntax definition or meta function
+    can refer only to identifiers whose values are already available in the
+    compile-time environment. Because of the left-to-right expansion order
+    for library, module, lambda, and similar body, this implies a semantics
+    similar to let* for a sequence of meta definitions, in which right-hand
+    side can refer only the the variables defined earlier in the sequence.
+    An exception is that the right-hand side of a meta definition can refer
+    to its own name as long as the reference is not evaluated until after
+    the value of the expression has been computed. This permits meta definitions
+    to be self-recursive but not mutually recursive. The right-hand side of a
+    meta definition can, however, build syntax objects containing occurrences
+    of any identifiers defined in the body in which the meta definition appears.
+
+
+    (define-syntax meta-cond
+      (syntax-rules ()
+        ((_ (test expr1 expr2 ...) ...)
+         (let-syntax ((expr (cond (test (identifier-syntax (begin expr1 expr2 ...)))
+                                  ...)))
+           expr))))
+
+
+ | syntax and veriable type
+
+(meta define (syntax-type stx)
+  (let ((d (syntax->datum stx)))
+    (cond
+      ((identifier? stx) 'identifier)
+      ((string? d) 'string)
+      ((number? d) 'number)
+      ((char? d) 'character)
+      ((boolean? d) 'boolean)
+      ((bytevector? d) 'bytevector)
+      ((vector? d) 'vector)
+      ((null? d) 'null)
+      ((list? d)
+         (let ((1st (car d))
+               (2nd (if (null? (cdr d)) (void) (cadr d))))
+           (cond
+             ((eq? 1st 'syntax) 'syntax-object)
+             ((eq? 1st 'quasisyntax) 'quasisyntax-object)
+             ((eq? 1st 'unsyntax) 'unsyntax-datum)
+             ((eq? 1st 'unsyntax-splicing) 'unsyntax-splicing-datum)
+             ((eq? 1st 'unquote) 'unquote-datum)
+             ((eq? 1st 'unquote-splicing) 'unquote-splicing-datum)
+             ((eq? 1st 'quasiquote)
+                (cond
+                  ((eq? 2nd (void)) 'quasiquote-empty)
+                  ((identifier? (datum->syntax #'1st 2nd)) 'symbol)
+                  ((string? 2nd) 'quote-string)
+                  ((number? 2nd) 'quote-number)
+                  ((char? 2nd) 'quote-character)
+                  ((boolean? 2nd) 'quote-boolean)
+                  ((vector? 2nd) 'quote-vector)
+                  ((bytevector? 2nd) 'quote-bytevector)
+                  ((null? 2nd) 'quote-null)
+                  ((list? 2nd) 'quasiquote-list)
+                  ((pair? 2nd) 'quote-pair)
+                  (else 'quasiquote-unknown)))
+             ((eq? 1st 'quote)
+                (cond
+                  ((eq? 2nd (void)) 'quote-empty)
+                  ((identifier? (datum->syntax #'1st 2nd)) 'symbol)
+                  ((string? 2nd) 'quote-string)
+                  ((number? 2nd) 'quote-number)
+                  ((char? 2nd) 'quote-character)
+                  ((boolean? 2nd) 'quote-boolean)
+                  ((vector? 2nd) 'quote-vector)
+                  ((bytevector? 2nd) 'quote-bytevector)
+                  ((null? 2nd) 'quote-null)
+                  ((list? 2nd) 'quote-list)
+                  ((pair? 2nd) 'quote-pair)
+                  (else 'quote-unknown)))
+             (else 'list))))
+      ((pair? d) 'pair)
+      (else 'unknown-datum))))
+
+;; constant - string, number, character, boolean, bytevector
+;; identifier symbol list vector pair unknown
+
+(meta define (syntax-type-class stx)
+  (let ((d (syntax->datum stx)))
+    (cond
+      ((identifier? stx) 'identifier)
+      ((string? d) 'constant)
+      ((number? d) 'constant)
+      ((char? d) 'constant)
+      ((boolean? d) 'constant)
+      ((bytevector? d) 'constant)
+      ((vector? d) 'vector)
+      ((null? d) 'list)
+      ((list? d)
+         (let ((1st (car d))
+               (2nd (if (null? (cdr d)) (void) (cadr d))))
+           (if (or (eq? 1st 'quote) (eq? 1st 'quasiquote))
+               (cond
+                 ((eq? 2nd (void)) 'list)
+                 ((identifier? (datum->syntax #'1st 2nd)) 'symbol)
+                 ((string? 2nd) 'constant)
+                 ((number? 2nd) 'constant)
+                 ((char? 2nd) 'constant)
+                 ((boolean? 2nd) 'constant)
+                 ((bytevector? 2nd) 'constant)
+                 (else 'list)))
+               'list)))
+      ((pair? d) 'pair)
+      (else 'unknown)))
+
+(define-syntax (display-syntax-type stx)
+      (syntax-case stx ()
+        ((_ a) (let* ((s #'a)
+                      (d (syntax->datum s)))
+                 (write s) (newline)
+                 (write d) (newline)
+                 (write (syntax-type s))
+                 #'(newline)))))
+
+(display-syntax-type abc)
+#<syntax:201:27 abc>
+abc
+identifier
+
+(display-syntax-lower-type 'abc)
+#<syntax:239:27 (quote abc)>
+(quote abc)
+symbol
+
+(display-syntax-lower-type "abc")
+#<syntax:202:27 "abc">
+"abc"
+string
+
+(display-syntax-lower-type 3/14)
+#<syntax:286:27 3/14>
+3/14
+number
+
+(display-syntax-lower-type #\a)
+#<syntax:287:27 #\a>
+#\a
+character
+
+(display-syntax-lower-type #t)
+#<syntax:288:27 #t>
+#t
+boolean
+
+(display-syntax-lower-type ())
+#<syntax:290:27 ()>
+()
+null
+
+(display-syntax-lower-type (1))
+#<syntax:340:27 (1)>
+(1)
+list
+
+(display-syntax-lower-type (1 2))
+#<syntax:566:27 (1 2)>
+(1 2)
+list
+
+(display-syntax-lower-type (1 . 2))
+#<syntax:390:27 (1 . 2)>
+(1 . 2)
+pair
+
+(display-syntax-lower-type #())
+#<syntax:289:27 #()>
+#()
+vector
+
+(display-syntax-lower-type #(1))
+#<syntax:568:27 #(1)>
+#(1)
+vector
+
+(display-syntax-lower-type #(1 2))
+#<syntax:569:27 #(1 2)>
+#(1 2)
+vector
+
+(display-syntax-lower-type #vu8())
+#<syntax #vu8()>
+#vu8()
+bytevector
+
+(display-syntax-lower-type #vu8(1))
+#<syntax #vu8(1)>
+#vu8(1)
+bytevector
+
+(display-syntax-lower-type #vu8(1 2))
+#<syntax #vu8(1 2)>
+#vu8(1 2)
+bytevector
+
+(display-syntax-lower-type '"str")
+#<syntax:391:27 (quote "str")>
+(quote "str")
+quote-string
+
+(display-syntax-lower-type '3.14)
+#<syntax:392:27 (quote 3.14)>
+(quote 3.14)
+quote-number
+
+(display-syntax-lower-type '#\a)
+#<syntax:393:27 (quote #\a)>
+(quote #\a)
+quote-character
+
+(display-syntax-lower-type '#t)
+#<syntax:394:27 (quote #t)>
+(quote #t)
+quote-boolean
+
+(display-syntax-lower-type '())
+#<syntax:495:28 (quote ())>
+(quote ())
+quote-null
+
+(display-syntax-lower-type '(1))
+#<syntax:496:28 (quote (1))>
+(quote (1))
+quote-list
+
+(display-syntax-lower-type '(1 2))
+#<syntax:497:28 (quote (1 2))>
+(quote (1 2))
+quote-list
+
+(display-syntax-lower-type '(1 . 2))
+#<syntax:498:28 (quote (1 . 2))>
+(quote (1 . 2))
+quote-pair
+
+
+(display-syntax-lower-type '#())
+#<syntax:570:27 (quote #())>
+(quote #())
+quote-vector
+
+(display-syntax-lower-type '#(1))
+#<syntax:571:27 (quote #(1))>
+(quote #(1))
+quote-vector
+
+(display-syntax-lower-type '#(1 2))
+#<syntax:572:27 (quote #(1 2))>
+(quote #(1 2))
+quote-vector
+
+(display-syntax-lower-type '#vu8())
+#<syntax (quote #vu8())>
+(quote #vu8())
+quote-bytevector
+
+(display-syntax-lower-type '#vu8(1))
+#<syntax (quote #vu8(1))>
+(quote #vu8(1))
+quote-bytevector
+
+(display-syntax-lower-type '#vu8(1 2))
+#<syntax (quote #vu8(1 2))>
+(quote #vu8(1 2))
+quote-bytevector
+
+(display-syntax-lower-type #'a)
+#<syntax:499:28 (syntax a)>
+(syntax a)
+syntax-object
+
+(display-syntax-lower-type #`a)
+#<syntax:500:28 (quasisyntax a)>
+(quasisyntax a)
+quasisyntax-object
+
+(display-syntax-lower-type 'a)
+#<syntax:575:27 (quote a)>
+(quote a)
+symbol
+
+(display-syntax-lower-type `a)
+#<syntax:501:28 (quasiquote a)>
+(quasiquote a)
+quasiquote-datum
+
+(display-syntax-lower-type ''a)
+#<syntax:560:27 (quote (quote a))>
+(quote (quote a))
+quote-datum
+
+(display-syntax-lower-type '`a)
+#<syntax:561:27 (quote (quasiquote a))>
+(quote (quasiquote a))
+quote-datum
+
+(display-syntax-lower-type '#'a)
+#<syntax:562:27 (quote (syntax a))>
+(quote (syntax a))
+quote-datum
+
+(display-syntax-lower-type '#`a)
+#<syntax:563:27 (quote (quasisyntax a))>
+(quote (quasisyntax a))
+quote-datum
+
+(display-syntax-lower-type '#`'a)
+#<syntax:564:27 (quote (quasisyntax (quote a)))>
+(quote (quasisyntax (quote a)))
+quote-datum
+
+
+
+ | object oriented style
+
+(symbol-hashtable t 32)
+(symbol-hashtable t 32
+  (key "string")
+  (len 3.14))
+
+(dot (t.set newkey 100)
+     (t.ref key)
+     (t.del len))
+
+(define x '(1 2 3))
+(define y 100)
+(define z #t)
+(define-syntax (expand-according-to-real-time-value stx)
+  (syntax-case stx ()
+    ((_ var) (cond ((list? #'var) #'(display "list"))
+                       ((number? #'var) #'(display "number"))
+                       ((boolean? #'var) #'(display "boolean"))
+                       (else #'(display "else-values"))))))
+(expand-according-to-real-time-value x)
+(expand-according-to-real-time-value y)
+(expand-according-to-real-time-value z)
+
+(define-syntax (html-template stx)
+  (syntax-case stx ()
+    ((
+
+    (html (@ (lang "zh-CN"))
+      (head
+        (meta (@ (charset "utf-8")))
+        (meta (@ (http-equiv "X-UA-Compatible") (content "IE=Edge")))
+        (title (% page-title))
+        (%style)
+        (%script)
+      (%body)))))
+
+(html-template
+  title "the page new title"
+  lang.en        ;; the value prefix by the dot is a pre-defined value
+  charset.utf8
+  style (tag-stx-1 tag-stx-2)
+  script (tag-stx)
+  body body-stx)
+
+
+(define-syntax (define-html-template stx)
+
+宏不过是将源代码中的一段语法替换成新的语法，然后编译器对新的语法进行编译。
+
+(define-html-template my-html-page
+  "the page new title"
+  body-tmpl)
+
+(define-syntax (define-html-template stx)
+  (syntax-case stx ()
+    ((_ variable-name title body) #'(define variable-name (apply-html-template title body)))))
+
+(define-syntax (apply-html-template stx)
+  (syntax-case stx ()
+    ((_ title body) #'(apply-html-template-detail lang.cn title body))
+    ((_ title body lang) #'(apply-html-template-detail lang title body))))
+
+(define-syntax
+       (html (@ (lang (% lang)))
+         (title (% page-title))
+         (body ($ body)))
+
+(define-template html-template
+  (html (@ (lang % page-lang))
+    (head
+      (meta (@ (charset %)))
+      (meta (@ (http-equiv "X-UA-Compatible") (content "IE=Edge")))
+      (title %))
+    (body %)))
+
+(html-template my-html-page
+  'page-lang %en
+  'charset %utf8
+  'title "the new page title"
+  'body my-page-content)
+
+(define my-html-page
+  '(html (@ (lang "en"))
+     (head
+       (meta (@ (charset "utf8")))
+       (meta (@ (http-equiv "X-UA-Compatible") (content "IE=Edge")))
+       (title "the new page title")
+    (body (% my-page-content)))))
+
