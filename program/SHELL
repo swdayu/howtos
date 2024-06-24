@@ -708,6 +708,140 @@ $ git blame file  # display each line's latest modify info: commit_id, author, d
 ^5738f83 (The Android Open Source Project 2012-12-12 16:00:35 -0800   35) #include "l2c_int.h"
 ```
 
+**将sshkey添加到远端**
+
+```shell
+ssh-keygen -t rsa
+ssh-copy-id -i ~/.ssh/user_id_rsa.pub root@47.97.196.34
+```
+
+**安装JupyterLab**
+
+```shell
+localhome = /c/System/Package/ubuntulocal
+cd $localhome
+scp Miniconda3-latest-Linux-x86_64.sh root@47.97.196.34:~/alpha/
+---
+bash Miniconda3-latest-Linux-x86_64.sh
+conda config --set auto_activate_base true/false #conda是否开机自启动
+conda list 				#列出当前安装的所有python包
+conda update conda		#更新conda
+conda -h                #conda帮助
+conda list -h           #conda命令帮助
+conda info              #conda当前安装信息
+conda install <package> #安装对应包
+conda updata <package>  #更新对应包
+conda remove <package>  #卸载对应包
+conda install -c conda-forge jupyterlab 		#安装jupyterlab
+conda install -c conda-forge notebook			#安装notebook
+conda install -c conda-forge voila              #安装voila
+https://jupyterlab.readthedocs.io/en/latest/	#jupyterlab文档
+jupyter notebook --version						#jupyter notebook版本信息，必须大于等于4.3
+jupyter notebook list							#查看当前运行的notebook server
+jupyter labextension install jupyterlab-toc     #安装插件
+jupyter labextension list                       #查看所有安装的插件
+jupyter lab --generate-config				    #生成jupyter lab默认配置
+vi ~/.jupyter/jupyter_notebook_config.py        #编辑配置文件
+	c.NotebookApp.allow_remote_access = True    #允许远程访问
+	c.NotebookApp.allow_root = True				#允许以root权限访问
+	c.NotebookApp.ip = '0.0.0.0'				#运行任意ip访问
+	c.NotebookApp.open_browser = False			#启动jupyter server后不打开浏览器
+	c.NotebookApp.notebook_dir = 'rootdir'		#jupyter lab根目录
+	c.NotebookApp.password = 'sha1:...:...'	    #设置登录密码
+		python									#用下面的方式生成密码
+		from notebook.auth import passwd
+		passwd()
+	c.NotebookApp.password_required = True		#使用密码
+	c.NotebookApp.port = 8080					#访问端口，需要在ECS控制台添加端口的访问权限
+conda install -c conda-forge nodejs				#安装nodejs
+	node --version
+	npm --version
+jupyter lab --version
+jupyter lab build
+nohup jupyter lab &								#运行jupyter server，即使服务断关闭终端，jupter server也不会断掉
+---
+conda install -c conda-forge jupyterlab-git
+pip install jupyterlab_github
+jupyter labextension install @jupyterlab/github
+jupyter labextension uninstall @jupyterlab/github
+jupyter labextension update @jupyterlab/github
+gitbug|settings|deverloper settings|
+```
+
+git push origin HEAD:refs/for/master
+git clone git@github.com:user/repo.git
+
+git clone --progress --branch name -v "git.host.com:gitolite3/repo.git" "folder/path"
+git clone --progress --branch name -v "gitolite3@git.host.com:repo" "folder/path"
+
+提交代码之前 rebase
+
+```shell
+git fetch origin
+git rebase origin your_current_branch_name
+```
+
+新建远程分支
+
+```shell
+git checkout -b new_remote_branch
+git branch     # can see local branch *new_remote_branch
+modify your files
+git push origin new_remote_branch:new_remote_branch
+git branch -a  # can see remotes/origin/new_remote_branch
+
+1.将本地分支进行改名:
+git branch -m old_branch new_branch
+2.将本地分支的远程分支删除:
+git push origin :old_branch
+3.将改名后的分支push到远程，并让本地分支关联远程分支：
+git push --set-upstream origin new_branch
+```
+
+拉远程分支的一个子目录
+
+```shell
+rm -rf bt_if
+git init bt_if
+cd bt_if
+git remote add -f origin remote-git-repo
+git config core.sparseCheckout true
+echo "services/bt_if/" >> .git/info/sparse-checkout
+git pull origin master_new_profile
+mv services/bt_if/* .
+rm -rf services
+git add --all .
+git commit -m "adjust folder"
+cd ..
+```
+
+git push origin refs/heads/ibrt_rc_0.2
+如果要删除，git push origin :refs/tags/ibrt_rc_0.2
+
+|git tag
+
+    -- make a tag on latest commit
+    git tag ver_1031
+
+    -- delete the tag
+    git tag -d ver_1031
+
+    -- push local tags
+    git push origin <branch_name> --tags
+
+
+|将另一个分支的代码合到当前分支
+
+    git checkout master         # switch to master branch
+    git pull origin master      # get code
+    git checkout your_branch    # switch to your branch
+    git merge master            # merge master code to your branch
+    git push origin your_branch # submit
+
+
+|git revert
+
+    git revert commit_id
 
 **debug**
 ```shell
@@ -1030,6 +1164,7 @@ $ curl -R -O http://www.inf.puc-rio.br/~roberto/lpeg/lpeg-1.0.0.tar.gz
 ```shell
 $ axel url # http://www.vpser.net/manage/axel.html
 $ wget url
+$ wget ftp://"name:word"@domain/path/file
 ```
 
 **w3m**
@@ -1071,6 +1206,9 @@ DNS hosted: Yes [Update DNS records] (域名服务已开启 [更新域名服务�
 
 
 # vim
+
+http://vimdoc.sourceforge.net/
+https://www.fprintf.net/vimCheatSheet.html
 
 ```shell
 INSERT - change to insert mode
@@ -1170,3 +1308,345 @@ g~{motion}   g~l g~aw g~ap 大小变小大 g~g~ g~~ 作用于当前行
 ```
 
 
+
+
+GCC Debugging
+-------------
+
+$ gdb -q program   # use gdb to start the program
+(gdb) li 1,n       # list source file lines
+(gdb) b 2          # set break point at line 2
+(gdb) b 10         # set break point at line 10
+(gdb) func         # set break at the the function
+(gdb) run          # run the code, it will be stop at break points
+(gdb) info locals  # check function local variables
+(gdb) bt           # check backtrack
+(gdb) x/s 0x423580 # check the string at 0x423580
+(gdb) quit         # quit gdb
+
+> cheat.sh/gdb
+
+Ubuntu 18.04 LTS
+----------------
+
+## ssh
+ps -ef | grep ssh
+/etc/init.d/ssh start
+
+mkdir folder
+cd folder
+mkdir repo
+curl https://storage.googleapis.com/git-repo-downloads/repo > repo/repo
+chmod a+x repo/repo
+add "export PATH=~/folder/repo/:$PATH" to the end of the file ~/.bashrc
+source ~/.bashrc
+apt-get update
+apt-get install python
+attach new volume
+mkfs.ext4 /dev/disk/by-id/new_volume_name
+mkdir /mnt/mount_name
+mount /dev/disk/by-id/new_volume_name /mnt/mount_name
+add "/dev/disk/by-id/new_volume_name /mnt/mount_name ext4 defaults 0 2" into the end of the file /etc/fstab
+cd path/to/your/working_directory
+mkdir code/nexusvx_oreo/android-8.1.0_r27
+cd code/nexusvx_oreo/android-8.1.0_r27
+git config --global user.name your-name
+git config --global user.email your-email
+repo init -u https://android.googlesource.com/platform/manifest -b android-8.1.0_r27
+repo sync
+wget https://dl.google.com/dl/android/aosp/lge-bullhead-opm4.171019.016.a1-6ca0caeb.tgz
+wget https://dl.google.com/dl/android/aosp/qcom-bullhead-opm4.171019.016.a1-adcef468.tgz
+tar -zxvf lge-bullhead-opm4.171019.016.a1-6ca0caeb.tgz
+tar -zxvf qcom-bullhead-opm4.171019.016.a1-adcef468.tgz
+./extract-lge-bullhead.sh
+./extract-qcom-bullhead.sh
+apt-get install make
+make clobber
+apt-get install openjdk-8-jdk
+update-alternatives --list java
+update-alternatives --config java
+update-alternatives --config javac
+java -version
+. build/envsetup.sh
+lunch
+Which would you like? [aosp_arm-eng] aosp_bullhead-userdebug
+make -j4
+
+
+Compress and extract
+--------------------
+
+=> tar
+   -c    create a new archive
+   -r    append new files to the end of an archive
+   -u    only append files newer than copy in archive
+   -x    extract files from an archive
+   -t    list the contents of an archive
+   -p    extract files with the same file permissions
+   -z    filter the archive through gzip
+   -j    filter the archive through bzip2
+   -v    verbosely list files processed
+   -f    specify the file name
+
+tar -czvf archive.tgz file1 file2   # create archive.tgz from files
+tar -czvf archive.tgz folder/       # create archive.tgz from folder
+tar -xzvf archive.tgz               # extract the archive.tgz to current folder
+tar -rzvf archive.tgz file3         # append new files
+tar -uzvf archive.tgz file2         # update exist files
+
+tar jxvf file.tar.bz2
+
+zip dest.zip file1 file2 file3  # compress specified files
+zip dest.zip -r folder/         # compress all files in folder
+unzip dest.zip                  # extract to current folder
+unzip dest.zip -d folder/       # extract to specified folder
+
+
+Networking
+----------
+
+apt-get install shadowsocks-libev
+kill `pgrep ss-server | tr "\n" " "`
+ss-server -p port -k password -m aes-256-cfb -t 120 -f ~/ss-server.pid
+pgrep ss-server
+
+
+Disk
+----
+
+df -hl  # show human (-h) readable info about the local (-l) file systems
+du -hd 1            # show files and folders size only under current folder
+du -h folder/file   # show the size of the file
+du -h folder/       # show the size of all files and all folders in the folder
+du -h folder/ -d 1  # only for first depth files and folders
+
+Java
+----
+
+Install Oracle Java 1.8
+
+$ sudo add-apt-repository ppa:webupd8team/java
+$ sudo apt-get update
+$ apt-cache pkgnames oracle-java
+oracle-java8-unlimited-jce-policy
+oracle-java8-set-default
+oracle-java8-installer
+$ sudo apt-get install oracle-java8-installer
+$ sudo apt-get install oracle-java8-set-default
+
+Check Java Information
+
+$ sudo update-alternatives --list java
+/usr/lib/jvm/java-8-oracle/jre/bin/java
+$ java -version
+java version "1.8.0_191"
+Java(TM) SE Runtime Environment (build 1.8.0_191-b12)
+Java HotSpot(TM) 64-Bit Server VM (build 25.191-b12, mixed mode)
+$ sudo update-alternatives --config java
+$ sudo update-alternatives --config javac
+
+Setup Java Environment
+
+$ vi ~/.bashrc
+JAVA_HOME=/usr/lib/jvm/java-8-oracle
+JRE_HOME=$JAVA_HOME/jre
+JAVA_BIN=$JAVA_HOME/bin
+CLASSPATH=$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib
+PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin
+export JAVA_HOME JRE_HOME PATH CLASSPATH
+
+Tomcat
+------
+
+$ mkdir tomcat8
+$ wget http://mirror.bit.edu.cn/apache/tomcat/tomcat-8/v8.5.35/bin/apache-tomcat-8.5.35.tar.gz
+$ tar -zxvf apache-tomcat-8.5.35.tar.gz
+$ mv apache-tomcat-8.5.35 apache-tomcat-home
+$ vi ~/.bashrc
+export CATALINA_HOME=path/to/tomcat8/apache-tomcat-home
+$ . ~/.bashrc
+$ ./apache-tomcat-home/bin/configtest.sh  # check configures
+Using CATALINA_BASE:   path/to/tomcat8/apache-tomcat-home
+Using CATALINA_HOME:   path/to/tomcat8/apache-tomcat-home
+Using CATALINA_TMPDIR: path/to/tomcat8/apache-tomcat-home/temp
+Using JRE_HOME:        /usr/lib/jvm/java-8-oracle/jre
+
+$ ./apache-tomcat-8.5.35/bin/configtest.sh  # check configures
+$ ./apache-tomcat-home/bin/startup.sh
+$ ./apache-tomcat-home/bin/shutdown.sh
+
+w3m - command line broswer
+--------------------------
+
+$ sudo apt-install w3m w3m-img
+$ sudo /etc/init.d/tomcat8 start
+$ w3m http://localhost:8080
+It works !
+
+OpenGrok
+--------
+
+* https://github.com/oracle/opengrok/wiki/How-to-setup-OpenGrok
+* https://github.com/oracle/opengrok/wiki/Webapp-configuration
+* https://github.com/oracle/opengrok/releases
+
+$ mkdir universal-ctags
+$ cd universal-ctags
+$ git clone https://github.com/universal-ctags/ctags.git
+$ cd ctags
+$ sudo apt-get install autoconf
+$ sudo apt-get install automake
+$ sudo apt-get install libtool
+$ sudo apt-get install pkg-config
+$ ./autogen.sh
+$ ./configure
+$ make
+$ make install
+$ which ctags
+/usr/local/bin/ctags
+
+$ mkdir opengrok
+$ cd opengrok
+$ wget https://github.com/oracle/opengrok/releases/download/1.1-rc75/opengrok-1.1-rc75.tar.gz
+$ tar -zxvf opengrok-1.1-rc75.tar.gz
+$ mv opengrok-1.1-rc75 opengrok-home
+$ mkdir -p opengrok-home/groksrc
+$ mkdir -p opengrok-home/grokdata
+$ vi ~/.bashrc
+export OPENGROK_SRC_ROOT=~/artwork/opengrok/opengrok-home/groksrc
+export OPENGROK_DATA_ROOT=~/artwork/opengrok/opengrok-home/grokdata
+export OPENGROK_TOMCAT_BASE=~/artwork/tomcat8/apache-tomcat-home
+
+$ sudo apt-get install python3 pyton3-pip
+$ python3 -m pip install opengrok-1.1-rc75/tools/opengrok-tools.tar.gz
+$ which opengrok
+/usr/local/bin/opengrok
+$ mkdir -p grokbase/src
+$ mkdir -p grokbase/data
+$ /usr/share/tomcat8/bin/catalina.sh configtest
+Using CATALINA_BASE:   /usr/share/tomcat8
+Using CATALINA_HOME:   /usr/share/tomcat8
+Using CATALINA_TMPDIR: /usr/share/tomcat8/temp
+Using JRE_HOME:        /usr/lib/jvm/java-8-oracle/jre
+Using CLASSPATH:       /usr/share/tomcat8/bin/bootstrap.jar:/usr/share/tomcat8/bin/tomcat-juli.jar
+$ vi ~/.bashrc
+export CATALINA_HOME=/usr/share/tomcat8
+export OPENGROK_TOMCAT_BASE=$CATALINA_HOME
+export OPENGROK_INSTANCE_BASE=path/to/opengrok/grokbase
+
+
+PS
+* 命令帮助 help command，help 会自动分页，可按 ctrl+c 返回
+* 更新帮助 update-help （需管理员权限）
+* get-help command [-online]，get-help 不会分页
+* 支持通配符查找命令 help *log*, help *event*
+* 详细帮助 help command -full
+* PS 将以逗号分隔的一组值读取为数组
+* 命令的单个参数值如果包含空格，需要用引号引起
+* 多个引号引起的参数也可用逗号分隔，形成参数数组
+* 命令的数组参数也可以单独放在文件里，每个参数占一行
+* 然后使用()指定命令的执行顺序，用 get-content file.txt 先将参数从文件中读出
+* 命令示例 help command -example
+* about 信息 help about*
+
+NMAKE
+* NMAKE : fatal error U1045: spawn failed : Permission denied
+* 可能是杀毒软件防护的原因，关闭杀毒软件或添加额外规则
+* 我遇到的另一个情况是，运行可执行程序时把 ./$@ 改成 $@ 就好的
+
+创建链接到目标文件夹的文件夹映射
+\> mklink /j link/folder path/to/dest/folder
+
+https://www.thewindowsclub.com/windows-10-network-reset
+cmd /c netsh winsock reset
+
+## 系统目录和磁盘映射目录
+
+C:\Users\<username>\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc\LocalState\rootfs
+Windows 下的磁盘映射在子系统 /mnt/c/ /mnt/d/ ... 等目录下
+
+## 安装 gcc arm 开发环境
+
+sudo apt-get install make
+make --version
+
+https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
+tar jxvf gcc-arm-none-eabi-4_9-2015q3-20150921-linux.tar.bz2
+
+## 命令行多屏幕
+
+sudo apt-get install screen
+sudo screen
+ctrl+a ?   -   get help
+ctrl+a c   -   create new window
+ctrl+a k   -   kill a window
+ctrl+a w   -   show current windows
+ctrl+a n   -   next window
+ctrl+a p   -   previous window
+ctrl+a 0   -   select the 0-window
+ctrl+a 1   -   select the 1-window
+
+Windows 10 更换硬盘后重新激活
+
+    1. Windows 激活报 0x8007232B 错误，DNS_ERROR_RCODE_NAME_ERROR
+    2. Means the PC isn't able to connect with activation servers
+    3. 用管理员身份运行 CMD
+    4. slmgr.vbs -skms zh.us.to 更换服务器
+    5. slmgr.vbs -ato 如果以前激活过，输入这个命令激活
+        ```shell
+        slmgr.vbs -skms zh.us.to
+        slmgr.vbs -ato
+        ```
+
+Windows 开发环境
+
+https://docs.microsoft.com/en-us/windows/desktop/apiindex/windows-api-list
+https://docs.microsoft.com/en-us/windows/desktop/api/
+https://docs.microsoft.com/en-us/windows-hardware/drivers/serports/serial-i-o-request-interface
+
+1. 安装 WindowsSDK（WindowsSDK_17763.132.181022-1834.rs5.iso）
+
+C:\Program Files (x86)\Windows Kits\10\
+C:\Users\localhost\Downloads\Windows Kits\10\WindowsSDK
+
+2. 安装 vs community 版本（vs_community__2096438226.1548924477.exe）
+
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community
+C:\ProgramData\Microsoft\VisualStudio\Packages
+C:\Program Files (x86)\Microsoft Visual Studio\Shared
+
+（1）Windows 10 更换硬盘后重新激活
+
+1. Windows 激活报 0x8007232B 错误，DNS_ERROR_RCODE_NAME_ERROR
+2. Means the PC isn't able to connect with activation servers
+3. 用管理员身份运行 CMD
+4. slmgr.vbs -skms zh.us.to 更换服务器
+5. slmgr.vbs -ato 如果以前激活过，输入这个命令激活
+
+```shell
+slmgr.vbs -skms zh.us.to
+slmgr.vbs -ato
+```
+
+（2）以管理员身份运行 CMD 命令行
+
+1. 点开进入开始菜单，输入“cmd"会自动搜到命令行工具
+2. 右键工具，选择使用管理管身份运行即可
+
+（3）Windows 编程单独关闭某一个警告
+
+```c
+warning C4127: 条件表达式是常量
+#pragma warning( push )
+#pragma warning( disable : 4127 )
+FAIL("invalid parameters");
+#pragma warning( pop )
+```
+
+（4）删除 inuse 但当前没使用的 COM 口
+
+```shell
+1. set devmgr_show_nonpresent_devices=1
+2. 打开设备管理器（或运行 devmgmt.msc），View > Show hidden devices
+3. 将灰色的 inuse 的 COM 口 Uninstall
+```

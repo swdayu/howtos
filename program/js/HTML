@@ -1,0 +1,1519 @@
+
+HTML 相关链接
+
+* http://missingmanuals.com/cds/html5tmm2e
+* http://caniuse.com/
+* http://www.prosetech.com/html5/
+* http://www.w3.org/TR/html5/
+* https://html.spec.whatwg.org/multipage/
+* http://validator.w3.org/
+* http://dev.w3.org/html5/markup/
+* http://gs.statcounter.com
+* http://modernizr.com/docs/
+* http://tinyurl.com/polyfill
+* https://www.w3.org/WAI/
+* http://html5doctor.com/
+* http://gsnedders.html5.org/outliner/
+* http://microformats.org/wiki/
+* http://www.ietf.org/rfc/bcp/bcp47.txt
+
+空元素
+
+```
+<img> <br> <wbr> <hr>
+```
+
+Special element
+```html
+Add
+<article> <aside> <figcaption> <figure> <footer> <header> <nav> <section> <details> <summary>
+<mark> <time> <wbr>
+<datalist> <keygen> <meter> <progress> <command> <menu> <output>
+<audio> <video> <source> <embed> <canvas>
+<bdo> <rp> <rt> <ruby>
+    
+Delete
+<big> <center> <font> <tt> <strike>
+
+Remain
+<iframe>
+<abbr> is better than <acronym>
+<object> is better than <applet>
+
+Change
+<small> small print
+<hr> topic switch
+<s> no longer correct or relative
+<strong> important content
+<em> read loudly
+<b> should using bold font no matter important or not
+<i> should using italic font no matter important or not
+<address> only for contact info
+<cite> only for the name of the book/article/news/show
+<a> can contain anything like text/list/image
+```
+
+## Document structure
+
+Structure element
+```html
+<header> page/article header, should contain a <h?> element
+<footer> page/article footer, page footer usually can only contain copyright/links/law limitation
+<nav> page navigation links, usually used in page <header> or page <aside>
+<aside> page side column, article related content
+<main> page main content
+<article> a article, should contain <h?> elements
+<section> a section of article, should contain <h?> elements
+<hgroup> can only contain <h?> elements
+<figure> insserted figure in the article
+<figcaption> title of the figure, can contain any elements like text/link/image
+
+<body>
+<header></header>
+<aside></aside>
+<main><article></article><article></article></main>
+<footer></footer>
+</body>
+
+Article header
+<h1>...</h1>
+<header>
+  <img>
+  <h1>...</h1>
+  ...
+</header>
+<header>
+  <h1>...</h1>
+  <p class="subtitle">...</p>
+  <p class="bywho">...</p>
+  ...
+</header>
+<header>
+  <hgroup>
+    <h1>...</h1>
+    <h2>...</h2>
+  </hgroup>
+  <p>...</p>
+</header>
+   
+Article
+<article>
+<header></header>
+<section></section>
+<aside></aside>
+<section></section>
+<figure><figcaption></figcaption></figure>
+<section></section>
+<footer></footer>
+</article>
+```
+
+Avoid old browaser apply inline to unknown elements
+```css
+article, aside, figure, figcaption, footer, section {
+  display: block;
+}
+```
+
+Avoid old browser dont apply styles to unknown elements
+```html
+<!-- create out new elements to ask IE to apply styles -->
+<!--[if lt IE 9]> 
+<script>document.createElement("header")</script>
+<![endif]-->
+
+<!--[if lt IE 9]>
+<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+```
+
+Document outline
+```html
+<body>
+<h1>header1</h1>
+<h1>header1</h1>
+<h2>header2</h2>
+<h3>header3</h3>
+<h2>header2</h2>
+<h4>header4</h4>
+<h3>header3</h3>
+</body>
+
+- header1
+- header1
+  - header2
+    - header3
+  - header2
+    - header4
+    - header3
+```
+
+Sectioning element and Section root element
+```html
+<article> <aside> <nav> <section>
+Each sectioning element ends the previous section and start a new section.
+The headers <h?> in a section are independent from headers in other sections.
+All headers in a section form a sub-outline, they combined together to form the document outline. 
+
+<body> <blockquote> <td> <fieldset> <figure> <details>
+The section root element has its own document outline, it is invisible to the main document outline.
+The <body> element is a little different due to its outline is the main document outline.
+```
+
+Untitiled section
+```html
+<body>
+  <article>
+    <section>
+      <h1>Titiled Section</h1>
+      <h2>Header2</h2>
+      <h2>Header2</h2>
+    </section>
+  </article>
+</body>
+
+- Untitiled Section <body>
+  - Untitiled Section <article>
+    - Titled Section
+      - Header2
+      - Header2
+```
+
+Titiled section
+```html
+<body>
+  <h3>Body</h3>
+  <article>
+    <header><h1>Article</h1></header>
+    <h1>Header1</h1>
+    <h2>header2</h2>
+    <h2>header2</h2>
+  </article>
+</body>
+
+- Body
+  - Article
+  - Header1
+    - Header2
+    - Header2
+```
+
+A section has a level equal to the super section level + 1.
+```html
+<body>
+  <article>
+    <h3>Article</h3>
+    <section><h1>Section</h1></section>
+  </article>
+</body>
+
+- Untitled Section
+  - Article
+    - Section
+    
+<article>
+  <h1>Article</h1>
+    <h2>Header2</h2>
+    <section><h1>Section1</h1></section>
+</article>
+
+- Untitled Section <body>
+  - Article
+    - Header2
+    - Section1
+  
+<article>
+  <h1>Article</h1>
+    <h2>Header2</h2>
+      <h3>Header3</h3>
+    <section><h4>Section4</h4></section>
+    <section><h3>Section3</h3></section>
+    <section><h2>Section2</h2></section>
+</article>
+
+- Untitled Section <body>
+  - Article
+    - Header2
+      - Header3 
+    - Section4
+    - Section3
+    - Section2
+```
+
+A header has the same or a greater level as the section above it.
+```html
+<article>
+  <h1>Article</h1>
+  <h2>Header2</h2>
+  <section>
+    <h1>Section</h1>
+    <h2>Section header2</h2>
+    <h3>Section header3</h3>
+  </section>
+  <h3>Header3</h3>
+</article>
+
+- Untitled Section <body>
+  - Article
+    - Header2
+    - Section  # the level is 2
+      - Section header2
+        - Section header3
+    - Header3  # no greater than level2
+ 
+<article>
+  <h1>Article</h1>
+  <h2>Header2</h2>
+  <section>
+    <h1>Section</h1>
+    <h2>Section header2</h2>
+    <h3>Section header3</h3>
+  </section>
+  <h1>Header1</h1>
+</article>
+
+- Untitiled Section <body>
+  - Article
+    - Header2
+    - Section  # the level is 2
+      - Section header2
+        - Section header3
+  - Header1    # is greater than level2
+```
+
+|内嵌元素
+
+<small> 表示附属描述，显示会比正常字体稍小一些；
+<hr> 表示主题转换；
+<s> 表示不再准确或不再相关的内容；
+<strong> 表示重要的文本内容，需要在周围文本突显出来的文本；
+<em> 表示重读的文本，在朗读时要大声读出的文本；
+<b> 表示应该用粗体表示的文本，但改文本并不比其他文本更重要，比如关键字、产品名称等；
+<i> 表示应该用斜体表示的文本，但改文本并不比其他文本更重要，比如外文单词、技术术语等；
+<address> 提供文档作者的联系信息，比如电子邮件或网站链接；
+<cite> 表似乎作品的引用，如新闻、文章、电视节目；
+
+|页面元素
+
+<article>
+<aside> 附注或侧边栏，可以通过它来介绍一个相关的话题，或者对主文档提出的某个观点进行解释，也可以用来盛放广告和相关内容链接
+<figure> <figcaption> 插图，一般来说插图应该放在相关文本旁边，另外插图可以包含一个插图标题
+<header> 内容的标题（简单的标题可以直接使用<hr>元素），网页的头部
+<footer> 可以放网站版权信息、作品来源、法律限制以及链接之类的信息
+<hgroup>
+<nav>
+<section> 有时候无标题的区块时一个错误，尽管<aside>和<nav>可以不带标题，但是<article>和<section>建议带标题
+<details>
+<summary>
+
+HTML5定义了一组规则，用于定义如何为网页文档创建大纲（document outline）。
+目前还没有浏览器实现HTML5纲要，不过有几种有用的工具如http://gsnedders.html5.org/outliner/。
+要知道自己网页的纲要是什么样子，可以想象把页面中的所有内容都剥离，只剩下标题元素（h1,h2,h3等）中的文本。
+然后根据它们在标记中的位置缩进标题，那么嵌套最深的标题在纲要中的缩进也最多。
+
+分块元素（sectioning element）是指那些在页面中创建新的纲要或嵌套纲要的元素。
+这些元素有`<article>`, `<aside>`, `<nav>`和`<section>`。
+```html
+<article>
+  <header>
+    <h1>How the World Could End</h1>
+    ...
+  </header>
+  <div class="content">
+    <h2>Mayan Doomsday</h2>
+    ...
+    <h2>Robot Takeover</h2>
+    ...
+    <h2>Unexplained Singularity</h2>
+    ...
+  </div>
+</article>
+
+- How the World Could End
+  - Mayan Doomsday
+  - Robot Takeover
+  - Unexpalined Singualrity
+  
+<article>
+  <h1>Natural Wonders to Visit Before You Die</h1>
+  ...
+  <h2>In North American</h2>
+  ...
+  <h3>The Grand Canyon</h3>
+  ...
+  <h3>Yellowstone National Park</h3>
+  ...
+  <h2>In the Rest of the World</h2>
+  ...
+  <aside>...</aside>
+  ...
+  <h3>Galapagos Islands</h3>
+  ...
+  <h3>The Swiss Alps</h3>
+  ...
+</article>
+
+- Natural Wonders to Visit Before You Die
+  - In North American
+    - The Grand Canyon
+    - Yellowstone National Park
+  - In the Rest of the World
+  - Untitled Section for the <aside> // aside的存在创建了一个新的纲要，使得以下的纲要不合理
+  - Galapagos Islands                // 这个纲要层次不是你想要的
+  - The Swiss Alps                   // 这个纲要层次不是你想要的
+  
+这里<aside>恰好在两个不同级别的标题元素之前，而<aside>的存在会结束上一个h2元素的分块，而导致下面h3生成的纲要不合理。
+如果<aside>用在两个相同级别的标题元素之间，不会导致这种问题。
+
+<article>
+  <h1>Natural Wonders to Visit Before You Die</h1>
+  ...
+  <h2>In North American</h2>
+  ...
+  <h3>The Grand Canyon</h3>
+  ...
+  <h3>Yellowstone National Park</h3>
+  ...
+  <section>
+    <h2>In the Rest of the World</h2>
+    ...
+    <aside>...</aside>
+    ...
+    <h3>Galapagos Islands</h3>
+    ...
+    <h3>The Swiss Alps</h3>
+    ...
+  </section>
+</article>
+
+- Natural Wonders to Visit Before You Die
+  - In North American
+    - The Grand Canyon
+    - Yellowstone National Park
+  - In the Rest of the World
+    - Untitled Section for the <aside>
+    - Galapagos Islands
+    - The Swiss Alps
+    
+显式的制定<h2><aside><h3><h3>是一个新的区块。
+这样纲要算法就不必再为<h2>自动创建区块了，因而避免了在发现<aside>时去关闭该区块。
+HTML5纲要的机制，级每次遇到编号标题，只要改元素不在某个区块的顶部，都会为这个标题创建一个新的区块。
+例如上两例在创建纲要时，相当于：
+<article>
+  <h1>Natural Wonders to Visit Before You Die</h1>
+  ...
+  <section>
+    <h2>In North American</h2>
+    ...
+    <section>
+      <h3>The Grand Canyon</h3>
+      ...
+    </section>
+    <section>
+      <h3>Yellowstone National Park</h3>
+      ...
+    </section>
+  </section>
+  <section>
+    <h2>In the Rest of the World</h2>
+    ...
+  </section>
+  <aside>...</aside>
+  ...
+  <section>
+    <h3>Galapagos Islands</h3>
+    ...
+  </section>
+  <section>
+    <h3>The Swiss Alps</h3>
+    ...
+  </section>
+</article>
+
+<article>
+  <h1>Natural Wonders to Visit Before You Die</h1>
+  ...
+  <section>
+    <h2>In North American</h2>
+    ...
+    <section>
+      <h3>The Grand Canyon</h3>
+      ...
+    </section>
+    <section>
+      <h3>Yellowstone National Park</h3>
+      ...
+    </section>
+  </section>
+  <section>
+    <h2>In the Rest of the World</h2>
+    ...
+    <aside>...</aside>
+    ...
+    <section>
+      <h3>Galapagos Islands</h3>
+      ...
+    </section>
+    <section>
+      <h3>The Swiss Alps</h3>
+      ...
+    </section>
+  </section>
+</article>
+```
+
+```html
+<article>
+  <header>
+    <hgroup> //只能包含<h1>到<h6>等元素
+      <h1>How the World Could End</h1>
+      <h2>Scenarios that spell the end of life as we know</h2>
+    </hgroup>
+    <p class="author">by Ray N. Carnation</p>
+  </header>
+  <div class="content">
+    <p><span class="LeadIn">Right now</span>, you're probably ...</p>
+    <p>...</p>
+    
+    <figure class="FloatFigure">
+      <img src="human_skull.jpg">
+      <figcaption>Will you be the last person standing if one of these
+      apocalyptic scenarios plays out?</figcaption>
+    </figure>
+    
+    <section>
+      <h2>Mayan Doomsday</h2>
+      <p>Skeptics suggest ...</p>
+      
+      <aside class="PullQuote">
+        <img src="quotes_start.png" alt="Quote">
+        We don't know how the universe started,
+        so we can't be sure it won't just end, maybe today.
+        <img src="quotes_end.png" alt="End quote">
+      </aside>
+    </section>
+    
+    <h2>...</h2>
+    <p>...</p>
+  </div>
+  <footer>
+    <p class="Disclaimer">These apocalyptic predictions ...</p>
+    <p>
+      <a href="AboutUs.html">About Us</a>
+      ...
+    </p>
+  </footer>
+</article>
+```
+
+## 文本语义元素
+```html
+<mark> <time> <wbr>
+- **<time>** 表示一个有效的日期或时间
+- **<wbr>** 表示可在某处断行，如果每个单词很长，使用<wbr>表示建议浏览器在何处断行
+```
+```html
+Registration begins on <time>2012-11-25</time>.
+```
+
+## 表单交互元素
+```html
+<input> <datalist> <keygen> <meter> <progress> <command> <menu> <output>
+```
+
+## 多媒体元素
+```html
+<audio> <video> <source> <embed> <canvas>
+```
+
+## 非英语支持
+```html
+<bdo> <rp> <rt> <ruby>
+```
+
+
+---
+reference:
+  https://en.wikipedia.org/wiki/IEEE_754-1985
+  http://steve.hollasch.net/cgindex/coding/ieeefloat.html
+---
+
+# Storage Layout
+
+IEEE floating point numbers have three basic components: the sign, the exponent, and the mantissa. 
+The mantissa is composed of the fraction and an implicit leading digit (explained below). 
+The exponent base (2) is implicit and need not be stored.
+
+The following figure shows the layout for single (32-bit) and double (64-bit) precision floating-point values. 
+The number of bits for each field are shown (bit ranges are in square brackets):
+
+Floating Point Components
+|                  | Sign   | Exponent   | Fraction   | Bias 
+|----              |-----   | -----      |  ----      | ---- 
+| Single Precision | 1 [31] |  8 [30-23] | 23 [22-00] | 127
+| Double Precision | 1 [63] | 11 [62-52] | 52 [51-00] | 1023 
+
+## The Sign Bit
+
+The sign bit is as simple as it gets. 0 denotes a positive number; 1 denotes a negative number. 
+Flipping the value of this bit flips the sign of the number.
+
+## The Exponent
+
+The exponent field needs to represent both positive and negative exponents. 
+To do this, a bias is added to the actual exponent in order to get the stored exponent. 
+For IEEE single-precision floats, this value is 127. 
+Thus, an exponent of zero means that 127 is stored in the exponent field. 
+A stored value of 200 indicates an exponent of (200-127), or 73. 
+For reasons discussed later, exponents of -127 (all 0s) and +128 (all 1s) are reserved for special numbers.
+
+For double precision, the exponent field is 11 bits, and has a bias of 1023.
+
+## The Mantissa
+
+The mantissa, also known as the significand, represents the precision bits of the number. 
+It is composed of an implicit leading bit and the fraction bits.
+
+In order to maximize the quantity of representable numbers, floating-point numbers are typically stored in normalized form. 
+This basically puts the radix point after the first non-zero digit.
+
+A nice little optimization is available to us in base two, since the only possible non-zero digit is 1. 
+Thus, we can just assume a leading digit of 1, and don't need to represent it explicitly. 
+As a result, the mantissa has effectively 24 bits of resolution, by way of 23 fraction bits.
+
+## So, to sum up:
+
+1. The sign bit is 0 for positive, 1 for negative.
+2. The exponent's base is two.
+3. The exponent field contains 127 plus the true exponent for single-precision, or 1023 plus the true exponent for double precision.
+4. The first bit of the mantissa is typically assumed to be 1.f, where f is the field of fraction bits.
+
+
+# Special Values
+
+IEEE reserves exponent field values of all 0s and all 1s to denote special values in the floating-point scheme.
+
+## Zero
+
+As mentioned above, zero is not directly representable in the straight format, 
+due to the assumption of a leading 1 (we'd need to specify a true zero mantissa to yield a value of zero). 
+Zero is a special value denoted with an exponent field of zero and a fraction field of zero. 
+Note that -0 and +0 are distinct values, though they both compare as equal.
+
+## Denormalized
+
+If the exponent is all 0s, but the fraction is non-zero (else it would be interpreted as zero), 
+then the value is a denormalized number, which does not have an assumed leading 1 before the binary point. 
+Thus, this represents a number (-1)^s × 0.f × 2^(-126), where s is the sign bit and f is the fraction. 
+For double precision, denormalized numbers are of the form (-1)^s × 0.f × 2^(-1022). 
+From this you can interpret zero as a special type of denormalized number.
+
+## Infinity
+
+The values +infinity and -infinity are denoted with an exponent of all 1s and a fraction of all 0s. 
+The sign bit distinguishes between negative infinity and positive infinity. 
+Being able to denote infinity as a specific value is useful because it allows operations to continue past overflow situations. 
+Operations with infinite values are well defined in IEEE floating point.
+
+## Not A Number
+
+The value NaN (Not a Number) is used to represent a value that does not represent a real number. 
+NaN's are represented by a bit pattern with an exponent of all 1s and a non-zero fraction. 
+There are two categories of NaN: QNaN (Quiet NaN) and SNaN (Signalling NaN).
+
+A QNaN is a NaN with the most significant fraction bit set. 
+QNaN's propagate freely through most arithmetic operations. 
+These values pop out of an operation when the result is not mathematically defined.
+
+An SNaN is a NaN with the most significant fraction bit clear. 
+It is used to signal an exception when used in operations. 
+SNaN's can be handy to assign to uninitialized variables to trap premature usage.
+
+Semantically, QNaN's denote indeterminate operations, while SNaN's denote invalid operations.
+
+
+# Special Operations
+
+Operations on special numbers are well-defined by IEEE. 
+In the simplest case, any operation with a NaN yields a NaN result. 
+Other operations are as follows:
+
+Special Arithmetic Results
+| Operation             | Result 
+| ---                   | ----
+| n ÷ ±Infinity         | 0 
+| ±Infinity × ±Infinity | ±Infinity
+| ±nonzero ÷ 0          | ±Infinity
+| Infinity + Infinity   | Infinity
+| ±0 ÷ ±0               | NaN
+| Infinity - Infinity   | NaN
+| ±Infinity ÷ ±Infinity | NaN
+| ±Infinity × 0         | NaN
+
+
+# 单精度浮点数取值范围
+
+```
+exponent == 0 
+  => 0 or exponent == -126 fraction == 0.fff23f
+  2^(-126) = 1.1754943508222875079687365372222 x 10^(-38)
+  0.fff23f = [0, 0.99999988079071044921]
+
+  0 ~ 0.99999988079071044921 x 1.1754943508222875079687365372222 x 10^(-38)
+  => 0 ~  1.1754942106924410754767438692795 x 10^(-38)
+
+exponent == 1~254 
+  => exponent == -126~127 fraction == 1.fff23f
+  2^(-126) = 1.1754943508222875079687365372222 x 10^(-38)
+  2^(+127) = 1.7014118346046923173168730371588 x 10^(+38)
+  1.fff23f = [1, 1.99999988079071044921]
+
+  1 x 1.1754943508222875079687365372222 x 10^(-38) ~ 1.99999988079071044921 x 1.7014118346046923173168730371588 x 10^(+38)
+  => 1.1754943508222875079687365372222 x 10^(-38) ~ 3.4028234663852885981021544812923 x 10^(+38)
+
+exponent == 255
+  => Infinity or NaN
+
+Positive Value:
+=> 0 ~  1.1754942106924410754767438692795 x 10^(-38)
+        1.1754943508222875079687365372222 x 10^(-38) ~ 3.4028234663852885981021544812923 x 10^(+38)
+
+Negative Value:
+=> -3.4028234663852885981021544812923 x 10^(+38) ~ -1.1754943508222875079687365372222 x 10^(-38)
+                                                   -1.1754942106924410754767438692795 x 10^(-38) ~ 0
+```
+
+```lua
+--[===[
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <title>!title</title>
+    <link rel="stylesheet" href="code-guide.css">
+    <script src="code-guide.js"></script>
+  </head>
+  <body>
+  </body>
+</html>
+
+---
+<method> <request-url> HTTP/<major>.<minor>
+<headers> header: value<crlf>
+<crlf>
+<entity-body>
+---
+HTTP/<major>.<minor> <status-code> <status-text>
+<headers> header: value<crlf>
+<crlf>
+<entity-body>
+---
+
+URL: <path>;<params>?<query>#<frag>
+
+/pub/gnu;type=d
+/hammers;sale=false/index.html;graphics=true
+/check.cgi?item=12731&color=blue&size=large
+/tools.html#drills
+zerodegree.im/realtimetracking.html
+
+--[[parsedReq example:
+  method = "GET";
+  httpv = "1.0";
+  path = "/" or "/pub/";
+  file = "index";
+  type = "html";
+  query = {item="12731"; color = "blue"; size = "large"};
+  headers = {};
+]]
+
+function handleHttpRequest(parsedReq)
+  if parsedReq.path == "/" and parsedReq.file == "realtimetracking" then
+  else
+    httpd.responseError()
+  end
+end
+
+engin.lua
+posts
+
+warmcraft
+- mecl: io, ffmt, lang
+- libskynet
+- liblua
+
+import "mecl/io"
+]===]
+```
+
+```c
+::func() @string\E
+
+<!DOCTYPE html>
+<html \E(@lang="" or dc(1))>
+  <head>
+    <meta charset="\E(@charset='''utf-8''')">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    \E(@meta="" or dl(1))
+    <title>\E(@title="Untitled")</title>
+    \E(@csslinks="" or dl(1))
+    \E(@jslinks="" or dl(1))
+  </head>
+  <body>
+    \E(@body or dl(1))
+  </body>
+</html>
+
+func svg() qTAG2$${
+  <svg $$(@viewport)
+      xmlns="http://www.w3.org/2000/svg"
+      $$(@namespace="")>
+    <title>$$(@title)</title>
+    <desc>$$(@desc="")</desc>
+    $$(@graph)
+  </svg>
+}TAG
+
+module svg
+
+enum EM = 'em'half
+enum EX = 'ex'half
+enum PX = 'px'half
+enum CM = 'cm'half
+enum MM = 'mm'half
+enum IN = 'in'half
+
+struct Viewport {
+  enum VIEWBOX_SET = 0x0001_0000_0000
+  enum ASPECTRATIO_SET = 0x0002_0000_0000
+  width = 0.0
+  height = 0.0
+  viewbox = ViewBox
+  aspectRatio = AspectRatio
+  uint flags
+}
+
+struct ViewBox {
+  minX = 0.0
+  widthX = 0.0
+  minY = 0.0
+  widthY = 0.0
+}
+
+
+
+<!DOCTYPE html>
+<html @lang="zh-CN">
+  <head>
+    <meta @charset="utf-8">
+    @wmark=false
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    @meta*
+    <title>@title</title>
+    @css*
+    @script*
+  </head>
+  <body>
+    @body=""
+  </body>
+</html>
+
+@lang lang=@quoted
+@charset charset=@quoted
+@meta <meta @>
+@css <link rel="stylesheet" href=@quoted>
+@script <script src=@quoted></script>
+// the mark of the web - https://msdn.microsoft.com/zh-cn/library/ms537628(v=vs.85).aspx
+// when test scripts in locally, IE will load scripts in strict mode (need manually click to grant the permission)
+@wmark if@ <!-- saved from url=(0014)about:internet -->
+
+// 有默认值的参数必须声明为显式名称，显式名称放在正式参数之外，函数重载考虑正式参数和显式名称集
+func htmlElement(string title)
+    @lang"zh-CN"
+    @charset"utf-8"
+    @metaSection""
+    @cssSection""
+    @scriptSection""
+    @body""
+    @bodyBottom""
+    @theMarkOfTheWeb(false)
+    -> @string """2TAG(
+  <!DOCTYPE html>
+  <html $lang>
+  <head>
+    <meta $charset>
+    
+    $if theMarkOfTheWeb {$
+    <!-- saved from url=(0014)about:internet -->
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    $metaSection
+    <title>$title</title>
+    $cssSection
+    $scriptSection
+  </head>
+  <body>
+    $body
+    $bodyBottom
+  </body>
+  </html>
+)TAG"""
+
+htmlElement"Untitled"@script"""2(
+  <!--[if lt IE 9]>
+    <script src="bower_components/html5shiv/dist/html5shiv.js"></script>
+  <![endif]-->
+)"""@css"""2(
+    
+)"""
+---
+
+{Html"Untitled".lang"en".body"hello"}
+
+---
+
+- the default type is string, @title is a string argument, but @val.int is a integer
+- * default for zero or more strings, int* is for zero or more ints
+- @lang is an argument with a default value "zh-CN", @title is an argument has no default value
+- code in { and } is called in the place, the result is the function or variable return value 
+
+=> func html(string title).lang"zh-CN".charset"utf-8".wmark^fasle.meta[s].css[s].script[s].body"" string
+```
+
+  http://daringfireball.net/projects/markdown/basics
+  http://daringfireball.net/projects/markdown/syntax
+  http://six.pairlist.net/mailman/listinfo/markdown-discuss
+  https://guides.github.com/features/mastering-markdown/
+  https://help.github.com/categories/writing-on-github/
+  https://github.com/vmg/redcarpet
+  https://github.com/github/markup
+  http://www.emoji-cheat-sheet.com/
+
+# Paragraphs
+
+A paragraph is simply one or more consecutive lines of text, separated by one or more blank lines. 
+Normal paragraphs should not be indented with spaces or tabs. 
+The implication of the “one or more consecutive lines of text” rule is that Markdown supports “hard-wrapped” text paragraphs. 
+When you do want to insert a <br /> break tag using Markdown, you end a line with two or more spaces, then type return.
+
+## Newlines
+GitHub treat paragraph line break a bit differently in comments.
+With Markdown, you can hard wrap paragraphs of text to have them combine into a single paragraph.  
+But in GitHub comments, it treats newlines in paragraph-like content as real line breaks, which is usually what comment intended.
+
+For example:
+```
+Roses are red
+Violets are blue
+```
+becomes
+```
+<p>Roses are red<br>
+Violets are blue</p>
+```
+
+## 段落
+- 段落由一系列连续文本行组成，段落与段落之间用一到多个空行分割
+- 普通段落不应该用空格或Tab进行缩进
+- Markdown将连续的文本行解析成同一个段落，它会忽略换行，如果确实想插入换行，要在换行之前输入两个或多个空格
+- HTML段落元素<p>的行为：忽略单词之间多余的空白字符
+
+## 段落开头
+- 解析上下文一开始可以默认为段落的开头(MKD_START_OF_PARAGRAPH)
+- 段落非首行文本行开头可以多于3个空格或有Tab，这样的段落原样转换成HTML段落元素<p>后，以<p>的规则，它会自动忽略多余的空白字符
+- 但是如果段落的首行开头多于3个空格或有Tab，那么这一行将变成代码块
+
+## 段落结尾
+- 发现一个或多个空行，或发现其他的块结构Headers, Blockquotes，Lists，垂直分割或非缩进代码块(```)
+- 段落与段落，段落与段落下面的CodeBlock，必须用空行分割
+- 连续的以空行分割的CodeBlock会认为是同一个CodeBlock，其中的空行被解析为CodeBlock中的空行
+- CodeBlock与其下的段落，可以不用空行分割
+
+## 段落与其他Block
+- 段落与段落必须用空行分割，否则会变成同一个段落
+- 段落与Header可以不用空行分割
+- 段落与Blockquote可以不用空行分割
+- 段落与无序列表项之间可以不用空行分割，但是与有序列表项之间必须用空行分割 (GitHub这样做，但是好像不这样更合理)
+- 段落与缩进Codeblock之间必须用空行分割，但是与Fenced Codeblock之间可以不用空行分割
+- 段落与垂直分割之间可以不用空行分割
+
+
+# Headers
+
+Setext-style headers are “underlined” using equal signs (for first-level headers) and dashes (for second-level headers). 
+Any number of underlining =’s or -’s will work.
+
+Atx-style headers use 1-6 hash characters at the start of the line, corresponding to header levels 1-6. 
+Optionally, you may “close” atx-style headers. This is purely cosmetic — you can use this if you think it looks better. 
+The closing hashes don’t even need to match the number of hashes used to open the header.
+
+## 标题
+- 标题格式字符后面可以不跟空白直接跟标题内容，标题内容之前和之后的空白应该被忽略
+- Setext格式的格式行，除了格式字符外不能有其他字符，否则会被认为是普通的段落文本
+- Atx样式的格式字符必须从行首开始，如果之前有任何空白，会变成普通的段落文本或代码块; 标题内容之前之后可以有空白会被忽略，Atx尾部格式字符可以紧随在标题内容之后不用空白分割
+- Setext样式的格式字符也必须从行首开始，否则也会变成普通段落文本或代码块; Setext的标题内容也会忽略前后的空白, 注意标题内容不能缩进4个空白或有tab; 另外'='和'-'不能混用在一起
+
+## Atx标题与其他Block
+- 与段落之间可以不用空行分割
+- 与Atx标题之间可以不用空行分割
+- 与Stx标题之间可以不用空行，但如果Atx标题之后只跟stx的格式行且这个格式行也是垂直分割，则垂直分割优先级更高
+- 与Blockquote之间可以不用空行分割
+- 与有序或无序列表之间可以不用空行分割
+- 与缩进Codeblock和Fenced Codeblock之间可以不用空行分割
+- 与垂直分割之间可以不用空行分割
+
+## Stx标题与其他Block
+- 与段落之间可以不用空行分割
+- 与Atx标题之间可以不用空行分割
+- 与Stx标题之间可以不用空行，但如果Stx标题之后只跟stx的格式行且这个格式行也是垂直分割，则垂直分割优先级更高
+- 与Blockquote之间可以不用空行分割
+- 与有序或无序列表之间可以不用空行分割
+- 与缩进Codeblock和Fenced Codeblock之间可以不用空行分割
+- 与垂直分割之间可以不用空行分割
+
+## 单行Stx格式行(不是Horz Break)与其他Block
+- 与段落之间可以不用空行分割
+- 与Atx标题之间可以不用空行分割
+- 与Stx标题之间可以不用空行，但如果Stx标题之后只跟stx的格式行且这个格式行也是垂直分割，则垂直分割优先级更高
+- 与Blockquote之间可以不用空行分割
+- 与有序或无序列表之间可以不用空行分割
+- 与缩进Codeblock和Fenced Codeblock之间可以不用空行分割
+- 与垂直分割之间可以不用空行分割
+
+## 单行Stx格式行(但也是Horz Break)与其他Block (Horz Break优先级更高，相当于Horz Break与其他Block)
+- 与段落之间可以不用空行分割
+- 与Atx标题之间可以不用空行分割
+- 与Stx标题之间可以不用空行，但如果Stx标题之后只跟stx的格式行且这个格式行也是垂直分割，则垂直分割优先级更高
+- 与Blockquote之间可以不用空行分割
+- 与有序或无序列表之间可以不用空行分割
+- 与缩进Codeblock和Fenced Codeblock之间可以不用空行分割
+- 与垂直分割之间可以不用空行分割
+
+
+# Blockquotes
+
+Markdown uses email-style > characters for blockquoting. 
+Markdown allows you to be lazy and only put the > before the first line of a hard-wrapped paragraph. 
+Blockquotes can be nested (i.e. a blockquote-in-a-blockquote) by adding additional levels of >. 
+Blockquotes can contain other Markdown elements, including headers, lists, and code blocks.
+```
+> ## This is a header.
+> 
+> 1.   This is the first list item.
+> 2.   This is the second list item.
+> 
+> Here's some example code:
+> 
+>     return shell_exec("echo $input | $markdown_script");
+```
+
+## 引用块
+- 引用块由一系列以字符'>'开头的连续引用行组成；连续的以空行分割的引用块会认为是同一个引用块，它等效于每一个空行前面加一个'>'
+- 引用块上可以引用的块结构：段落，Lists，引用块(引用块可以嵌套)，CodeBlock，Headers 和 垂直分割
+- 字符'>'之后可以不加空格直接写内容 (撰写markdown文档时可以严格限制加一个空格分割)，引用块应该忽略'>'之后具体内容之前的空白
+- 引用块可以嵌套使用，可以解析最外层引用，再解析较内层引用
+- 字符'>'之后缩进个5空白才算引用块里的缩进CodeBlock
+
+## 引用行的开头和结束
+- 发现行首以'>'字符开始，或者'>'之前不多于3个空格 (撰写markdown文档时可以严格限制'>'在行首)，则认为引用行开始
+- 如果多余3个空格或有tab，则该行会变成普通段落文本或代码块
+- 以'>'开头到遇到空行(真实的空行或以'>'开始的空行)，遇到空行之前所有行的行首'>'都会被忽略，'>'之后的空白也会被忽略
+- 或遇到Lists、Headers、垂直分割、非缩进代码块(```)这些块结构，则认为是一个引用行的结束
+- 仅以空行分割的连续引用块，将被看成是同一个引用块，分割的空行将看成是引用的块结构中的空行，这些空行的含义由各个块结构中空行的含义决定
+
+## 块引用与其他Block 
+- 与段落：段落变成块引用的后续文本；如果有空行：单独成段落
+- 与Atx标题：标题变成块引用中的标题；如果有空行：单独成标题
+- 与Stx标题：标题变成块引用中的标题，但如果Stx标题之后只跟stx的格式行且这个格式行也是垂直分割，则垂直分割优先级更高；如果有空行：单独成标题
+- 与Blockquote：后面的Blockquote变成块引用的后续文本，如果这一行不是以'>'开头的空行的话；如果有空行：一样
+- 与有序列表：列表项变成块引用的后续文本；如果有空行：单独成列表项
+- 与无序列表：列表变成块引用中的列表；如果有空行：单独成列表项
+- 与缩进Codeblock：codeblock变成块引用中的后续文本；如果有空行：单独成代码块
+- 与Fenced Codeblock：codeblock变成块引用中的codeblock；如果有空行：单独成代码块
+- 与垂直分割：垂直分割变成块引用中的垂直分割；如果有空行：单独成垂直分割
+
+
+# Lists
+
+Markdown supports ordered (numbered) and unordered (bulleted) lists. 
+Unordered lists use asterisks(*), pluses(+), and hyphens(-) — interchangably — as list markers. 
+Ordered lists use numbers followed by periods(1. 2. 3.). 
+
+It’s important to note that the actual numbers you use to mark the list have no effect. 
+If you do use lazy list numbering, however, you should still start the list with the number 1. 
+At some point in the future, Markdown may support starting ordered lists at an arbitrary number.
+
+List markers typically start at the left margin, but may be indented by up to three spaces. 
+List markers must be followed by one or more spaces or a tab.
+If list items are separated by blank lines, Markdown will wrap the items in <p> tags in the HTML output.
+
+List item may consist of multiple paragraphs. 
+Each subsequent paragraph in a list item must be indented by either 4 spaces or one tab.
+To put a blockquote within a list item, the blockquote’s > delimiters need to be indented.
+To put a code block within a list item, the code block needs to be indented twice — 8 spaces or two tabs.
+
+You can create nested lists by indenting list items by 2-spaces.
+
+## Task Lists
+GitHub support task list, for example:
+```
+But I have to admit, tasks lists are my favorite:
+- [x] @mentions, #refs, [links](), **formatting**, and <del>tags</del> supported
+- [x] list syntax required (any unordered or ordered list supported)
+- [x] this is a complete item
+- [ ] this is an incomplete item
+```
+Task lists can be nested to arbitrary depths, though we recommend nesting at most once or twice; 
+more complicated tasks should be broken out into separate lists.
+
+## 列表
+- 无序列表中的列表项代表的格式字符，不一定要始终使用其中一种，可以混用在一起
+- 但是如果有序列表项羽无序列表项混用在一起，则以第一个列表项是有序还是无序为准
+- 列表项之间可以插入空行，这些空行会被忽略，但是item的内容会用<p>来包裹
+- 列表格式字符后面必须加一到多个空白或tab，否则会认为是普通的段落行
+- 第一级列表项格式字符之前不能超过3个空白或有tab，否则这一行会被认为是缩进代码块的开始行
+- 列表项内容后续行可以缩进4个空白或一个tab，也可以不缩进，当然也可以缩进更多空白，只是其他的空白或算作列表项的内容
+
+## 列表与段落、引用块、代码块
+- 一个列表项可以由多个段落组成，段落之间用空行分割，非第一段落的首行必须缩进4个空白或一个tab (当然可以缩进更多，只是剩余的空白会算作列表项的内容)
+- 段落的后续行可以缩进4个空白或一个tab(当然可以缩进更多，只是剩余的空白会算作列表项的内容)，也可以不缩进，
+- 列表项中可以有引用块(之前必须有空行)，这些应用块的格式字符(>)必须缩进一个等级(4个空白或一个tab)，应该可以缩进到7个空白和1个tab，更多或认为是代码块
+- 列表项中可以有缩进代码块，这个代码块必须缩进两个等级(8个空白或2个tab)，代码块与前面的内容必须用空行分割，否则会被认为是列表项的后续行
+
+## 列表的嵌套 ???
+- 列表项以2个空白为缩进单位 (GitHub的做法没有弄明白, 可以简单这样实现: 0-space为第1级，123-space为第2级，然后4以上算作Indent)
+/*
+- 0-space为第1级，1234-space为第2级，5678-space为第3级，依次类推
+- 但是，如果较低级别的前面一级没有列表项，较低级别会向较高级别提升
+- 第1级到第2级只差1个空白，因此第1级列表项之前的缩进空白必须相等，如果缩进空白比上一个列表项多一个都会变成第2级
+*/
+
+## 列表项与其他Block： 用空行分割也没有用，会成为列表项的Block
+- 与段落：段落变成列表项的后续文本；如果缩进一个等级：结果一样；如果缩进2个等级：变成后续文本
+  如果有空行：变成单独段落；如果有空行还缩进一个缩进级别：变成列表项内容的后续段落
+- 与Atx标题：标题变成列表中的标题；如果缩进一个等级：结果一样（缩进1~4个空白都一样）；如果缩进2个等级：变成后续文本
+  如果有空行：变成单独标题；如果有空行还缩进一个缩进级别：变成列表项中的标题（缩进1~4个空白都是）
+- 与Stx标题：标题变成列表中的标题，但如果Stx标题之后只跟stx的格式行(GitHub会将列表项解析成标题，但好像不影响列表项更合理)；
+  如果缩进一个等级（fromat行缩进1~4咯空白都一样）：结果一样；如果缩进2个等级：变成后续文本
+  如果有空行：变成单独标题；如果有空行还缩进一个缩进级别：变成列表项中的标题（缩进1~4个空白都一样）
+- 与Blockquote：Blockquote变成列表中的标题；如果缩进一个等级：结果一样；如果缩进2个等级：变成后续文本
+  如果有空行：变成单独Blockquote；如果有空行还缩进一个缩进级别：变成列表项中的标题（缩进1~4个空白都一样）
+- 与有序或无序列表之间可以不用空行分割；如果缩进一个等级：变成第2级列表项；如果缩进2个等级：变成后续文本
+  如果有空行：别表项内容会放到<p>元素中；如果有空行还缩进一个级别：变成加了<p>的第2级列表项
+- 与缩进Codeblock：codeblock变成列表项的后续文本；如果多缩进一个等级：结果一样；如果再多缩进一个等级：变成后续文本
+  如果有空行：变成列表项内容的后续段落；如果要成为列表项后面的缩进代码块必须空行后面缩进两个等级
+- 与Fenced Codeblock之间可以不用空行分割；如果缩进一个等级：变成列表项中的codeblock；如果缩进2个等级：变成后续文本
+  如果有空行变成单独codeblock；如果有空行还缩进一个缩进级别：变成列表项中的codeblock（缩进1~4个空白都一样）
+- 与垂直分割：垂直分割变成列表项中的垂直分割；如果缩进一个等级：结果一样；如果缩进2个等级：变成后续文本
+  如果有空行：变成单独的垂直分割；如果有空行还缩进一个缩进级别：变成列表项中垂直分割（缩进1~4个空白都一样）
+
+
+# Code Blocks
+
+Pre-formatted code blocks are used for writing about programming or markup source code. 
+Rather than forming normal paragraphs, the lines of a code block are interpreted literally. 
+Markdown wraps a code block in both <pre> and <code> tags.
+
+To produce a code block in Markdown, simply indent every line of the block by at least 4 spaces or 1 tab. 
+One level of indentation — 4 spaces or 1 tab — is removed from each line of the code block. 
+A code block continues until it reaches a line that is not indented (or the end of the article).
+
+Within a code block, ampersands (&) and angle brackets (< and >) are automatically converted into HTML entities. 
+This makes it very easy to include example HTML source code using Markdown — just paste it and indent it, 
+and Markdown will handle the hassle of encoding the ampersands and angle brackets.
+
+Regular Markdown syntax is not processed within code blocks. 
+E.g., asterisks are just literal asterisks within a code block. 
+This means it’s also easy to use Markdown to write about Markdown’s own syntax.
+
+## 缩进代码
+- 其中的'&','<'和'>'都应该转换成HTML的Entity，Markdown格式字符都不进行解析
+- 代码行要忽略一个缩进等级的空白(4个空格或1个Tab)，这些空白是缩进，不是真正的代码内容
+- 其后可以不用空行分隔其他Markdown格式块
+
+## FENCED CODE BLOCK (用两个独立的```行对代码块进行分割)
+- 同样要对'&', '<' 和 '>'作特殊处理, 同样Markdown格式字符保持原样不进行解析
+- 代码行没有缩进，从行首开始的内容即为代码内容
+- 两个以(```)开始的行之间的内容即为代码块，第一个(```)之后可以跟一字符串说明代码块对应的语言，用于代码高亮功能
+- (```)可以缩进不多于3个空白字符，如果多于3个字符或有Tab这三个字符会变成缩进代码行或后续段落行
+- 开始(```)后面只可跟一个没有空白分隔的字符串，如果有多个则这一行会变成普通文本(```和标识字符串之间可以有空白)
+- 结束(```)只可以单独成行，后面跟任何字符串会变成普通文本
+
+
+# Horizontal Line
+
+You can produce a horizontal rule tag (<hr/>) by placing 3 or more hyphens(-), asterisks(*), or underscores(_) on a line by themselves. 
+If you wish, you may use spaces between the hyphens or asterisks.
+
+## 垂直分割
+- 必须单独占用一行，不能有除格式字符以外的其他字符，否则不会被解析为垂直分割，另外(-*_)不能混用
+- 其格式符号之前不能有tab或多余3个空白，否则会变成缩进代码行或后续段落行
+- 其后可以不用空行分隔其他Markdown格式块
+
+
+# Links
+
+Markdown supports two style of links: inline and reference.
+To create an inline link, use a set of regular parentheses immediately after the link text’s closing square bracket. 
+Inside the parentheses, put the URL where you want the link to point, along with an optional title for the link, surrounded in quotes.
+
+For example:
+```
+This is [an example](http://example.com/ "Optional Title") inline link.
+
+See my [About](/about/) page for details.
+```
+Will produce:
+```
+<p>This is <a href="http://example.com/" title="Optional Title">an example</a> inline link.</p>
+<p>See my <a href="/about/">About</a> page for details.</p>
+```
+
+Reference-style links use a second set of square brackets (can separate by a space), inside which a identifier used to identify the link.
+If the link identifier is the same as the link text, the second set of square brackets can be empty. 
+Then, anywhere in the document, you define your link identifier on a line by itself.
+
+This link identifier can be placed anywhere in your Markdown document. 
+I tend to put them immediately after each paragraph in which they’re used, 
+but if you want, you can put them all at the end of your document, sort of like footnotes.
+
+The link identifier line is composed of:
+- square brackets containing the link identifier, it can optional indent up to 3-space
+- then followed by a colon ':', and followed by one or more spaces or tabs
+- and followed the URL for the link
+- and optionally followed by a title attribute for the link
+
+The link identifier names may consist of letters, numbers, spaces, and punctuation — but they are not case sensitive.
+The link URL may, optionally, be surrounded by angle brackets.
+And the title attribute can be enclosed in double or single quotes or parentheses.
+You can also put the title attribute on the next line and use extra spaces or tabs for padding.
+
+For example:
+```
+This is [an example][id] reference-style link.
+These two set of square brackets can be separate by a space: this is [an example] [id] reference-style link.
+If the identifier name is the same as link text, the second square brackets can be empty: Visit [Daring Fireball][] for mare info.
+And the identifier name is not case sensitive: Visit [link][a] is the same as visit [link][A].
+
+[id]: http://example.com/ "Optional Title"
+[Daring Firball]: http://daringfireball.net/
+[A]: /link/a/
+
+[1]: <http://google.com/> "the URL can be optionally by angle brackets"
+[2]: <http://google.com/> 'the tiltle attribute can be enclosed in single quotes'
+[3]: <http://google.com/> (the tiltle attribute can be enclosed in parentheses)
+```
+
+## Automatic Links
+Markdown supports a shortcut style for creating “automatic” links for URLs and email addresses: 
+simply surround the URL or email address with angle brackets. For example:
+```
+<http://example.com/> will be translated to:
+<a href="http://example.com/">http://example.com/</a>
+```
+Automatic links for email addresses work similarly, except that Markdown will also perform a bit of randomized decimal and 
+hex entity-encoding to help obscure your address from address-harvesting spambots.
+(This sort of entity-encoding trick will indeed fool many, if not most, address-harvesting bots, but it definitely won’t fool all of them. 
+It’s better than nothing, but an address published in this way will probably eventually start receiving spam.)
+For example:
+```
+<address@example.com> will become something like this:
+<a href="&#x6D;&#x61;i&#x6C;&#x74;&#x6F;:&#x61;&#x64;&#x64;&#x72;&#x65;
+&#115;&#115;&#64;&#101;&#120;&#x61;&#109;&#x70;&#x6C;e&#x2E;&#99;&#111;
+&#109;">&#x61;&#x64;&#x64;&#x72;&#x65;&#115;&#115;&#64;&#101;&#120;&#x61;
+&#109;&#x70;&#x6C;e&#x2E;&#99;&#111;&#109;</a>
+which will render in a browser as a clickable link to “address@example.com”.
+```
+
+## Footnotes
+Redcarpet supports footnotes, a footnote works very much like a reference-style link: 
+it consists of a marker next to the text (e.g. This is a sentence.[^1]) and a footnote definition 
+on its own line anywhere within the document (e.g. [^1]: This is a footnote.).
+
+
+# Images
+
+Markdown uses an image syntax that is intended to resemble the syntax for links, allowing for two styles: inline and reference.
+For example:
+```
+This is a image: ![Alt Text](/path/to/img.jpg "Optional title").
+And this is a reference-style: ![Alt Text][id].
+
+[id]: /path/to/img.jpg "Optional title"
+```
+
+As of this writing, Markdown has no syntax for specifying the dimensions of an image; 
+if this is important to you, you can simply use regular HTML <img> tags.
+
+
+# Emphasis
+
+Markdown treats asterisks (*) and underscores (_) as indicators of emphasis. 
+Text wrapped with one * or _ will be wrapped with an HTML <em> tag; double *’s or _’s will be wrapped with an HTML <strong> tag.
+Emphasis can be used in the middle of a word: 
+```
+un*frigging*believable
+```
+But if you surround an * or _ with spaces, it’ll be treated as a literal asterisk or underscore.
+To produce a literal asterisk or underscore at a position where it would otherwise be used as an emphasis delimiter, you can backslash escape it.
+
+## Multiple underscors in words
+Where Markdown transforms underscores (_) into italics, GitHub ignores underscores in words, like this:
+```
+wow_great_stuff
+do_this_and_do_that_and_another_thing
+```
+This allows code and names with multiple underscores to render properly. 
+To emphasize a portion of a word, use asterisks (*).
+
+## Strikethrough
+GitHub adds syntax to create strikethrough text, which is missing from standard Markdown.
+```
+~~Mistaken text.~~
+```
+becomes
+```
+<del>Mistaken text.</del>
+```
+
+## Highlight
+Redcarpet supports highlights. For example:
+```
+==highlighted==
+```` 
+will produce: 
+```
+<mark>highlighted</mark>
+```
+
+## Quote
+Redcarpet parse quotes. For example:
+```
+This is a "quote". 
+```
+will produce:
+```
+This is a <q>quote</q>.
+```
+
+## Emoji
+GitHub supports emoji! For example:
+```
+:sparkles: :camel: :boom:
+```
+Check the detail list: [Emoji Cheat Sheet](http://www.emoji-cheat-sheet.com/).
+
+## Superscript
+Redcarpet parse superscripts after the `^` character; contiguous superscripts are nested together, 
+and complex values can be enclosed in parenthesis.
+```
+2^2 = 4.
+This is the 2^(nd) time.
+```
+
+
+# Code
+
+To indicate a span of code, wrap it with backtick quotes (`). 
+Unlike a pre-formatted code block, a code span indicates code within a normal paragraph.
+With a code span, ampersands and angle brackets are encoded as HTML entities automatically, which makes it easy to include example HTML tags.
+
+To include a literal backtick character within a code span, you can use multiple backticks as the opening and closing delimiters.
+The backtick delimiters surrounding a code span may include spaces — one after the opening, one before the closing. 
+This allows you to place literal backtick characters at the beginning or end of a code span.
+
+For example:
+```
+Use the `printf()` function.
+
+There is a literal ``backtick (`)`` here.
+
+A single backtick in a code span: `` ` ``
+
+A backtick-delimited string in a code span: `` `foo` ``
+
+Please don't use any `<blink>` tags.
+
+`&#8212;` is the decimal-encoded equivalent of `&mdash;`.
+```
+will produce:
+```
+<p>Use the <code>printf()</code> function.</p>
+<p>There is a literal <code>backtick (`)</code> here.</p>
+<p>A single backtick in a code span: <code>`</code></p>
+<p>A backtick-delimited string in a code span: <code>`foo`</code></p>
+<p>Please don't use any <code>&lt;blink&gt;</code> tages.</p>
+<p><code>&amp;#8212;</code> is the decimal-encoded equivalent of <code>&amp;mdash;</code>.</p>
+```
+
+
+# Inner HTML and Escaping
+
+Markdown is not a replacement for HTML, or even close to it. 
+Its syntax is very small, corresponding only to a very small subset of HTML tags. 
+The idea is not to create a syntax that makes it easier to insert HTML tags. 
+In my opinion, HTML tags are already easy to insert. 
+The idea for Markdown is to make it easy to read, write, and edit prose. 
+HTML is a publishing format; Markdown is a writing format. 
+Thus, Markdown’s formatting syntax only addresses issues that can be conveyed in plain text.
+
+## Inner HTML
+
+For any markup that is not covered by Markdown’s syntax, you simply use HTML itself. 
+There’s no need to preface it or delimit it to indicate that you’re switching from Markdown to HTML; you just use the tags.
+The only restrictions are that block-level HTML elements — e.g. <div>, <table>, <pre>, <p>, etc. — must be separated from surrounding content by blank lines, 
+and the start and end tags of the block should not be indented with tabs or spaces.
+
+Span-level HTML tags — e.g. <span>, <cite>, or <del> — can be used anywhere in a Markdown paragraph, list item, or header. 
+If you want, you can even use HTML tags instead of Markdown formatting; e.g. 
+if you’d prefer to use HTML <a> or <img> tags instead of Markdown’s link or image syntax, go right ahead.
+
+Note that Markdown formatting syntax is not processed within block-level HTML tags. 
+E.g., you can’t use Markdown-style *emphasis* inside an HTML block.
+But it is processed within HTML span-level tags.
+
+## Automatic Escaping for Special Characters
+
+In HTML, there are two characters that demand special treatment: < and &. 
+Left angle brackets are used to start tags; ampersands are used to denote HTML entities. 
+If you want to use them as literal characters, you must escape them as entities, e.g. &lt;, and &amp;.
+Ampersands in particular are bedeviling for web writers. 
+If you want to write about ‘AT&T’, you need to write ‘AT&amp;T’. You even need to escape ampersands within URLs. 
+Thus, if you want to link to: `http://images.google.com/images?num=30&q=larry+bird`,
+you need to encode the URL as: `http://images.google.com/images?num=30&amp;q=larry+bird` in your anchor tag `href` attribute.
+Needless to say, this is easy to forget, and is probably the single most common source of HTML validation errors in otherwise well-marked-up web sites.
+
+Markdown allows you to use these characters naturally, taking care of all the necessary escaping for you. 
+If you use an ampersand as part of an HTML entity, it remains unchanged; otherwise it will be translated into &amp;.
+So, if you want to include a copyright symbol in your article, you can write `&copy;` and Markdown will leave it alone. 
+But if you write `AT&T` Markdown will translate it to `AT&amp;T`.
+
+Similarly, because Markdown supports inline HTML, if you use angle brackets as delimiters for HTML tags, Markdown will treat them as such. 
+But if you write `4 < 5`, Markdown will translate it to `4 &lt; 5`.
+
+However, inside Markdown code spans and blocks, angle brackets and ampersands are always encoded automatically. 
+This makes it easy to use Markdown to write about HTML code. 
+(As opposed to raw HTML, which is a terrible format for writing about HTML syntax, because every single < and & in your example code needs to be escaped.)
+
+## Backslash Escapes
+
+Markdown allows you to use backslash escapes to generate literal characters which would otherwise have special meaning in Markdown’s formatting syntax.
+Markdown provides backslash escapes for the following characters:
+```
+\   backslash
+`   backtick
+*   asterisk
+_   underscore
+{}  curly braces
+[]  square brackets
+()  parentheses
+#   hash mark
++   plus sign
+-   minus sign (hyphen)
+.   dot
+!   exclamation mark
+```
+For example:
+```
+\*literal asterisks\*
+1986\. What a great season.
+```
+
+
+# GitHub Other Flavored
+
+## Username @mentions
+GitHub supports many extras in Markdown that help you reference and link to people. 
+If you ever want to direct a comment at someone, you can prefix their name with an @ symbol: Hey @kneath — love your sweater!
+
+Typing an @ symbol, followed by a username, will notify that person to come and view the comment. 
+This is called an “@mention”, because you’re mentioning the individual. 
+You can also @mention teams within an organization.
+
+## References
+Certain references are auto-linked:
+```
+* SHA: a5c3785ed8d6a35868bc169f07e40e889087fd2e
+* User@SHA: jlord@a5c3785ed8d6a35868bc169f07e40e889087fd2e
+* User/Repository@SHA: jlord/sheetsee.js@a5c3785ed8d6a35868bc169f07e40e889087fd2e
+* #Num: #26
+* GH-Num: GH-26
+* User#Num: jlord#26
+* User/Repository#Num: jlord/sheetsee.js#26
+```
+becomes
+```
+<li>SHA: <a>a5c3785</a><li>
+<li>User@SHA: <a>jlord@a5c3785</a><li>
+<li>User/Project@SHA: <a>jlord/sheetsee.js@a5c3785</a><li>
+<li>#Num: <a>#26</a><li>
+<li>GH-Num: <a>GH-26</a><li>
+<li>User#Num: <a>jlord#26</a><li>
+<li>User/Project#Num: <a>jlord/sheetsee.js#26</a><li>
+```
+
+SHA references: any reference to a commit’s SHA-1 hash will be automatically converted into a link to that commit on GitHub.
+```
+16c999e8c71134401a78d4d46435517b2271d6ac
+mojombo@16c999e8c71134401a78d4d46435517b2271d6ac
+mojombo/github-flavored-markdown@16c999e8c71134401a78d4d46435517b2271d6ac
+```
+
+Issue references within a repository: Any number that refers to an Issue or Pull Request will be automatically converted into a link.
+```
+#1
+mojombo#1
+mojombo/github-flavored-markdown#1
+```
+
+## HTML
+
+You can use a subset of HTML within your READMEs, issues, and pull requests.
+A full list of our supported tags and attributes can be found in the [github/markup repository](https://github.com/github/markup).
+
+## Tables
+
+You can create tables by assembling a list of words and dividing them with hyphens `-` (for the first row), 
+and then separating each column with a pipe `|`:
+```
+First Header  | Second Header
+------------- | -------------
+Content Cell  | Content Cell
+Content Cell  | Content Cell
+```
+For aesthetic purposes, you can also add extra pipes on the ends:
+```
+| First Header  | Second Header |
+| ------------- | ------------- |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
+```
+
+Note that the dashes at the top don't need to match the length of the header text exactly:
+```
+| Name | Description          |
+| ------------- | ----------- |
+| Help      | Display the help window.|
+| Close     | Closes a window     |
+```
+
+You can also include inline Markdown such as links, bold, italics, or strikethrough:
+```
+| Name | Description          |
+| ------------- | ----------- |
+| Help      | ~~Display the~~ help window.|
+| Close     | _Closes_ a window     |
+```
+
+Finally, by including colons : within the header row, you can define text to be left-aligned, right-aligned, or center-aligned:
+```
+| Left-Aligned  | Center Aligned  | Right Aligned |
+| :------------ |:---------------:| -----:|
+| col 3 is      | some wordy text | $1600 |
+| col 2 is      | centered        |   $12 |
+| zebra stripes | are neat        |    $1 |
+```
+A colon on the left-most side indicates a left-aligned column; a colon on the right-most side indicates a right-aligned column; 
+a colon on both sides indicates a center-aligned column.
+
