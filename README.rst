@@ -1,22 +1,22 @@
-
-* https://github.com/cisco/ChezScheme
-* https://github.com/TinyCC/tinycc
-* https://github.com/openssl/openssl
-* https://github.com/521xueweihan/git-tips
-* https://github.com/nakov/Practical-Cryptography-for-Developers-Book
-* https://github.com/trimstray/the-book-of-secret-knowledge
-* https://github.com/MisterBooo/LeetCodeAnimation
-* https://github.com/scutan90/DeepLearning-500-questions
-* https://github.com/cloudwu/skynet
-* https://github.com/cloudwu/sproto
-* https://github.com/cloudwu/ltask
-* https://github.com/GitSquared/edex-ui
-* https://github.com/ocornut/imgui
-* https://github.com/mikke89/RmlUi
-* https://github.com/golang/go
-* https://github.com/golang/protobuf
-* https://github.com/bkaradzic/bgfx
-* https://github.com/ruanyf/document-style-guide
+.. parsed-literal::
+    https://github.com/cisco/ChezScheme
+    https://github.com/TinyCC/tinycc
+    https://github.com/openssl/openssl
+    https://github.com/521xueweihan/git-tips
+    https://github.com/nakov/Practical-Cryptography-for-Developers-Book
+    https://github.com/trimstray/the-book-of-secret-knowledge
+    https://github.com/MisterBooo/LeetCodeAnimation
+    https://github.com/scutan90/DeepLearning-500-questions
+    https://github.com/cloudwu/skynet
+    https://github.com/cloudwu/sproto
+    https://github.com/cloudwu/ltask
+    https://github.com/GitSquared/edex-ui
+    https://github.com/ocornut/imgui
+    https://github.com/mikke89/RmlUi
+    https://github.com/golang/go
+    https://github.com/golang/protobuf
+    https://github.com/bkaradzic/bgfx
+    https://github.com/ruanyf/document-style-guide
 
 注音符号表 ::
 
@@ -80,17 +80,19 @@
     ou   iou            欧忧（ㄡ，ㄧㄡ）
     ong  iong           轰雍（ㄨㄥ，ㄩㄥ）
 
-    为了使拼式简短，ng 可以省作 ŋ。
     韵母ㄦ写成 er，用作韵尾的时候写成 r，例如：儿童 ertong，花儿 huar。
     韵母ㄝ单用的时候写成 ê（欸）。
-    声调符号（ˉ ´ ˇ ˋ）标在音节的主要母音上，轻声不标。
-    例如：妈 mā（阴平），麻 má（阳平），马 mǎ（上声），骂 mà（去声），吗 ma（轻声）。
-    a，o，e 开头的音节连接在其他音节后面的时候，如果音节的界限发生混淆，用隔音符号（'）隔开，例如 pi'ao（皮袄）。
+    为了使拼式简短，ng 可以省作 ŋ。
+
     i 列的韵母，前面没有声母的时候，将 i 写成 y：yi衣 ya呀 yao腰 yan烟 yang央 ye耶 yin因 ying英 you忧 yong雍。
     u 列的韵母，前面没有声母的时候，将 u 写成 w：wu乌 wa蛙 wai歪 wan弯 wang汪 wei威 wen温 weng翁 wo窝。
     ü 列的韵母，前面没有声母的时候，将 ü 写成 yu：yu迂 yuan冤 yue约 yun晕。
     ü 列的韵母跟声母 j、q、x 的时候，将 ü 写成 u；但跟声母 n、l 的时候，仍然写成 ü：nü女 lü吕。
     iou、uei、uen 前面加声母的时候，写成 iu、ui、un，例如：niu牛 gui归 lun论。
+
+    声调符号（ˉ ´ ˇ ˋ）标在音节的主要母音上，轻声不标。
+    例如：妈 mā（阴平），麻 má（阳平），马 mǎ（上声），骂 mà（去声），吗 ma（轻声）。
+    a，o，e 开头的音节连接在其他音节后面的时候，如果音节的界限发生混淆，用隔音符号（'）隔开，例如 pi'ao（皮袄）。
 
     韵母由韵头（介母）、韵腹（主要元音）、韵尾组成，可以没有晕头和韵尾，但必须有韵腹。
     介母有3个：i、u、ü。
@@ -179,7 +181,7 @@
 
     破阵子·为陈同甫赋壮词以寄之 宋·辛弃疾
 
-    醉里挑灯看剑，梦回吹角连营。八百里分麾下炙，五十弦翻塞外声，沙场秋点兵。
+    醉里挑灯看剑，梦回吹角连营。八百里分麾下炙，五十弦翻塞外声，沙场秋点兵。（huī）
     马作的卢飞快，弓如霹雳弦惊。了却君王天下事，赢得生前身后名。可怜白发生！
 
 
@@ -269,8 +271,26 @@
     真正的道路在一根绳索上
     它不是绷紧在高处
     而是贴近地面的
-    与其说它是供人行走
+    与其说它是供人行走的
     毋宁说是用来绊人的
+
+
+    临江仙 明·杨慎（shèn）
+
+    滚滚长江东逝水，浪花淘尽英雄。
+    是非成败转头空。
+    青山依旧在，几度夕阳红。
+    白发渔樵江渚上，惯看秋月春风。
+    一壶浊酒喜相逢。
+    古今多少事，都付笑谈中。
+
+
+    西游记 明·吴承恩
+
+    混沌未分天地乱，茫茫渺渺无人见。
+    自从盘古破鸿蒙，开辟从兹清浊辨。
+    覆载群生仰至仁，发明万物皆成善。
+    欲知造化会元功，须看《西游释厄传》。
 
 
     故乡 鲁迅
@@ -336,24 +356,26 @@
     十旬休假，胜友如云；千里逢迎，高朋满座。腾蛟起凤，孟学士之词宗；紫电青霜，王将军之武库。
     家君作宰，路出名区；童子何知，躬逢胜饯（jiàn）。
 
-    时维九月，序属三秋。潦（lǎo）水尽而寒潭清，烟光凝而暮山紫。俨骖騑于上路，访风景于崇阿；临帝子之长洲，得天人之旧馆。
-    层峦耸翠，上出重霄；飞阁流丹，下临无地。鹤汀凫渚，穷岛屿之萦回；桂殿兰宫，即冈峦之体势。
+    时维九月，序属三秋。潦（lǎo）水尽而寒潭清，烟光凝而暮山紫。俨骖騑于上路，访风景于崇阿；
+    临帝子之长洲，得天人之旧馆。层峦耸翠，上出重霄；飞阁流丹，下临无地。鹤汀凫渚，穷岛屿之萦回；
+    桂殿兰宫，即冈峦之体势。
 
-    披绣闼，俯雕甍（méng），山原旷其盈视，川泽纡其骇瞩。闾阎（lǘ yán）扑地，钟鸣鼎食之家；舸舰弥津，青雀黄龙之舳（zhú）。
-    云销雨霁，彩彻区明。落霞与孤鹜齐飞，秋水共长天一色。渔舟唱晚，响穷彭蠡（lǐ）之滨；雁阵惊寒，声断衡阳之浦（pǔ）。
+    披绣闼，俯雕甍（méng），山原旷其盈视，川泽纡其骇瞩。闾阎（lǘ yán）扑地，钟鸣鼎食之家；
+    舸舰弥津，青雀黄龙之舳（zhú）。云销雨霁，彩彻区明。落霞与孤鹜齐飞，秋水共长天一色。
+    渔舟唱晚，响穷彭蠡（lǐ）之滨；雁阵惊寒，声断衡阳之浦（pǔ）。
 
-    遥襟甫畅，逸兴遄（chuán）飞。爽籁发而清风生，纤歌凝而白云遏。睢（suī）园绿竹，气凌彭泽之樽；邺水朱华，光照临川之笔。
-    四美具，二难并。穷睇眄（dì miǎn）于中天，极娱游于暇日。天高地迥，觉宇宙之无穷；兴尽悲来，识盈虚之有数。
-    望长安于日下，目吴会于云间。地势极而南溟深，天柱高而北辰远。关山难越，谁悲失路之人？
+    遥襟甫畅，逸兴遄（chuán）飞。爽籁发而清风生，纤歌凝而白云遏。睢（suī）园绿竹，气凌彭泽之樽；
+    邺水朱华，光照临川之笔。四美具，二难并。穷睇眄（dì miǎn）于中天，极娱游于暇日。天高地迥，觉宇宙之无穷；
+    兴尽悲来，识盈虚之有数。望长安于日下，目吴会于云间。地势极而南溟深，天柱高而北辰远。关山难越，谁悲失路之人？
     萍水相逢，尽是他乡之客。怀帝阍（hūn）而不见，奉宣室以何年？
 
     嗟乎！时运不齐，命途多舛。冯唐易老，李广难封。屈贾谊于长沙，非无圣主；窜（cuàn）梁鸿于海曲，岂乏明时？
     所赖君子见机，达人知命。老当益壮，宁移白首之心？穷且益坚，不坠青云之志。酌贪泉而觉爽，处涸（hé）辙以犹欢。
     北海虽赊，扶摇可接；东隅已逝，桑榆非晚。孟尝高洁，空余报国之情；阮籍猖狂，岂效穷途之哭！
 
-    勃，三尺微命，一介书生。无路请缨，等终军之弱冠；有怀投笔，慕宗悫（què）之长风。舍簪笏（zān hù）于百龄，奉晨昏于万里。
-    非谢家之宝树，接孟氏之芳邻。他日趋庭，叨陪鲤对；今兹捧袂（pěng mèi），喜托龙门。
-    杨意不逢，抚凌云而自惜；钟期既（jì）遇，奏流水以何惭（cán）？
+    勃，三尺微命，一介书生。无路请缨，等终军之弱冠；有怀投笔，慕宗悫（què）之长风。
+    舍簪笏（zān hù）于百龄，奉晨昏于万里。非谢家之宝树，接孟氏之芳邻。他日趋庭，叨陪鲤对；
+    今兹捧袂（pěng mèi），喜托龙门。杨意不逢，抚凌云而自惜；钟期既（jì）遇，奏流水以何惭（cán）？
 
     呜乎！胜地不常，盛筵（yán）难再；兰亭已矣，梓泽丘墟。临别赠言，幸承恩于伟饯（jiàn）；登高作赋，是所望于群公。
     敢竭鄙（bǐ）怀，恭疏短引；一言均赋，四韵俱成。请洒潘（pān）江，各倾陆海云尔：
@@ -404,9 +426,9 @@
     寄蜉蝣于天地，渺沧海之一粟。哀吾生之须臾，羡长江之无穷。挟飞仙以遨游，抱明月而长终。
     知不可乎骤（zhòu）得，托遗响于悲风。”
 
-    苏子曰：“客亦知夫水与月乎？逝者如斯，而未尝往也；盈虚者如彼，而卒（zú）莫消长也。
-    盖将自其变者而观之，则天地曾不能以一瞬；自其不变者而观之，则物与我皆无尽也，而又何羡乎！
-    且夫天地之间，物各有主，苟（gǒu）非吾之所有，虽一毫而莫取。
-    惟江上之清风，与山间之明月，耳得之而为声，目遇之而成色，取之无禁，用之不竭，是造物者之无尽藏也，而吾与子之所共适。”
+    苏子曰：“客亦知夫水与月乎？逝者如斯，而未尝往也；盈虚者如彼，而卒（zú）莫消长也。盖将自其变者而观之，
+    则天地曾不能以一瞬；自其不变者而观之，则物与我皆无尽也，而又何羡乎！且夫天地之间，物各有主，
+    苟（gǒu）非吾之所有，虽一毫而莫取。惟江上之清风，与山间之明月，耳得之而为声，目遇之而成色，
+    取之无禁，用之不竭，是造物者之无尽藏也，而吾与子之所共适。”
 
     客喜而笑，洗盏（zhǎn）更酌。肴核（yáo hé）既尽，杯盘狼籍。相与枕藉（jiè）乎舟中，不知东方之既白。
