@@ -1,0 +1,818 @@
+
+# 快速参考
+
+基本概念
+```
+* JavaScript程序使用Unicode编码，会忽略多余的空白和换行符，JavaScript会识别以下的空白和换行
+* 空白：普通空格符\u0020，水平制表\u0009，垂直制表\u000B，换页符\u000C，不中断空白\u00A0，字节序标记\uFEFF，以及Zs类别字符
+* 行结束符：换行\u000A，回车\u000D，行分割符\u2028，段分隔符\u2029，另外回车加换行会一起被解析成一个行结束符
+* JavaScript支持单行注释//和多行注释/**/，多行注释不能嵌套，注意星号和斜杠也可以用在正则表达式中
+* 如果多行注释中包含正则表达式可能出问题，例如 /* var rm_a = /a*/.match(s); */ 会导致语法错误
+* JavaScript使用分号对语句进行分割，但如果语句都各自独占一行，通常可以省略语句之间的分号，程序结尾和右大括号之前的分号也可以省略
+* 但是省略分号会导致一些意外情况，例如第１行`var y = x + f`，第２行`(a+b).toString()`，其中f会被当做函数进行调用
+* 通常来讲，如果一条语句以"(", "[", "/", "+", "-"开始，那么它可能与前一条语句合并解析，有些程序员喜欢在这样的语句之前加分号
+* 如果当前语句和下一行语句无法合并解析，JavaScript会在第一行后面填补分号，但有两个例外情况
+* 第一个例外是，如果return, break，和continue语句后面跟着换行，JavaScript会直接在换行处填补空白
+* 因此不能在return，break，continue和它们之后的表达式之间换行，否则会出错，而且这种错误很难被发现
+* 第二个例外是，当"++"和"--"作为后缀操作符的时候，它和前面的表达式应该在同一行中，否则它们将作为下一行代码的前缀操作符进行解析
+* 基本类型：undefined, null, 布尔值, 数字, 字符串
+* 对象类型：基本类型之外的类型都是对象，对象是属性(property)的集合，每个属性都由"键值对"构成，其中有一个特别的对象是全局对象
+* 全局对象在JavaScript中有重要的用途，它的属性是全局定义的，在JavaScript程序任何地方都可见
+* 实际上，当JavaScript解释器启动时，将创建一个新的全局对象，并赋予它一组初始属性，另外之后定义的全局变量也将作为全局对象的属性保存
+* 这些初始属性包括全局属性undefined、Infinity、NaN等，全局函数isNan()、parseInt()、eval()等
+* 还包括构造函数Date()、RegExp()、Object()、Array()等，以及全局对象Math、JSON等
+* 全局对象的初始属性并不是保留的关键字，但应该将它们当作关键字来对待
+* 在代码的最顶级，即不在任何函数内的JavaScript代码中，可以使用this来引用全局对象
+* 在客户端JavaScript中，Windows对象充当了全局对象，它定义了以上核心全局属性，也针对浏览器和客服端JavaScript定义了其他全局属性
+* JavaScript的类型还可以分为可变类型和不可变类型，可变类型的值是可以修改的，而不可变类型不可以修改
+* 其中基本类型undefined、null、布尔值、数字、字符串都是不可变类型，而对象是可变类型
+* 基本类型的比较是值的比较，值的实际内容相同即相等；而对象称为引用类型，仅当引用相同的对象时才相等，而内容相同的对象可能不相等
+* 普通的JavaScript对象是命名值的无序集合`{x:1, y:2}`，JavaScript还定义特殊的对象，数组和函数，数组是带编号的值的有序集合`[0, 1]`
+* 函数是可被调用并返回结果的可执行对象，在JavaScript中函数是真实的值，JavaScript将它们当做普通的对象对待
+* 如果函数通过new运算符来初始化一个新对象，这种函数称为构造函数，每一个构造函数定义了一类对象，即由这个构造函数初始化的对象的集合
+* 类型可以定义方法，初始化后的对象可以调用定义的方法操纵自己的属性值，对象、布尔值、数字、字符串都可以拥有方法，但undefined和null不能
+```
+
+基本类型
+```
+* undefined表示对应的变量没有定义或者不存在，例如引用一个不存在的对象属性或数组元素会返回undefined
+* 另外，无返回值的函数返回的值也是undefined，没有提供实参的参数的值也是undefined，对undefined执行typeof会返回"undefined"
+* null表示无值，它一般用来表示变量当前并没有关联实际的值，用var定义后并初始化为null的变量是无值的（如果没有初始化其值是undefined）
+* 对null执行typeof的结果是字符串"object"，因此也可以理解为无值的变量引用的是一个特殊的对象，这个对象现在还没有值
+* undefined和null是相等的，即 `undefined == null`，但它们不严格相等，`undefined === null` 为 false
+* undefined和null不能包含任何属性和方法，实际上使用"."和"[]"存取这两个值的成员和方法都会产生一个类型错误
+* 布尔值表示真或假、开或关、是或否，它只包含两个值，true和false
+* 布尔值可以进行逻辑运算，逻辑运算符包括逻辑与`&&`，逻辑或`||`，和逻辑非`!`
+* JavaScript中的数字都使用64位浮点数表示，但需要注意的是数组索引、位操作是基于32位整数进行操作的
+* 整数字面量有十进制和十六进制（以0x或0X为前缀），注意ECMAScript6严格模式下禁止使用八进制数字（以0开头），因为有些解释器不支持八进制
+* 浮点字面量可以使用小数表示法（包含整数部分、小数点、小数部分）和指数表示法（浮点部分、指数标记E或e、整型指数部分）来表示
+* 基本的算术操作符有加`+`减`-`乘`*`除`/`和求余`%`，其他一些复杂的运算通过Math对象支持
+* 除法的结果是浮点数，例如5/2的结果是2.5而不是２；求余结果的符号与第1个操作数的符号一致(-5%2结果为-1)，浮点数也可以求余(6.5%2.1结果0.2)
+* JavaScript中的算术运算在上溢（overflow）、下溢（underflow）、或被零整除时都不会报错
+* 这些结果会通过一些特殊的值表示，例如Infinity表示无穷大，-Infinity表示负无穷大，而无限接近零的下溢使用零或负零表示
+* 被零整除并不会报错，它会简单的返回无穷或负无穷，而对于零除以零这种没有意义的结果，也即不是一个数字(not-a-number)，用NaN表示
+* 其他像无穷大除以无穷大、负数开方、对非数字或不能转换成数字的值进行算术运算，其值都是NaN
+* 注意NaN与任何值都不相等，包括其自身；另外-0与０是相等的，这两个值几乎一模一样，除了一些特殊情况如`1/0`是无穷大而`1/-0`是负无穷大
+* 因为实数有无数多个，而浮点数只能表示有限个数字，因此浮点表示法只是一种近似表示，它与真实的数字之间存在误差
+* 由于这种数字表示误差，浮点数的比较是不确定的，在浮点运算中看似相等的结果在实际比较过程中并不相等
+* 例如 0.3-0.2 的运算结果并不等于 0.1；如果需要精确的比较结果，一般可以将浮点放大成对应的大整数再进行计算（但还是需要注意除法操作）
+* 布尔值、数字、字符串也可以引用属性和方法，但由于它们不是对象，在引用属性或方法时，会创建临时对象，一旦引用结束对象就会销毁
+* 临时对象是通过Boolean()、Number()、String()构造函数创建的，注意由于是临时对象，对它的修改不会被保留下来
+* 实际上这也是它们是不可变类型的原因，例如下面这段代码 `var s = "test"; s.len = 4; var t = s.len｀最后t的值是undefined
+* 当然可以显式调用Boolean()、Number()、String()构造一个真实的基本类型包装对象，JavaScript会在必要时将包装对象转换成基本类型值
+* 基本类型值与对应的包装对象是相等的"=="，但不严格相等（"==="测试为false），通过typeof也可以看到基本类型值与包装对象的不同
+* 例如 `var s = "test"; var S = new String(s); s == S; s !== S; typeof s; typeof S`
+* JavaScript的字符串由16位（双字节）值组成的不可变的有序序列，字符串的长度是16位值的个数
+* JavaScript采用的是UTF-16编码的Unicode字符集，最常用的Unicode字符都通过16位内码表示，并代码字符串中的单个字符
+* 而那些不能表示为16位的Unicode字符则遵循UTF-16的编码规则，使用两个16位值表示，因此一个长度为2的字符串可能表示一个字符
+* JavaScript定义的字符串操作方法操作的都是16位值，而不是字符，而且JavaScript不会对字符串做标准化处理，甚至不保证是否字符是否合法
+* JavaScript中的转义字符包括 \0 (\u0000), \b (\u0008), \t (\u0009), \n (\u000A), \v (\u000B), \f (\u000C),
+* \r (\u000D), \" (\u0022), \' (\u0027), \\ (\u005C), \xXX, \uXXXX; 其他字符忽略反斜杠，例如\#与单个字符#等价 "
+* 字符串连接：var s = "hello, " + "world"
+* 字符串长度：var l = s.length
+* 第i个字符：var first = s.charAt(0); var last = s.charAt(s.length - 1); // 或者 first = s[0]; second = s[1];
+* 子字符串：var sub = s.substring(1, 4);    // "ell", 字符范围：[1, 4)
+* 字符串分割：var strArray = s.split(", "); // ["hello", "world"]
+* 字符替换：var replacedStr = s.replace("h", "H");
+* 大小写转换：var upper = s.toUpperCase();
+* 包含在两个斜杠之间的字符串是正则表达式，第２个斜杠之后也可以跟随一个或多个字符用来修饰模式，例如/[1-9][0-9]*/， /\d+/g
+```
+
+变量与作用域
+```
+* JavaScript中的变量是无类型变量，一个变量可以被赋予或重新赋予任何类型的值，变量在使用前必须先用关键字var进行声明
+* 使用var语句对变量进行重复声明是合法且无害的，如果重复声明带有初始化，那么这条语句跟一条简单的赋值语句没有什么区别
+* 如果你尝试读取一个没有声明的变量的值，JavaScript会报错，在ECMAScript5严格模式下，给未声明的变量赋值也会报错，非严格模式下会创建一个全局变量
+* 例如：var message = "hello"; var i = 0, j = 0, k = 0; for (var p in o) console.log(p); var undefinedVariable
+* 不在任何函数内或函数参数中声明的变量称为全局变量，全局变量在JavaScript程序中任何地方都可见，而函数作用域变量只在函数内可见
+* 函数作用域中的局部变量的优先级高于同名的全局变量，全局变量会被局部变量掩盖，函数可以嵌套，外部的同名局部变量也会被内部的局部变量掩盖
+* 函数作用域中的变量在该函数以及嵌套的函数内始终是可见的，特别是变量在声明之前甚至已经可用，JavaScript的这个特性被非正式的称为声明提前
+* 例如 `var scope = "global"; function f() { console.log(scope); var scope = "local"}` 会打印输出 "undefined"
+* 也即 JavaScript 函数中嵌套的代码块（一对大括号）不会创造新的作用域，整个函数中的代码都在同一个作用域中
+```
+
+类型转换
+```
+* 在期待布尔值的地方使用了非布尔值，非布尔值会自动转换成布尔值，只有undefined、null、false、""、0、-0、NaN的值为假
+* 在期望使用字符串的地方使用了非字符串，非字符串会自动转换成字符串
+* 对象转换成字符串：如果对象有toString()方法并返回基本类型则调用它并将结果转换成字符串，否则调用valueOf()，否则抛出类型错误
+* 在期待数字的地方使用了非数字，非数字将自动转换成数字，一些转换规则如下
+* null、false、空字符串("")、空数组([])都会转换成数字０；而true会转换成数字1；包含一个数字的数组转换成这个数字
+* undefined、不可转换成数字的字符串(首尾带有空格的数字字符串会被正确转换成数字)、非空非单个数字类型数组、函数都会转换成NaN
+* 对象转换成数字：如果valueOf()存在并返回基本类型值则调用它，否则如果toString()存在并返回基本类型值则调用它，否则抛出异常
+* 加`+`运算符可以执行算术加法，也可以进行字符串连接，无法判断这个操作符期待的是数字还是字符串，需要执行以下特殊转换规则
+* 首先操作数如果有对象，对象会被转换成基本类型，通过依次尝试调用对象的valueOf()或toString()方法，但对于Date会直接调用toString()
+* 两个操作数都是基本类型后，字符串连接操作优先，即如果其中一个是字符串，不是字符串的操作数将转换成字符串
+* 否则两个操作数都不是字符串，则将非数字转换成数字，然后进行相加操作
+* 注意运算符的操作顺序会影响运算的结果，例如 1 + 2 + "a" 结果为 "3a"，但是 1 + (2 + "a") 的运算结果是 "12a"
+* 特殊的运算符除了"+"，还有"=="、"!="、"<"等关系运算符，它们的运算都不止针对唯一的一个类型，都需要先将对象转换成基本类型值
+* 对于只操作一种类型的操作符，自动转换都是简单将操作数转换成期待的类型，例如 "3" * "5" 将转换成整数，计算结果为15
+* 除了自动类型转换，也可以显式地将值转换成其他类型，最简单的方法是不使用new运算符来调用Boolean()、Number()、String()、Object()
+* 用这种方法调用这些函数时，它们会作为类型转换函数，并按照上面的规则做类型转换
+* 另外除了undefined和null外的任何值都有toString()方法，这个方法的执行结果通常和String()的转换结果一致
+* 注意undefined和null不能自动转换成对象，也即不能引用属性和方法，否则会抛出类型错误
+* 但是使用Object()进行转换时，如果传入undefined或null，只会简单的返回一个空对象，不会抛出异常
+* 另一种显式转换的方法是利用JavaScript某些运算符的自动（隐式）类型转换，例如｀x+""; +x; !!x`会将x转换成字符串、数字或布尔值
+* 另外JavaScript还定义了专门的方法来进行类型转换，例如Number.toString()，Number.toFixed()，parseInt()，parseFloat()等
+```
+
+表达式和语句
+```
+* JavaScript关系运算符包括 ==, !=, ===, !==, <, <=, >, >=, in, 以及 instanceof
+* 相等运算符 == 和 === 允许任意类型的操作数，其中 == 对相等的定义比较宽松，可以允许进行类型转换，而恒等运算符 === 要求严格相等
+* 一个值可以转换成另一个值并不意味着这两个值相等，例如在期望布尔值的地方undefined会转换成false，但undefined和false是不相等的
+* 恒等运算符首先计算操作数的值，然后直接进行比较，不会对操作数进行类型转换，如果两个操作数的类型不同则它们不相等，另外：
+* 如果其中一个是NaN或两个都是NaN则它们不想等，NaN和任何值都不相等包括它自身，可以通过 x!==x 来判断x是否为NaN，只有NaN才为true
+* 如果一个值是０，另一个是-0，则它们相等；如果是两个字符串且内容完全一致则它们相等；如果是两个引用值指向同一个对象则相等，否则不相等；
+* 对于一般相等运算符==，如果两个操作数不是同一类型（如果是同一类型则与恒等测试结果一样），会尝试进行一些类型转换，然后进行比较：
+* 如果一个值是null，另一个值是undefined，则它们相等；如果一个是数字，一个是字符串，会将字符串转换成数字再进行比较；
+* 如果其中一个值是true，则将其转换成1再进行比较，如果一个值是false则将其转换成0再进行比较；
+* 如果一个值是对象，另一个值是数字或字符串，则先将对象转换成基本类型值(Date通过toString，其他对象按顺序尝试valueOf和toString)，然后再进行比较；
+* 其他不同类型之间的比较都不相等；另外运算符!=和!==分别是==和===的否定，即相等测试为true则不等测试为false，反之相等测试为false则不等测试为true
+* 比较运算符（<, <=, >, >=）的操作数也可以是任意的类型，但只有数字和字符串才能真正执行比较操作，因此不是数字和字符串的操作数会进行类型转换：
+* 如果是对象，则将对象转换成基本类型值；然后，如果都是字符串则比较字符串内容，否则至少一个不是字符串，那么两个操作数都转换成数字再进行比较
+* 其中Infinity比其他任何数字都大，-Infinity比其他任何数字都小，如果其中一个是或转换后是NaN，则比较操作总是返回false
+* 对于数字和字符串操作符来说，加号运算符和比较运算符的行为有一个不同之处是，加号运算符偏爱字符串尽量进行字符串连接，而比较运算符则偏爱数字
+* 另外 <= 和 >= 运算符并不依赖于相等运算符的比较规则，它们只是简单的不大于和不小于的意思，只有一个例外是NaN，所有比较运算符都返回false
+* in 运算符期望它左边的操作数是一个字符串或可以转换成字符串，期望右边是一个对象，如果该对象拥有一个对应字符串的属性则返回true
+* 例如 var point={x:1, y:1}; "x" in point 为 true，"toString" in point 也为 true，另外 "0" in [7] 为 true，而 3 in [7]　为 false
+* instanceof 运算符期望左边是一个对象，右边是一个标识对象的类，如果对象是类的实例则返回true，由于对象是通过构造函数初始化的，因此右操作数应该是一个函数
+* 例如 date instanceof Data 为 true，而 date instanceof Number 为 false，但是 date instanceof Object 也为 true
+* 所有对象都是 Object 的实例，即实例判断会包含对父类的检测；另外如果 instanceof 左操作数不是对象会返回false，如果右操作数不是函数会抛出类型异常
+* 为了理解 instanceof 是如何工作的，需要理解原型链（prototype chain），JavaScript会先得到f的原型f.prototype，然后在对象的原型链中查找该原型
+* 如果找到，那么该对象是f或者f的父类的一个实例，表达式返回true，如果f.prototype不在对象的原型链中的话（该对象与该类没有派生关系），那么该对象不是f的实例
+* 每个对象都存在一个隐藏的成员，这个成员指向其父类的原型，如果父类又从另一个类继承而来，则父类原型中隐藏的成员还会指向继承类的原型
+* JavaScript一些特殊的操作符包括：typeof，delete，void，另外eval()由于一些原因被当作运算符对待
+* typeof 的操作数可以是任意值:　typeof undefined == "undefined", typeof(null) == "object", typeof(false) == "boolean",
+* typeof "any string" == "string", typeof(任意函数) == "function", typeof(任意非函数内置对象) == "object", typeof(非内置对象)可能不返回"object"
+* 注意的是 typeof　运算符可以带上括号，将操作数放置于括号内，让 typeof 看起来像是一个函数；另外非内置对象根据解释器实现的不同可能不会返回"object"
+```
+
+对象与原型
+```
+* 对象是属性的容器，其中每个属性都拥有名字和值，属性的名字可以是包括空字符串在内的任意字符串，属性值可以是除undefined外的任何值
+* JavaScript 包含一种称为原型链的特性，允许对象继承另一个对象的属性，正确地使用原型链可以减少对象初始化时消耗的时间和内存
+* 每个对象都链接到一个原型对象，并从中继承属性，所有通过字面量创建的对象都链接到 Object.prototype
+* 在获取对象的某个属性时，如果对象没有该属性名，会从该对象原型中去获取，如果还没有则从该原型对像的原型中去获取，直到 Object.prototype
+* 多个对象可以链接到一个原型，而且原型关系是动态的，如果添加一个新的属性到原型中，该属性会立即对所有从该原型继承的对象可见
+* 可以使用 hasOwnProperty 方法检查某个属性是否是对象的独有属性（非从原型继承而来），该方法不会检查原型链
+* delete 运算符可以用来删除对象的属性，如果对象包含该属性，那么该属性就会被移除，删除对象属性可能会使原型链中的属性显露出来
+* 更新对象属性（包括 delete）不会影响对象的原型，如果这个属性是对象自有属性则直接修改这个属性，如果来自于原型，则会创建一个同名的自有属性覆盖原型
+* JavaScript中的函数也是对象，拥有自己的属性值并从原型 Function.prototype 继承，Function.prototype 本身链接到 Object.prototype
+* 定义在其他函数内部的函数称为内部函数，它除了可以访问自己的参数和变量，还可以访问父函数的参数和变量，每个函数对象都包含一个链接到外部上下文的链接称为闭包（closure）
+* 闭包在访问父函数的参数和变量时，绑定的是一个个实际的变量，而不是该闭包定义时对应变量的瞬时值，也即闭包内访问到的父函数的参数和变量的值总是最新值
+* 函数对象除了声明时定义的形式参数，还接收两个附加参数 this 和 arguments（代表实参），this 的赋值根据调用模式的不同而存在差异
+* 因为语言的一个设计错误，arguments 并不是一个真正的数组，而是一个类数组的对象，它拥有 length 属性但并没有任何数组方法
+* 函数有4种调用模式：方法调用、函数调用、构造器调用、以及 apply 调用；当使用点或下标进行方法调用时，会创建附加参数 this，并将它绑定到调用该方法的对象
+* this 到对象的绑定发生在调用时，这个超级延迟绑定使得函数可以对 this 高度复用，通过 this 可取得的所属对象上下文的方法称为公共方法
+* 当一个函数并非对象属性时，会被当作函数来调用，此模式下 this 对象会绑定到全局对象，即使这个函数是一个内部函数，这是语法设计上的一个错误
+* 倘若设计正确那么当内部函数被调用时，this 参数应当绑定到外部函数的 this 变量，一种解决方案是在外部函数定义一个赋值为this的变量（如that）让内部函数使用
+* 构造器调用模式是在函数之前加上 new 进行调用，此时会创建一个链接到该函数 prototype 的新对象，同时 this 会绑定到这个新对象上
+* 注意 new 会改变函数中 return 方法的行为，当该函数的返回值不是一个对象时，会返回 this（即将构造的新对象返回）
+* 如果 new 是函数对象的一个方法，则应该会这样实现：Class.prototype.new = function() { /* see below */ }
+* var newObjectInstance = Object.create(this.prototype); var ret = this.apply(newObjectInstance, arguments);
+* return (typeof ret == "object" && ret) || newObjectInstance;
+* 每个函数对象都有一个 apply 方法，它接收两个参数，第一个参数是赋予给 this 的值，第二个是参数数组，该模式即为 apply 调用模式
+* 通过 apply 可以为函数指定任意的 this 值，这使得可以将一个函数应用到任何对象上，即使这个对象并没有定义该函数
+* JavaScript 允许功能扩展，例如通过给 Object.prototype 添加方法，可以让该方法对所有对象都可用，这种方式对函数、数组、字符串等都适用
+* 用函数和闭包可以构造一个提供接口但隐藏状态的模块或单例，如：var A = (function(){ var hide; return { set: function(h) { hide = h; } }());
+* 函数柯里化是指将一个函数事先绑定一些参数而生成新函数，对新函数的调用只需提供那些旧函数没有指定的参数，例如 var add1 = Curry.apply(add, [1]); add1(6);
+* 每个对象都有一个隐藏的[[prototype]]属性，而函数则有一个显式的 prototype 属性，对象的原型可以通过 Object.getPrototypeOf 或非标准的 __proto__ 来获取
+* 另外通过 Object.create 可以创建一个从其他对象继承的新对象，例如 var o2 = Object.create(o1) 中创建的新对象 o2 的原型会指向 o1
+* o.[[prototype]] === Class.prototype; Class.prototype.[[prototype]] === Object.prototype
+* Class/Function.[[prototype]] === Function.prototype; Function.prototype.[[prototype]] === Object.prototype
+* JavaScript定义的核心类型包括Boolean, Number, String, Object, Array, Function, Date, RegExp, Error, Math
+* Function.prototype.length: 函数定义时的形参个数；Function.prototype.arguments: 调用函数是实际传入的实参组成的数组
+* Function.prototype.arguments.length: 实参个数；Function.prototype.call/apply: 可以指定任意对象作为 this 来调用函数
+* JSON格式：空值`null`，布尔值`false,true`，数字`13,0.1`，字符串`"ab"/*必须双引号*/`，数组`[1,null,"a",[2,true],{"len":8}]`，
+* 对象`{"size":8, "user":{"name":"john", "id":13}, "data":[1, 2]} /* 冒号前的名称必须使用双引号引起 */`
+```
+
+继承原型链
+```
+ ===========================
+| [Function] funcion object |
+|===========================|
+| Function.[[prototype]]    |-.
+| ------------------------- | |
+| Function.prototype        |-'
+| ------------------------- | |
+| code: { [native code] }   | |
+'===========================' |
+                              v
+    =============================
+.->| [Function.prototype] object |
+|  |=============================|
+|  | [[prototype]]               |-> Object.prototype
+|  | --------------------------- |
+|  | call()                      |
+|  | apply()                     |
+|  | ...                         |
+|  '============================='
+|
+|  ===============================         ================================
+| | [ParentClass] function object | .---->| [ParentClass.prototype] object |
+| |===============================| |     |================================|
+'-| ParentClass.[[prototype]]     | |     | [[prototype]]                  |-> Object.prototype
+| | ----------------------------- | |     | ------------------------------ |
+| | ParentClass.prototype         |-.     | parentFuncA()                  |
+| | ----------------------------- | |     | parentFuncB()                  |
+| | code: {                       | |     | ...                            |
+| |   this.parentProp1 = 1;       | |     '================================'
+| |   this.parentProp2 = 2;       | |                                    ^
+| | }                             | |   ===============================  |
+| '===============================' |  | [HelpClass] function object   | |
+|   |                               |  |===============================| |
+|   | new ParentClass(args)         |  | HelpClass.[[prototype]]       | |
+|   v                               |  | ----------------------------- | |
+|  ======================           |  | HelpClass.prototype           |-'
+| | [ParentClass] object |          |  | ----------------------------- | |
+| |======================|          |  | code: { /* empty */ }         | |
+| | [[prototype]]        |----------'  '===============================' |
+| | -------------------- |                   |                           |
+| | parentProp1          |                   | new HelpClass()           |
+| | parentProp2          |                   V                           |
+| '======================'                   ====================        |
+|                                           | [HelpClass] object |       |
+|  ====================================     |====================|       |
+| | [ChildClass] function object       |    | [[prototype]]      |-------'
+| |====================================|    | ------------------ |
+'-| ChildClass.[[prototype]]           |    | childFuncA()       |
+  |------------------------------------|    | childFuncB()       |
+  | ChildClass.prototype               |-.->| ...                |
+  |------------------------------------| |  '===================='
+  | code: {                            | |
+  |   ParentClass.apply(this, [args]); | |
+  |   this.childProp1 = 1;             | |
+  |   this.childProp2 = 2;             | |
+  | }                                  | |
+  '====================================' |
+    |                                    |
+    | new ChildClass(args, childArgs)    |
+    v                                    |
+  ==========================             |
+ | [ChildClass] object      |            |
+ |==========================|            |
+ | [[prototype]]            |------------'
+ |--------------------------|
+ | parentProp1              |
+ | parentProp2              |
+ | childProp1               |
+ | childProp2               |
+ '==========================''
+```
+
+窗口对象
+```
+* Window对象通过标识符window来引用，表示Web浏览器的一个窗口或窗体，Window对象定义了Web浏览器相关的属性，例如:
+* window.location = "http://www.oreilly.com" 指定当前显示在窗口中的 URL，从而跳转到新的 Web 页面
+* window.alert() 可以弹出一个对话框来显示一些信息；window.setTimeout(function(){...}, 2000) 定时触发一个回调
+* Window对象是客户端JavaScript中的全局对象，因此以上属性实际上不需要通过window而可以直接使用，全局对象的属性是全局可见的
+* Window对象中的一个重要属性是document，它是对Document对象的引用，表示显示在窗口中的文档，它有一些重要的方法例如：
+* document.getElementById("elemId")返回文档中对应ID的文档元素，文档元素是Element对象，通过该对象可以读取和修改元素内容
+* 每个Element对象都有style和className属性，允许脚本指定文档元素的CSS样式，或修改元素上的CSS类名，从而改变文档元素的呈现方式
+* Window，Document，和Element对象上另一个重要的属性集合是事件处理相关属性，可以在脚本中绑定处理函数在事件发生时执行
+* 事件处理相关的属性以on开头，例如 elem.onlick = function() { this.innerHTML = new Date().toSting() }
+* Window对象的onload事件是最重要的事件之一，这个事件会在窗口中的文档内容稳定并可以操作时触发，JS通常利用onload进行一些初始操作
+* 在HTML文档中嵌入客户端JavaScript代码有四种方法：一是内联，将代码直接写在<script></script>标签中作为改元素的内容；
+* 二是通过该标签的src属性指定外部文件；另外还可以将代码放置在HTML事件处理函数中，或通过特殊的"javascript:"协议放在URL中
+* 注意的是流行的编程哲学 "unobtrusive javascript" 主张内容(HTML)和行为(JavaScript)尽量保持分离，提倡将代码放在外部文件中
+* 在使用src属性指定外部文件时，<script>和</script>标签之间的任何内容都会忽略，但如果需要可以在<script>标签之间添加代码补充说明或版权信息
+* 有时会看到诸如 `<script src="core.js">config={...};</script>`　的代码在元素内容中放入配置信息，它是一种将页面参数传入库文件的方法
+* 嵌入外部代码的优点：JS代码可以在HTML中删除，保持内容和行为分离，从而简化HTML文件；如果多个页面共用相同代码，可以只维护一份代码文件；
+* 多个页面共享一份JavaScript文件时，这个文件只需在第一次使用时下载一次，随后的页面可以从浏览器缓存中检索到，减少了不必要的代码加载时间；
+* 由于src属性可以是任意的URL，因此来自一个服务器的页面可以使用由另一个服务器输出的代码，很多互联网广告都依赖这个功能实现；
+* 从其他网站载入脚本的能力可以让我们更好的利用缓存，这意味着不只是同一站点的页面，而且不同站点的页面都可以共享相同的JavaScript代码文件；
+* 例如Google为通用的客户端类库提供了标准的URL放在其CDN上，可以让浏览器只缓存一份副本而让任意站点都可以使用，当然这种第三方代码服务必须是你信任的
+* 因为从自身服务器之外的服务器载入脚本有重要的安全隐患，后面要介绍的同源安全策略可以用来阻止一个域中的JavaScript文件和另一个域中的内容进行交互
+* 要注意同源的概念和脚本本身的来源并没有关系，而是和脚本嵌入的文档的来源相关，因此即便代码和文档有着不同的来源，JavaScript也可以和嵌入的文档交互
+* 也即，当在页面中使用src属性包含一个脚本时，就给了脚本完全控制该Web页面的权限
+* <script>的默认脚本类型是 "text/javascript"，可以显式通过type属性指定此类型，但这完全没有必要，其他的脚本例如可以在IE上运行的 "text/vbscript"
+* 当Web浏览器遇到<script>元素，并且这个元素包含不被浏览器识别的type属性时，它会解析这个元素但不会尝试显示或执行它的内容
+* 这意味着可以使用<script>元素来嵌入任意的文本数据到文档中，只要使用type属性为数据声明一个不可执行的类型即可
+* 但要注意数据嵌入技术只对内联脚本有效，如果指定src属性和一个未知的type属性，那么src属性对应的脚本会被忽略，并且不会从指定的URL中下载任何内容
+* URL中的JavaScript是另一种嵌入JavaScript代码到客户端的方式，其中的代码被当作单独的一行代码，因此语句之间必须用分号隔开，也不能使用行注释
+* 该URL识别的"资源"是对应代码执行后返回的结果，如果代码返回undefined表示这个资源没有内容，也可以通过void操作符给函数调用或表达式赋予undefined值
+* 部分浏览器如Firefox会执行URL中的代码，并将返回的字符串作为待显示的新文档的内容，就像单击一个超链接时浏览器会擦除当前文档并显示新文档一样
+* 而且如果返回字符串包含HTML标签，浏览器会像渲染通常的HTML文档一样渲染它们；而其他浏览器如Chrome和Safari不允许这种URL覆盖当前文档，它们会忽略代码返回值
+* 然而，如果要确保javascrip:url不会覆盖当前文档，最好总是使用void操作符将返回值强制赋成undefined，或者使用 `void 0;` 作为最后一条语句
+* 和在HTML中直接注册事件一样，javascript:url是Web早期的遗物，通常应该避免在现代HTML里使用，但它在HTML文档之外确实有一些重要的用途
+* 例如如果要测试一小段代码，可以在浏览器地址栏里直接输入javascript:url执行对应的代码；另外它还有一个正统且更强大的用法是作为浏览器书签使用
+* 在Web浏览器中，书签就是一个保存起来的URL，如果书签是javascript:url，那么保存的就是一个小段程序，称为bookmarklet，很容易从浏览器菜单或工具栏启动
+* bookmarklet里的代码执行起来就像页面上的脚本一样，可以查询和设置文档的内容、呈现方式和行为，只要书签不返回值，它就可以操作当前显示的文档而不替换它
+* 在开发时，可以将这样的URL硬编码在页面超链接中，在一些浏览器中如IE和Firefox可以通过右键，将超链接的地址加入到浏览器书签中，或拖动链接直接添加到书签工具栏
+* JavaScript程序的执行有两个阶段，第一阶段载入文档内容并执行<script>元素里的代码(包括内联以及外部脚本)，脚本通常但不总是按它们在文档里出现的顺序执行；
+* 当文档载入完成并且所有脚本执行完毕之后，JavaScript就进入第二阶段，这一阶段的执行是异步的，通过事件进行驱动，注册的事件处理函数可以响应异步发生的事件
+* 异步事件通常是用户的输入如鼠标单击键盘按下，但也可以是由网络活动、时间或JavaScript代码错误触发的事件
+* 事件驱动阶段发生的第一个事件是onload事件，表示文档已经完全载入并且可以操作，JavaScript程序通常用这个事件来触发或执行一些动作
+* 当文档还在载入时，JS影响文档内容的唯一方法是通过document.write()生成内容，当解析器解析到对应的代码时，写入的文本会直接插入到当前文档输入流中
+* 注意的是虽然并不推荐使用document.write()这种早期API函数，但在某些特殊场景下它还是有着重要的用途，例如它可以直接擦除窗体内容生成一个全新文档
+* 当HTML解析器遇到<script>元素时，默认先执行脚本，然后在恢复文档的解析和渲染，对于外部脚本也首先下载并执行脚本再解析后面的文档
+* 因此在默认情况下，脚本的执行是同步和阻塞的，然而可以在<script>标签中使用 defer 和 async 属性在支持它们的浏览器中改变脚本的执行方式
+* HTML5说这些属性只有和src属性一起使用时才有效，但有些浏览器还是支持内联脚本；这两个属性使得支持的浏览器执行脚本时不对文档的渲染进行阻塞
+* 具体地，defer会延迟脚本的执行直到文档载入完毕，而async告诉浏览器尽快的执行脚本，而且在下载脚本时不阻塞文档解析；如果同时指定两个属性，只有async会生效
+* 这两个属性并不被所有浏览器支持，然而可以通过动态创建<script>元素并将它插入到文档中，来模拟实现脚本的异步载入和执行，例如定义如下函数完成这个工作：
+* function(url) {var s=document.createElement("script");s.src=url;document.getElementByTagName("head")[0].appendChild(s);}
+* 注意这个函数会动态载入脚本到当前文档，并成为当前JavaScript程序的一部分，它既不是通过页面内联实现，也不来自于页面对外部代码的静态引用
+* JavaScript的执行是单线程的，单线程执行是为了程序更简单而不必考虑线程问题，但另一方面也意味着在脚本和事件处理程序执行时必须停止响应用户输入
+* 这也意味着JavaScript脚本和事件处理程序的运行时间不能太长，如果一直在执行如计算密集型任务，浏览器可能变得无法响应，可能使得用户认为浏览器崩溃了
+* 如果不得不执行这些计算，应该让文档在这个计算执行之前已经载入完毕，并确保能够告诉用户计算正在进行并且浏览器没有挂起
+* 如果可以将计算分解为离散的子任务，可以使用setTimeout()和setInterval()方法运行子任务，同时更新一个进度显示给用户
+* HTML5定义了一种并发控制方式叫 web worker，它是用来执行计算密集型任务的后台线程，它运行的代码不能访问文档内容，也不能和其他线程共享状态，只能通过异步事件通信
+* 客服端JavaScript执行的时间线：浏览器创建Document对象并开始解析页面，解析元素Element和Text节点到文档中，这一阶段document.readystate的值为loading；
+* 当遇到没有async和defer属性的<script>时，会把元素添加到文档中，然后执行脚本，这些脚本可以看到它自己的<script>元素以及它之前的文档内容；
+* 当遇到async属性的<script>时会开始下载脚本文件，但会同时继续解析文档，脚本会在下载完成后尽快执行，异步脚本禁止使用document.write()方法;
+* 当文档解析完成document.readystate会变成interactive；使用defer的延迟脚本在文档解析完后按顺序执行，它可以访问完整的文档树，document.write()也禁止使用；
+* 浏览器在Document对象上触发DOMConentLoaded事件，这标志着程序执行从同步脚本执行阶段转换到异步事件驱动阶段，但注意此时可能还有异步(async)脚本没有执行完但defer脚本都执行完了；
+* 此时文档已经完全解析，但浏览器可能还在等待其他内容载入(如图片)，当所有这些内容并且所有异步脚本已经载入执行，document.readystate变成complete，onload事件触发；
+* 此后浏览器会响应各种异步事件，当然这是理想的时间线，所有浏览器都没有完全支持所有这些细节，但浏览器都普遍支持onload事件，它是决定文档完全载入并可操作的最通用技术
+* 另外DOMContentLoaded事件在当前所有浏览器上都支持，而手工动态加载代码的技术也被所有的浏览器支持，但这个功能会模糊程序脚本载入阶段和事件驱动阶段的界线
+* 这条时间线并没有指定什么时候文档开始对用户可见或者什么时候浏览器开始响应用户输入，如果是很长的文档或很慢的网络连接，浏览器理论上会先渲染一部分文档
+* 并在所有脚本执行之前，就允许用户开始和页面产生一些交互，这种情况下用户输入事件可能在程序执行的事件驱动阶段之前就开始触发
+* The document.DOMContentLoaded event is fired when the initial HTML document has been completely loaded and parsed,
+* without waiting for stylesheets, images, and subframes to finish loading.
+* The document.readystatechange event is fired when the readyState attribute of a document has changed.
+* The document.readyState property of a document describes the loading state of the document.
+* IE8 only support 'complete'. Opera Presto fire 'complete' late after the 'load' event.
+* IE9 and IE10 have bugs where the 'interactive' state can be fired too early before the document has finished parsing.
+---
+* var t = setTimeout(func, ms) 超时调用函数一次，可以在超时之前调用 clearTimeout() 进行取消
+* var t = setInterval(func, ms) 每多少毫秒重复调用函数，可调用 clearInterval(t)　进行取消
+* 由于历史原因，setTimeout和setInterval的第一个参数可以传入字符串，此时字符串会在超时间或间隔后求值，相当于执行 eval()
+* 如果以０毫秒的超时时间来调用setTimeout，函数不会立即执行，还是会插入到计时队列中再进行处理，可参考 http://ejohn.org/blog/how-javascript-timers-work/
+* Window对象和Document对象都有location属性表示当前显示文档的URL window.location === document.location
+* 另外 document.URL 表示文档首次载入时的文档URL，如果文档重新定位到某一片段标识符位置如#tail，Location对象会做更新但是 document.URL 不会
+* location.href === location.toString() 都返回 URL 的完整文本，Location对象的其他属性包括：protocol, host, hostname, port, pathname, hash, search
+* location.assign(url) 使窗口载入并显示指定URL的文档；另外使浏览器跳转的一种更传统的方法是直接将新的URL赋给 location，例如 location = "page2.html"
+* location.replace(url)　也是载入和显示指定URL的文档，但它在载入新文档之前会将浏览历史中的当前文档删除，”后退“按钮操作不会再次回到原始文档
+* 例如可以使用 location.replace 在浏览器不支持某些特性时，重定向到一个不需要这些功能的页面，如 if (!XMLHttpRequest) location.replace("staticpage.html")
+* 如果使用相对URL，则这个URL是相对当前文档所在目录进行解析的；另外 location.reload() 可以让浏览器重新载入当前文档
+* 页面片段标识可以让浏览器滚动当前文档到某一位置，其中＃top标识符是一个特殊的标识，如果文档中没有ID为 top　的元素，浏览器会跳转到文档开头，例如 location = "#top"
+* Location对象的URL分解属性是可写的，对它们重新赋值会改变URL，导致浏览器载入新的文档（或滚动到某一片段标识符位置），例如 location.search = "?page=" + (n　+　1)
+* history.forward() 前进，history.back()　后退；history.length 属性表示浏览历史列表中的元素数量；history.go(-2)　正数前进负数后退，这里表示后退２步
+* 如果窗口包含多个子窗口（如<iframe>），子窗口的浏览历史也会按时间顺序保存在主窗口的历史中，这意味着例如主窗口调用 history.back()　可能会导致子窗口跳转但主窗口状态不变
+* 现代Web应用可以不通过载入新文档而动态地改变内容，如何在这些动态的内容之间进行跳转是一个复杂的问题，但HTML5提供了一种标准的技术来管理历史记录
+* 在实际工作中，如果需要在不支持HTML5的浏览器中实现这个功能，可以使用诸如 jQuery 的 history 插件、或 RSH (Really Simple History)　进行历史管理
+* navigator.appName 浏览器名字，如 "Microsoft Internet Explorer"，Firefox 的 "Netscape"，另外为了兼容现存浏览器嗅探代码，其他浏览器通常也返回 "Netscape"
+* navigator.appVersion 此属性通常以数字开头，并跟着包含浏览器厂商和版本信息的详细字符串，该字符串没有标准的格式
+* navigator.userAgent　浏览器在它的HTTP头部 User-Agent 域中发送的字符串，这个属性通常包含 appVersion 的所有信息，另外还可能包含其他的细节信息
+* navigator.platform 运行浏览器的操作系统的信息；除了这些信息，Navigator对象还包含了一些标准化或广泛使用但未标准化的属性如下：
+* navigator.onLine 该属性如果存在的话，表示浏览器当前是否连接到网络，应用程序可能希望利用这个属性，在离线状态时使用客户端存储技术将状态保存在本地
+* navigator.geolocation 返回一个 Geolocation 对象，它定义了接口用于确定用户的地理位置信息
+* navigator.cookieEnabled 非标准属性，如果浏览器可以保存永久的cookie时返回true，当cookie的配置是"视具体情况而定"时可能返回不确定的值
+* navigator.javaEnabled() 非标准方法，判断当前浏览器是否可以运行 java 小程序
+* screen.width, screen.height, screen.availWidth, screen.availHeight 返回浏览器所在设备屏幕的以像素为单位的宽和高，或实际可用的宽和高
+* 另外 screen.colorDepth 属性返回屏幕的 BPP　(bits per pixel)　信息，表示颜色数据的信息位数，一般是 16, 24, 或 32
+* window.screen 属性以及对应的 Screen 对象都是非标准的，但是在浏览器中广泛实现了，可以用这个对象来确定Web应用是否运行在一个小屏幕的设备上
+* Window对象提供了３个方法向用户显示简单的对话框：alert(message) 显示一条消息并等待用户关闭对话框；confirm(message)　显示一条消息并要求用户确定或取消；
+* 而 prompt(message) 同样也显示一条消息，并等待用户输入字符串，并返回用户输入的字符串；尽管这３个方法都很容易使用，但良好的设计还是需要有节制地使用它们
+* 因为这些对话框并非常见功能，大多数用户会发现这些对话框会破坏他们的浏览体验，如今对这些方法唯一常见的用途是程序员使用它们来调试JavaScript程序
+* 注意，这些对话框中显示的文本是纯文本，而不是HTML格式的文本，只能使用空格、换行和各种标点符号来格式化这些对话框消息
+* 另外还有一个方法 showModalDialog(url, data, "name=value;resizable=yes") 显示一个包含HTML内容的模态对话框 (阻塞式对话框)，第１个参数指定对应HTML内容的URL
+* 第２个参数可以是任意值，在脚本中可以通过 window.dialogArguments 属性来访问这个参数的值；第３个参数是以分号分割的name=value对构成的字符串，这些信息可以用来配置对话框
+* 该对话框需要显示的内容可以根据第2个参数在脚本中自行定制，当用户事件触发对话框返回时，脚本一般需要调用 window.clode() 关闭对话框，并将结果设置到 window.returnValue　属性中
+* Window对象的onerror事件，用于处理JavaScript中未捕获的错误，如果给这个属性赋予一个函数，那么只要这个窗口中发生了JavaScript错误就会调用这个函数
+* 当onerror事件发生时，会把３个参数传给对应的函数，第１个参数是错误描述信息，第２个参数是错误所在文档的URL字符串，第３个参数是错误在文档中发生的行数
+* 另外错误处理函数的返回值也很重要，如果返回false表示函数已经处理了错误，浏览器不需要再显示它自己的错误信息，遗憾的是由于历史原因，Firefox中必须返回true来表示已经处理了错误
+* onerror错误处理是早期JavaScript的遗物，那时语言核心还不包含 try/catch 异常处理语句，现代代码已经很少使用了，但是在开发阶段你可能会定义对应的处理函数来帮助你发现隐藏的错误
+* 一个Web浏览器窗口可能有多个标签页，每个标签页都是一个独立的浏览上下文（browsing context），每个上下文都有一个独立的Window对象，而且相互之间互不干扰
+* 但是窗口并不总是和其他窗口完全没有关系，一个窗口或标签页中脚本可以打开新的窗口或标签页，当一个脚本这样做时，这些窗口文档之间就有可能进行互操作
+* HTML经常使用<iframe>来嵌套多个文档，<iframe>所创建的浏览上下文有它自己的Window对象，废弃的<frameset>和<frame>同样会创建一个嵌套的上下文
+* 对于客户端JavaScript来说，窗口、标签页、iframe、以及 frame　都是浏览上下文，或都是 Window 对象，只有一点不同是嵌套的浏览上下文并不是相互独立的
+* 在一个窗口中运行的JavaScript脚本总是可以看到它的祖先或嵌套的子孙窗口，尽管脚本查看这些窗口中的文档受到同源策略的限制
+* 使用 window.open(url, name, "width=30,height=10", replaceHistory) 可以打开新窗口或标签页，并载入对应URL内容，然后返回对应窗口的Window对象
+* 如果不带参数调用该方法，或者传递空字符串给第１个参数，那么浏览器会打开一个空白页面，即打开 about:blank
+* 该方法第２个参数指定窗口的名字，如果指定一个已经存在的窗口名字，并且允许跳转到那个窗口，会直接使用这个已存在的窗口载入文档内容
+* 否则会打开新的窗口并将这个指定的名字赋予给它，如果省略这个参数，会使用指定的名字"_blank"打开一个新的未命名的窗口
+* 需要注意的是，脚本是无法简单的猜测窗口名字的，具体地讲，当且仅当窗口包含的文档同源，或者这个脚本打开了那个窗口，脚本才可以只通过名字来指定对应的窗口
+* 窗口的名字是非常重要的，因为它允许open()方法引用已经存在的窗口，还可以作为<a>和<form>元素的target属性值，用来指定文档显示或表单提交的目标窗口
+* 这个target属性值还可以设置为"_blank"，"_parent"，以及"_top"，从而使对应的文档显示在新的空白窗口、或父窗口、或顶层窗口中
+* 如果属性 window.name 存在，那么它保存的就是窗口的名字，该属性是可写的；如果<iframe>元素有name属性，则也保存在iframe对应的Window对象的name属性中
+* open() 的第３个参数是一个以逗号分割的name=value构成的字符串，可以包含大小和各种属性，来表明新窗口应该如何打开，如果省略浏览器会以默认的方式打开窗口
+* 出于各种安全原因，浏览器对有些配置作了限制，例如通常不允许指定一个太小或者位于屏幕之外的窗口，而且一些浏览器不允许创建一个没有状态栏的窗口
+* 注意第３个参数是非标准的，HTML5规范主张浏览器忽略它；第４个参数只有在第２个参数是已经存在的窗口的时表示对应的URL是否替换原窗口的历史记录还是添加新的记录
+* 在由 window.open() 打开的窗口中，opener属性指向打开它的脚本所在的Window对象，在其他窗口中这个属性为null，`w.open().opener === w`
+* window.open() 是广告商在页面之前或之后弹出窗口的一种方法，大部分浏览器都增加了弹窗限制，JavaScript在浏览器初始载入或卸载时的弹窗通常会失败
+* window.close() 用于关闭一个窗口，注意要显式的使用window来调用close，避免与document.close()混淆，特别是在事件处理程序中调用close()时
+* 大多数浏览器只允许脚本关闭自己创建的窗口，另外在iframe上而不是顶级窗口（即主窗口）或标签页执行close()时，会将这个iframe从文档中删除
+* 即使一个窗口关闭了，代表它的Window对象任然存在，已关闭的窗口还有一个值为true的closed属性，它的document属性会是null，它的方法通常也无法使用
+* 原始窗口和通过open()打开的新窗口之间，可以通过open()的返回值以及新窗口的opener属性进行相互引用，而包含iframe的嵌套窗口的引用方式如下：
+* 任何窗口或iframe中都可以使用 window 和 self 引用自己的 Window 对象，iframe　可以使用 parent 引用包含它的窗口或iframe的 Window 对象
+* 如果一个 iframe 嵌套在另外一个 iframe 内，这个父 iframe 才真正嵌套在一个真实的窗口中，可以使用 parent.parent 或 top 引用到顶层的主窗口
+* 如果一个窗口是主窗口，它的 parent 属性是其本身，因此可以使用 parent == self 判断窗口是不是主窗口，另外主窗口的 top 属性也是其本身
+* 要在嵌套的父窗口中获取其包含的iframe，可以通过诸如 document.getElementById("iframeid").contentWindow 的方式获取iframe的 Window 对象
+* 另外可以通过 window.frameElement 属性从 iframe 的 Window 对象中获取 iframe 的 Element 对象，而主窗口的这个属性为 null
+* 但是通常不需要使用 document.getElementById 方法以及 contentWindow 属性来获取 iframe，因为每个 Window 对象都有一个 frames 属性
+* 这个属性可以通过数字来进行索引，例如 frames[0].frames[1]，parent.frames[1]，这个属性里保存的是iframe元素的 Window 对象
+* 另外，如果 iframe 元素指定了 name 或 id 属性，还可以通过这个名称或ID来进行索引，例如 frames["iframeId"] 或者 frames.iframeId
+* 通过上面的相互引用方式，并且同源策略没有阻止，一个窗口或iframe中的脚本就可以和其他窗口或iframe的脚本进行交互，如假设一个Web页面有A和B两个iframe
+* A的脚本定义了一个变量 var i = 3，这个变量会变成其 Window 对象的一个属性，由于B可以引用A的 Window 对象，因此在B中也可以访问到这个变量
+* 另外非嵌套的函数也同样可以在B中使用，但是必须要注意词法作用域规则，函数是在定义它的作用域中而不是调用它的作用域中执行，因此函数的操作都是针对定义它的上下文
+* 每个窗口对象都有自己的内置类和原型对象，一个窗口中自定义的类型不会存在与其他窗口对象中，另外instanceof不能跨窗口工作，例如B中的字符串不是A中String的实例
+```
+
+Web安全性
+```
+* Web浏览器针对恶意代码的第一条防线是禁止某些功能，例如JS没有权限写入或删除客户计算机中的任意文件或列出任意目录，因而不能删除数据或植入病毒
+* 类似地，客户端JavaScript没有任何通用的网络功能，除了可以对HTTP协议编程以及使用WebSockets和指定的服务器通信，没有能力对更广范围的网络进行直接访问
+* 通用的客户端和服务器不能同时使用客户端JavaScript实现，即在一个浏览器上不能写出一个"服务器"，网络中浏览器和浏览器之间无法直接进行通信
+* 浏览器针对恶意代码的第二条防线是在自己支持的某些功能上施加限制，例如JavaScript可以打开一个新的浏览器窗口，但为了防止滥用弹窗，很多浏览器限制了这一功能
+* 使得只有为了响应鼠标单击这样的用户事件时才允许使用；JavaScript可以关闭自己打开的浏览器窗口，但不能不经用户确认就关闭其他窗口
+* HTML中的FileUpload元素的value属性是只读的，因为如果允许JavaScript设置这个属性，脚本就能设置任意期望的文件通过表单将内容上传到服务器
+* 除了包含脚本本身的文档，脚本不能读取从不同服务器载入的文档，也不能在来自不同服务器的文档上注册事件监听器，防止脚本窃取其他页面的用户输入
+* 这里并未给出所有客户端JavaScript的限制项，不同的浏览器有不同的安全策略，并可能实现不同的API限制，部分浏览器可能还允许根据用户偏好来增强或减弱限制
+* 同源策略是对JavaScript代码能够操作哪些Web内容的一项完整的安全限制，当Web页面使用多个<iframe>或打开多个浏览器窗口时，这一策略通常就会发生作用
+* 具体来说，脚本只能读取和所属文档来源相同的窗口或文档，文档的来源包括协议、主机、以及载入文档的URL端口，从不同服务器载入的文档不同源
+* 通过同一主机的不同端口载入的文档也不同源，使用http协议载入的文档和使用https协议载入的文档同样不同源，即使它们来源于同一个服务器
+* 脚本本身的来源与同源策略并不相关，相关的是脚本嵌入的文档，不管这个脚本来源于哪个源都可以访问这个文档，以及与这个文档同源的文档
+* 实际上，同源策略并非应用于窗口中所有对象属性上，不过它应用到了其中的大多数属性，尤其是Dowcument对象的几乎所有属性上
+* 虽然脚本可以打开和关闭不同源的窗口，但不能以任何方式访问窗口中的内容；同源策略还应用于使用XMLHttpRequest生成的HTTP请求
+* 这个HTTP请求对象允许客户端JavaScript生成任意到脚本所属服务器的HTTP请求，但是不能和其他Web服务器进行通信
+* 在某些情况下，同源策略显得过于严格，这里会介绍三种不严格的同源策略，其一是对于使用多个子域的大站点来说，例如要使下面的文档能合法的访问：
+* 来自home.example.com的文档里的脚本访问来自developer.example.com的文档，或来自orders.example.com的脚本访问来自catalog.example.com的文档
+* 要支持这个类型的域名站点，可以使用Document对象的domain属性，在默认情况下该属性保存的是载入文档的服务器的主机名，但可以对这个属性进行设置
+* 不过设置的字符串必须是有效的，例如一个domain属性的默认值是home.example.com，则可以将它设置为example.com，但不能设置为home.example
+* 另外domain值中必须包含一个点号，不能把它设置为"com"或其他顶级域名；如果两个窗口的domain设置成了相同的值，那么这两个窗口就不再受同源策略的约束
+* 不严格的同源策略的第二项技术已经标准化：跨域资源共享（cross-origin resource sharing），可见参考 http://www.w3.org/TR/cors/
+* 这个标准草案用新的"Origin:"请求头合新的 Access-Control-Allow-Origin 响应头部来扩展HTTP，允许服务器用头信息显式列出源或使用通配符匹配源
+* 另外一种新技术是跨文档消息（cross-document messaging），允许来自一个文档的脚本传递文本消息到另一个文档中的脚本，而不管来源是否一样
+* 调用window.postMessage()方法，可以异步地传递一个消息到另外一个窗口的文档中，接收窗口通过onmessage事件处理程序来处理这个事件
+* 一个文档中的脚本还是不能调用在其他不同源文档中的方法以及读取属性，但它们可以用这种消息传递技术来实现安全的通信
+* 尽管核心JavaScript和基本的客户端对象模型缺乏大多数恶意代码所需要的文件系统功能和网络功能，但情况并不像看上去的那样简单
+* 在很多Web浏览器中，JavaScript亦被用作很多软件或插件的"脚本引擎"，这样的组件有IE中的ActiveX控件和其他浏览器的插件，例如Flash和Java插件
+* 脚本化ActiveX控件和其他插件的能力也存在着安全性问题，例如 Java applet 具有访问底层网络的能力，当然Java安全沙箱阻止applet和不同源的服务器进行通信
+* 但是它暴露了一个根本的问题：如果插件是可以脚本化的，我们不仅要无条件相信浏览器的安全架构还要相信插件的安全架构，而实际上一些插件架构存在各种遗留问题和安全漏洞
+* 跨站脚本(corss-site scripting)，或者叫做XSS，表示的是一类安全问题，即攻击者向目标站点注入HTML标签或者脚本，防止XSS攻击是服务器端Web开发者的基本工作
+* 然而，客户端JavaScript程序员也必须意识到或者能够预防跨站脚本，例如使用动态生成文档功能，并且这些内容基于用户提交的数据的时候，没有通过移除可能嵌入的HTML标签来消毒
+* 那么这个Web页面很容易遭受到跨站脚本攻击，例如 <script>document.write("hello "+(decodeURIComponent(location.search.substring(1))||""))</script>
+* 如果攻击者像这样嵌入一个恶意脚本page.html?%3Cscript%20src=site/evil.js%3E%3C/script%3E，就会使用户受到攻击，它可能损坏这个页面或使其不能正常工作
+* 或更危险的是，恶意脚本可以读取原站点在该用户上存储的cookie（可能是统计数据或其他个人验证信息），注入的脚本甚至可以诱骗用户击建发送数据到恶意站点服务器
+* 通常防止XSS攻击的方式是，在使用任何不可信的数据来动态创建文档内容之前，从中移除HTML标签，例如 `name=name.replace(/</g, "&lt;").replace(/>/g, "&gt;")｀
+* IE8定义了一个更加微妙的toStaticHTML()方法，可以移除<script>和其他潜在的可执行的内容，而不修改不可执行的HTML，我们也可以在核心代码中自己实现这样一个函数
+* HTML5的安全策略则更进一步，它为<iframe>元素定义了一个sandbox属性，在实现之后允许显示不可信的内容，并自动禁用脚本
+* 深入理解跨站脚本的知识是很值得的，很多在线的资源可以帮助预防跨站脚本带来的危险，一个重要的参考资料出自 http://www.cert.org/advisories/CA-2000-02.html
+* 这里描述的同源策略和其他安全限制可以很好地预防恶意代码毁坏数据或防止侵犯隐私这种问题，但是它们不能防止另外一种攻击：拒绝服务攻击，这种攻击手法非常暴力
+* 例如访问一个恶意站点，这个站点可以使用一个alert()对话框无限循环占用浏览器，或者用一个无限循环或没有意义的计算来占用CPU，某些浏览器可以检测运行时间很长的脚本
+* 并提示用户选择终止它，但是恶意脚本可以使用setInterval()这样的方法来占用CPU，并通过分配很多的内存来攻击你的系统，浏览器并没有通用的方法防止这种笨重的攻击手法
+```
+
+文档对象
+```
+* HTML文档的树状结构包含HTML的标签或元素，以及表示文本内容的文本节点，还包含表示HTML注释的注释节点；文档树中的每个节点都是一个Node对象
+* 文档树中的Node对象包括：根节点的Document对象，表示元素的Element对象，表示字符数据(CharacterData)的Text对象和Comment对象，以及表示元素属性的Attr对象
+* 另外具体的HTML元素例如　HTMLHeadElement, HTMLBodyElement, HTMLInputElement 等都是 HTMLElement 类的子类，而 HTMLElement 又从 Element 类继承而来
+* 通过元素的ID获取对应的元素：var e = document.getElementById("elemId")
+* HTML元素的name属性用于给元素分配名字，多个元素可以使用相同的名字，例如表单中单选和复选按钮通常是这种情况，另外name属性只有在少数元素中有效，包括表单、表单元素、iframe和img
+* var buttonNodeList = document.getElementsByName("favorColor")，在IE中该函数也返回与id匹配的元素，为了兼容最好不要将同样的字符串同时用作名字和ID
+* 如果元素的id属性值对应的名称还没有在全局对象window中定义，window会定义一个该名称的属性并将元素的Element对象赋予给它，元素id的这种隐式应用是Web浏览器演化过程中遗留的怪癖
+* 它主要出于与已有Web页面兼容性考虑，但并不推荐这种使用方法，因为已有名称会阻止生成这种属性，另外代码中全局变量的定义会覆盖这种隐式的属性，而且使用getElementById更直观
+* 以下HTML元素如果有name属性，也会有这样的行为：<a>, <applet>, <area>, <embed>, <form>, <frame>, <frameset>, <iframe>, <img>, <object>
+* 不同的是name属性值在一个文档中可以是不唯一的，或者一个元素有name属性而另一个元素有相同值的id属性，具有该名称的隐式全局变量会引用一个类数组对象
+* 元素<iframe>的一个特别的地方是，如果它有name或id属性，为它们隐式创建的全局变量的值不是<iframe>元素的Element对象，而是<iframe>元素对应的嵌套窗口Window对象
+* 对于Document对象，如果为<form>, <img>, <iframe>, <applet>, <embed>, <object>设置name属性，且Document还没有以该属性值为名称的属性，则会隐式创建这个属性
+* 如果给定的名字只有一个元素，自动创建的document属性对应的值是元素本身的Element对象，如果有多个元素则属性值是一个NodeList对象，表示包含这些元素的数组
+* 同样<iframe>比较特殊，对应的document属性值保存的是iframe对应的Window对象；同理也不推荐这种使用方法，如果要获取命名的元素，使用getElementByName更直观
+* var tagNodeList = document.getElementsByTagName("tagName") 获取文档中该元素名的所有元素，返回的NodeList包含的元素按照其在文档中的顺序进行排列
+* 如果将通配符"*"传入这个函数，返回的是文档中所有元素组成的NodeList；另外Element对象也有这个函数，它返回该元素后代元素中的元素
+* 由于历史原因，HTMLDocument类定义了一些快捷属性来访问各种节点，例如images, forms, links引用的是类似只读数组的包含<img>, <form>, 包含href属性的<a>元素的HTMLCollection
+* 我们可以通过名称引用元素，如document.formName，同样这些快捷属性也可以更具体地引用元素的名称或ID，例如document.forms.formName
+* HTMLDocument也定义了embeds和plugins，它们的值都是由<embed>元素组成的HTMLCollection对象；scripts在HTML5中是标准属性，但当前它还没有广泛实现
+* HTMLDocument还定义了两个属性 document.body 和 document.head 表示<body>元素和<head>元素，这两个属性总是定义的，这两个元素如果不存在，浏览器会自动创建它们
+* 另外 document.documentElement 在HTML文档中总是代表<html>元素；注意的是，以上返回的NodeList和HTMLCollection对象都是只读的类数组对象
+* 它们有length属性，也可以像真的数组一样索引元素；要注意的是NodeList和HTMLCollection对象不是文档历史状态的一个静态快照，而是实时的，当文档变化时它包含的元素会随之改变
+* 这是一个最重要和令人惊讶的特性，例如在没有<div>的文档中调用getElementsByTag("div")返回的是一个空列表，但插入一个<div>元素之后，该<div>会自动变成列表中的一个元素
+* 通常这种实时性非常有用，但如果要在迭代列表的同时添加或删除元素，需要在迭代之前创建列表的一个静态副本，例如 Array.prototype.slice.call(nodelist, 0)
+* HTML元素的class属性值是一个以空格分割的标识符组成的字符串，它可用于对元素进行分组，拥有同一标识符的元素组成一个分组，由于class是关键字，JavaScript中使用className表示这个属性
+* var groupTags = getElementsByClassName("groupName groupName2 groupName3")，该函数基于class属性值的标识符来选取成组的文档元素，其参数可以使用空格分割多个标识符
+* 只有当元素的class属性包含所有的标识符时才匹配，但是标识符的顺序是无关紧要的；Element对象也拥有getElementsByClassName这个函数，用于获取其后代元素中的元素
+* 当前除了比IE9低的IE版本，getElementsByClassName在所有的浏览器中都实现了，IE8确实支持querySelectorAll()方法，而getElementsByClassName可以在其之上实现
+* CSS样式表有一种强大的选择器语法用来选择文档中的元素，一个选择器API标准（不是HTML5的一部分但有紧密的关联）定义了API如document.querySecectorAll(select)通过选择器匹配元素
+* 与前面的方法不同，querySelectorAll返回的NodeList对象不是实时的；另外，如果选择器字符串不符合选择器的语法规则，querySelectorAll()会抛出异常
+* 文档对象还定义了querySelector()方法，与querySelectorAll原理类似，但只返回第一个匹配的元素，如果没有匹配的元素则返回null
+* 这两个方法在Element对象上也有定义，其中指定的选择器仍然在这个文档中匹配，然后过滤出在指定元素后代元素中的元素，这意味着选择器字符串可以包含元素的祖先而不仅仅其后代元素
+* 注意CSS定义的":first-line"和":first-letter"等伪元素，在这两个函数中使用时不会匹配，另外很多浏览器会拒绝返回":link"和":visited"的匹配结果，因为这会泄露用户浏览历史
+* 所有当前浏览器都支持querySelectorAll以及querySelector方法，且注意的是这些方法的规范并不要求支持CSS3选择器，当前浏览器除了IE都支持CSS3选择器（IE7/8支持CSS2）
+* 使用CSS选择器是一种强大的选取元素的方法，jQuery的CSS选择器匹配代码已经作为一个独立的标准库发布，命名为 Sizzle，它已经被Dojo和其他一些客户端库采用
+* 在DOM标准化之前，IE4引入了document.all[]集合来表示文档中的所有元素（除了Text节点），但已经被标准的如getElementById等方法取代了，现在它已经废弃不应该再使用
+* 遍历文档结构的一些函数如下，要注意的是Text和Comment节点没有子节点，另外如段落元素<p>pure text</p>的子节点是一个Text节点
+* Node.parentNode() -> Node, Node.firstChild() -> Node, Node.lastChild() -> Node, Node.childNodes() -> NodeList
+* Node.nextSibling() -> Node, Node.previousSibling() -> Node, Node.nodeType -> 1:Element, 3:Text, 8:Comment, 9:Document, 11:DocumentFragment
+* Node.nodeValue -> Text或Comment节点的文本内容, Node.nodeName -> 大写形式的元素标签名
+* HTMLElement.id/lang/dir/src/tabIndex/htmlFor(如果属性名是JS关键字则一般加上html前缀)/className(但class属性是例外)/...
+* HTMLElement.onclick等事件属性返回的值是null或函数，HTMLElement.style返回的值是CSSStyleDeclaration对象
+* 除了以上的标准属性，Element类型还定义了getAttribute()和setAttribute()方法用来查询和设置非标准HTML属性，它们的返回值都是字符串，而且传入的属性名是没有特殊处理的原始属性名
+* Element类型还定义了两个相关的操作hasAttribute()和removeAttribute()，当属性为布尔值时这两个方法特别有用，移除对应的布尔属性相当于将其值设为false
+* 在HTML5文档中，任意以"data-"为前缀的小写属性都是合法的，这些数据属性不会对元素的表现产生影响，它们定义了一种标准的在元素上附加额外数据的方法
+* HTML5还在Element对象上定义了dataset属性，例如dataset.x代表data-x属性的值，dataset.maxSize代表data-max-size属性的值，在没有实现的浏览器上可以使用getAttribute()代替
+* Element.innerHTML以字符串的方式返回元素内部的HTML内容，通常设置innerHTML效率比较高，但是使用"+="操作符重复追加小段文本通常效率低下，因为此时浏览器既要进行解析也要进行序列化
+* 使用textContent或IE的innerText可以获取元素内的纯文本：function getText(e) { var c = e.textContent; if (c !== undefined) { return c } return e.innerText }
+* textContent是将所有后代Text节点的内容串联在一起；而innterText与之不同的是不会返回<script>的内容，会忽略多余空白并试图保留表格格式，同时对某些表格元素是只读的(如table/tbody/tr)
+* 内联<script>元素(没有src属性)有一个text属性用来获取其文本，浏览器不会显示<script>元素的内容，并且HTML解析器会忽略脚本中的尖括号和星号
+* 这使得<script>成为应用程序用来嵌入任意文本内容的理想方法，只要简单的将type属性设置为浏览器不支持的类型如"text/x-custom-data"，就会让浏览器忽略脚本而且该元素仍然存在于文档树中
+* 获取元素的纯文本内容：function text(e) { var s = ""; for (var child = e.firstChild; child != null; child = child.nextSibling) { see next line } return s }
+* var type = child.nodeType; if (type == 3 || type == 4) { s += child.nodeValue } else if (type == 1) { s += text(child) } /* type 4 is CDATASection */
+* 创建和插入元素的一些方法有：document.createElement(name) -> Element, document.createTextNode(textContent) -> Text, document.createComment(content) -> Comment
+* document.createDocumentFragment() -> DocumentFragment, Node.cloneNode(deepCopy) -> Node 传入true会递归地复制所有后代节点，false只执行一次浅拷贝
+* Element.appendChild(childNode), Element.insertBefore(childNode, beforeTheExistNode) 如果第2个传入null与appendChild()行为一样，使用该函数可以实现在i位置插入节点：
+* function(p, c, i) { if (!p || !c || i < 0 || i > p.childNodes.length) return; if (i == p.childNodes.length) p.appendChild(c); else p.insertBefore(c, p.childNodes[i]; }
+* 如果调用appendChild()和insertBefore()将文档中已经存在的节点再次插入，该节点会在当前位置删除并插入到新位置，因此没必要先删除节点再进行插入，例如可以不创建任何新节点对表格列中的节点进行交换排序
+* Element.removeChild(childNode)用于在父节点上删除一个子节点，例如e.parentNode.removeChild(e)；Element.replaceChild(newNode, child)替换子节点如e.parentNode.replaceChild(newNode, e)
+* DocumentFragment是一个特殊的节点，可以作为其他节点的一个临时容器，DocumentFragment是独立的，它不是任何其他容器的一部分，它的parentNode总为null，但类似Element它可以有任意多的子元素
+* DocumentFragment的一个特殊之处是它可以让一组节点被当做一个节点来看待，如果将DocumentFragement插入到文档中，实际上是将其中的所有子节点插入到文档中，而非DocumentFragment本身
+* 例如倒序排列一个元素中的子元素：function(e) { var f = document.createDocumentFragment(); while(e.lastChild) f.appendChild(e.lastChild); e.append(f); }
+* 文档除了是抽象文档树，还是浏览器窗口中渲染呈现出的几何图形，有时精确获取元素的几何形状和位置是非常有用的，例如使用CSS动态定位一个元素（如工具提示或插图）的位置
+* 元素的位置是通过像素描述的，向右表示坐标x轴的增加，向下表示y轴的增加，但是有两个不同的坐标原点，元素的坐标值可以相对于文档的左上角或显示窗口的左上角，如果是iframe窗口是元素本身
+* 如果文档比窗口小，或者没有出现滚动，则文档的左上角就是窗口的左上角，此时两个坐标系统重合；但普遍情况下，要在两个坐标系之间进行转换，需要加上或减去滚动的偏移量（包括垂直滚动和水平滚动）
+* 当文档的大小比窗口的大小大时会出现滚动，当滚动时文档中的元素坐标是保持不变的，但元素相对于窗口的坐标是随时变化的，当注册鼠标事件时鼠标的坐标是基于窗口的
+* 要在坐标系之间进行转换，需要获取浏览器滚动条的位置，除IE低版本所有浏览器都支持window.pageXOffset/pageYOffset，另外IE也支持scrollLeft和scrollTop属性，但在怪异模式下获取它们的方式不同
+* function(w) { w = w || window; if (typeof(w.pageXOffset) == "number") return {x:w.pageXOffset, y:w.pageYOffset}; var d = w.document; /* see next line */ }
+* if (d.compatMode == "CSS1Compat") return {x,y <- d.documentElement.scrollLeft/scrollTop}; return {x,y <- d.body.scrollLeft/scrollTop };
+* 另外innerWidth/innerHeight，以及IE的clientWidth/clientHeight可以获取窗口的大小，用法和上面滚动条位置属性类似
+* 而判断一个元素的尺寸和位置最简单的方法是调用它的getBoundingClientRect()方法，它返回的Rect表示窗口坐标系中元素的左上角和右下角坐标，要转换成文档坐标需要加上滚动偏移
+* 元素显示的边框包括内边距、边框、外边距，它们都是可选的，getBoundingClientRect()返回的坐标包括元素的内边距和边距，但不包括外边距；浏览器呈现的块状元素总是为矩形，内联元素可能由多个矩形组成
+* 因为内联元素可能跨越多行，例如被断成两行的斜体文本(<i>text</i>)，它的形状是由第一行的右边矩形和第二行的左边矩形组成的(假设文本顺序是从左至右)，而getBoundingClientRect()返回的是包含两行的矩形
+* 如果想查询内联元素每个独立的矩形，可以调用getClientRects()方法获取一个只读的类数组对象，另外getBoundingClinetRect()和getClientRects()返回的结果不是实时的，仅仅是文档当时状态的一个静态快照
+* Window对象的scrollTop()或scroll()方法接受一个点的x和y文档坐标，它会将窗口滚动到使指定的点出现在窗口的左上角，如果指定的点太接近文档的下边缘或右边缘，浏览器会尽量保证它和窗口的左上角最近
+* Window对象的scrollBy()方法类似，但它的参数是相对的，即它的坐标是在当前滚动条的偏移位置上增加，例如：javascript:void setInterval(function(){scrollBy(0,20)},200);每200毫秒滚动20个像素
+* 另外还可以滚动窗口直到文档中的某个元素可见（与设置window.location.hash的行为类似），可以使用getBoundingClientRect()和scrollTo()，或直接使用Element.scrollIntoView()方法实现
+* getBoundingClientRect()方法在所有当前的浏览器上都有定义，但如果需要支持老式浏览器，则必须使用更老的技术来判定元素的尺寸和位置
+* 其中元素的尺寸比较简单，任何元素的只读属性offsetWidth和offsetHeight即元素的屏幕像素尺寸，包含元素的边框和内边距，但不包括外边距，例如document.documentElement.offsetHeight返回文档的高度
+* 而对于元素的位置则比较复杂，不支持getBoundingClientRect()的浏览器在元素位置方面有很多的不兼容性，实际中像jQuery这样的库包含了一些函数来计算元素的位置，并修复了一系列浏览器的特定bug
+* Document对象的属性除了documentElement, body, forms等元素属性外，还有其他一些特殊的重要属性：cookie允许JavaScript读写HTTP cookie；lastModified包含文档修改时间；
+* domain允许相同域名下的不同服务器之间的页面突破同源策略限制进行交互；document.location与window.location引用同一个Location对象；title引用<title>元素的内容；
+* referrer如果存在则表示浏览器从哪个文档导航到当前页面，该属性与HTTP的Referer头部信息的内容相同；URL是只读的当前文档URL，该属性与location.href的初始值相同，但不会动态变化；
+* document.write()方法可以将HTML文本插入当前文档流，但只有在浏览器解析文档阶段才有效，这也是能在<script>元素顶层代码中调用该方法的原因，因为这些脚本的执行是文档解析流程的一部分
+* 但如果将document.write()放在函数中，而该函数又是通过事件触发的，那么当事件发生时write()会首先擦除当前的文档和它包含的脚本；同理不应该在设置了defer或async的脚本中使用write()
+* 使用write()能在其他窗口或iframe窗口创建全新文档（满足同源策略的条件下），第一次调用其他文档的write()会擦除该文档的所有内容，可以多次调用write()来逐步建立新文档
+* 传递给write()的内容可能缓存起来不被立即显示，直到调用document.close()方法来结束；另外Document对象还支持writeln()方法，例如在<pre>元素中写入换行的内容是有用的
+* 在现代JavaScript代码中document.write()已经不常用，因为innerHTML属性及其他DOM技术提供了更好的方法来为文档添加内容
+* 查询用户选取的文本有时是有用的，可以使用下面的代码实现：if (window.getSelection) return window.getSelection().toString(); /* HTML5 standard */
+* else if (document.selection) { return document.selection.createRange().text; /* for IE */　}　
+* 其中window.getSelection()返回Selection对象，该对象表示当前选取的一系列Range对象，Selection对象的toString()方法是广泛实现的API（除了IE），它返回选取的纯文本内容；
+* 而IE定义了不同的API，document.selection对象代表了用户的选择，该对象的createRange()方法返回IE特有的TextRange对象，该对象的text属性包含选取的文本
+* 以上代码在书签工具(bookmarklet)中特别有用，它操作用户选取的文本，然后可以针对这个文本进行想要的操作，例如在搜索引擎或wikipedia上查找对应的词条内容
+* 但要注意window.getSelection()无法返回表单元素<input>或<textarea>中选取的文本，而IE中的document.selection可以返回文档中任意地方选取的文本
+* 要从文本输入或<textarea>元素中获取选择的文本，可以使用代码｀e.value.substring(e.selectionStart, e.selectionEnd)｀，低于IE9的IE不支持selectionStart和selectionEnd
+* 脚本化CSS最直接的方法是更改元素的style属性（内联样式），内联样式的优先级高于文档样式表，也高于浏览器默认样式；元素可能匹配样式表中的多个选择器，如果冲突最具体的选择器会覆盖其他选择器的值
+* 为显示文档元素，Web浏览器必须组合元素的所有样式，包括文档样式中所有匹配的样式，计算的结果是一组实际用于显示元素的样式属性和值，这组值称为元素的计算样式(computed style)
+* 元素的style属性在JavaScript中通过Element.style属性进行操作，例如e.style.fontSize，e.style.color，e.style.cssFloat（float是关键字），该style属性是一个CSSStyleDeclaration对象
+* CSSStyleDeclaration对象的属性可以理解为是内联样式，元素的内联样式一般只在设置样式的时候有用，如果需要查询元素的样式，就要使用元素的计算样式
+* 有时使用单个字符串来设置或查询元素的内联属性比CSSStyleDeclaration对象更方便，可以使用元素的getAttribute()和setAttribute()方法，或CSSStyleDeclaration对象的cssText属性实现
+* 元素的计算样式是一组在显示元素时实际使用的样式值，类似内联样式它也是通过CSSStyleDeclaration对象表示，但它是只读的；可以通过window.getComputedStyle()来获取元素的计算样式
+* 此方法的第一个参数是对应的元素，第二个参数通常为null或空字符串，但也可以是表示CSS伪对象的字符串，如":before", ":after", ":first-line"，该函数返回CSSStyleDeclaration对象
+* 表示应用在该元素或伪对象上的所有样式，计算样式的CSSStyleDeclaration对象与表示内联样式的对象之间有一些重要的区别：计算样式是只读的；计算样式没有cssText属性；
+* 没有提供复合属性的值，它只基于最基础的属性，例如不能查询margin的值，而应该使用marginLeft或marginTop等属性进行查询；计算样式的值是绝对值，类似百分比的相对值都转换成了绝对值；
+* 另外，所有指定尺寸的属性值都以像素为单位返回，返回的字符串都包含"px"后缀，而颜色属性都以"rgb(#,#,#)"或"rgba(#,#,#,#)"的格式返回；低于IE9的IE版本不支持getComputedStyle()函数
+* 在IE中每个元素都有自己的currentStyle属性，它的值也是CSSStyleDeclaration对象，这个属性组合了内联样式和样式表，但其中的相对值没有转换成绝对值，例如它会返回带相对单位%，em的值和red等描述值
+* 虽然用CSS能为文档对象指定精确的位置和尺寸，但查询元素的计算样式却不是判定元素尺寸和位置的好方法，更简便的方法应该使用getBoundingClientRect()等方法来获取
+* 另外改变元素的class属性也可以改变元素的样式，JavaScript代码通过className来操作这个属性，该属性可以指定以空格分割的多个值，为了方便HTML5还定义了classList属性
+* 该classList属性的值是一个只读的DOMTokenList对象，它定义了add(), remove(), toggle(), contains()能方便的对list进行操作的方法，另外该对象是实时的，会根据实际值动态变化
+* 这个属性不是所有浏览器都实现了，但这个功能可以很容易使用className实现；另外还可以脚本化样式表，它涉及<style>和<link>元素，以及CSSStyleSheet对象
+* document.styleSheets属性是一个只读的数组，它包含CSSStyleSheet对象，表示与该文档关联的样式表；上面的样式表相关元素和对象都定义了一个disabled属性，如果设为true对应的样式表会被忽略
+* CSSStyleSheet对象还定义了用来查询、插入和删除样式表规则的API，但通常直接操作样式表没什么意义，让样式表保持静态而对元素的class属性编程会更好，只有在用户完全控制页面样式的情况下动态改变才可能需要
+* document.styleSheets[]是一个CSSStyleSheet数组，每个CSSStyleSheet又包含了一个cssRules[]数组，它包含样式表的所有规则，IE使用不同的属性rules表示这个数组，这些规则是CSSRule对象
+* 在标准API中，CSSRule对象代表所有CSS规则，包括如@import和＠page等指令，而IE的rules[]数组只包含样式表中实际存在的样式规则，rule.selectorText表示选择器，rule.style表示对应的样式
+* 上面的属性只在样式规则对象中有定义，对于非样式规则的CSSRule对象没有这些属性，在遍历CSSRule数组时应该过滤掉那些非样式规则，另外标准API还定义了insertRule()和deleteRule()用于添加和删除规则
+* 例如 `document.styleSheets[0].insertRule("h1 { text-weight: bold; }", 0)`，IE不支持这两个函数，但定义了addRule()和removeRule()，一个修改样式表的示例如下：
+* var ss = document.styleSheets[0]; /* the first stylesheet */ var rules = ss.cssRules ? ss.cssRule : ss.rules; for (var i = 0; i < rules.length; ++i) {/*see below*/}
+* var rule = rules[i]; if (!rule.selectorText) continue; /* skip non-style rule */　var selector = rule.selectorText; var ruleText = rule.style.cssText;
+* if (selector == "h1") { if (ss.insertRule) ss.insertRule("h2 {" + ruleText + "}", rules.length); else if (ss.addRule) ss.addRule("h2", ruleText, rules.length); }
+* if (rule.style.textDecoration) { if (ss.deleteRule) ss.deleteRule(i); else if (ss.removeRule) ss.removeRule(i); --i; /* adjust index due to current rule removed */ }
+* 在大多数浏览器中，可以通过标准的DOM技术创建新的样式表，只要创建<style>元素并将其插入到文档头部，并将innerHTML属性设置为样式表内容即可
+* 而在IE9之前的IE浏览器中，CSSStyleSheet对象可以通过非标准方法document.createStyleSheet()来创建，其样式文本可以使用cssText属性来设置
+```
+
+事件处理
+```
+* 事件传播(event propagation)是浏览器决定哪个对象触发其事件处理程序的过程，文档元素上发生某个类型的事件时，事件会在文档树上向上传播，称为冒泡(bubble)
+* 有时在容器元素上注册单个事件处理程序比在每个目标元素上都注册一个要方便，事件处理程序能通过调用方法或设置事件对象属性来阻止事件继续传播
+* 事件捕获(event capturing)可以在容器元素上注册处理程序使其有机会在事件传播到真实目标之前被截获，IE8不支持事件捕获，但当处理拖放事件时捕获鼠标是必需的
+* 一些事件有相关的默认操作，例如当超链接onclick时，浏览器默认会加载链接页面，但处理程序可以返回适当的值或使用事件对象的方法或属性阻止默认操作（也称为取消事件）
+* 鼠标、键盘、表单、Window对象事件是最常见的事件，它们已经存在很长时间并得到了广泛的支持，其中表单事件是所有事件类型中最稳定和得到良好支持的部分
+* 当提交表单或重置表单时<form>元素会分别触发submit和reset事件，当用户与类按钮元素交互时会触发click事件，当用户输入文本或选择选项等改变元素状态时会产生change事件
+* 对于<textarea>，只有用户和表单元素完成交互并通过Tab键或单击的方式移动到其他元素上时才触发change事件，而得到和失去焦点的表单元素会分别触发focus和blur事件
+* 通过事件处理程序可以取消submit和reset事件的默认操作，某些click事件也是如此；focus和blur不冒泡，IE定义的focusin和focusout支持冒泡，３级DOM事件规范也在对它们进行标准化
+* 用户输入文本到<textarea>和其他输入元素时，除IE外的浏览器都会触发input事件，且每次插入都会触发该事件，但遗憾的是该事件不会传递输入的文本内容，textinput是一个替代方案
+* 注册事件处理程序有两种基本方法，第一种是给事件对象直接设置处理函数，例如 window.onload = function() {...}，这种方式适用于所有的浏览器的所有常用事件类型
+* 这种方法的缺点是其设计假设每个事件都最多只有一个处理程序，如果想编写能够在任意文档都能使用的脚本库代码，更好的方法是使用一种不修改或覆盖任何已注册处理程序的技术
+* 这种技术就是第二种方法，即使用addEventListener()添加事件处理程序，除了IE9之前的IE版本，所有其他浏览器都支持这个函数，任何能成为事件目标的对象都定义了这个方法
+* 这个函数有三个参数，第一个是要注册的事件的名称，它不包括前缀"on"，第二个参数是处理函数，第三个参数是一个布尔值，一般设为false，当为true时会注册的是捕获事件的处理程序
+* 用addEventListener()注册的事件如click不会影响onclick属性的值，如果两个都注册了都会执行，更重要的是多次调用addEventListener()可以为同一对象的同一事件注册多个处理程序
+* 当事件发生时，所有注册的处理程序会按注册顺序执行，另外多次注册同一函数是没用的，也不会改变该处理函数的注册顺序
+* 相对addEventListener()的是removeEventListener()方法，同样有三个参数，它常用在某些需要临时注册事件处理程序的场景中
+* IE9之前的IE不支持addEventListener()和removeEventListener()方法，IE5及以后版本定义了类似的方法attachEvent()和detachEvent()，其工作原理与标准方法类似，除了以下例外：
+* 因为IE事件模型不支持事件捕获，所以这两个函数只有两个参数，事件名称和处理函数；IE方法的事件名称是以"on"前缀开头的；attachEvent()允许相同的处理函数注册多次，因而也会执行多次
+* 传递给事件处理程序的参数通常是事件对象，事件对象的属性提供了与事件相关的详细信息；IE9之前的IE版本如果通过属性设置事件处理程序，该事件对象保存在window.event属性中；
+* 因此一般的处理程序如果要得到事件对象，可以这样进行处理：function handler(event) { event = event || window.event; /* ... */ }
+* 在事件处理函数中可以使用this来引用该事件发生的目标对象，但是IE上使用attachEvent()注册的处理函数不一样，其处理函数中的this代表的是全局的Window对象，可以用如下的代码解决这个问题：
+* target.attachEvent("on" + eventName, function(event) { return handler.call(target, event); })
+* 注意使用这个方法注册的事件处理程序不能删除，因为传递给attachEvent()的包装函数没有保留下来传递给detachEvent()
+* 像所有JS函数一样，事件处理程序也在定义它而非调用时的作用域中运行，它能访问该作用域中的所有本地变量，例如上面的handler.call(target, event)，handler和target是外部的局部变量
+* 但通过元素事件属性注册的函数例外，它们被转换为能访问全局变量的顶级函数，因为历史原因它们还运行在一个修改的作用域链中，它可以像使用本地变量一样使用目标／form/文档等对象的属性，相当于：
+* function(event) { with(document) { with(this.form || {}) { with(this) { /* the real code */ } } }，因此在这类函数中最好使用完整的名称避免名字冲突
+* 在元素事件属性注册的函数中返回false，通常是告诉浏览器不要执行事件的默认操作，例如表单提交时返回false会阻止浏览器真正提交表单，另外input上的onkeypress可以返回false过滤不合适的用户输入
+* Window对象的onbeforeunload事件处理程序的返回值也很重要，这个事件会在浏览器将要跳转到新页面时触发，如果返回字符串那么它会出现在询问用户是否想要离开当前页面的标准对话框中
+* 处理程序的返回值只对通过元素事件属性注册的函数有意义，通过addEventListener或attachEvent注册的函数是调用preventDefault方法或设置事件对象的returnValue属性实现
+* 文档元素或其他对象可以为指定事件注册多个处理程序，当对应的事件发生时，浏览器会按照如下规则调用所有的事件处理程序：
+* 通过事件属性注册的处理程序总是优先调用；使用addEventListener()注册的程序按照它们注册的顺序调用；使用attachEvent()注册的程序可能按照任何顺序执行，因此代码不应该依赖于调用顺序
+* 当事件目标是Window对象或其他一些独立对象如XMLHttpRequest时，浏览器简单地调用对象上注册的程序来响应事件，但如果事件目标是文档或文档元素时，情况就复杂得多：
+* 当目标元素上的事件处理函数调用完后，大部分事件会冒泡一直到达顶部，即调用父元素的处理程序，再调用祖父元素的处理程序，一直到达Document对象，最后到达Window对象
+* 事件冒泡为在大量的元素上注册处理程序提供了替代方案，即可在共同的祖先元素上注册一个处理程序来处理所有的事件，文档元素上的事件大部分会冒泡，但focus/blur/scroll事件是例外
+* 还有文档元素上的load事件只会冒泡到达Document对象，不会传播到Window对象，只有当整个文档都加载完毕时才会触发Window对象的load事件
+* 事件冒泡是整个事件传播过程的第三阶段，目标对象本身处理程序的调用是第二阶段，第一阶段发生在目标对象处理程序调用之前，称为捕获阶段，前面介绍的注册捕获事件处理程序，会在这一阶段调用
+* 事件冒泡得到了广泛的支持，它能用在包括IE的所有浏览器中，且跟事件处理程序的注册方式无关，但事件捕获处理程序只能通过addEventListener注册，且IE9之前的IE不支持这个特性
+* 事件传播的捕获阶段像反向的冒泡，最先会调用Window对象的捕获处理程序，然后是Document对象的捕获处理程序，接着是body对象，直到事件目标的父元素为止，目标对象上的捕获处理程序不会调用
+* 事件捕获提供了在事件到达目标对象之前处理事件的机会，能用于程序调试或事件取消技术中，它可以过滤事件使其不能传播到目标对象上，事件捕获还常用于鼠标拖放，可参考鼠标事件处理部分的示例
+* 在支持addEventListener的浏览器中，可以通过调用事件对象的preventDefault方法来取消事件的默认操作，而IE9之前的IE浏览器通过设置事件对象的returnValue属性为false达到同样的效果
+* function(e) { var e = e || window.event; if (e.preventDefault) e.preventDefault();　else if (e.returnValue) e.returnValue = false; else return false;
+* 当前的DOM事件规范在Event对象上定义了一个新的属性defaultPrevented，它还尚未得到广泛的支持，它的值一般为false，只有在preventDefault()调用后变成true
+* 取消事件的默认操作只是事件取消中的一种，我们还能取消事件的传播，在支持addEventListener的浏览器中，可以调用stopPropagation()阻止事件继续传播
+* 如果在同一元素对象上注册了其他处理程序，剩下的处理程序会依旧调用，但其他对象上的事件处理程序就不会调用了，该函数可以在事件传播期间任何时间调用（三个阶段都可以）
+* IE9之前的IE浏览器不支持stopPropagation()方法，但在事件对象上定义了一个cancelBubble属性，将这个属性设置为true可以阻止事件继续冒泡，因此只能在事件冒泡阶段阻止事件继续传播
+* 当前的DOM事件规范在Event对象上定义了一个新的方法stopImmediatePropagation()，该方法会立即阻止事件传播，在当前对象上注册的其他处理程序也不会被调用，这个方法只有某些浏览器支持
+```
+
+SVG绘图
+```
+* SVG（Scalable Vector Graphics）代表的是可缩放矢量图形，它是一种XML应用，可以以一种简洁可移植的方式表示图形
+* 计算机有两种描述图形的系统，栅格图形（raster graphics）和矢量图形（vector graphics），栅格图形保存一系列的像素或位图，它的显示仅需要将像素传输到屏幕上
+* 矢量图形保存的是几何图形的描述（绘图命令），由于保存的不是最终计算好的像素，它的形状和颜色可以在绘制前改变，而且图像的缩放不会损失图像质量，另外图像中的文本是可搜索的
+* SVG元素可以通过width和height指定图像尺寸，包含标题<title>可用于在解析器标题栏或鼠标停留时显示，包含<desc>元素为图像提供完整的描述信息
+* 在一个文件中可以同时使用SVG代码和HTML标签，混合的一种方式是通过<foreignObject>元素在SVG中插入HTML内容，其矩形区域尺寸可通过属性x, y, width, height设定
+* 但<foreignObject>并未得到很好的支持，可以使用<switch>为不支持的浏览器提供替代方案，例如 <g transform="skewX(20)"><switch>see below</switch></g>
+* <foreignObject x="1em" y="25%" width="10em" height="50%" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+* <body><p>This is an XHTML paragragh embedded within a SVG. The text can be skewed from the SVG transform.</p></body></foreignObject>
+* <text x="1em" y="25%" dy="1em">This SVG text wont wrap, so it will get cut off...</text>
+* 混合SVG和XHTML的另一种方式是在XHTML文档中包含SVG标记，在HTML5这种非XML兼容的HTML文档中也可以使用，这种方式称为内联SVG（Inline SVG，还有一种Infile SVG）
+* 所有主流浏览器以及大多数最新移动浏览器都支持内联SVG，可以通过在SVG命名空间中定义SVG元素来表明将要切换到SVG，实现方式是在顶级<svg>元素上设置xmlns="http://www.w3.org/2000/svg"
+* 这个命名空间声明会改变该元素及其子元素的默认命名空间，但对于HTML5文档（使用<!DOCTYPE html>）可不声明命名空间，HTML解析器会自动辨别<svg>及其子元素都在SVG命名空间内，除了<foreignObject>
+* 默认情况下<svg>是内联元素，会和前后的元素显示在同一行；SVG默认的坐标系以左上角为原点，向右为x轴，向下为y轴；坐标默认单位是像素（px），其他单位还包括：
+* 默认字体高度，通常相当于文本行高（em）；字母x的高度（ex）；点，1/72英寸（pt）；12点，1/6英寸（pc）；厘米（cm）；毫米（mm）；英寸（in）；还可以是百分比，表示相对于父元素尺寸的比例
+* 有时可能想改变坐标系的默认单位，例如使每个坐标单位表示1/16厘米，这一效果可以通过<svg>元素上的viewBox属性实现，这个属性由4个数值组成，分别是坐标系的最小x坐标，最小y坐标，以及坐标系的宽度和高度
+* 因此，要在4厘米x5厘米的图纸上设置每厘米16个单位的坐标系统，对应的<svg>元素为 <svg width="4cm" height="5cm" viewBox="0 0 64 80">
+* 但width/height宽高比可能与viewBox指定的宽高比不一致，SVG有三种处理方式：按较小的尺寸等比例缩放图形以使图形全部显示，该情况下图片在某一方向会比视口（viewport）小
+* 可以决定将图片显示在顶部、中部还是底部，左边、中间还是右边；第二种情况是按较大的尺寸等比例缩放图形并剪裁掉超出视口的部分，这时图片的某一方向会比视口大，可以选择剪裁图片的哪一部分
+* 第三种情况是不保留图片的宽高比，对图片进行拉伸或挤压以使其填满新的视口；元素<svg>的preserveAspectRatio属性可以用来指定缩放和对齐方式，其默认值是 "xMidYMid meet"
+* meet是按较小尺寸等比例缩放（xMidYMid表示水平和垂直都居中显示），另外slice表示按较大尺寸等比例缩放，或者使用none表示不保持图片的宽高比例
+* 可以在任何时候插入<svg>建立新的视口和坐标系统，其效果是在主画布上创建一个新的迷你画布，例如在主画布和子画布上都显示一个圆
+* <svg width="200" height="200" viewBox="0 0 200 200"><circle cx="25" cy="25" r="25" />
+* <svg x="100" y="5" width="30" height="80" viewBox="0 0 50 50" preserveAspectRatio="xMaxYMax meet">
+* <circle cx="25" cy="25" r="25" /></svg></svg>
+* 注意如果一个保持宽高比的<svg>放在一个不保持宽高比的父元素<svg>里，子<svg>会在父元素中被压缩或拉伸来适应其视口坐标
+* 在CSS2样式中长度必须提供单位（0除外），而SVG长度单位是可选的，其默认单位是当前svg定义的用户坐标系单位（如上面的例子），如果坐标系也没有单位则默认是像素
+* 可用的单位包括：绝对单位厘米（centimeters/cm）、毫米（millimeters/mm）、英寸（inches/in/2.54cm）、72分之1英寸（points/pt）、6分之1英寸（picas/pc）
+* 相对单位像素（pixel/px）、字高（em）、字母x的高度（ex）、以及百分比（%），其中 px 会根据设备分辨率的设置而变化，em 表示对应元素属性font-size的值（也即字体总高度/上部高度加下部高度）
+* ex 表示对应元素字体字母x的高度，而百分比根据属性的定义是相对另外一个值的比例；如果元素font-size属性自己使用 em 或 ex，则是相对父元素的字体大小，另外根元素如html则使用font-size的默认初始值
+---
+* stroke-width表示笔画宽度，stroke表示笔画颜色，基本颜色有 aqua, black, blue, fuchsia, gray, green, lime, maroon, navy, olive
+* purple, red, silver, teal, white, yellow　等；或使用#rrggbb和#rgb通过十六进制数表示颜色，或rgb(r,g,b)通过数值0~255或百分比0%~100%来指定
+* 另外还可以使用currentColor关键字表示当前元素继承的CSS颜色值，CSS中父元素的设定会继承给子元素，但对SVG没有直接效果，需要显式指定
+* 其他一些颜色设定方法有 rgba(r,g,b,a), hsl(hue,saturation,lightness), hsla(h,s,l,a), transparent (完全透明，相当于rgba(0,0,0.0))
+* 虽然这些方法被浏览器广泛支持，但并不属于SVG1.1规范，且可能不被其他的S解析器（如Apache Batik和Inkscape）支持；如果不指定颜色，stroke默认为none，将看不到任何显示
+* stroke-opacity可以设置不透明度，其取值范围是0.0到1.0，其中0表示完全透明，1表示完全不透明，小于0的值会被调整为0，而大于1的值会调整成1，完全不透明表示笔画会完全覆盖笔画下面的颜色
+* stroke-dasharray用来表示点线或虚线，它的值由一系列数字构成，代表线的长度和空隙的长度，数字之间用逗号或空格分割，数字的个数应该为偶数，如果是奇数SVG会重复一次使总个数为偶数
+* stroke-linecap表示线帽，其中butt是默认值不会在线段的开头和结尾添加多余的开始和结束线段（即线帽），round表示添加半圆形线帽，square则添加矩形线帽
+* stroke-linejoin表示共顶点的两条线段，经过顶点如何从一条线段过渡到另一条线段，其中miter表示使用尖角过渡，round表示使用圆角过渡，bevel表示使用平顶过渡
+* 如果两条线相交的顶点是锐角，且stroke-linejoin的值为miter，则相交处有可能比线本身宽，可以指定stroke-miterlimit来设置相交处的显示宽度与线宽的最大比率，默认是４
+* 封闭图形还有fill和fill-opacity属性，fill表示填充的颜色，其中none表示不填充，fill-opacity表示填充的不透明度，另外如果设置stroke为none将不会绘制封闭图形的边框
+* 封闭图形的边框是骑在封闭图形的边线上，边框的宽度一半在封闭图形内，一半在图形外；矩形的x和y值（最小x和y值）如果不指定，默认都为0，width和height不能为负数
+* 矩形还可以设置圆角半径，通过rx和ry指定，它们的最大值是矩形宽度或高度的一半，如果只指定了其中一个相当于两个数值相同
+* 在绘制多边形（polygon）时，如果其中有边交叉，要区分哪些区域是图形的内部并不容易，SVG通过fill-rule指定使用那种规则判定，其中nonzero是默认值，还可以使用evenodd
+* nonzero在判断某个点是否在图形内部时，从这个点画一条线到无穷远，然后数这条线与图形的边有多少次交叉，如果从左往右和从右往左的交叉次数一样，则认为该点在图形外部
+* evenodd也同样画线，但它只算与边线相交的次数，如果总数是奇数则认为点在图形内部，否则点在图形外部
+* SVG样式可以通过内联样式（设置style），内联样式表（<defs><style type="text/css"><![CDATA[circle {stroke: blue;}]]></style></defs>）
+* 外部样式表（<?xml-stylesheet href="ext_style.css" type="text/css"?>）来表示，或使用表现属性（<line stroke="black" stroke-width="4">）
+* 其中表现属性优先级最低，任何来自内联样式、内部样式表、外部样式表的样式声明都会覆盖表现属性，但表现属性会覆盖继承样式
+* 将多个图形包含在元素<g>中可以建立分组，分组元素可以复用，例如 <g id="whiskers"><line/><line/></g> <use xlink:href="#whiskers" x="10" y="20" transform="scale(-1 1)"/>
+* <use>元素的xlink:href属性工作在不同的命名空间中，为确保SVG能在所有解析器中工作，必须在开始的<svg>标签中添加属性 xmlns:xlink="http://www.w3.org/1999/xlink"
+* <g>元素也可以包含自己的<title>和<desc>，而且<g>可以彼此嵌套，一个分组可以被包含在另一个分组中，并且<g>元素可以放置在<defs></defs>中表示仅声明而不显示，相当于模板
+* 这样声明的分组图形可以基于(0,0)计算坐标，另外<use>可以使用自己的样式覆盖模板样式，而且可以使用<use>建立新的<g>
+* 实际上，<use>元素并不限制于引用同一文件中的对象，xlink:href可以是任意的有效URL，这使得可以将一组公用元素放在SVG文件中，例如一个identity.svg文件如下：
+* <g id="company_mascot"></g><g id="company_logo"><polygon points="0 20, 20 0, 40 20, 20 40" style="fill:#696;"/></g><g id="partner_logo"></g>
+* 然后在use中引用这个文件 <use xlink:href="identity.svg#company_logo" x="200" y="200" />，处于安全原因并非所有浏览器都支持外部引用，其中IE完全不支持
+* <symbol>提供另一种组合元素方式，与<g>不同<symbol>永远不会显示，因此无需放在<defs>中，它还可以指定viewBox和preserveAspectRadio，通过给<use>添加width和height进行适配
+* <use>元素允许复用SVG文件的一部分，而<image>可以包含一个完整的SVG或者栅格文件，如果是SVG其视口会基于文件的x、y、width、height属性来建立
+* 如果包含栅格文件，图像会被缩放以适配元素矩形，SVG规范要求解析器支持jpeg和png两种栅格文件格式，解析器还可能支持其他格式如gif
+* 例如在SVG文件中包含jpeg文件：<image xlink:href="a.jpg" x="72" y="92" width="160" height="120" /> 如果图像尺寸和元素尺寸不匹配，<image>可使用preserveAspectRatio属性设置该怎么处理
+* 如果包含的是SVG文件，还可以在preserveAspectRatio值的开头添加defer关键字，比如"defer xMidYMid meet"，此时包含的图像如果也有preserveAspectRatio属性，则会使用图像的属性值来替代
+* 前面介绍的所有基本形状都是<path>元素的简写形式，它们让SVG更可读更结构化，而<path>更通用，它通过指定一系列相互连接的线、圆弧和曲线来绘制任意形状的轮廓，这些轮廓也像基本形状一样可以填充颜色或绘制轮廓线
+* <path>中所有描述轮廓的数据都放在d属性中，其中包含了单个字符的命令，如M表示moveto，L表示lineto，小写的m和l表示使用相对于前一坐标点的相对坐标，每个路径都必须以M开始但可包含多个M
+* Z或z表示画一条线到当前子路径的起点，另外<path>还有一些快捷命令，例如H或h画一条水平线，V或v画一条垂直线，而且L或l后面可以跟多个点，如果M或m后面省略了L或l，则认为从第2个点开始都跟随在L或l后面
+* 多余的空白也可以省略，比如字母和数字之间的空白，负号与前一个数字或字母之间的空白；<path>还可以绘制曲线，但两点之间的曲线有无限条，必须给额外信息来确定一条曲线
+* 最简单的是椭圆弧，它使用命令A或a绘制，其后跟7个参数：椭圆x和y轴半径，椭圆的x轴旋转角度，large-arc为1表示需要的圆弧的角度大于或等于180度，sweep表示需要的圆弧以正角度绘制，终点坐标（起点通过M指定）
+* 注意，不能使用一个路径绘制一个完整椭圆，如果弧形的起点和终点重合，则有无数种方式绘制椭圆，SVG解析器会跳过这样的圆弧命令，另外给定的椭圆半径太小，解析器会扩大半径直到它足够覆盖起点和终点（TODO贝塞尔曲线）
+* <marker>元素可以给<path>添加标记，一个标记是独立图形（如圆点、箭头），该元素本身不会显示，可以放在<defs>元素中表示可复用元素，然后在<path>中通过像style=marker-start:url(#id)的方式引用
+* <marker id="startcircle" markerWidth="10" markerHeight="10" refX="5" refY="5"><circle cx="5" cy="5" r="4" /></marker>
+* 其中refX和refY表示marker中那个点与路径的开始点（如果在marker-start中引用）进行对齐，marker-end表示在路径结束点添加标记，而marker-mid表示在除起点和终点的其他所有点添加标记
+* 但标记有需要旋转的问题，可以将marker的orient属性值设为auto，让标记自动旋转来匹配路径的方向；还可以在<marker>元素上设置viewBox和preserveAspectRatio更好的控制它的显示
+* 另外一个有用的属性是markerUnits，如果将它设为strokeWidth，标记的坐标将以笔画宽度为单位，如果设置为userSpaceOnUse，标记的坐标将与引用它的对象的坐标系一样
+* 如果要在路径的起点、中间点以及终点使用相同的标记，只需使用marker属性引用标记即可，另外在<polygon>、<polyline>、<line>中也可以引用<marker>
+* 字体中字符的显示都以基线对齐（基线baseline即字符A或X的底部），底部高度descent是基线以下的高度（例如g的底部到基线之间的距离）
+* 上部高度ascent是基线以上的高度，包括字符A的整个高度再加上最上面可能出现音调字符的高度，底部高度与上部高度之和即字符的总高度，也称为em高度
+* 另外还有大写字母高度cap-height（例如大写字母A），小写字母x的高度，因此 "字母x的高度" < "大写字母高度" < "上部高度"　< "字符总高度"
+* 使用<text>元素最简单的情况是指定x和y属性，定位第一个字符的基线位置，文本的默认样式是黑色填充（fill="black"）、没有轮廓（stroke="none"）
+* 文本的笔画是一个小的封闭图形，笔画的两边是它的轮廓，可以应用到文本的样式还有：font-family可以指定以空格分隔的一系列字体名称，前面的字体将优先尝试，直到识别到支持的字体
+* 最后一个字体必须是通用字体，如果前面所有字体都不支持则使用通用字体，SVG解析器要求必须支持通用字体，这些通用字体包括：serif, sans-serif, monospace, fantasy, cursive.
+* serif表示衬线字体，字体的边缘有小勾，而sans-serif是非衬线字体没有小勾，monospace不管有没有衬线所有字符的宽度必须一致，fantasy和cursive代表的默认字体在不同解析器上可能有很大不同
+* font-size表示字体大小，是两条基线之间的距离，注意在SVG中开发者必须自己定位多行文本，如果指定绝对单位则字体大小可能受变换和viewBox的影响，而相对单位如em/ex/％则相对于继承字体大小计算
+* font-weigth有normal和bold（粗体）两个值，font-style有normal和italic（斜体）两个值，text-decoration有none/underline/overline/line-through等值
+* word-spacing设置正值增大单词间距，负值减少间距，normal正常间距，而letter-spacing表示字符间距；text-anchor有start/middle/end表示左／居中／右对齐（对于从左往右书写的文本）
+* <tspan>元素可用在<text>元素中给文本片段添加效果，除了改变字体大小、颜色、字重，还可以在<tspan>上应用一些属性改变某个字母或某些字母的位置，例如上标和下标可以用dy属性来实现垂直偏移
+* 而dx属性可改变水平偏移，还能使用x和y属性对文本进行绝对定位，这在处理多行文本时非常有用，因为SVG不会处理换行符，不会自动换行，必须手动为每一行设定x属性并使用y或dy进行垂直定位
+* 另外还可以使用rotate属性对<tspan>中的单个字符或一些字符进行旋转，它的值以度为单位；如果需要一次修改多个字符的位置，不需要多个<tspan>而可以在一个<tspan>中进行设置
+* 方法是给x, y, dx, dy, rotate等属性一次设置用空格分隔的多个值，这些值会按顺序一个一个应用到<tspan>中的字符上，注意dx和dy的值即使在<tspan>元素关闭后仍持续有效
+* 尽管可以使用dy属性来产生上标和下标，但使用baseline-shift属性可能更简单，这个属性的值可以为super和sub，也可以指定一个长度值例如0.5em或相对字体尺寸的百分比，而且它的影响范围仅限于<tspan>
+* 尽管无法提前知道一段文本的结束位置，但可以使用textLength属性显式设置文本的长度，SVG会将文本调整到指定的长度，在调整的时候可以只调整字符间距，也可以同时调整间距和字符大小
+* 设置属性lengthAdjust为spacing，该值是默认值，只会调整间距，如果设成spacingAndGlyphs会同时调整字符大小
+* SVG还可以实现纵向文本，方法是使用transform将文本旋转90度，或将writing-mode属性值设为tb，即 top to bottom，有时也希望文本垂直排列时字符本身仍然横向显示
+* 此时可以将glyph-orientation-vertical属性设为0（默认值是90度）实现这个效果，即纵向排列的文本字母不进行旋转，如果这样排列的文本间距不自然，可以将letter-spacing设置一个小的负值
+* 在同一个文档中显示多种语言的能力在一些场景下很有用，SVG通过<switch>元素提供这种能力，这个元素会搜索所有的子节点，直到发现systemLanguage属性值与用户当前正在使用的语言设置相符
+* systemLanguage属性的值是一个语言名称或使用逗号分隔的语言名称列表，语言名称要么是两个字母的语言代码，例如ru表示俄语，要么是语言代码加上国家代码，用于指定某个亚种语言
+* 例如fr-CA表示加拿大法语，而fr-CH表示瑞士法语；一旦找到匹配的子节点，则该节点所有子节点都会被显示出来，<switch>其他子节点则被忽略，如果语言代码能匹配则认为已匹配，国家代码只用于进一步确认
+* 例如<switch><g systemLanguage="en-UK"><text></text></g><g systemLanguage="en"><text></text></g><g systemLanguage="ru"><text></text></g></switch>
+* 通常情况下，还应该在<switch>元素内容的最后放置一个不写systemLanguage属性的分组，以便匹配失败时显示；理想情况下，你应该为用户提供一种从可用语言中选择其一的方式
+* 有些时候你需要一些在Unicode中没有的特殊符号，或者希望只使用Unicode中的部分字符，则可以制作一个自定义的字体使用，SVG字体目前不被IE浏览器以及Firefox支持
+* 文本并不一定要沿垂直或水平直线排列，它可以沿任何路径排列，只要将它们放在<textPath>元素里面，然后使用xlink:href引用一个之前已经定义好的<path>元素即可
+* 此时字符的基线会旋转成为曲线的切线，沿光滑连续曲线排列的文本比沿有锐角或不连续路径排列的文本更易读，可以将<path>定义在<defs>中使路径不显示，而且通过<use>可以在需要时显示
+* 还可以设置startOffset属性（百分比或长度）调整文本在路径上的开始位置，如果希望文本相对路径居中，只需在<text>上设置textanchor="middle"并在<textPath>上设置startOffset="50%"即可
+* 另外，比路径长的文本会被截断，即超过路径结尾处的文本不会显示；默认情况下，SVG还按如下规则处理空白字符：删除所有换行符，将所有制表符换成空格，删除首尾空格，将任意数量的连续空格换成一个空格
+* 可以使用xml:space属性改变空白处理方式，默认值是default，如果指定为preserve则只会将换行符和制表符转换成空格然后原样输入，首尾空格也会保留
+* SVG对空白的处理方式与HTML不完全一样，SVG的默认方式会去掉所有的换行符，而HTML会将换行符转换成空格；SVG的preserve方式会将所有的换行符转成空格，但HTML的<pre>元素会保留换行符
+* SVG中可以添加连接元素<a>进行跳转，例如 <a xlink:href="http://www.w3.org/SVG/"><circle></circle><rect></rect><patch></path></a>
+* 鼠标拖动问题，例如在一滑块上按下鼠标并拖动鼠标，当鼠标移动到响应元素区域之外时释放鼠标，元素就不会对释放事件进行响应，为了解决这个问题可以添加一个完全覆盖当前可视区域的透明矩形
+* 为了让这个矩形不干扰图形，将fill属性设置为null，但透明元素不会响应事件，可以将pointer-events的值设为visible只要元素没有隐藏就能对事件进行响应
+```
+
+CSS样式
+```
+* 简单选择器：所有p元素（p），ID选择（#id），类选择（.staff），所有元素（*），对应类名的所有p元素（p.news），对应ID的所有body元素（body#id）
+* 后代选择器：所有blockquote元素中的所有p元素（blockquote p），ID中的所有h2元素（#id h2），p的所有后代元素（p *）
+* 伪类选择器：所有没有访问的链接（a:link），所有已访问过的链接（a:visited），鼠标停留的链接（a:hover/a:link:hover/a:visited:hover）
+* CSS2.1和CSS3定义的高级选择器包括直接后代选择器、兄弟选择器、属性选择器等，IE6等老式浏览器不支持
+* 直接后代选择：ID中直接后代中的li元素（#nav>li）；后面兄弟选择：h2元素后面所有p兄弟元素（h2 + p）
+* 属性选择器：拥有title和id属性的所有acronym元素（acronym[title][id]）,拥有对应属性值的所有a元素（a[rel="nofollow"]）
+* 一个属性如果有由空格分隔的多个值，可以使用诸如（.blog a[rel~="co-worker"]）的方式选择拥有该属性值的元素
+* 以指定字符串开头的属性值（[href^="http:"]）,已指定字符串结尾的属性值（[href$=".pdf"]），包含某子串的属性值（[href*="cgi"]）
+* 以指定单词开始的属性值（[lang|="en"]），它可以匹配 lang="en", lang="en-us", lang="en-au" 等
+* 用逗号可以合并多个选择器选择的元素（p, div, h1, h2, h3, u1, ol, dl, li, .box h2）
+---
+浮动/定位/盒模型
+* 元素在页面上呈现为矩形框，这个框由元素内容（width/height）、内边距（padding）、边框（border）、和外边距（margin）组成
+* 元素背景会应用于元素内容和内边距上，如果元素有滚动条，也会显示在内边距以内；外边距是透明的，用于控制元素间距，可以设置成负值
+* 边框是可装饰的，如可以设置成实线、虚线、点线等；CSS2.1还包括轮廓（outline），轮廓绘制在边框上不影响元素大小和定位，大多数浏览器支持轮廓（如IE8+）
+* 元素内边距、边框、外边距都是可选的，默认值为0，但浏览器默认样式会影响其初始值，可以在样式表中设置默认值覆盖浏览器设定
+* 相关属性：width height padding/-left/right/top/bottom border/-left/right/top/bottom margin/-left/right/top/bottom
+* 低版本IE浏览器（IE6）在混杂模式中使用自己的非标准模型，该模式下宽度（width）是标准模型中的宽度、内边距、以及边框之和
+* 当两个或多个垂直外边距相遇时，会合并成一个外边距，这个外边距的高度是外边距的较大者，外边距叠加的情形有：
+* 垂直相遇两元素，上元素下外边距与下元素上外边距叠加；无内边距和边框的父元素外边距与子元素外边距碰到一起，两个上外边距、两个下外边距叠加
+* 无内边距和边框的空元素，上下外边距碰到一起，上下外边距叠加，如果这个叠加后的外边距在垂直方向还与另一外边距相遇，会继续叠加
+* 这是一系列空元素占用空间小的原因，因为所有外边距都叠加到一起形成一个外边距；外边距叠加的意义是垂直元素间距会与第一元素顶部或最后元素底部空间相等
+* 注意只有普通文档流中的块框垂直外边距才会叠加，行内框、浮动框、绝对定位框之间的外边距不会叠加
+* 块级元素显示一个块框，行内元素显示一个行内框，为行内元素设置 display:block 可使其表现得像块级元素，元素如果设置 display:none 将隐藏不再占用空间
+* CSS有三种定位机制：普通流、浮动、和绝对定位；默认情况下所有元素都在普通文档流中定位，元素位置由它在文档中的位置决定：
+* 块级框会一个接一个地垂直排列，框之间的垂直距离由框垂直外边距决定；行内框在一行中水平排列，可以使用水平内边距、边框、外边距调整它们的水平距离
+* 但是行内框的垂直内边距、边框和外边距不影响行内框的高度，在行内框上显式设置高度和宽度也没有效果，一行水平框称为行框，行内框包含在行框内
+* 行框的高度总是足以容纳它包含的所有行内框，但是设置行高可以增加这个行框的高度，因此修改行内框尺寸的方法是修改行高或水平内边距、边框和外边距
+* CSS2.1允许把元素 display 属性设置成 inline-block，即让这个元素像行内元素一样水平排列，而且能像块级元素一样能显式的设置宽度、高度、垂直内边距和外边距
+* Firefox 3.0+ 以及 IE8+ 和 Safari/Opera 的最新版本都支持 inline-block，现代浏览器使用 inline-block 可能创建有意思的布局
+* 框可以按照 HTML 元素嵌套的方式包含其他框，大多数框由显式定义的元素形成，但以下情况即使没有显式定义也会创建块级元素
+* <div>some text <p>more text</p> some text</div> 其中的 "some text" 会形成匿名块框；另外，块级元素内的每一文本行都会形成一个匿名行框
+* 无法直接对匿名块框或行框应用样式，除非使用不常用的 :first-line 伪元素，但它们有助于对元素框构成关系的理解
+* 可以设置 position:relative 对元素进行相对定位，例如将 left 和 top 设置成 20 个像素，该元素会相对其原始文档流中的位置向右和向下移动 20 个像素
+* 相对定位的元素，不论是否移动都始终占据原来文档流中的位置，因此在普通文档流中的其他元素的位置都会保持不变，也因此相对定位会导致覆盖其他框
+* 第二种定位是绝对定位，不相对定位不同的是它使元素的位置与文档流无关，当对一个元素进行绝对定位时，它会从文档流中移除不再占据文档流空间
+* 这使得文档流中的其他元素就像绝对定位的元素不存在一样，绝对定位是相对距离它最近的已定位的祖先元素进行定位，如果不存在已定位祖先元素则相对初始包含块（如html元素）定位
+* 因为绝对定位与文档流无关，所以它们可以覆盖页面上的其他元素，另外可以设置 z-index 控制这些框的叠放次序，z-index 值越大，元素框在栈中的位置就越高
+* 相对于已相对定位的祖先元素进行绝对定位，在大多数现代浏览器中实现得都很好，但是 IE5.5 和 IE6 存在 bug，如果要相对右边或底部定位，祖先元素必须设置了尺寸
+* 否则 IE 会错误的相对与画布定位这个框，简单的解决方法是为相对定位的框都设置宽度和高度，后面内容还会进一步讨论这个问题的解决方法
+* 对于具有固定尺寸的元素，可以方便的对它们进行绝对定位而不会重叠，但如果增大绝对定位框（如增加字号）可能会导致覆盖其他绝对定位元素而破坏元素布局
+* 固定定位是绝对定位的一种，但它是相对视口进行定位的，这使得元素总出现在浏览器视口的相同位置上而不受滚动条的影响，例如可以将用户评论输入框总显示在视口固定位置
+* 但是 IE6 以及较低版本不支持固定定位，IE7 只部分支持这个属性（其实现有许多 bug），但可以使用 JavaScript 脚本在 IE 上实现固定定位的效果
+* 第三种定位是浮动定位，浮动定位元素可以左右移动，直到它碰到包含框或另一浮动框边缘，浮动定位元素也不属于文档流，对文档流中的其他元素表现得就像这个元素不存在一样
+* 例如三个大小相同的块框，如果框一向左浮动，框二将会移动到框一的下面被框一完全覆盖；如果框二向右浮动，框三或占据原来框二的位置，而框二会浮动到最右边
+* 如果三个块框都向左浮动，则垂直排列的块框会变成水平排列，如果空间不够后面的块框会继续排列到第二行，但如果框一比后面元素的高度高，浮动到第二行的元素或被框一卡住
+* 行框和清理：浮动会使元素脱离文档流不再影响不浮动的元素，但实际并不完全如此；如果浮动的元素后面有一个文档流中的元素，这个元素确实表现得浮动元素不存在一样
+* 但文档流元素内的行框会受浮动元素影响，这些行框会自动相对浮动元素进行缩短，以围绕在浮动元素周围，这个特性使得浮动可以实现文字环绕图片的效果
+* 如果要阻止行框围绕浮动元素的行为，需要对包含这个行框的元素应用 clear 属性，这个属性可以设置为 left、right、both、或 none，表示框的哪一边不应该挨着浮动框
+* 应用这个属性时，浏览器会给元素增加足够多的上外边距，使元素内容的上边缘垂直下降到浮动框下面；另外一个问题是如果容器元素中的所有元素都浮动了，该容器元素将不再包含浮动元素
+* 例如 <div><img src="a.jpg"/><p>Some text</p></div> 中如果 img 向左和 p 向右都浮动了将都脱离文档流，包含它们的 div 元素将不占空间，如果让 div 元素在视觉上任然包含浮动元素呢
+* 可以增加一个额外的元素并将它设置成 clear:both，例如将 <div><img src="a.jpg"/><p>Some text</p><br class="clear"/></div> 中的 br 进行清理：.clear { clear:both; }
+* 元素的 overflow 属性定义当内容超出元素指定的尺寸时怎么办，默认情况下内容会溢出到框外进入相邻空间，另外 overflow 属性有一个有用的副作用
+* 当将这个属性设为 hidden 或 auto 时，会自动清理该元素包含的任何浮动元素，这是一种有用的元素清理方法，不需要添加额外的标记，但这种方法不适合所用情况，会在某些情况下产生滚动条或截断内容
+* CSS的布局技术根本上只有三个基本概念：定位、浮动和外边距操纵；要想创建可伸缩且容易维护的CSS系统，首先应该检查设计寻找重复的模式，这包括页面结构中的模式或站点中元素反复出现的方式
+* 这个阶段不应该太关注表现方式，而是注意结构和意义；先可以把页面划分为大的结构区域，比如容器、页眉、内容区域和页脚，这些区域在整个站点中往往是一致的，很少改变
+* 然后将注意力转移到内容区域本身，开始建立网格结构设计不同的内容区域，大多数情况下只会涉及几个独特的内容区域，最后在各个内容区域中寻找不同的布局结构形成每个页面的结构计划
+* CSS validator: http://jigsaw.w3.org/css-validator/
+* IE 浏览器注释：<!--[if IE 6]><![endif]--> <!--[if lt IE 6]><![endif]--> <!--[if gte IE 6]><![endif]-->
+* IE6 浮动元素双外边距 bug，解决方法是将浮动元素设置 display:inline；绝对定位元素在 IE6 上的问题可以在容器元素上显式设置高度（如 height: 1%;），IE6 中的高度相当于 min-height
+```
+
+JSON格式
+```
+* 数字: `3, 12`
+* 空值: `null`
+* 布尔值: `false, true`
+* 字符串: `"abc" /* 必须用双引号 */`
+* 数组: `[3, null, "abc", [1, "a"], {"size":8, "data":"12345678"}]`
+* 对象: `{"size":8, "user":{"name":"john", "id":13}, "data":[1, 2]} /* 冒号前的名称必须使用双括号引起 */`
+```

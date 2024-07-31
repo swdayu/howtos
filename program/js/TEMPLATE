@@ -1,0 +1,74 @@
+<body>
+<header>
+    <img src="" alt="">
+	<h1></h1>
+</header>
+<aside>
+    <nav>
+	    <h2>Articles</h2>
+		<ul>
+		    <li><a href=""></a></li>
+			<li><a href=""></a></li>
+		</ul>
+	</nav>
+	<section>
+	    <h2>About Us</h2>
+		<p></p>
+	<section>
+</aside>
+<article>
+    <header>
+	    <h2></h2>
+		<h3></h3>
+		<p></p>
+	</header>
+	<p></p>
+	<figure></figure>
+	<aside></aside>
+
+	<h3></h3>
+	<p></p>
+	<aside>
+        <img>
+        <p></p>
+        <img>
+	</aside>
+
+    <h3></h3>
+	<p></p>
+</article>
+<footer></footer>
+</body>
+
+<aside id="page-nav">
+    <nav>
+	    <h2></h2>
+		<ul>
+		</ul>
+	</nav>
+	<section>
+		<h2></h2>
+		<p></p>
+	</section>
+	<section>
+	    <img>
+	</section>
+</aside>
+
+<header>
+	<h1></h1>
+	<p></p>
+</header>
+	
+<header>
+    <hgroup> //只能包含<h1>到<h6>等元素
+        <h1>How the World Could End</h1>
+        <h2>Scenarios that spell the end of life as we know</h2>
+    </hgroup>
+    <p class="author">by Ray N. Carnation</p>
+</header>
+
+<figure class="FloatFigure">
+    <img src="human_skull.jpg">
+    <figcaption>Will you be the last person standing if one of these apocalyptic scenarios plays out?</figcaption>
+</figure>

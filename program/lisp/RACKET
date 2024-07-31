@@ -1,0 +1,749 @@
+
+Racket installed target directories are like below:
+
+  [e] Executables    /usr/local/bin (exists)
+  [o] Libraries      /usr/local/lib/racket (will be created)
+  [s] Shared files   /usr/local/share/racket (will be created)
+  [c] Configuration  /usr/local/etc/racket (will be created)
+  [d] Documentation  /usr/local/share/racket/doc (will be created)
+  [a] .desktop files /usr/local/share/applications (exists)
+  [m] Man Pages      /usr/local/share/man (exists)
+  [l] C Libraries    /usr/local/lib (exists)
+  [h] C headers      /usr/local/include/racket (will be created)
+
+Racket document (run raco docs can open local installed docs):
+
+  * Racket documentation (https://docs.racket-lang.org/)
+  * Racket quick introduction with pictures ($DOCS/quick/index.html)
+  * The Racket guide ($DOCS/guide/index.html)
+  * The Racket reference ($DOCS/reference/index.html)
+
+
+
+The Racket Quick Guide
+----------------------
+
+
+Racket's reader is a recursive-descent parser that can be configured through
+a readtable and various other parameters. This section describes the reader's
+parsing when using the default readtable. The reader can be invoked in either
+of two modes: read mode, or read-syntax mode.
+
+Symbols, keywords, strings, byte strings, regexps, characters, and numbers
+produced by the reader in read-syntax mode are interned, which means that
+such values in the result of read-syntax are alwasy eq? when they are equal?.
+Symbols and keywords are interned in both read and read-syntax mode.
+
+Racket 读取器可以工作在 read 或 read-syntax 模式，read 模式返回具体的值，
+而 read-syntax 则返回语法对象。上面 Interned 的含义是，如果一个类型是
+Interned 的，则表示该类型的两个值如果相等，俺么这两个值一定指向同一个
+对象。其中对于值的比较， eq? 仅比较是否为同一个对象，eqv? 还会在不是同
+一个对象的基础上再比较整数和字符的具体的值，而 equal? 还要比 eqv? 比较
+得更多。
+
+Racket 规范中的语法表示，例如 (something [id ...+] an-expr ...) 的含义是
+something 这个结构有一个或多个 id（即标识符），零个或多个表达式。
+
+    ;; symbols
+
+    符号和符号列表是数据，标识符（表示变量或函数）和语法表达式是程序，但
+    这两者的呈现形式（textual representation）几乎是一样的，只差一个引号。
+    LISP 的表达式被称为符号表达式（s-expr, symbol expression），就是因为其
+    表达式在形式上就是一个符号列表。LISP 的这种性质，使得 LISP 可以优雅地
+    将程序当作数据来处理，将数据当作程序来执行。
+
+    具体的，eval 可以将符号或符号列表的引号去掉当作程序执行，引号或 quote
+    可以将标识符或语法表达式转换成符号或符号列表当做数据处理。
+
+    (define (f a b) (+ a b))
+    (define a 10)
+    (define b 20)
+    (f a b)                             -> 30
+    (define symbol-list '(f a b))
+    (eval symbol-list)                  -> 30
+    (first symbol-list)                 -> 'f
+    (second symbol-list)                -> 'a
+    (third symbol-list)                 -> 'b
+
+    更粗暴地，宏在编译时就可以将语法表达式转换成符号列表（通过调用编译时
+    函数 syntax->datum），然后可以对符号列表进行拆解、拼装、替换等能想到的
+    操作得到新的符号列表，最后通过编译时函数 datum->syntax 生成新的语法表
+    达式。
+
+    (define-syntax (transform stx)
+      (let* ((sym-list (cadr (syntax->datum stx)))
+             (new-list `(,(car sym-list) (* ,(cadr sym-list) ,(caddr sym-list)) 0)))
+            (datum->syntax stx new-list)))
+    (f a b)                        -> 30
+    (transform (f a b))            -> 200
+                                      这里相当于在编译时将 (f a b)
+                                      修改成了 (f (* a b) 0)
+
+    而 syntax-case 可以简化宏的编写：
+
+    (define-syntax (transform stx)
+      (syntax-case stx ()
+        ((_ (f a b)) #'(f (* a b) 0))))
+    (trasform (f 10 20))           -> 200
+
+    再回到对符号的讨论，符号是对标识符的引用，其内部表示可以看成保存的
+    其实就是一个字符串，这个字符串是标识符的名称，只要名称相同两个符号
+    内部指向的都是同一个字符串对象。
+
+    (define syma 'abc)
+    (define symb 'abc)
+    (define symc 'Abc)
+    (eq? syma symb)    -> #t
+                          因为 syma 和 symb 在内部指向同一个对象
+    (eq? syma symc)    -> #f
+
+    Racket 标识符名称的一般限制是，它表示的不能是一个数字，也不能包含空白
+    字符以及这些特殊字符 ( ) [ ] { } " , ' ` ; # | \ 。对于 # 字符，它只不允
+    许出现在标识符开头，另外单独的点号（.）不是一个表示符。其实，通过将字
+    符序列包含在两个 | 或 \ 字符之间，Racket 标识符几乎可以包含任意字符。
+
+    (define-values (|(f a b)| |3.14, 2|) (values (f a b) 6.28))
+    |(f a b)|                      -> 30
+    |3.14, 2|                      -> 6.28
+    (write '|(f a b)|)             -> |(f a b)|
+    (display '|(f a b)|)           -> (f a b)
+
+    另外使用 gensym 或 string->uninterned-symbol 可以生成一个全新的符号，
+    这个符号跟任何已经产生的符号都不相同，即使它们的名字一样。(The gensym
+    and string->uninterned-symbol procedures generate fresh uninterned symbols
+    that are not eq? to any previously interned or uninterned symbol. Uninterned
+    symbols are useful as fresh tags that cannot be confused with any other
+    value.)
+
+    (define s (gensym))
+    s                                          -> 'g119
+    (eq? s 'g119)                              -> #f
+    (eq? 'a (string->uninterned-symbol "a"))   -> #f
+
+
+    ;; keywords
+
+    关键字不能用作标识符，它自己就不是一个合法的表达式，但可以通过引用
+    形成一个表达式，得到这个关键字对应的符号（symbol）。更准确的，关键
+    字类似于标识符，是一类有特殊含义不能当作一般标识符使用的标识符。因
+    而关键字的引用就容易理解了，它就相当是一个标识符的引用，标识符的引
+    用就是一个符号。
+
+    #:apple  -> readline-input:215:0: #%datum: keyword used as an expression
+    '#:apple                     -> '#:apple
+    (string->keyword "apple")    -> '#:apple
+    (display '#:apple)           ->  #:apple
+    (string->keyword "an apple") -> '#:|an apple|
+    (write '#:|an apple|)        ->  #:|an apple|
+    (display '#:|an apple|)      ->  #:an apple
+
+    关键字的一个用途是，为函数定义可选的命名参数，即这个参数在函数调用时
+    可以不提供（此时使用默认值），也可以用命名方式提供（使用传入的值）。
+
+    (define (f a b (c 3) #:d (d 4) #:e (named-e 5)) (+ a b c d named-e))
+    (f 1 2)                                     -> 15
+    (f 1 2 4)                                   -> 16
+    (f 1 2 #:d 5)                               -> 16
+    (f 1 2 #:e 6)                               -> 16
+    (f #:d 5 1 #:e 6 2)                         -> 17
+    (define (f a b (c 3) #:d d) (+ a b c d))
+    (f 1 2)                                     -> application: required keyword argument not supplied
+    (f 1 2 #:d 5)                               -> 11
+    (f 1 2 4 #:d 5)                             -> 12
+
+    由于关键字本身不是一个表达式，因此每个关键字后面必须跟随一个表达式。
+    对于关键字参数的定义，关键字后面必须跟随一个形参名，或者形参名和默认
+    值；对于函数调用时的命名实参的传递，关键字后面必须跟随对应的实参。
+
+    关键字另外的用途是用在一些特殊的语法形式中。而对与运行时的标记或枚举
+    值，一般用符号表示。
+
+
+    ;; void and undefined
+
+    一些函数会产生空值，例如 display 和 define，调用这些函数的后的返回结果
+    是空的，Racket 提供了专门产生空值的函数 void，它可以接收任意多参数，产
+    生出一个空值。
+
+    (void)                -> print nothing
+    (void 1 2 3)          -> print nothing
+    (list (void))         -> '(#<void>)
+                             一个包含空值的列表
+
+
+    ;; quotes and backquotes
+
+    '(1 (+ 2 1) (+ 3 2))            => '(1 (+ 2 1) (+ 3 2))
+    `(1 ,(+ 2 1) ,(+ 3 2))          => '(1 3 5)
+    `(1 ,@(list (+ 2 1) (+ 3 2)))   => '(1 3 5)
+
+    Quasiquotes or backquotes are same as quites, but will evaluate the
+    expression prefixed by comma (,) or (,@) in the list first.
+
+    PAIR:       '((1 . 2) . 3)
+    LIST:       '(1 2 3)
+    VECTOR:     '#(1 2 3)
+    BOX:        '#&"apple"
+    HASHTABLE:  '#hash(("apple" . red) ("banana" . yellow))
+
+
+    ;; syntax objects
+
+    一个语法对象包含对应语法表达式的符号列表、源代码位置信息、词法绑定
+    信息。例如表达式 (+ 1 2) 对应的语法对象，其符号列表包含 '+ '1 '2 三个
+    符号，源代码位置信息包含该表达式在源代码中的行数和列数等信息常用来
+    提示发生语法错误的代码位置，而词法绑定信息让宏能够维护其词法作用域
+    规则。
+
+    只有一个符号（不是常量符号）的语法对象称为标识符语法对象（identifier
+    syntax object），通过函数 identifier? 来判断，而 free-identifier=? 可以
+    判断两个标识符语法对象对象的标识符是否执行同一个对象，如果是返回真。
+
+    (identifier? #'car)                    -> #t
+    (identifier? #'abc)                    -> #t
+    (identifier? #'123)                    -> #f
+    (identifier? #'(+ 1 2))                -> #f
+    (free-identifier=? #'car #'cdr)        -> #f
+    (free-identifier=? #'car #'car)        -> #t
+    (require (only-in reacket/base (car also-car)))
+    (free-identifier=? #'car #'also-car)   -> #t
+
+
+
+ | Definitions and Local Bindings
+
+
+(define <name> <expr>)
+(define-values (<name> ...) (values <value> ...))
+(define (<name> <args> . <rest>) <body>)
+(define (<name> <arg> ...) <body>)
+<arg> = <positioned-no-default-value-arg>
+      | (<positioned-has-default-value-arg> <default-value>)
+      | <named-keyword-arg> <keyword-arg-name>
+      | <named-keyword-arg> (<keyword-arg-name> <default-value>)
+(define ((<name> <args-without-default-value>)
+         <arg-can-have-default-value>
+         ...) <body>)
+<arg-can-have-default-value> = <arg-has-no-default-value>
+                             | (<arg-has-default-value> <default-value>)
+
+    (define x 12)
+    x                                           -> 12
+    (define-values (x y z) (values 1 2 3))
+    y                                           -> 2
+    z                                           -> 3
+
+    (define (g) 100)
+    (g)                                         -> 100
+    (define (f a b) (+ a b))
+    (f 1 2)                                     -> 3
+
+    (define (f . args) (/ (apply + args) (length args)))
+    (f 1 2 3)                                   -> 2
+    (define (f n . args) (/ (apply + args) n))
+    (f 3 1 2 3)                                 -> 2
+
+    (define (f a b (c 3) #:d (d 4) #:e (named-e 5)) (+ a b c d named-e))
+    (f 1 2)                                     -> 15
+    (f 1 2 4)                                   -> 16
+    (f 1 2 #:d 5)                               -> 16
+    (f 1 2 #:e 6)                               -> 16
+    (f #:d 5 1 #:e 6 2)                         -> 17
+    (define (f a b (c 3) #:d d) (+ a b c d))
+    (f 1 2)                                     -> application: required keyword argument not supplied
+    (f 1 2 #:d 5)                               -> 11
+    (f 1 2 4 #:d 5)                             -> 12
+
+    (define ((f a) (b 10) (c 20)) (+ a b c))
+    ((f 10))                                    -> 40
+    ((f 10) 20)                                 -> 50
+    ((f 10) 20 30)                              -> 60
+    (define ((g a) b (c 20)) (+ a b c))
+    ((g 10))                                    -> the expected number of arguments does not match the given number
+    ((g 10) 20)                                 -> 50
+    ((g 10) 20 30)                              -> 60
+
+(let ((<name> <value>)
+      (<name> <value>)
+      ...)
+     <body>)
+(let <body-proc> ((<name> <value>)
+                  (<name> <value>)
+                  ...)
+                 <body>)
+(let* is like let, but <value> is evaluated and the <name>'s location is
+ created one by one from left to right, so the name of current value can
+ be used in next value expressions; about let, its <name>s location are
+ created only after all <value>s are evaluated)
+(letrec is like let, but all <name>s' location are created first, so all
+ <name>s can be referenced anywhere in the letrec, only if they are referenced
+ not evaluated at the time, typically they are used in lambda body, because
+ they are not evaluated at the time lambda definition, only evaluated when
+ lambda is called later)
+(let-values (((<name> ...) (values <value> ...))
+             ((<name> ...) (values <value> ...))
+             ...)
+            <body>)
+(let*-values ...)
+(letrec-values ...)
+
+    (let ((x 1)
+          (y 2))
+         (+ x y))                                    -> 3
+    (let fac ((n 3))
+             (if (zero? n)
+                 1
+                 (* n (fac (- n 1)))))               -> 6
+    (let* ((x 1)
+           (y (+ x 2)))
+          (+ x y))                                   -> 4
+    (letrec ((even? (lambda (n) (or (zero? n) (odd? (- n 1)))))
+             (odd? (lambda (n) (not (even? n)))))
+            (odd? 11))                               -> #t
+    (let-values (((a b c) (values 1 2 3))
+                 ((x y) (quotient/remainder 10 3)))
+                (+ a b c x y))                       -> 10
+
+
+ | Pairs and Lists
+
+函数 cons 可以组装两个值形成一个二元组（pair），由 cons 构造的值用 pair? 判
+断都为真；列表 (list）是由 pair 形成的单链表，其中每个 pair 的第二个值又都
+是一个 pair，最后一个 pair 的第二个值是一个空值，表示链表的结束，相当于 C
+语言中单链表最后的空指针。这个空值使用 '() 或 empty 表示，规定为是一个空
+表，即用 list? 和 null? 判断都为真，但用 pair? 判断不为真，因为实际上这个
+是单独的一个值，不是二元组。
+
+列表有简写形式，如下第一列是原本的构造方式，后两列是简写：
+空表：         empty                             (list)        '()
+一个元素列表： (cons 1 empty)                    (list 1)      '(1)
+两个元素列表： (cons 1 (cons 2 empty))           (list 1 2)    '(1 2)
+三个元素列表： (cons 1 (cons 2 (cons 3 empty)))  (list 1 2 3)  '(1 2 3)
+
+二元组也有简写形式，每当使用两个值来构造一个二元组时，使用一个括号括起这
+两个值，并在这两个值之间使用点号（.）隔开，就是一个二元组的表达形式，如：
+'(1 . 2)        第一个值是 1，第二个值是 2
+'((1 . 2) . 3)  第一个值是二元组 '(1 . 2)，第二个值是 3
+'(1 . (2 . 3))  第一个值是 1，第二个值是二元组 '(2 . 3)
+
+其实，列表的简写形式是对二元组简写形式的化简：
+'(1 . (2 . (3 . ()))) 第一个值是 1，第二个值是二元组 '(2 . (3 . ()))
+这个二元组 '(2 . (3 . ())) 的第一个值是 2，第二个值是二元组 '(3 . ())
+这个二元组 '(3 . ()) 的第一个值是 3，第二个是空表 。
+可以看出上面的二元组实际上是列表 '(1 2 3)，可以对上面二元组形式化简得到
+简单的列表表达形式，化简的规则是点号（.）和后面的一对匹配的括号可以同时
+消掉，看下面的化简过程。
+
+原本二元组表示： '(1 . (2 . (3 . ())))
+消去第一个点号： '(1 2 . (3 . ()))
+消去第二个点号： '(1 2 3 . ())
+消去第三个点号： '(1 2 3)
+
+实际上任何可以化简的二元组在 Racket 的打印输出中都已经化简了，例如输入上
+面的列表二元组表示会直接打印出 '(1 2 3) ，再如前面例子中的 '(1 . (2 . 3))
+会打印 '(1 2 . 3) 。
+
+
+
+ | Lists and Racket Syntax
+
+从 Racket 代码的呈现形式可以看出，Racket 代码别无其他，仅由列表和列表中的
+符号、常量组成。因为 Racket 数据是用列表表示的，程序也是用列表的形式书写
+的，除了最基本数据和程序（如常量 1、3.14、"hello"，程序 +、-、* 等），所有
+一切都是列表。从这个意义上，Racket 语法的解析简单看就是对列表的读取和处理
+过程，具体的分为两个阶段：
+
+  1. 读取阶段（the reader layer），将字符序列转化为列表以及其中的符号和常量
+  2. 展开阶段（the expander layer），将列表作为表达式进行处理
+
+由于程序就是用列表表达的，而列表是二元组的简化形式，因此如果用二元组的形
+式来表达程序也是可以的，例如 (+ 1 . (2)) 等价于 (+ 1 2) 。另外二元组表达形
+式还有一种特殊情况，就是两个点号可以用在列表中一个元素的两边，只要这个元
+素不是第一个也不是最后一个元素，就会触发 Racket 的一个读取规则，这个规则
+会将这个元素移动到该列表的开头，例如 (1 . < . 2) 等价于 (< 1 2) 。这种方式
+仅仅是为了方便在极少情况下（例如使用 < 和 is-a? 的时候）将前缀表达式写成
+中缀表达式（infix convention）。
+
+
+ | Macros
+
+Racket 的语法可以进行定制，这个定制手段就是宏，宏通过语法转换器将原来的
+语法转换成自己想要的语法。语法转换器其实就是一个简单的函数，只不过它接
+收的是一个语法对象，并对这个语法对象进行处理，输出一个新的语法对象。
+
+从另一个角度，宏其实是对 Racket 编译器的扩展。另外，racket/base 和 racket
+库中的许多语法形式也都是通过宏来实现对小型核心构造集的扩充的。(To put
+in another way, a macro is an extension to the Racket compiler. Most of the
+syntactic forms of racket/base and racket are actually macros that expand into
+a small set of core constructs.)
+
+下面定义了一个简单的转换函数，它忽略接收的语法对象，简单产生一个字符串：
+
+    (define-syntax foo
+      (lambda (stx) (syntax "I am foo")))
+
+跟函数定义一样，上面的定义可以简写，另外语法对象也有简写形式，
+(syntax "I am foo") 就与 #‘”I am foo" 等价 。但不论怎么简写这仍然是在定义
+一个语法转换函数，接收一个语法对象作为参数，返回新的语法对象作为结果。
+
+    (define-syntax (foo stx) #’"I am foo")
+    (foo)                                          -> "I am foo"
+
+那么什么是语法对象，从书面形式上，语法对象不过就是列表或像常量这样的基本
+表达式。而从内部实现的角度，语法对象是对列表进行解析后的结构化数据，它存
+储了该列表对应语法的全部信息。下面的转换函数打印语法对象的详细信息，返回
+一个空值语法对象。
+
+    (define-syntax (show-info stx)
+      (println stx)
+      (println (syntax-source stx))
+      (println (syntax-line stx))
+      (println (syntax-column stx))
+      #'(void))
+
+    (show-info (+ 1 2))          -> #<syntax:51:0 (show-info (+ 1 2))>
+                                    'readline-input
+                                    65
+                                    0
+
+有了语法对象，我们可以对它进行拆解和重新组装，生成新的语法对象。
+
+    (define stx #'(if x (+ y z) #f))
+    stx                          -> #<syntax:66:14 (if x (+ y z) #f)>
+    (syntax->datum stx)          -> '(if x (+ y z) #f)
+                                    语法对象转换成了符号列表，这个列表中的
+                                    第一个元素是符号 'if，第二个元素是符号
+                                    'x，第三个元素是另一个符号列表，第四个
+                                    元素是符号 #f
+
+    (define stx-list (syntax->list stx))
+    stx-list                     -> '(#<syntax:69:15 if>
+                                      #<syntax:69:18 x>
+                                      #<syntax:69:20 (+ y z)>
+                                      #<syntax:69:28 #f>)
+                                    将语法对象进行下一层次拆解，
+                                    形成一个语法对象列表
+
+    (define stx-obj (caddr stx-list))
+    (define stx-data (syntax->datum stx-obj))
+    stx-data                     -> '(+ y z)
+                                    提取语法对象列表中的一个对象，
+                                    然后将该语法对象转换成符号列表
+
+    (define new-stx-data `(,(first stx-data)
+                           (* ,(second stx-data) ,(second stx-data))
+                           ,(third stx-data)))
+    new-stx-data                 -> '(+ (* y y) z)
+    (define new-stx (datum->syntax stx-obj new-stx-data))
+    new-stx                      -> #<syntax (+ (* y y) z)>
+                                    对符号列表进行操作形成新的符号列表，
+                                    将新的符号列表转换成新的语法对象
+
+    (define-syntax (reverse-me stx)
+      (datum->syntax stx (reverse (cdr (syntax->datum stx)))))
+    (reverse-me "backwards" "am" "i" values)   -> "i"
+                                                  "am"
+                                                  "backwards"
+
+可以看出，syntax->datum 可以将语法对象转换成符号列表，然后符号列表可以当作
+数据执行任何数据操作生成新的符号列表，最后 datum->syntax 可以将新的符号列
+表转换成新的语法对象，即完成对 Racket 语法的定制。另外，函数 syntax->list
+可以对一个语法对象进行深层次拆解，生成一个语法对象列表，然后调用
+syntax->datum 可以对列表中的这些子语法对象进行更细化处理。
+
+对语法对象中的元素一个一个进行提取和操作是繁琐而且容易出错的，好的方式是
+直接对列表进行匹配：
+
+    (require (for-syntax racket/match))
+    (define-syntax (our-if-using-match stx)
+      (match (syntax->list stx)
+             ((list _ condition true-expr false-expr)
+              (datum->syntax stx `(cond (,condition ,true-expr)
+                                        (else ,false-expr))))))
+    (our-if-using-match #t "true" "false")    -> "true"
+    (our-if-using-match #f "true" "false")    -> "false"
+
+因为语法转换函数在编译时执行，如果要在编译时调用 match 函数，必须使用
+for-syntax 进入这个函数，如果直接 require，match 仅是一个运行时函数，在
+编译时是没有定义的，这将导致上面的转换函数报错。
+
+如果我们自己编写一个能够在编译时调用的普通函数，要怎么做呢？当然，第一
+种方法是像上面一样，将函数另外写到一个模块中，然后通过 for-syntax 引入。
+但如果我们想在同一个模块中定义这些函数怎么办呢，方法是使用 begin-for-syntax
+或者 define-for-syntax，例如下面的例子。其中 define-for-syntax 只是对
+begin-for-syntax 和 define 的一种简写，它只能一次定义一个函数。需要手动引入
+match 的原因是，Racket 默认只引入了 racket/base 模块到编译时。
+
+    (begin-for-syntax
+       (define (my-compile-time-func-1 ...) ...)
+       (define (my-compile-time-func-2 ...) ...))
+    (define-for-syntax (my-compile-time-func-3 ...) ...)
+    (define-for-syntax (my-compile-time-func-4 ...) ...)
+    (define-syntax (macro-using-compile-time-func stx) ...)
+
+匹配是有用的，因此 Racket 提供了更方便书写的方式 syntax-case，下面的对照
+写法可以清楚的看出 syntax-case 的版本简单了很多。
+
+    (require (for-syntax racket/match))
+    (define-syntax (our-if-using-match stx)
+      (match (syntax->list stx)
+             ((list _ condition true-expr false-expr)
+              (datum->syntax stx `(cond (,condition ,true-expr)
+                                        (else ,false-expr))))))
+
+    (define-syntax (our-if-using-match-v2 stx)
+      (syntax-case stx ()
+        ((_ condition true-expr false-expr)
+         #'(cond (condition true-expr) (else false-expr)))))
+
+    (define-syntax-rule (our-if-using-match-v3 condition true-expr false-expr)
+      (cond (condition true-expr) (else false-expr)))
+
+不需要使用反引号对变量求值了，也不需要使用 datum->syntax 对符号列表进行
+转换了。相反的，我们使用模板，直接使用匹配模式中的变量组成语法对象。
+而 define-syntax-rule 又是对 define-syntax 和 syntax-case 的一种简写，用来
+编写比较简单的语法转换函数。
+
+    (define-syntax (hyphen-func stx)
+      (syntax-case stx ()
+        ((_ type field (arg ...) body ...)
+         (let ((name (string->symbol (format "~a-~a" #'type #'field)))
+              #'(define (name arg ...) body ...))))))
+
+type field arg body 等都是匹配变量，匹配变量只能用在生成语法对象的模板中，
+即这些变量都只能用在 #' 表达式中，每个语法模板都生成一个语法对象。实际
+上，syntax-case 中可以有任意多的语法模板，只要保存最后一个表达式能够生成
+作为结果返回的语法对象。
+
+上面的语法转换函数，还存在一个问题是用在语法模板中的 name 不是一个匹配
+变量，在语法模板中只有匹配变量才会被求值。因为 name 不是匹配变量，不会
+被求值，上面的代码最终 define 的是一个名为 name 的函数，而不是 type-field。
+为解决这个问题，我们需要嵌套一个 syntax-case 。
+
+    (define-syntax (hyphen-func stx)
+      (syntax-case stx ()
+        ((_ type field (arg ...) body ...)
+         (syntax-case (datum->syntax stx (string->symbol (format "~a-~a" (syntax->datum #'type) (syntax->datum #'field)))) ()
+           (name #'(define (name arg ...) body ...))))))
+
+显然这很复杂，如果能简化一下就好了。恩，Racket 就是如此的贴心，它引入了
+with-syntax 以及 with-syntax*，使用它可以像使用 let 一样同时定义多个你想要
+的匹配变量。
+
+    (define-syntax (hyphen-func stx)
+      (syntax-case stx ()
+        ((_ type field (arg ...) body ...)
+         (with-syntax ((name (datum->syntax stx (string->symbol (format "~a-~a" (syntax->datum #'type) (syntax->datum #'field))))))
+           #'(define (name arg ...) body ...)))))
+
+另外，racket/syntax 库提供的 format-id 可以很方便的将标识符（identifier）
+转换成语法变量，省去将子语法对象转换成数据、组合成字符串、转换成符号、
+再转换成新的语法对象的过程，format-id 可以直接将子语法对象组合成新语法
+对象，下面的代码是不是清爽了很多。
+
+    (require (for-syntax racket/syntax))
+    (define-syntax (hyphen-func stx)
+      (syntax-case stx ()
+        ((_ type field (arg ...) body ...)
+         (with-syntax ((name (format-id stx "~a-~a" #'type #'field)))
+           #'(define (name arg ...) body ...)))))
+
+看一个特殊的问题，我们如何通过宏简化下面这种形式的 if 表达式？ 特别地，如何
+正确定义其中的变量 it 。
+
+    (let ((tmp-result (big-long-calculation)))
+      (if tmp (foo tmp) #f))
+
+    (anaphoric-if (big-long-calculation)
+                  (foo it)
+                  #f)
+
+    (define-syntax-rule (anaphoric-if condition true-expr false-expr)
+      (let ((it condition))
+           (if it true-expr false-expr)))
+
+    (anaphoric-if #t (displayln it) (void))   -> it: undefined
+
+怎么了，看起来定义也很简单，也没有错啊，为什么会报 it 没有定义的错误。
+实际上，语法转换函数中的变量也遵循着词法作用域规则。可以将函数想象成
+是一个函数对象，其中除了参数外，函数可以使用的变量都是对象的成员变量，
+函数对象的成员变量在函数定义时就初始化好了，而且这些成员变量由于是对象
+的内部变量，只能在函数内部使用。在调用函数时，是不可能引用这些变量的，
+这是上面代码中 it 变量没有定义的原因。
+
+但是，我们就是要实现上面那样的 it 变量的用法，怎么办？ Racket 中提供了
+parameter 和 parameterize 。
+
+    (define para-func (make-parameter "the default value for the parameter"))
+    (para-func)      -> "the default value for the parameter"
+    (parameterize ((para-func "the new value for the parameter"))
+      (para-func))   -> "the new value for the parameter"
+    (para-func)      -> "the default value for the parameter"
+
+    (require racket/stxparam)
+    (define-syntax-parameter it
+      (lambda (stx) (raise-syntax-error (syntax-e stx) "can only be used inside anaphoric-if")))
+    (define-syntax-rule (anaphoric-if condition true-expr false-expr)
+      (let ((tmp condition))
+        (if tmp (syntax-parameterize ((it (make-rename-transformer #'tmp))) true-expr)
+                false-expr)))
+    (anaphoric-if 10 (displayln it) (void))   -> 10
+
+接着我们看看 splicing-let，它可以很方便的为多个函数提供公共内部变量的访问。
+
+    (require racket/splicing)
+    (splicint-let ((x 0))
+      (define (get-x) x))
+    (get-x)   -> 0
+
+    (define get-y
+      (let ((y 0)) (lambda () y)))
+    (get-y)   -> 0
+
+    (require racket/splicing)
+    (splicing-let ((x 0))
+      (define (inc) (set! x (+ x 1)))
+      (define (dec) (set! x (- x 1)))
+      (define (get) x))
+
+    (define-values (inc dec get)
+      (let ((x 0)) (values (lambda () (set! x (+ 1 x)))
+                           (lambda () (set! x (- 1 x)))
+                           (lambda () x))))
+
+函数可能被错误的使用，宏也一样。对于函数的错误处理，第一种方式是完全不管，
+有调用者为错误负责，第二种在函数中编写错误处理代码，例如：
+
+    (define (misuse s)
+      (unless (string? s) (error 'misuse "expected a string, but got ~a" s))
+      (string-append s " snazzy suffix"))
+    (misuse 0)   -> miuse: expected a string, but got 0
+
+但不幸的是这种错误处理代码与函数真正的实现搅和在一起，让函数变得晦涩。第
+三种采用契约（contract）的方式则优雅得多。而第四种方式是使用 Typed Racket，
+它能在编译时就发现类型错误。
+
+    (define/contract (misuse s)
+      (string? . -> . string?)
+      (string-append s " snazzy suffix"))
+
+    (: misuse (String -> String))
+    (define (misuse s)
+      (string-append s " snazzy suffix"))
+
+宏的错误也有类似的处理方式，不过如果采用第一种和第二种方式，当错误发生时
+宏面临的情况将比函数更糟糕。因为宏的默认错误消息常常看上去没有什么道理，
+很难对错误进行跟踪；另外我们已经看到宏的实现比普通函数的实现是复杂很多，
+如果还在其中加入错误处理，实现宏代码将变得混乱不堪，更加晦涩难懂。因此
+Racket 提供了 syntax-parse 的方式，相当函数错误处理中的契约或类型系统方式
+来跟踪错误。
+
+syntax-parse 可以声明语法的匹配模式必须满足一定的规则，比如必须是一个标识
+符等。满足一定条件的一类语法称为一个语法类型，Racket 预定义了很多语法类
+性，我们也可以去定义我们自己的语法类型。
+
+    (require (for-syntax syntax/parse))
+    (begin-for-syntax
+      (define-syntax-class foo (pattern (a b c))))
+    (define-syntax (stxfunc stx)
+      (syntax-parse stx
+       ((_ f:foo) #'(+ f.a f.b f.c))))
+
+
+ ** 再来重新看待宏 **
+
+    (define-syntax (name stx) body)
+    (syntax-rules (literal-identifier ...)
+      (pattern template))
+    (syntax-case stx (literal-identifier ...)
+      clause ...)
+    clause = (pattern result-stx-expr)
+           | (pattern fender result-stx-expr)
+
+    (define-syntax-rule (swap x y)
+      (let ((tmp x)) (set! x y) (set! y tmp)))
+
+    (define-syntax swap
+      (syntax-rules ()   ;; syntax-rules returns a transformer function
+        ((_ x y) (let ((tmp x)) (set! x y) (set! y tmp)))))
+
+    (define-syntax (swap stx)
+      (syntax-case stx ()
+        ((_ x y) #'(let ((tmp x)) (set! x y) (set! y tmp)))))
+
+
+    ;; identifier macros
+
+    (define-syntax (val stx)
+      (syntax-case stx ()
+        (val (identifier? #'val) #'(get-val))))
+
+    (define-values (get-val put-val!)
+      (let ((local-val 0))
+           (values (lambda () local-val)
+                   (lambda (v) (set! local-val v)))))
+
+    (require racket/splicing)
+    (splicing-let ((local-val 0))
+      (define (get-val) local-val)
+      (define (put-val! v) (set! local-val v)))
+
+    val             -> 0
+    (+ val 3)       -> 3
+    (put-val! 10)
+    val             -> 10
+
+    ;; set! transformers
+
+    (define-syntax val
+      (make-set!-transformer
+        (lambda (stx)
+          (syntax-case stx (set!)
+            (val (identifier? #'val) #'(get-val))
+            ((set! val new-val) #'(put-val! new-val))))))
+
+    val            -> 10
+    (set! val 3)
+    val            -> 3
+
+
+
+Macro Example: HTML TEMPLATE
+----------------------------
+
+(define-syntax (write-tag stx)
+  (print-tag (syntax->datum stx))
+  #'(void))
+
+(define (print-tag s-list)
+  (cond ((or (null? s-list) (not (list? s-list))) (void))
+        (else (define (name (car s-list)))
+              (define (rest (cdr s-list)))
+              (cond ((self-close-tag? name) (print-out "<")
+                                            (print-tag-name name)
+                                            (print-tag-attr name rest)
+                                            (print-out ">"))
+                    ((empty-content-tag? name) (print-out "<")
+                                               (print-tag-name name)
+                                               (print-tag-attr name rest)
+                                               (print-out "></")
+                                               (print-tag-name name)
+                                               (print-out ">"))
+                   (else (print-out "<")
+                         (print-tag-name name)
+                         (cond ((null? rest) (print-out "></") (print-tag-name name) (print-out ">"))
+                               (else (define attr (car rest))
+                                     (define content (cdr rest))
+                                     (if (and (list? attr) (not (null? attr)) (eqv? #@ (car attr)))
+                                         (begin (print-tag-attr name attr)
+                                                (print-out ">")
+                                                (print-tag-content name content)
+                                                (print-out "</")
+                                                (print-tag-name name)
+                                                (print-out ">"))
+                                         (begin (print-out ">")
+                                                (print-tag-content name rest)
+                                                (print-out "</")
+                                                (print-tag-name name)
+                                                (print-out ">"))))))))))
+

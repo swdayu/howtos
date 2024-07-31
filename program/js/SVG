@@ -1,0 +1,99 @@
+
+## svg
+- https://www.w3.org/Graphics/SVG/
+- https://www.w3.org/TR/SVG11/
+- https://book.douban.com/subject/5263615/
+
+
+    #if 0
+    <svg width="500" height="1000" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>SVG TITLE</title>
+    <desc>SVG DESC</desc>
+    <line x1="10" y1="73" x2="25" y2="64" class="redline"></line>
+    <line x1="17" y1="62" x2="17" y2="74" class="grayline"></line>
+    <line x1="25" y1="64" x2="25" y2="59" class="grayline"></line>
+    <line x1="25" y1="59" x2="40" y2="65" class="redline"></line>
+    <line x1="32" y1="50" x2="32" y2="69" class="grayline"></line>
+    </svg>
+    <path>中所有描述轮廓的数据都放在d属性中，其中包含了单个字符的命令，如M表示moveto，L表示lineto，小写的m和l表示使用相对于前一坐标点的相对坐标，每个路径都必须以M开始但可包含多个M
+    * Z或z表示画一条线到当前子路径的起点，另外<path>还有一些快捷命令，例如H或h画一条水平线，V或v画一条垂直线，而且L或l后面可以跟多个点，如果M或m后面省略了L或l，则认为从第2个点开始都跟随在L或l后面
+    * 多余的空白也可以省略，比如字母和数字之间的空白，负号与前一个数字或字母之间的空白；<path>还可以绘制曲线，但两点之间的曲线有无限条，必须给额外信息来确定一条曲线
+    <path class="" d="M10 73 25 64" />
+    #endif
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <title>SVG Test</title>
+    <style>
+      /** Line must set stroke color, because the default value of stroke is none.
+       ** If not set, the line will be invisible.
+       */
+      .lnorm {
+        stroke: black;
+        stroke-width: 4;
+      }
+      .lname {
+        stroke: red;     /* aqua; black; blue; fuchsia; gray; green; lime; maroon; navy; */
+        stroke-width: 3; /* olive; purple; red; silver; teal; white; yellow; */
+      }
+      .lhex6 {
+        stroke: #00FF00; /* #rrggbb */
+        stroke-width: 3;
+      }
+      .lhex3 {
+        stroke: #00F;    /* #rgb */
+        stroke-width: 3;
+      }
+      .lper1 {
+        stroke: rgb(16, 0, 255); /* rgb(red, green, blue) */
+        stroke-width: 3;
+      }
+      .lper2 {
+        stroke: rgb(20%, 30%, 40%);
+        stroke-width: 3;
+      }
+      .lopa2 { stroke: blue; stroke-width: 6; stroke-opacity: 0.2; } /* opacity is from 0.0 to 1.0 */
+      .lopa4 { stroke: green; stroke-width:6; stroke-opacity: 0.4; }
+      .lopa6 { stroke: red;  stroke-width: 6; stroke-opacity: 0.6; }
+      .lopa8 { stroke: black; stroke-width:6; stroke-opacity: 0.6; }
+      .lopa1 { stroke: black; stroke-width:6; stroke-opacity: 1.0; }
+
+      .dash1 { stroke-dasharray: 9, 5; }       /* draw 9px and skip 5px and so on */
+      .dash2 { stroke-dasharray: 5, 3, 9, 2; } /* the number of values need to be even */
+      .dash3 { stroke-dasharray: 9, 3, 5; }    /* equal to 9, 3, 5, 9, 3, 5*/
+
+      .pline1 { stroke: black; stroke-width: 4; fill: none; }
+      .pline2 { stroke: black; stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    </style>
+  </head>
+  <body>
+    <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+      <title>Basic Graphs</title>
+      <desc>Basic graphs test</desc>
+
+      <line class="lnorm" x1="0" y1="10" x2="80" y2="10" />
+      <line class="lname" x1="10" y1="0" x2="10" y2="80" />
+      <line class="lhex6" x1="25" y1="25" x2="75" y2="75" />
+      <line class="lhex3" x1="0" y1="20" x2="90" y2="20" />
+      <line class="lper1" x1="20" y1="0" x2="20" y2="90" />
+      <line class="lper2" x1="30" y1="0" x2="30" y2="100" />
+
+      <line class="lopa2" x1="0" y1="30" x2="100" y2="30" />
+      <line class="lopa4" x1="0" y1="40" x2="100" y2="40" />
+      <line class="lopa6" x1="0" y1="50" x2="110" y2="50" />
+      <line class="lopa8" x1="0" y1="60" x2="120" y2="60" />
+      <line class="lopa1" x1="0" y1="70" x2="130" y2="70" />
+
+      <line class="lnorm dash1" x1="0" y1="80" x2="140" y2="80" />
+      <line class="lnorm dash2" x1="0" y1="90" x2="150" y2="90" />
+      <line class="lnorm dash3" x1="0" y1="100" x2="160" y2="100" />
+
+      <polyline class="pline1" points="10 50, 50 50, 70 10, 100 90, 130 10, 160 90, 180 50, 190 50" />
+      <polyline class="pline2" points="10 150, 50 150, 70 110, 100 190, 130 110, 160 190, 180 150, 190 150" />
+    </svg>
+  </body>
+</html>
+

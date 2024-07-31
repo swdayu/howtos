@@ -1,0 +1,740 @@
+
+## HTML Style
+- http://mdo.github.io/code-guide/
+- http://codeguide.bootcss.com/
+- http://www.w3.org/html/wg/drafts/html/master/semantics.html#the-html-element
+
+**语法（Syntax）**
+
+- Use soft tabs with two spaces - they're the only way to guarantee code renders the same in any environment.
+- Nested elements should be indented once (two spaces).
+- Always use double quotes, never single quotes, on attributes.
+- Don't include a trailing slash in self-closing elements - the HTML5 spec says they're optional.
+- Don’t omit optional closing tags (e.g. `</li>` or `</body>`).
+
+使用2个空白来代替tab的缩进，只有这种方式可以使代码在任何编辑环境下都显示一致；
+嵌套的元素相对父元素都应缩进一个等级（即2个空白字符的间距）；
+总是使用双引号而不是单引号来定义元素的属性值；
+不要为虚元素添加斜杠符号，例如image元素应写成`<img>`而不是`<img/>`；
+不要省略可以省略的结束标签，例如list和body元素不应省略`</li>`和`</body>`。
+
+空元素（empty element）
+- 元素开始和结束标签之间不一定要有内容，没有内容的元素称为空元素；
+- 当然，有些元素为空时没有什么意义，例如`<code></code>`；
+- 有些空元素可以使用简洁的自闭合形式书写，如`<code/>`；
+
+虚元素（void element）
+- 虚元素是不能添加内容的元素，它只使用一个标签表示；
+- 例如hr元素`<hr>`，image元素`<img>`；
+
+**文档类型标记（HTML5 doctype）**
+
+Enforce standards mode and more consistent rendering in every browser possible
+with this simple doctype at the beginning of every HTML page.
+
+每个HTML页面开头都应加上文档类型标记`<!DOCTYPE html>`，
+以使解析页面的浏览器进入标准模式并以更加一致的方式呈现页面元素。
+
+**语言属性（Language attribute）**
+
+From the HTML5 spec:
+> Authors are encouraged to specify a `lang` attribute on the root `html` element, giving the document's language.
+> This aids speech synthesis tools to determine what pronunciations to use,
+> translation tools to determine what rules to use, and so forth.
+
+Read more about the `lang` attribute [in the spec](http://www.w3.org/html/wg/drafts/html/master/semantics.html#the-html-element).
+
+Head to Sitepoint for a [list of language codes](http://reference.sitepoint.com/html/lang-codes).
+
+建议在html元素中添加lang属性来说明当前文档使用的语言，以便语音辅助工具或翻译工具更好的对页面内容进行处理。
+例如美国英语和中国汉语`<html lang="en-us"></html>`，`<html lang="zh-cn"></html>`。
+
+**IE兼容模式（IE compatibility mode）**
+
+Internet Explorer supports the use of a document compatibility `<meta>` tag
+to specify what version of IE the page should be rendered as.
+Unless circumstances require otherwise,
+it's most useful to instruct IE to use the latest supported mode with edge mode.
+For more information, read this awesome [Stack Overflow article](http://stackoverflow.com/questions/6771258/whats-the-difference-if-meta-http-equiv-x-ua-compatible-content-ie-edge-e).
+
+IE浏览器中，可以通过文档兼容meta标记，指定当前页面需要使用哪个IE版本来呈现内容。
+除非特殊需求，最有用的是要求IE使用最新支持的模式Edge Mode（`<meta http-equiv="X-UA-Compatible" content="IE=Edge">`）。
+
+**字符编码（Character encoding）**
+
+Quickly and easily ensure proper rendering of your content by declaring an explicit character encoding.
+When doing so, you may avoid using character entities in your HTML,
+provided their encoding matches that of the document (generally UTF-8).
+
+在文档中显示声明所使用的字符编码，可以更好的确保当前页面内容的呈现。
+另外这样可以不使用HTML的字符实体对特定字符进行转义，
+只要将这些字符保存为指定的字符编码即可（例如UTF-8编码`<meta charset="UTF-8">`）。
+
+**包含脚本（CSS and JavaScript includes）**
+
+Per HTML5 spec, typically there is no need to specify a `type` when including CSS and JavaScript files
+as `text/css` and `text/javascript` are their respective defaults.
+
+HTML5 spec links
+- [Using link](http://www.w3.org/TR/2011/WD-html5-20110525/semantics.html#the-link-element)
+- [Using style](http://www.w3.org/TR/2011/WD-html5-20110525/semantics.html#the-style-element)
+- [Using script](http://www.w3.org/TR/2011/WD-html5-20110525/scripting-1.html#the-script-element)
+
+使用link/style元素或script元素包含css或javasript代码时，不需要指定`type`属性的值，
+因为这些元素的`type`属性默认值就是`text/css`或`text/javascript`。
+
+```html
+<!-- External CSS -->
+<link rel="stylesheet" href="code-guide.css">
+
+<!-- In-document CSS -->
+<style>
+  /* ... */
+</style>
+
+<!-- JavaScript -->
+<script src="code-guide.js"></script>
+```
+
+**属性顺序（Attribute order）**
+
+HTML attributes should come in this particular order for easier reading of code.
+- class
+- id, name
+- data-*
+- src, for, type, href, value
+- title, alt
+- role, aria-*
+
+Classes make for great reusable components, so they come first.
+Ids are more specific and should be used sparingly (e.g., for in-page bookmarks), so they come second.
+
+为了代码更易阅读，元素的属性应使用上面列出的顺序进行定义。
+`class`是实现元素重用的伟大机制，因此放在第一位。
+而`id`属性用于在页面内部对元素进行唯一标记，应谨慎地使用，因此放在第二位。
+
+**布尔属性（Boolean attributes）**
+
+A boolean attribute is one that needs no declared value.
+XHTML required you to declare a value, but HTML5 has no such requirement.
+For further reading, consult the WhatWG section on boolean attributes:
+> The presence of a boolean attribute on an element represents the true value,
+> and the absence of the attribute represents the false value.
+
+If you must include the attribute's value, and you don't need to, follow this WhatWG guideline:
+> If the attribute is present, its value must either be the empty string or [...] the attribute's canonical name,
+> with no leading or trailing whitespace.
+
+In short, don't add a value.
+
+简单地讲，不要为布尔属性添加属性值。
+添加这个属性表示将这个属性设为true，如果该属性不存在则表示这个属性为false。
+```html
+<input type="text" disabled>
+<input type="checkbox" value="1" checked>
+<select>
+  <option value="1" selected>1</option>
+</select>
+```
+
+**实用至上（Practicality over purity）**
+
+Strive to maintain HTML standards and semantics, but not at the expense of practicality.
+Use the least amount of markup with the fewest intricacies whenever possible.
+
+尽可能的遵守HTML标准和语义，但是不要以牺牲实用性为代价。
+无论何时都应尽量使用最少的标记，并保持最小的复杂度。
+
+**减少标记（Reducing markup）**
+
+Whenever possible, avoid superfluous parent elements when writing HTML.
+Many times this requires iteration and refactoring, but produces less HTML.
+Take the following example:
+```html
+<!-- Not so great -->
+<span class="avatar">
+  <img src="...">
+</span>
+
+<!-- Better -->
+<img class="avatar" src="...">
+```
+
+应尽量避免过多地使用父元素，如上面的例子。
+大多数情况下应该考虑重新设计，结果往往能产生更少的HTML标记。
+
+**避免动态生成（JavaScript generated markup）**
+
+Writing markup in a JavaScript file makes the content harder to find, harder to edit, and less performant.
+Avoid it whenever possible.
+
+使用JavaScript生成的标记，会使页面内容难于查找和编辑，而且性能也不好。
+因此应尽量避免使用JavaScript来生成标记。
+
+
+- http://www.positioniseverything.net/easyclearing.html
+
+## 盒模型
+
+/*
+
+元素选择器：
+    p {corlor: blank;}
+ID选择器：
+    #intro {font-weight: bold;}
+类选择器：
+    .date-posted {color: #ccc;}
+子元素选择器，包括其后代、后代的后代：
+    blockquote p {padding-left: 2em;}
+    #main-content h2 {font-size: 1.8em;}
+伪类选择器:
+    a:visited {color:green;}
+    a:hover, a:focus, a:active {color:red;}
+    a:visited:hover {color:olive;} //悬停已经访问过的元素
+通用选择器：
+    * {padding: 0; margin: 0;}
+选择第一级子元素（直接后代)：
+    #nav > li {background: url(folder.png) no-repeat left top; padding-left: 20px; }
+相邻元素选择器:
+    h2 + p {font-size: 1.4em; font-weight: bold; color: #777;}
+拥有某属性的元素：
+    acronym[title] {border-bottom: 1px dotted #999;}
+    a[rel="nofollow"] {padding-right: 20px;}
+盒模型：
+    内容区域 height width
+    内边距 padding
+    边框 border
+    外边距 margin，相邻的外边距会叠加
+相对定位：相对元素原来真实位置来相对定位，无论是否移动，元素仍然占据原来的空间，移动元素会导致它覆盖其他元素
+    #my-box {position: relative; left: 20px; top: 20px; }
+绝对定位：
+    相对父元素进行定位，绝对定位的元素位置与文档流无关，其不占据空间，普通文档流其他元素的布局就像绝对定位元素不存在时一样
+    因为绝对定位元素与文档流无关，所以它们可以覆盖页面上的其他元素，可以通过设置 z-index 控制这些元素的叠放次序
+浮动定位：
+    浮动框可以左右移动，直到它的外边缘碰到包含框或另一个浮动框的边缘，浮动框不在文档的普通流中
+    当把框向右浮动时，它脱离文档流并且向右移动，直到它的右边缘碰到包含框的右边缘
+    如果包含款宽度太窄不能容纳所有的浮动元素，多余的元素会向下移动
+    .news img {float: left;}
+*/
+
+页面的每一个元素被看作是一个矩形框，这个框由元素的内容、内边距(padding)、边框(border)、和外边距(margin)组成。
+内容区是该元素的内容实际占据的区域，CSS中的width和height指的即是这个区域的宽度和高度。
+内边距在内容区域的周围i，如果元素添加了背景，那么背景会应用到由内容和内边距组成的区域。
+添加边框会在内边距的区域外加一条边框线，该线有多种样式比如实线、虚线、或点线等
+（CSS2.1还包含了轮廓outline，它绘制在元素边框之上，因此它不影响元素的大小和定位）。
+外边距在边框之外，它是透明的，一般使用它来控制元素之间的间隔（外边距可以是负值，这可以用在多种技术中）。
+
+内边距、边框和外边距默认值都为0，但是许多元素通过用户代理样式表设置内边距和外边距，
+可以通过将元素的margin和padding设置为0来覆盖这些浏览器样式。
+
+注意IE的早期版本包括IE6，在混杂模式中使用自己的非标准盒模型。
+这些浏览器的width属性不是内容的宽度，而是内容、内边距和边框的宽度总和。
+
+**外边距叠加**
+
+当两个或更多垂直外边距相遇时，它们将形成一个外边距，这个外边距的高度等于两个发生叠加的外边距中较大的高度。
+外边距叠加发生在垂直方式，发生叠加的可以情况有：相邻两个元素下外边距与上外边距叠加；
+嵌套的元素的两个上外边距或两个下边距叠加；空元素自己的上下外边距叠加；空元素叠加后可能还会与其他的元素再叠加等等。
+
+另外，只有在不同文档流中的元素块框的垂直外边距才会发生叠加，行内框、浮动框、和绝对定位框的外边距不会叠加。
+
+**可视模型**
+
+元素一般分为块级元素和行内元素，块级元素会显示为一块内容即“块框”，而行内元素显示在一行中即“行内框”。
+块框在文档流中一个接一个地垂直显示，块框之间的垂直距离有框的垂直外边距决定；
+行内框在一行中水平排列，可以通过水平内边距、水平边框和水平外边距调整它们的距离，
+在行内框上设置垂直外边距、垂直边框、垂直内边距、或显示的设置高度不影响行内框的高度，显示的设置行内框的宽度也没有影响。
+一行水平框成为行框，行框的高度总是足以容纳它包含的所有行内框，但是设置行框的行高可以增加这个框的高度；
+因此修改行内框的尺寸唯一方法是，修改行框的行高或行内框的水平外边距、水平边框、水平内边距。
+
+行内框可以通过将display设置成blcok变成块框让其表现得像块级元素一样，但是它能显示的设置垂直高度等尺寸吗???；
+块框也可以通过将display设置为inlin-block变成像行内元素一样，但框的内容仍然符号块框的行为，
+例如能显式地设置宽度、高度、垂直外边距边框和内边距；
+另外还可以将display设置成none，让该元素的框及其所有内容都不再显示，不占用文档中的空间。
+
+在以下情况下会出现匿名块框：
+```html
+<div>
+  some text <p>more text</p> even more text.
+</div>
+```
+由于p元素会形成一个新的块框，因此"some text"和"even more text"会形成一个匿名块框，它们不与特定的元素相关联。
+
+另外，块级元素内的文本行会形成匿名行框，假设一个段落包含3行文本，则每行形成一个匿名行框。
+无法直接对匿名块框和匿名块框应用样式，除非使用不常用的:first-line伪元素。
+
+**定位机制**
+
+CSS中有3中定位机制：相对定位、绝对定位、和浮动定位。
+除非专门指定，否则所有框都在普通文档流中依次排列，即普通流中的元素的位置由元素在页面中的位置决定。
+相对定位相对于元素在普通流中的原始位置进行定位，相对定位的元素不管怎样移动都始终占据普通流中的位置，
+因此通过相对定位移动元素会出现空缺空间，相对定位也会覆盖其他元素。
+
+绝对定位的元素不再占据普通流中的空间，普通流中的其他元素的布局就像绝对定位的元素不存在一样；
+绝对定位相对于与它最近的已定位好的父元素进行定位，如果元素没有已定位好的父元素则它的位置相对于初始包括块；
+根据浏览器的不同，初始包含块可能是画布或者html元素；
+因为绝对定位元素对应的框业文档流无关，因此可以覆盖页面上的其他元素，可以通过设置z-index控制这些框的叠放次序。
+
+决定定位在大多数现代浏览器中已实现得很好，但是在windows上的IE5.5和IE6中有一个bug。
+如果要相对于相对定位的元素框右边或底部设置绝对定位的位置，必须确保这个相对定位框已经设置了尺寸。
+如果没有，那么IE会错误地相对于画布定位这个框。简单的解决方案是为相对定位元素设置宽度和高度，从而避免这个问题。
+
+固定定位是绝对定位的一种，差异在于它相对应视口(viewport)进行定位，这使得创建的元素总出现在窗口中相同的位置。
+不过IE6和更低版本不支持固定定位，IE7部分支持这个属性，但在实现中有很多bug。
+为了解决这个问题，Jonathan Snook使用JavaScript在IE中重现了这个效果。
+
+**浮动定位**
+
+浮动定位框是浮动的，直到它的外边缘碰到包含框或另一个浮动框的边缘；
+如果包含块框太窄无法容纳水平排列的浮动元素，那么其他浮动块将向下移动，直到有足够空间的地方；
+如果浮动元素的高度不同，那么当浮动元素向下移动时可能会被其他浮动元素“卡住”（如果向左浮动的3个框，
+第1个框的高度大于第2个框的高度，且包含块没有空间容纳第3个块，那么第1个框会显示在第1列，第2和第3个框显示在第2列）。
+
+浮动定位的元素也不占据普通流中的空间，普通流中的其他元素的布局就像浮动定位的元素不存在一样。
+但是浮动元素周围的文本内容会受它的影响，它的行框长度会被挤压而缩短以给浮动元素留出空间；
+这样文本行框会围绕浮动元素，造成围绕效果。
+
+要阻止行框的这种围绕效果，需要对这些包括行框的元素应用clear属性，其值可以是left、right、both或none，
+表示元素框的哪些边不应该挨着浮动框；在实际实现中，清理元素时浏览器会在元素的顶上添加足够多的外边距，
+使元素的顶边缘垂直下降到浮动框的下面，实际上为其前面的浮动元素留出了垂直空间；
+这样对元素进行浮动定位，并且对其周围的元素进行清理，可以使元素浮动后不覆盖和影响周围的元素。
+
+如果一个包括框中所有元素都浮动了，那么这个包含框中将不再占据任何空间（因为其中的元素都脱离的文档流），
+如何让包含块在视觉上仍然包围浮动元素呢？
+一种方法是在包含块最后添加一个空元素，并对它进行清理；
+清理的元素将为其前面的浮动元素留出足够的空间（将clear设置为both），而清理元素自身又是文档流的一部分，
+因而使得包含块重新占据浮动元素的空间。
+
+第二种方法是利用值为hidden或auto的overflow属性的副作用，它会自动该元素包含的任何浮动元素，因而无需添加额外标记；
+但是overflow属性的原意是当包含的元素的尺寸太大时，该如何处理这个元素；
+因此将该值设为hidden或auto可能在一些情况不适用，因为这会影响元素的表现，如在相应情况下将产生滚动条或截断内容。
+
+另外，还可以使用CSS生成的内容或JavaScript动态生成解决以上问题；
+这两种方法的基本概念是相同的，它们并不直接添加进行清理的元素，而是动态的将元素添加到页面中；
+CSS方法使用:after伪类在现有内容的末尾添加新的内容，这种方法在大多数现代浏览器中是有效的，
+但是在IE6或更低版本中不起作用，其中一些解决方案记录在页面www.positioniseverything.net/easyclearing.html中。
+
+## 设置样式 
+
+**样式优先规则**
+
+/*! normalize.css v4.1.1 | MIT License | github.com/necolas/normalize.css */
+
+/**
+ * 1. Change the default font family in all browsers (opinionated).
+ * 2. Prevent adjustments of font size after orientation changes in IE and iOS.
+ */
+
+html {
+  font-family: sans-serif; /* 1 */
+  -ms-text-size-adjust: 100%; /* 2 */
+  -webkit-text-size-adjust: 100%; /* 2 */
+}
+
+/**
+ * Remove the margin in all browsers (opinionated).
+ */
+
+body {
+  margin: 0;
+}
+
+/* HTML5 display definitions
+   ========================================================================== */
+
+/**
+ * Add the correct display in IE 9-.
+ * 1. Add the correct display in Edge, IE, and Firefox.
+ * 2. Add the correct display in IE.
+ */
+
+article,
+aside,
+details, /* 1 */
+figcaption,
+figure,
+footer,
+header,
+main, /* 2 */
+menu,
+nav,
+section,
+summary { /* 1 */
+  display: block;
+}
+
+/**
+ * Add the correct display in IE 9-.
+ */
+
+audio,
+canvas,
+progress,
+video {
+  display: inline-block;
+}
+
+/**
+ * Add the correct display in iOS 4-7.
+ */
+
+audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+
+/**
+ * Add the correct vertical alignment in Chrome, Firefox, and Opera.
+ */
+
+progress {
+  vertical-align: baseline;
+}
+
+/**
+ * Add the correct display in IE 10-.
+ * 1. Add the correct display in IE.
+ */
+
+template, /* 1 */
+[hidden] {
+  display: none;
+}
+
+/* Links
+   ========================================================================== */
+
+/**
+ * 1. Remove the gray background on active links in IE 10.
+ * 2. Remove gaps in links underline in iOS 8+ and Safari 8+.
+ */
+
+a {
+  background-color: transparent; /* 1 */
+  -webkit-text-decoration-skip: objects; /* 2 */
+}
+
+/**
+ * Remove the outline on focused links when they are also active or hovered
+ * in all browsers (opinionated).
+ */
+
+a:active,
+a:hover {
+  outline-width: 0;
+}
+
+/* Text-level semantics
+   ========================================================================== */
+
+/**
+ * 1. Remove the bottom border in Firefox 39-.
+ * 2. Add the correct text decoration in Chrome, Edge, IE, Opera, and Safari.
+ */
+
+abbr[title] {
+  border-bottom: none; /* 1 */
+  text-decoration: underline; /* 2 */
+  text-decoration: underline dotted; /* 2 */
+}
+
+/**
+ * Prevent the duplicate application of `bolder` by the next rule in Safari 6.
+ */
+
+b,
+strong {
+  font-weight: inherit;
+}
+
+/**
+ * Add the correct font weight in Chrome, Edge, and Safari.
+ */
+
+b,
+strong {
+  font-weight: bolder;
+}
+
+/**
+ * Add the correct font style in Android 4.3-.
+ */
+
+dfn {
+  font-style: italic;
+}
+
+/**
+ * Correct the font size and margin on `h1` elements within `section` and
+ * `article` contexts in Chrome, Firefox, and Safari.
+ */
+
+h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+/**
+ * Add the correct background and color in IE 9-.
+ */
+
+mark {
+  background-color: #ff0;
+  color: #000;
+}
+
+/**
+ * Add the correct font size in all browsers.
+ */
+
+small {
+  font-size: 80%;
+}
+
+/**
+ * Prevent `sub` and `sup` elements from affecting the line height in
+ * all browsers.
+ */
+
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+
+/* Embedded content
+   ========================================================================== */
+
+/**
+ * Remove the border on images inside links in IE 10-.
+ */
+
+img {
+  border-style: none;
+}
+
+/**
+ * Hide the overflow in IE.
+ */
+
+svg:not(:root) {
+  overflow: hidden;
+}
+
+/* Grouping content
+   ========================================================================== */
+
+/**
+ * 1. Correct the inheritance and scaling of font size in all browsers.
+ * 2. Correct the odd `em` font sizing in all browsers.
+ */
+
+code,
+kbd,
+pre,
+samp {
+  font-family: monospace, monospace; /* 1 */
+  font-size: 1em; /* 2 */
+}
+
+/**
+ * Add the correct margin in IE 8.
+ */
+
+figure {
+  margin: 1em 40px;
+}
+
+/**
+ * 1. Add the correct box sizing in Firefox.
+ * 2. Show the overflow in Edge and IE.
+ */
+
+hr {
+  box-sizing: content-box; /* 1 */
+  height: 0; /* 1 */
+  overflow: visible; /* 2 */
+}
+
+/* Forms
+   ========================================================================== */
+
+/**
+ * 1. Change font properties to `inherit` in all browsers (opinionated).
+ * 2. Remove the margin in Firefox and Safari.
+ */
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font: inherit; /* 1 */
+  margin: 0; /* 2 */
+}
+
+/**
+ * Restore the font weight unset by the previous rule.
+ */
+
+optgroup {
+  font-weight: bold;
+}
+
+/**
+ * Show the overflow in IE.
+ * 1. Show the overflow in Edge.
+ */
+
+button,
+input { /* 1 */
+  overflow: visible;
+}
+
+/**
+ * Remove the inheritance of text transform in Edge, Firefox, and IE.
+ * 1. Remove the inheritance of text transform in Firefox.
+ */
+
+button,
+select { /* 1 */
+  text-transform: none;
+}
+
+/**
+ * 1. Prevent a WebKit bug where (2) destroys native `audio` and `video`
+ *    controls in Android 4.
+ * 2. Correct the inability to style clickable types in iOS and Safari.
+ */
+
+button,
+html [type="button"], /* 1 */
+[type="reset"],
+[type="submit"] {
+  -webkit-appearance: button; /* 2 */
+}
+
+/**
+ * Remove the inner border and padding in Firefox.
+ */
+
+button::-moz-focus-inner,
+[type="button"]::-moz-focus-inner,
+[type="reset"]::-moz-focus-inner,
+[type="submit"]::-moz-focus-inner {
+  border-style: none;
+  padding: 0;
+}
+
+/**
+ * Restore the focus styles unset by the previous rule.
+ */
+
+button:-moz-focusring,
+[type="button"]:-moz-focusring,
+[type="reset"]:-moz-focusring,
+[type="submit"]:-moz-focusring {
+  outline: 1px dotted ButtonText;
+}
+
+/**
+ * Change the border, margin, and padding in all browsers (opinionated).
+ */
+
+fieldset {
+  border: 1px solid #c0c0c0;
+  margin: 0 2px;
+  padding: 0.35em 0.625em 0.75em;
+}
+
+/**
+ * 1. Correct the text wrapping in Edge and IE.
+ * 2. Correct the color inheritance from `fieldset` elements in IE.
+ * 3. Remove the padding so developers are not caught out when they zero out
+ *    `fieldset` elements in all browsers.
+ */
+
+legend {
+  box-sizing: border-box; /* 1 */
+  color: inherit; /* 2 */
+  display: table; /* 1 */
+  max-width: 100%; /* 1 */
+  padding: 0; /* 3 */
+  white-space: normal; /* 1 */
+}
+
+/**
+ * Remove the default vertical scrollbar in IE.
+ */
+
+textarea {
+  overflow: auto;
+}
+
+/**
+ * 1. Add the correct box sizing in IE 10-.
+ * 2. Remove the padding in IE 10-.
+ */
+
+[type="checkbox"],
+[type="radio"] {
+  box-sizing: border-box; /* 1 */
+  padding: 0; /* 2 */
+}
+
+/**
+ * Correct the cursor style of increment and decrement buttons in Chrome.
+ */
+
+[type="number"]::-webkit-inner-spin-button,
+[type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+
+/**
+ * 1. Correct the odd appearance in Chrome and Safari.
+ * 2. Correct the outline style in Safari.
+ */
+
+[type="search"] {
+  -webkit-appearance: textfield; /* 1 */
+  outline-offset: -2px; /* 2 */
+}
+
+/**
+ * Remove the inner padding and cancel buttons in Chrome and Safari on OS X.
+ */
+
+[type="search"]::-webkit-search-cancel-button,
+[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+/**
+ * Correct the text style of placeholders in Chrome, Edge, and Safari.
+ */
+
+::-webkit-input-placeholder {
+  color: inherit;
+  opacity: 0.54;
+}
+
+/**
+ * 1. Correct the inability to style clickable types in iOS and Safari.
+ * 2. Change font properties to `inherit` in Safari.
+ */
+
+::-webkit-file-upload-button {
+  -webkit-appearance: button; /* 1 */
+  font: inherit; /* 2 */
+}

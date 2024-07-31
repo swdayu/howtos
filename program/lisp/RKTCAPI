@@ -1,0 +1,233 @@
+
+** Call C functions in Racket **
+
+The Racket Foreign Interface (http://docs.racket-lang.org/foreign/index.html)
+by Eli Barzilay
+
+The ffi/unsafe library enables the direct use of C-based APIs within Racket
+programs. From the Racket perspective, functions and data with a C-based API
+are foreign, hence the term foreign interface. Furthermore, since most APIs
+consist mostly of functions, the foreign interface is sometimes called a
+foreign function interface, abbreviated FFI.
+
+使用FFI的步骤：
+
+(1) 加载 C 语言写的库文件，根据平台的不同库文件常常有这样的后缀名，如
+    .dll .so .dylib，也或者是 Mac OS 中 .framework 目录下的库文件，C 库文
+    件的通过 (ffi-lib path) 实现，该函数加载库文件并返回对应的句柄
+
+    #lang racket/base
+    (require ffi/unsafe
+             ffi/unsafe/define)
+    (define-ffi-definer define-the-c-library-api
+                        (ffi-lib "the-c-library-file-path-without-suffix"))
+
+(2) 从库文件中导出 C 语言函数，比如一个库文件中有这些函数
+
+    WINDOW* initscr(void);
+    int waddstr(WINDOW *win, char *str);
+    int wrefresh(WINDOW *win);
+    int endwin(void);
+
+    则导出这些 C 函数的方法是：
+
+    (define _WINDOW-pointer (_cpointer 'WINDOW))
+    (define-the-c-library-api initscr (_fun -> _WINDOW-pointer))
+    (define-the-c-library-api waddstr (_fun _WINDOW-pointer _string -> _int))
+    (define-the-c-library-api wrefresh (_fun _WINDOW-pointer -> _int))
+    (define-the-c-library-api endwin (_fun -> _int))
+
+(3) 在 Racket 中调用这些导出的 C 函数
+
+    (define win (initscr))
+    (void (waddstr win "Hello"))
+    (void (wrefresh win))
+    (sleep 1)
+    (void (endwin))
+
+
+
+** Call Racket in C functions **
+
+Inside: Racket C API "http://docs.racket-lang.org/inside/"
+by Matthew Flatt
+
+This manual describes the C interface of Racket's run-time system. It
+describes many details of representations, memory management, and
+concurrency related to the Racket Foreign Interface (FFI module). This
+manual also describes embedding the Racket run-time system in larger
+programs and extending Racket directly with C-implemented libraries.
+
+The Racket run-time system is responsible for the implementation of primitive
+datatypes such as numbers and strings, the evaluation and/or JIT compilation
+of Racket bytecode, the macro expansion and compilation of Racket from source
+to bytecode, the allocation and reclamation of memory used during evaluation,
+and the scheduling of concurrent threads and parallel tasks.
+
+Before mixing any C code with Racket, first decide whether to use the 3m
+variant of Racket, the CGC variant of Racket, or both:
+
+  * 3m: the main variant of Racket, which uses precise garbage collection
+    and requires explicit registration of pointer roots and allocation shapes.
+    The precise garbage collector may move its objects in memory during
+    a collection.
+
+  * CGC: the original variant of Racket, where memory management depends
+    on a conservative garbage collector. The conservative garbage collector
+    can automatically find references to managed values from C local
+    variables and (on some platforms) static variables, and it does not
+    move allocated objects.
+
+At the C level, working with CGC can be much easier than working with 3m,
+but overall system performance is typically better with 3m.
+
+
+ | 3m Embedding
+
+To embed Racket 3m in a program, follow these steps:
+
+  * Locate the Racket 3m libraries, the standard distribution provides 3m
+    libraries, for example "/usr/local/lib/racket/libracket3m.a" on Unix.
+
+  * For each C/C++ file that uses Racket library functions, include the
+    file "scheme.h", and define MZ_PRECISE_GC before include the file.
+    This file is located at "/usr/local/include/racket/scheme.h" for
+    example on Unix.
+
+  * Start your main program through the scheme_main_setup trampoline, and
+    put all uses of Racket functions inside the function passed to
+    scheme_main_setup. On Windows, your embedding application must first
+    call scheme_register_tls_space before calling scheme_main_setup.
+
+    For Racket 3m, an embedding application must call scheme_main_setup
+    with the first argument set to non-zero.
+
+    typedef int (*Scheme_Env_Main)(Scheme_Env *env,
+                                   int argc, char **argv);
+    int scheme_main_setup(int no_auto_statics,
+                          Scheme_Env_Main main,
+                          int argc, char** argv);
+
+    The function scheme_main_setup initializes the GC stack base, creates
+    the initial namespace by calling scheme_basic_env, and then calls main
+    with the namespace, argc, and argv. The result of main is the result
+    of scheme_main_setup.
+
+    If the first argument no_auto_statics is non-zero, then static variables
+    must be explicity registered with the garbage collector.
+
+  * Configure the namespace by adding module declarations. The initial
+    namespace contains declarations only for a few primitive modules, such
+    as '#%kernel, and no bindings are imported into the top-level environment.
+
+    To embed a module like "run.rkt", use following command to geneate "run.c",
+    which encapsulates the compiled form of "run.rkt" and all of its
+    transitive imports (so that they need not be found separately a run time).
+
+    raco ctool --c-mods run.c "run.rkt"
+
+    As another example, raco ctool --c-mods base.c ++lib racket/base
+    can generate "base.c", which encapsulates racket/base and all of its
+    transitive imports.
+
+    The generated C file defines a declare_modules function that takes a
+    Scheme_Env*, installs the modules into the environment, and adjusts the
+    module name resolver to access the embedded declarations.
+
+    If embedded modules refer to runtime files that need to be carried
+    along, supply --runtime to raco ctool to collect the runtime files into
+    a directory. Alternatively, use scheme_set_collects_path and
+    scheme_init_collection_paths to configure and install a path for
+    finding modules at run time.
+
+    --3m : Compile/link for 3m [current default]
+    --c-mods <file> : Write C-embeddable module bytecode to <file>
+    ++lib <lib> : Embed <lib> in --c-mods output
+    --runtime <dir> : Gather runtime files to <dir>
+
+  * Access Racket through scheme_dynamic_require, scheme_load, scheme_eval,
+    and/or other functions in Racket C APIs. And then compile the program
+    and link it with the Racket libraries.
+
+    Scheme_Object* scheme_dynamic_require(int argc, Scheme_Object** argv);
+    The same as dynamic-require. The argc argument must be 2, and argv contains
+    the arguments.
+
+    Scheme_Object* scheme_load(char* file);
+    Loads the specified Racket file, returning the value of the last
+    expression loaded, or NULL if the load fails.
+
+    Scheme_Object* scheme_eval(Scheme_Object* expr, Scheme_Env* env);
+    Evaluates the (uncompiled) S-expression expr in the namespace env.
+
+    Scheme_Object* scheme_eval_compiled(Scheme_Object* obj, Scheme_Env* env);
+    Evaluates the compiled expression obj, which was previously returned from
+    scheme_compile, first linking to the namespace env.
+
+    Scheme_Object* scheme_compile(Scheme_Object* from, Scheme_Env* env, int wr);
+    Compile the S-expression from in the given namespace. Provide a non-zero
+    value for wr if the resulting compiled object will be marshalled via
+    write instead of evaluated.
+
+
+A simple example:
+
+    #define MZ_PRECISE_GC
+    #include "scheme.h"
+    #include "run.c"
+
+    static int run(Scheme_Env* env, int argc, char** argv) {
+      Scheme_Object* l;
+      Scheme_Object* a[2];
+
+      MZ_GC_DECL_REG(6);
+      MZ_GC_VAR_IN_REG(0, env);
+      MZ_GC_VAR_IN_REG(1, l);
+      MZ_GC_ARRAY_VAR_IN_REG(2, a, 2);
+
+      MZ_GC_REG();
+      declare_modules(env); /* declare embedded modules in "run.c" */
+
+      l = scheme_make_null();
+      l = scheme_make_pair(scheme_intern_symbol("run"), l);
+      l = scheme_make_pair(scheme_intern_symbol("quote"), l);
+
+      a[0] = l;
+      a[1] = scheme_false;
+
+      scheme_dynamic_require(2, a);
+
+      MZ_GC_UNREG();
+      return 0;
+    }
+
+    int main(int argc, char** argv) {
+      return scheme_main_setup(1, run, argc, argv);
+    }
+
+The MZ_GC_DECL_REG macro expands to a local-variable declaration to hold
+information for the garbage collector. The argument is the number of slots
+to provide for regstration. Registering a simple pointer requires a single
+slot, whereas registering an array of pointers requires three slots.
+
+The MZ_GC_ARRAY_VAR_IN_REG macro registers a local array given a string
+slot, the array variable, and an array size. The MZ_GC_VAR_IN_REG macro
+takes a slot and simple pointer variable. A local variable or array must
+not be registered multiple times.
+
+The MZ_GC_ macros all expand to nothing when MZ_PRECISE_GC is not defined,
+so the macros can be placed into code to be compiled for both conservative
+and precise collection.
+
+The MZ_GC_REG and MZ_GC_UNREG macros must never be used in an OS thread
+other than Racket's thread.
+
+
+ | Threads (http://docs.racket-lang.org/inside/threads.html)
+
+The initializer function scheme_basic_env creates the main Racket thread;
+all other threads are created through calls to scheme_thread. Information
+about each internal Racket thread is kept in a Scheme_Thread structure.
+A pointer to the current thread's structure is avilable as
+scheme_current_thread or from scheme_get_current_thread.
+
