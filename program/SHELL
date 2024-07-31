@@ -708,6 +708,17 @@ $ git blame file  # display each line's latest modify info: commit_id, author, d
 ^5738f83 (The Android Open Source Project 2012-12-12 16:00:35 -0800   35) #include "l2c_int.h"
 ```
 
+**保留内容删除所有提交记录**
+
+```shell
+git checkout --orphan new_branch
+git add .
+git commit -m "your_comment"
+git branch -D master # 删除 master 分支
+git branch -m master # 将当前分支命名为 master 分支
+git push -f origin master # 推到远程代码库
+```
+
 **将sshkey添加到远端**
 
 ```shell
