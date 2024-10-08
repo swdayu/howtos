@@ -1,1 +1,8 @@
-ziliao/chsum/
+.*
+!.gitignore
+chsum/
+*~
+*.orig
+*.rej
+*.bak
+*.BAK

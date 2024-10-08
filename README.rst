@@ -7,10 +7,10 @@
     https://github.com/trimstray/the-book-of-secret-knowledge
     https://github.com/MisterBooo/LeetCodeAnimation
     https://github.com/scutan90/DeepLearning-500-questions
+    https://github.com/lettier/3d-game-shaders-for-beginners
     https://github.com/cloudwu/skynet
     https://github.com/cloudwu/sproto
     https://github.com/cloudwu/ltask
-    https://github.com/GitSquared/edex-ui
     https://github.com/ocornut/imgui
     https://github.com/mikke89/RmlUi
     https://github.com/golang/go
