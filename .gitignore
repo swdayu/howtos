@@ -1,0 +1,8 @@
+.*
+!.gitignore
+__test__
+*~
+*.orig
+*.rej
+*.bak
+*.BAK

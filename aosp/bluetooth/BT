@@ -1,0 +1,476 @@
+Bleutooth
+=========
+
+https://www.bluetooth.com/specifications
+https://source.android.com/devices/bluetooth/
+
+system/bt
+packages/apps/Bluetooth
+frameworks/base/core/java/android/bluetooth
+frameworks/base/packages/SettingsLib/src/com/android/settingslib/bluetooth
+frameworks/base/packages/SystemUI/src/com/android/systemui/qs/tiles
+frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/policy
+frameworks/base/services/core/java/com/android/server
+packages/apps/Settings/src/com/android/settings/bluetooth
+vendor/qcom/opensource/[commonsys]/bluetooth
+vendor/qcom/opensource/[commonsys]/bluetooth_ext
+vendor/qcom/opensource/[commonsys]/system/bt
+vendor/qcom/proprietary/bt
+vendor/qcom/proprietary/bluetooth
+device/qcom/common/
+
+> profile config
+packages/apps/Bluetooth/src/com/android/bluetooth/btservice/Config.java
+device/qcom/common/product/overlay/packages/apps/Bluetooth/res/values/config.xml
+vendor/qcom/proprietary/resource-overlay/common/Bluetooth/res/values/config.xml
+vendor/qcom/opensource/commonsys/bluetooth/BluetoothExt/res/values/config.xml
+packages/apps/Bluetooth/res/values/config.xml
+
+> Android-P 蓝牙界面
+关掉蓝牙之后，已配对的设备不会显示，Previously connected devices变灰
+打开蓝牙后才显示出来
+
+> nouser 版本的 bin
+没有 userdata，烧这种版本不会覆盖手机原本的用户数据，常用于数据继承测试
+
+安卓ADB命令
+----------
+
+adb shell
+pm disable com.android.voicememo
+killall com.android.phonemotion
+dumpsys activity services | grep -i "ConnectionRecord.*headsetservice"| wc -l
+
+adb logcat -c       # clear log
+adb logcat -b all   # enable all log buffers
+
+> adb 识别不了设备
+1. Developer options | USB debugging [ON]
+2. Developer options | Default USB configuration [File Transfer]
+3. <vnd>tools | <vnd>DevSettings | LSM Mode [OFF] and reboot
+
+更新固件驱动
+----------
+
+cd ADSP.VT.4.0/adsp_proc/
+edit your modification
+cd ../..
+./project_build.sh -a eng <TARGET_PRODUCT>
+adb root
+adb remount
+adb shell mount -o rw,remount /firmware
+adb shell rm /firmware/image/adsp*
+adb push ADSP.VT.4.0/adsp_proc/obj/qdsp6v5_ReleaseG/660.adsp.prod/LA/system/etc/firmware/* /firmware/image/
+adb shell sync
+adb reboot
+
+cd RPM.BF.1.8/rpm_proc/
+edit your modification
+cd ../..
+./project_build.sh -r eng <TARGET_PRODUCT>
+cd RPM.BF.1.8/rpm_proc/
+find -name rpm.mbn
+adb reboot bootloader
+fastboot flash rpm build/ms/bin/AAAAANAZR/signed/rpm.mbn
+fastboot reboot
+
+> Android.mk
+ifeq ($(TARGET_BUILD_VARIANT),user)  # eng,userdebug
+    LOCAL_CFLAGS += -DMACRO_ONLY_DEFINED_FOR_USER_BUILD
+endif
+LOCAL_PRIVATE_PLATFORM_APIS := true  # let apk access non-SDK interface for Android-P
+
+> bluetooth boot kenerl log
+01-02 06:47:01.943     0     0 I Bluetooth: Core ver 2.22
+01-02 06:47:01.950     0     0 I Bluetooth: HCI device and connection manager initialized
+01-02 06:47:01.954     0     0 I Bluetooth: HCI socket layer initialized
+01-02 06:47:01.960     0     0 I Bluetooth: L2CAP socket layer initialized
+
+> enforce
+
+$ adb shell
+<project>:/ $ getenforce
+Enforcing
+<project>:/ $ setenforce 0
+<project>:/ $ getenforce
+Permissive
+
+# disable enforce on boot
+device/<vendor>/<project>/BoardConfig.mk
+BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
+
+> run app and start service
+
+$ adb shell
+<project>:/ $ btnvtool
+<project>:/ $ start btnvtool
+
+# selinux permission autogen
+grep -rn avc log.txt | grep denied | audit2allow
+
+[device/<vendor>/sepolicy/name_vndprocess.te]
+type name_vndprocess, domain, mlstrustedsubject;
+type name_vndprocess_exec, exec_type, vendor_file_type, file_type;
+init_daemon_domain(name_vndprocess)
+allow name_vndprocess name_vnddevice:chr_file { r_file_perms read ioctl open };
+allow name_vndprocess init:unix_stream_socket connectto;
+allow name_vndprocess property_socket:sock_file write;
+set_prop(name_vndprocess, vendor_bluetooth_prop)
+
+[device/<vendor>/sepolicy/vendor/common/file.te]
+type name_vnddevice, dev_type;
+
+[device/<vendor>/sepolicy/vendor/common/file_contexts]
+/dev/name_nv                            u:object_r:name_vnddevice:s0         # name_nv is a executable to read nv in kernel
+/(vendor|system/vendor)/bin/btnvtool    u:object_r:fx_vndprocess_exec:s0
+
+[device/<vendor>/sepolicy/vendor/common/property_contexts]
+vendor.<name>.bdaddr                    u:object_r:vendor_bluetooth_prop:s0  # btnvtool will write this prop
+
+[device/<vendor>/common/rootdir/etc/init.<vendor>.rc]
+on post-fs-data
+    ...
+    start btnvtool
+service btnvtool /vendor/bin/btnvtool -w
+    class core
+    user system
+    oneshot
+
+> android c funcs
+
+#include <utils/Log.h>            // for ALOGD/E/I/V/W
+#include <cutils/properties.h>    // for property_set/get
+
+char prop[PROPERTY_VALUE_MAX] = {0};
+int prop_len = 0;
+prop_len = property_get("property.name.string", prop, "unknown");
+property_set("property.name.string", prop);
+if (property_get("property.name.string", prop, "unknown") == 4 && strcmp(prop, "true") == 0)
+
+
+Settings (packages/apps/Settings)
+---------------------------------
+
+> layout xml
+res/layout/preference_progress_category.xml
+src/com/android/settings/bluetooth/BluetoothProgressCategory.java
+
+> 蓝牙自动开启配置
+
+R.bool.def_bluetooth_on
+config_supportBluetoothPersistedState
+
+> Connected devices 设置相关
+
+CATEGORY_DEVICE
+connected_devices
+connected_devices_dashboard_title
+connected_devices_dashboard_summary
+bluetooth_settings_title
+com.android.settings.category.ia.device
+BluetoothSettingsActivity
+BluetoothSettings
+ConnectedDeviceDashboardActivity
+ConnectedDeviceDashboardFragment
+BluetoothMasterSwitchPreferenceController
+AndroidManifest.xml
+res/xml/connected_devices.xml
+
+> 配对新设备流程（Pair new device）
+
+BluetoothPairingPreferenceController.createBluetoothPairingPreference() // 初始化 Pair new device 元素界面
+BluetoothPairingPreferenceController.handlePreferenceTreeClick()　// 点击 Pair new device 元素
+startPreferencePanelAsUser(bluetooth_pairing_page_title => "Pair new device" BluetoothPairingDetail.class)
+BluetoothPairingDetail extends from DeviceListPreferenceFragment.java
+DeviceListPreferenceFragment.enableScanning()
+AdapterService.startScanning()
+startDiscoveryNative()
+device_found_callback()
+RemoteDevices.deviceFoundCallback() => BluetoothDevice.ACTION_FOUND
+BluetoothEventManager.DeviceFoundHandler.onReceive()
+BluetoothCallback.onDeviceAdded(cachedDevice)
+DeviceListPreferenceFragment.onDeviceAdded()
+DeviceListPreferenceFragment.createDevicePreference()
+PreferenceGroup.addPreference(new BluetoothDevicePreference())
+
+> 蓝牙设定里的连接状态更新
+
+LocalBluetoothProfileManager.addProfile(profile, name, ACTION_CONNECTION_STATE_CHANGED)
+BluetoothEventManager.mBroadcastReceiver() => handler.onReceive()
+LocalBluetoothProfileManager.StateChangedHandler().onReceive()
+=> cachedDevice.onProfileStateChanged(mProfile, newState)
+   mProfileConnectionState.put(profile)
+=> cachedDevice.refresh()
+   BluetoothDevicePreference.onDeviceAttributesChanged()
+   cachedDevice.getConnectionSummary()
+   cachedDevice.getProfileConnectionState()
+
+> 状态栏里的蓝牙连接状态更新
+
+BluetoothEventManager.dispatchDeviceAdded() -> BluetoothCallback.onDeviceAdded()
+BluetoothEventManager.DeviceDisappearedHandler.onReceive() -> BluetoothCallback.onDeviceDeleted()
+BluetoothEventManager.BondStateChangedHandler.onReceive() -> BluetoothCallback.onDeviceBondStateChanged()
+BluetoothEventManager.dispatchConnectionStateChanged() -> BluetoothCallback.onConnectionStateChanged()
+CachedBluetoothDevice.dispatchAttributesChanged() -> CachedBluetoothDevice.Callback.onDeviceAttributesChanged()
+
+BluetoothControllerImpl.onDeviceAdded()
+| BluetoothControllerImpl.onDeviceDeleted()
+| BluetoothControllerImpl.onDeviceBondStateChanged()
+| BluetoothControllerImpl.onDeviceAttributesChanged()
+BluetoothControllerImpl.H.handleMessage() MSG_PAIRED_DEVICES_CHANGED
+BluetoothControllerImpl.H.firePairedDevicesChanged() -> onBluetoothDevicesChanged()
+PhoneStatusBarPolicy.updateBluetooth() *** [1]
+
+BluetoothControllerImpl.onDeviceAdded()
+| BluetoothControllerImpl.onDeviceDeleted()
+| BluetoothControllerImpl.onDeviceBondStateChanged()
+| BluetoothControllerImpl.onDeviceAttributesChanged()
+| BluetoothControllerImpl.onConnectionStateChanged()
+BluetoothControllerImpl.updateConnected() when connected state changed
+BluetoothControllerImpl.H.handleMessage() MSG_STATE_CHANGED
+BluetoothControllerImpl.H.fireStateChange() -> onBluetoothStateChange()
+PhoneStatusBarPolicy.onBluetoothStateChange()
+PhoneStatusBarPolicy.updateBluetooth() *** [2]
+
+BluetoothControllerImpl.onBluetoothStateChanged()
+| BluetoothControllerImpl.onConnectionStateChanged()
+BluetoothControllerImpl.H.handleMessage() MSG_STATE_CHANGED
+BluetoothControllerImpl.H.fireStateChange() -> onBluetoothStateChange()
+PhoneStatusBarPolicy.onBluetoothStateChange()
+PhoneStatusBarPolicy.updateBluetooth() *** [3]
+=> BluetoothControllerImpl.isBluetoothConnected()
+   LocalBluetoothManager.getBluetoothAdapter().getConnectionState()
+   BluetoothAdapter.getConnectionState()
+   AdapterService.getAdapterConnectionState()
+   AdapterProperties.getConnectionState()
+
+> BLE apk 连接后的状态栏状态更新
+
+. 在 GattService.onConnected()/onDisconnected()/onClientConnUpdate()/onClientConnected() 中跟踪 GATT 连接状态变化
+. 如广播 com.example.bluetooth.gatt.profile.action.CONNECTION_STATE_CHANGED 消息给上层
+. 然后在 BluetoothEventManager() 中注册监听这个广播 addHandler(...CONNECTION_STATE_CHANGED, new ConnectionStateChangedHandler())
+. 然后当 GATT 连接状态变化时，会触发 BluetoothControllerImpl.onBluetoothStateChanged() -> PhoneStatusBarPolicy.updateBluetooth()
+. PhoneStatusBarPolicy.updateBluetooth() 调用 BluetoothControllerImpl.isBluetoothConnected() 确认蓝牙是否处于连接状态
+. 可以在 isBluetoothConnected（） 中添加检查是否有 GATT 连接的代码，是的 BLE 在 apk 上的连接状态会同步到状态栏上
+. 获取 GATT 连接的代码: getSystemService(Context.BLUETOOTH_SERVICE).getConnectedDevices(BluetoothProfile.GATT)
+
+> talkback 语音提示功能
+
+@Override
+public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
+  // build your hint text you wanted
+  event.getText().add(sb.toString());
+  return true;
+}
+
+安卓调试关键字
+------------
+
+电量/灭屏/睡眠（toggled 0 为灭屏）
+screen_toggled|ThrmLimit:CHARGE|Thrm Limit|battery|Suspend entry \\-|msm_mpm_exit_sleep
+谷歌GMS相关
+ro.com.google.gmsversion
+
+
+Bluetooth QCOM FTM (Factory Test Mode)
+--------------------------------------
+
+1. Make sure BT is turned off
+2. adb remount
+3. adb shell setprop sys.usb.config diag,serial_tty,serial_tty,adb
+4. adb shell ftmdaemon -n
+5. Start QRCT3 as an administrator
+6. Refresh and Set COM Port
+7. Menu > FTM Command > BT > Choose "HCI Commands" and Start BT HCI Commands
+8. Press HCI Reset button and confirm it succeeds
+9. Press DUT Mode button and confirm it suceeds
+0. Press Enable button which is in group of HCI Write Scan Enable and confirm it suceeds
+1. Press Set Filter button which is in group of HCI Set Event Filter and confirm it suceeds
+
+
+Bluetooth FTM source files
+--------------------------
+
+vendor/qcom/proprietary/ftm
+=> ftm_main.c
+   ftm_bt.c
+   ftm_bt_hci_pfal_linux.c
+
+
+Enable FTM debug logs
+---------------------
+
+> ftm_dbg.h
+#define DEBUG
+#define FTM_DBG_DEFAULT (0xff)
+
+> ftm_main.c, ftm_bt.c, ftm_bt_hci_pfal_linux.c
+#define FTM_DEBUG
+#define printf(...) fprintf(stderr, __VA_ARGS__)
+
+
+Bluetooth FTM code flow
+-----------------------
+
+1. enter main() and register bt_ftm_diag_func_table
+2. wait hci command queued by QRCT3 tool
+3. QRCT3 tool call bt_ftm_diag_func_table.bt_ftm_diag_dispatch() insert hci command
+4. main() waited semaphore_cmd_queued, and start send command
+5. for the 1st time, init BT and create ftm reader thread
+6. write hci command to BT controller
+7. wait previous hci command complete
+8. ftm reader thread handle hci event response from BT controller
+9. main() waited semaphore_cmd_complete, and try to wait next hci command
+
+```
+ftm_main.c$main()
+DIAGPKT_DISPATCH_TABLE_REGISTER(DIAG_SUBSYS_FTM, bt_ftm_diag_func_table) ★ (1)
+wait previous semaphore_cmd_complete ★ (7)
+wait semaphore_cmd_queued ★ (2) (9)
+dequeue_send() ★ (4)
+ftm_bt_dispatch()
+ftm_bt_hci_send_cmd()
+ftm_bt_hal_soc_init(MODE_BT) => ftm_bt_hci_pfal_init_transport() => pthread_create( &hci_cmd_thread_hdl, NULL, ftm_readerthread, NULL) ★ (5)
+ftm_bt_hci_pfal_nwrite(cmd, size) ★ (6)
+
+bt_ftm_diag_func_table.bt_ftm_diag_dispatch() ★ (3)
+qinsert_cmd(req_pkt)
+post semaphore_cmd_queued "Insert BT packet done"
+
+ftm_readerthread() ★ (8)
+ftm_bt_hci_qcomm_handle_event()
+ftm_bt_hci_hal_read_event()
+post semaphore_cmd_complete
+```
+
+A2DP/AVRCP
+----------
+
+> 串联音箱通过主音箱中转，如何保证延时在合理范围内
+一种解决方法，通过采样率，动态调整发包快慢，将延时控制在一定范围内
+
+> 音频卡音问题
+1. 发得不够快： host延时，或controller多piconet没时间及时发送数据包
+2. 有过多的重传
+
+> 使用长数据包的问题
+数据包越长，在发送过程中错误的概率越大，实际应用中一般将最长的数据包禁用
+
+> headset && call && music
+
+1. phone suspend a2dp before call ring
+---
+3,534	5	2	Single Packet	Master	SUSPEND	8	12	00:00:18.345577	2018/10/22 15:21:25.231359	
+3,538	2	Single Packet	Slave	SUSPEND	8	11	00:00:00.183662	2018/10/22 15:21:25.415021	
+
+2. call ring
+---
+3,543	Master	2	..+CIEV: 2,1..	Call Status indicator's status report	27	00:00:25.003626	2018/10/22 15:21:25.442057	
+3,544	Master	2	..RING..	Incoming Call/Call progress indication	21	00:00:00.000789	2018/10/22 15:21:25.442846	
+3,552	Master	2	..RING..	Incoming Call/Call progress indication	21	00:00:03.000820	2018/10/22 15:21:28.443666
+3,569	Master	2	..RING..	Incoming Call/Call progress indication	21	00:00:03.001197	2018/10/22 15:21:40.451718
+
+3. bt headset linkloss
+---
+3,575	Event Disconnection Complete	Success	0x0002 00:00:00.003266 2018/10/22 15:21:40.925480
+
+4. hang up call, player start to play
+---
+10-22 15:21:48.611  4237  4237 I Dialer  : InCallPresenter.onCallListChange - Phone switching state: NO_CALLS -> NO_CALLS
+10-22 15:21:48.625  1013  5742 D NuPlayerDriver: start(0xe54a1780), state is 6, eos is 0
+
+I think it is not a issue, because no matter bt headset is connected or not.
+Player should start to play after call hang up.
+
+> 电话挂断后音乐没有自动播放 （08_IT_Navi）
+
+1. 电话挂断后，播放器会自动播放，然后A2DP进入stream started
+2. 但是车载也马上发送了play的AVRCP命令，但play被转换成了KEYCODE_MEDIA_PLAY_PAUSE（为解有些耳机只发pause问题）
+3. 这导致播放器又马上暂停，使得A2DP进入stream suspended
+
+(1. Call hung up)
+	9,986	Master	2	AT+CHUP.	Terminate the call			22	 00:00:01.241491	2018/11/5 20:12:42.139905	
+	9,987	Slave	2	..OK..			Success	20	 00:00:00.001328	2018/11/5 20:12:42.141233	
+	9,989	Slave	2	..+CIEV: 2,0..		Call Status indicator's status report		27	 00:00:00.510701	2018/11/5 20:12:42.651934	
+
+(2. Player start to play immediately after call hung, and A2DP started)
+11-05 20:12:42.470  2641  2641 I Telephony: : onDisconnect: callId=TC@1_1, cause=INCOMING_REJECTED
+11-05 20:12:42.555  1028  1336 D NuPlayerDriver: start(0xeb621600), state is 6, eos is 0
+	9,992	1		2		Single Packet	Slave	START	8	12	 00:00:04.820030	2018/11/5 20:12:42.667869	
+	10,004			2		Single Packet	Master	START	8	11	 00:00:00.043255	2018/11/5 20:12:42.711124	
+
+(3. Carkit send PLAY command at the same time, but it treated as KEYCODE_MEDIA_PLAY_PAUSE)
+	9,999	CT	2	CONTROL			PASS THROUGH	play	Button Pushed				17	 00:00:04.699134	2018/11/5 20:12:42.687681	
+	10,000	TG	2		ACCEPTED		PASS THROUGH	play	Button Pushed				17	 00:00:00.001157	2018/11/5 20:12:42.688838	
+	10,034	CT	2	CONTROL			PASS THROUGH	play	Button Released				17	 00:00:00.347799	2018/11/5 20:12:43.036637	
+	10,036	TG	2		ACCEPTED		PASS THROUGH	play	Button Released				17	 00:00:00.014471	2018/11/5 20:12:43.051108	
+11-05 20:12:43.308 21862 21862 V Avrcp_ext: recordKeyDispatched: KeyEvent { action=ACTION_DOWN, keyCode=KEYCODE_MEDIA_PLAY_PAUSE
+11-05 20:12:43.309 21862 21862 V Avrcp_ext: recordKeyDispatched: KeyEvent { action=ACTION_UP, keyCode=KEYCODE_MEDIA_PLAY_PAUSE
+
+(4. At the end, palyer paused)
+11-05 20:12:43.715 22078 22078 D MediaPlayerController: pause in state PLAYING
+11-05 20:12:43.715  1028 17322 D NuPlayerDriver: pause(0xeb621600)
+	10,579	1		2		Single Packet	Slave	SUSPEND	9	12	 00:00:04.019054	2018/11/5 20:12:46.730178	
+	10,587			2		Single Packet	Master	SUSPEND	9	11	 00:00:00.115116	2018/11/5 20:12:46.845294	
+
+
+OPP (Object Push Profile)
+-------------------------
+
+> BluetoothOppService
+
+BluetoothOppService 是一个 ProfileService，跟随蓝牙开关而 create 和 destroy。
+而如果有多个蓝牙用户比如（测试BYOD NFC Beam就是如此）
+```
+calligUid != Process.BLUETOOTH_UID && UserHandle.getAppId(calligUid) == Process.BLUETOOTH_UID 
+```
+需要在必要时手动启动 BluetoothOppService，像这样:
+```
+context.startService(new Intent(context, BluetoothOppService.class))
+```
+另外手动启动的 BluetoothOppService 需要手动关闭，可以在 mBluetoothReceiver.onReceive()
+中追踪到蓝牙关闭时，调用 stopSelf() 关闭 BluetoothOppService，如果不关闭当蓝牙再次开启时，会
+工作不正常，收不到 Intent 以及 BluetoothOppProvider 发送的 notifyChange。
+
+> BluetoothOppHandoverReceiver
+
+NFC Beam 通过蓝牙传输文件的流程：
+* BluetoothOppHandoverReceiver 收到 ACTION_HANDOVER_SEND 或 ACTION_HANDOVER_SEND_MULTIPLE
+* 此时如果 BluetoothOppService 在当前进程中没有启动，可以在这里先启动起来
+* 调用 BluetoothOppManager.saveSendingFileInfo() 保存文件信息
+* 调用 BluetoothOppManager.startTransfer() 启动传输
+* startTransfer() 会启动 InsertShareInfoThread 线程，执行 insertSingleShare 或 insertMultipleShare
+* 这个两个 insert 函数将文件信息插入到 BluetoothOppProvider 名为 BluetoothShare.CONTENT_URI 表中
+  mContext.getContentResolver().insert(BluetoothShare.CONTENT_URI, contentValues);
+* BluetoothOppProvider 的 insert 函数插入数据后，会调用 notifyChange() 通知 BluetoothOppService
+  context.getContentResolver().notifyChange(uri, null);
+* 实际上 BluetoothOppService 在创建时会注册 ContentObserver 监听 BluetoothShare.CONTENT_URI
+  getContentResolver().registerContentObserver(BluetoothShare.CONTENT_URI, true, mObserver);
+* BluetoothOppService 收到 notifyChange 通知后，会调用 updateFromProvider（） 来处理 UPDATE_PROVIDER
+* updateFromProvider（） 启动 UpdateThread 线程，最后调用到 insertShare() 触发 BluetoothOppTransfer 真正启动传输 
+
+
+PBAP (Phonebook Access Profile)
+-------------------------------
+
+> Phone Own Number
+adb shell setprop log.tag.BluetoothPbap VERBOSE
+Connect to remote device and enable PBAP permission
+```
+telecom/pb.vcf       - main phonebook object
+SIM1/telecom/pb.vcf 
+telecom/och.vcf      - outgoing calls history object
+SIM1/telecom/och.vcf 
+telecom/ich.vcf      - incoming calls history object
+SIM1/telecom/ich.vcf 
+telecom/mch.vcf      - missed calls history object
+SIM1/telecom/mch.vcf 
+cch.vcf              - combined calls history object
+spd.vcf              - speed-dial object
+fav.vcf              - favorite contacts object
+---
+BluetoothPbapObexServer.java: OnGet type is x-bt/phonebook; name is telecom/pb.vcf
+BluetoothPbapVcardManager.java: phone own number vcard
+BluetoothPbapService.java: getLine1Number()
+---
+

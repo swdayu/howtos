@@ -1,0 +1,1663 @@
+
+Ubuntu
+```
+# Rename Disk
+* Open "Disks" application
+* Select Disk in the left pane
+* Right pane | Volumes | Unmount the filesystem
+* Right pane | Volumes | More actions | Edit Filesystem | Change Filesystem Label
+
+# Cannot Login
+* CTRL+ALT+F1 enter command line
+* sudo apt-get autoremove ubuntu-desktop
+* sudo apt-get install ubuntu-desktop
+* sudo apt-get install python-ntdb
+* sudo apt-get install libntdb1:amd64
+* sudo apt-get install libupstart1:amd64
+* reboot
+
+# rename file postfix name
+$ find -name '*.cc' | xargs rename -v 's/\.cc/\.c/' *
+```
+
+
+**basic**
+```shell
+# prompt character
+root@localhost:~#
+user@localhost:~$
+
+# shebang line of shell script
+#!/bin/bash
+
+# edit and execute shell script
+$ cat << EOF >> a.sh
+> #!/bin/bash
+> ...
+> EOF
+$ chmod u+x a.sh
+$ a.sh   # same as `/bin/bash a.sh`
+
+# some config files
+$ cat ~/.bashrc
+$ cat /etc/profile
+$ cat /etc/environment
+$ cat /etc/hosts
+
+# stdin: code 0, <, <<
+# stdout: code 1, >, >>
+# stderr: code 2, 2>, 2>>
+$ find folder -name pattern > stdout_log 2> stderror_log
+$ find folder -name pattern 2> /dev/null     # discard error log
+$ find folder -name pattern > logfile 2>&1   # log to the same file
+
+# combine commands 
+$ apt-get update && apt-get upgrade                        # execute next only if current success
+$ ping -c 1 -w 15 -n 72.14.203.104 || echo "server down"   # execute next only if current failed
+$ echo first cmd; echo second cmd                          # these two commands are not logical related
+$ mkdir $(date "+%Y-%m-%d")                                # use another command's result as parameters
+$ mkdir `data "+%Y-%m-%d`
+
+# FileZilla字符编码设置
+# Site Manager|Charset|Use custom charset|Encoding: Shift-JIS
+
+# Ubuntu上将大小写切换键变成CTRL键
+# 执行以下命令后在 System Settings | Text Entry | Keyboard Map 中可以查看键盘映射是否生效
+$ sudo vim /etc/default/keyboard
+XKBOPTIONS="ctrl:nocaps"
+$ sudo dpkg-reconfigure keyboard-configuration
+```
+
+**terminal**
+```shell
+Profiles | Profile Preferences | Scrolling
+- Scrollback [1000000] lines
+```
+
+**multi-screen terminal**
+```shell
+$ sudo apt-get install terminator
+# modified settings
+Terminator Preferences | Global
+- Terminal separator size: [2]
+- Hide size from title: [check]
+- Unfocused terminal font brightness: [1.0]
+Terminator Preferences | Profiles | General
+- Font: [Ubuntu Mono | 13]
+- Show titilebar: [uncheck]
+Terminator Preferences | Profiles | Colors
+- Foreground and Background -> Built-in schemes: [Ambience]
+- Palette -> Build-in schemes: [Ambience]
+Terminator Preferences | Profiles | Scrolling
+- Srollback: [1000000] lines
+```
+
+**send later for thunderbird**
+```shell
+# install
+Tools | Add-ons | Get Add-ons | Search "Send Later" and install
+# check whether there are scheduled mails need to be send for every <n> minutes
+Tools | Add-ons | Extensions | Send Later x.x.x | Preferences | General
+- Check every: [3] minutes
+# trigger "Send Later" when click "Send" button
+Tools | Add-ons | Extensions | Send Later x.x.x | Preferences | General
+- "Send" does "Send Later"
+## configure a button for sending 3 minutes later
+Tools | Add-ons | Extensions | Send Later x.x.x | Preferences | Shortcut1
+- Button Label: [3 min later] Minutes: [3]
+```
+
+**echo**
+```shell
+# echo text with specified color
+$ /bin/echo -e "\033[30m Black \033[0m"
+$ /bin/echo -e "\033[31m Red \033[0m"
+$ /bin/echo -e "\033[32m Green \033[0m"
+$ /bin/echo -e "\033[33m Yellow \033[0m"
+$ /bin/echo -e "\033[34m Blue \033[0m"
+$ /bin/echo -e "\033[35m Purple \033[0m"
+$ /bin/echo -e "\033[36m Light Blue \033[0m"
+$ /bin/echo -e "\033[37m White \033[0m"
+$ /bin/echo -e "\033[40;37m Black Background \033[0m"
+$ /bin/echo -e "\033[41;37m Red Background \033[0m"
+$ /bin/echo -e "\033[42;37m Green Background \033[0m"
+$ /bin/echo -e "\033[43;37m Yellow Background \033[0m"
+$ /bin/echo -e "\033[44;37m Blue Background \033[0m"
+$ /bin/echo -e "\033[45;37m Purple Background \033[0m"
+$ /bin/echo -e "\033[46;37m Light Blue Background \033[0m"
+$ /bin/echo -e "\033[47;31m White Background \033[0m"
+```
+
+**apt-cache**
+```shell
+# apt - Ubuntu's Advanced Packaging Tool
+
+$ apt-cache pkgnames name    # list the names of all packages in the system
+$ apt-cache search pkgpatt   # search the package list for a regex pattern
+$ apt-cache show pkgname     # show a readable record for the package
+$ apt-cache showsrc pkgname  # show source records of the package
+$ apt-cache depends pkgname  # show raw dependency info for a package
+$ apt-cache rdepends pkgname # show reverse dependency for the package
+$ apt-cache policy pkgname   # show policy settings of a package
+```
+
+**apt-get**
+```shell
+# The APT package index is essentially a database of available packages from the repositories
+# defined in the `/etc/apt/sources.list` file and in the `/etc/apt/sources.list.d` directory.
+# Use `apt-get update` to update the local package index in the repositories.
+
+$ apt-get update             # retrieve new lists of packages
+$ apt-get upgrade            # perform an upgrade
+$ apt-get install pkg1 pkg2  # install new packages
+$ apt-get remove pkg1 pkg2   # remove packages
+$ apt-get purge pkg1 pkg2    # remove packages and config files
+$ apt-get clean              # erase downloaded archive files
+$ apt-get autoclean          # erase old downloaded archive files
+```
+
+**gparted**
+```shell
+this is another ubuntu disk tool if the original tool "disks" cannot meet your need
+$ sudo apt-get install gparted
+```
+
+**hostname**
+```shell
+$ hostname  # show current hostname
+$ sudo vi /etc/hostname
+$ sudo vi /etc/hosts
+$ reboot
+
+# After physically reboot your device, the hostname will be updated permanently.
+# Check the name display in [System Settings | Details | Overview | Device name], 
+# and the name on the Terminal [username@hostname:~$].
+```
+
+**passwd**
+```shell
+$ passwd <usrname>  # change password for specific user
+```
+
+**modify user name**
+```shell
+$ sudo su            # this is very important before modify ***
+$ vi /etc/passwd     # modify your <name>
+<name>:x:1000:1000:<name>:/home/<name>:/bin/bash
+$ vi /etc/shadow     # modify your <name>
+<name>:...........:17001:0:99999:7:::
+$ vi /etc/group      # modify all your old name to the new name
+$ cd /home           # enter home and move your old username folder to the new place with your new name
+$ mv <your-old-username-folder> <name>
+
+Enter "recovery mode" if you do something wrong and cannot login
+1. reboot your computer
+2. press ESC or SHIFT quickly to enter GRUB menu
+3. select with "advanced options" and choise "Ubuntu xxxxxx (recovery mode)"
+4. select something like "Drop to root shell prompt", the command line with root will be entered
+5. do your modification in the commandline using the editor "vi"
+6. if it is read-only, you need execute the command "mount -o remout,rw /" first
+```
+
+**env**
+```shell
+$ env
+$ echo $PATH
+$ echo $HOME
+$ echo $USER
+
+# show environment variables of a process
+$ pgrep -l ssh
+3190 sshd
+$ sudo cat /proc/3190/environ
+
+$ vi ~/.bashrc  # user level
+export VULKAN_SDK=~/vulkan/VulkanSDK/1.0.17.0/x86_64/
+export PATH=$PATH:$VULKAN_SDK/bin
+export LD_LIBRARY_PATH=$VULKAN_SDK/lib
+export VK_LAYER_PATH=$VULKAN_SDK/etc/explicit_layer.d
+$ source ~/.bashrc
+```
+
+**virtualbox**
+```shell
+# Default window size
+  File | Preferences | Display
+  - Maximum Guest Screen Size: Hint
+  - Width: input wanted default window width
+  - Height: input wanted default window height
+  
+# Share clipboard
+  Machine | Settings | General | Advanced
+  - Shared Clipboard: Bidirectional
+  Machine | Settings | Storage
+  - Controller: SATA    => check "Use Host I/O Cache"
+    - YourVirtualOS.vdi => check "Solid-state Drive"
+
+# Share folders
+  Machine | Settings | Shared Folders
+  - add folders wanted to share to Machine Folders
+  - all shared folders will mounted under `/media/`
+
+# Add your username to vboxsf group to require the access permission
+$ ls -al /media/
+drwxrwx---   1 root vboxsf 12288 6月  12 11:49 sf_E_DRIVE
+drwxrwx---   1 root vboxsf 16384 6月  12 01:14 sf_F_DRIVE
+drwxrwx---   1 root vboxsf  4096 6月  12 11:48 sf_G_DRIVE
+$ sudo usermod -a -G vboxsf yourusername
+$ reboot
+```
+
+**wine**
+
+Wine (wine is not an emulator) is a free and open source compatibility layer software application that aims to allow applications designed for Microsoft Windows to run on Unix-like operating systems.
+
+System disk `~/.wine/drive_c`
+- `/Program Files`
+- `/Program Files(x86)`
+- `/users`
+- `/windows`
+
+```shell
+$ sudo add-apt-repository ppa:ubuntu-wine/ppa
+$ sudo apt-get update
+$ sudo apt-get install wine
+$ wine --version
+$ winecfg  # config wine
+$ cd folder
+$ wine ./program.exe
+```
+
+**chromium**
+```shell
+$ sudo add-apt-repository ppa:chromium-daily/stable
+$ sudo apt-get update
+$ sudo apt-get install chromium-browser
+```
+
+**skype**
+```shell
+# Users of 64-bit Ubuntu, should enable MultiArch if it isn't already enabled by running the command:
+$ sudo dpkg --add-architecture i386
+# Since Ubuntu 10.04 (Lucid Lynx), Skype is part of the Canonical partner repository.
+# You can do this by running the command to add the Canonical Partner Repository:
+$ sudo add-apt-repository "deb http://archive.canonical.com/ $(lsb_release -sc) partner"
+$ sudo apt-get update
+$ sudo apt-get install skype
+
+Skype | Options
+- General:  Save files to: [skype]
+- Notifications: Chat Message Received: [n] Display pop-up notification
+- IM: [y] Show emoticons [y] Show animated emoticons
+
+Skype for linux
+* Use a over sea IP to access "www.skype.com"
+* Then your can get latest linux version skype
+```
+
+**sogoupinyin**
+```shell
+# download linux version install package from "http://pinyin.sogou.com/linux/?r=pinyin"
+# click it to install
+# select "fcitx" in "System Settings|Language Support|Keyboard input method system"
+# reboot system, and choose "sogoupinyin" for input
+Input Method Configuration | Input Method | Click "+" Button
+- Only Show Current Language [uncheck]
+- search "sogou" in search box, and select "Sogou Pinyin", and click "OK"
+Then you can use "Shift" key to switch between input methods.
+```
+
+**monitor**
+```shell
+$ gnome-system-monitor
+$ top
+```
+
+**subversion**
+```shell
+$ sudo apt-get install subversion
+$ svn export http://192.168.7.3/svn/ --username <user> --password <password>
+# export files to local folder, the last component of url is used as the root folder name
+# the above command will sync all files from remote to the folder "./svn/"
+
+# checkout and commit
+$ svn checkout svn/subfolder/
+$ cd subfolder/
+$ svn lock "filename" # lock a file
+$ svn add "new_file_need_to_add"
+$ svn commit -m "write_your_comment" "filename"  # commit files after modify
+$ svn update .             # update to latest files
+$ modify files you wanted
+$ svn commit -m "comment"  # commit all modified files
+$ svn log "filename"       # check commit history of the file
+$ cd subfolder/ 
+$ add files in a folder
+$ svn status
+$ svn add "folder"
+$ svn status
+$ svn commit -m "comment" "folder"
+```
+
+**vpn server**
+```shell
+$ sudo apt-get install pptpd
+$ sudo vim /etc/pptpd.conf
+  # uncomment these lines
+  localip 192.168.0.1
+  remoteip 192.168.0.234-238,192.168.0.245
+$ sudo vim /etc/ppp/chap-secrets
+  # add account, * accept connection from all ip addresses
+  username pptpd "password" *
+$ sudo vim /etc/ppp/pptpd-options
+  # modify this line
+  ms-dns 8.8.8.8
+$ sudo vim /etc/sysctl.conf
+  # uncomment this line
+  net.ipv4.ip_forward=1
+$ sudo sysctl -p
+$ sudo apt-get install iptables
+$ sudo iptables -t nat -A POSTROUTING -s 192.168.0.0/24 -o eth0 -j MASQUERADE
+$ sudo iptables-save > /etc/iptables-rules
+$ sudo vim /etc/network/interface
+  # add this line in eth0 section
+  pre-up iptables-restore < /etc/iptables-rules
+$ sudo service pptpd restart
+```
+
+**java**
+```shell
+# openjdk
+$ sudo add-apt-repository ppa:openjdk-r/ppa
+$ sudo apt-get update
+$ apt-cache pkgnames openjdk
+openjdk-8-jdk
+openjdk-8-jre
+...
+$ sudo apt-get install openjdk-8-jdk
+$ sudo update-alternatives --list java
+
+# if multiple java exist, use following commands to set current java
+$ sudo update-alternatives --config java
+$ sudo update-alternatives --config javac
+$ java -version
+
+# oracle jdk
+$ sudo add-apt-repository ppa:webupd8team/java
+$ sudo apt-get update
+$ apt-cache pkgnames oracle-java
+```
+
+
+cut sort wc uniq tr col join paste expand split xargs -
+
+**df**
+```shell
+$ df -hl  # show human (-h) readable info about the local (-l) file systems
+```
+
+**du**
+```shell
+$ du -h                # show size of all files and directories in current folder
+$ du -h folder/        # show size of all files and directories in the folder
+$ du -h --max-depth=1  # only show first level files and directories in current folder
+$ du -h folder/ -d 1   # only show first level files and directories in the folder
+$ du -h mental/file    # show specific file's size
+```
+
+**cp**
+```shell
+$ cp --parents folder/struct/file.txt dest/folder/   # copy along with the folder structure
+```
+
+**rm**
+```shell
+$ rm -r folder/   # remove directories and their contents recursively
+```
+
+**tar**
+```shell
+$ tar zxf lpeg-1.0.0.tar.gz
+```
+
+**zip**
+```shell
+$ zip dest.zip file1 file2 file3  # compress specified files
+$ zip dest.zip -r folder/         # compress all files in folder
+$ unzip dest.zip                  # extract to current folder
+$ unzip dest.zip -d folder/       # extract to specified folder
+```
+
+**head**
+```shell
+$ head a.txt b.txt   # show first 10 lines
+$ head -n 13 a.txt   # show first 13 lines
+$ head -c 100 file   # show first 100 bytes: 10k (10KB) 10m (10MB)
+```
+
+**tail**
+```shell
+$ tail a.txt b.txt   # show last 10 lines
+$ tail -n a3 a.txt   # show last 13 lines
+$ tail -f outfile    # continue show last lines of updating file
+```
+
+**less**
+```shell
+$ less largefile   # display with multiple pages
+$ less -N file     # dispaly with line numbered
+
+# q      # quit
+# f      # forward one page
+# b      # backward one page
+# g      # go to first line
+# G      # go to last line
+# down   # next line
+# up     # previous line
+# left   # left one half screen
+# right  # right half screen
+
+# /patt  # search string with patt
+# n      # next match
+# N      # privous match
+
+# m              # mark current position with a letter
+mark: <letter>
+# '<letter>      # go to a position related to the letter
+# ''             # go to previous position
+```
+
+**find**
+```shell
+$ find folder -name name      # find directories or files contain the name
+$ find . -type f | xargs grep "file content"  # search all files under current folder
+$ find . -path ./out -prune -o -type f -print | xargs grep "file content"  # search all files but not in ./out
+```
+
+**grep**
+```shell
+$ grep -iE "str|str2" files   # grep files' content
+$ grep "str" files -A3 -B3    # grep and show context after and before the match line
+$ grep -vE "str|abc" files    # select non-matching lines
+$ grep -rn "xxx" files        # recursive and print line number
+$ pgrep ssh                   # grep current running processes
+
+# grep strings started with `android.` in `.java` and `.aidl` files
+$ grep -E "\"android\.*" $(find . | grep -E "*\.java|*\.aidl" |  tr "\n" " ")
+```
+
+**wc**
+```shell
+$ wc -l file   # count lines of the file
+```
+
+**cat**
+```shell
+# concatenate files, or stdin, to stdout
+$ cat -b file1 file2        # concate file1 and file2 to stdout, number nonblank lines
+$ cat -n file1 file2        # concate file1 and file2 to stdout, number all lines
+$ cat << EOF                # concate stdin to stdout
+$ cat file1 - file2 << EOF  # concate file1, stdin (only 1st '-` is valid), and file2 to stdout
+$ cat file1 - file2 << EOF > newfile  # concate file1, stdin, file2, and output to newfile
+$ cat file1 - file2 << EOF >> file    # concate file1, stdin, file2, and append to the file
+$ tac file1 - file2 << EOF  # output from last line to first line
+```
+
+## git
+- http://git-scm.com/
+
+**git config**
+```shell
+$ vi ~/.gitconfig   # editor your git config file
+[user]
+  name = Connectivity_BT) Your Name
+  email = yourname@example.com
+[core]
+  editor = vi
+[color]
+  ui = auto
+[url "ssh://company_yourname@xxx.xx.xx.xx:port"]
+  pushInsteadOf = ssh://yourname@xxx.xx.xx.xx:port
+  pushInsteadOf = ssh://yourname@xxx.xx.xx.xx:port
+[push]
+  default = current
+$ git config --list
+
+git config -e --global           # edit .gitconfig under user folder
+git config -e --system           # edit /etc/gitconfig for system
+cd repo
+git config -e                    # edit .git/config
+git config user.name             # show value of repository level
+git config a.b value             # set value of repository level
+git config --global a.b          # show value of user level
+git config --global a.b value    # set value of user level
+git config --system x.y.z        # show value of system level
+git config --system x.x.z value  # set value of system level
+
+git rev-parse --git-dir   # show the path of current repository
+```
+
+**git grep**
+```shell
+git grep -n "pattern"                         # search workspace files' content and list line number
+git grep -n -w "pattern"                      # search only at word boundary
+git grep -E "patt1|patt2"                     # search lines that match "patt1" or "patt2"
+git grep --all_match -e "p1" -e "p2"          # search lines that match "p1" or "p2"
+git grep -e "p1" --or -e "p2"                 # search lines that match "p1" or "p2"
+git grep --not -e "patt" -- test.txt          # search lines that not contain "patt" in test.txt
+git grep -e "patt1" --and -e "patt2"          # search lines that match "patt1" and "patt2"
+git grep -e "p1" --and \( -e "p2" -e "p3" \)  # search lines that match "p1" and match "p2" or "p3"
+git grep "time_t" -- "*.[ch]"                 # search "timet_t" in .c and .h files
+git grep -n --context 3 "pattern"             # show context: -3 -C/A/B --context --after/before-context
+git grep -n --function-context "pattern"      # show function context, or use -W for short
+```
+
+**git format-patch**
+```shell
+git init
+git add --all
+git commit -m "initialized"
+git tag v1
+git add
+git commit
+git format-patch v1..HEAD
+git send-email *.patch
+```
+
+**git init**
+```shell
+$ git init       # init a git repository in current directory
+$ git init repo  # create a directory of "repo" and init a git repository under "repo"
+```
+
+**git add**
+```shell
+$ git add -u     # --update, add modified file to stage
+$ git add --all  # --all -A, add all files (including new files and deleted files) to stage
+```
+
+**git status**
+```shell
+$ git status -s     # show status using short format
+M  core/java/android/bluetooth/BluetoothA2dp.java        # green: staged
+ M core/java/android/bluetooth/BluetoothGatt.java        # red: modified in workspace
+MM core/java/android/bluetooth/BluetoothGattServer.java  # both modified and staged
+$ git status -s -b  # -b: show current branch
+## master
+MM hello.txt
+```
+
+**git diff**
+```shell
+# workspace -> cached area (or stage/index) -> repository
+$ git diff            # diff workspace with stage
+$ git diff HEAD       # diff workspace with repository
+$ git diff HEAD~1     # diff workspace with previous repository
+$ git diff --cached   # diff stage with repository, same as `git diff --staged`
+```
+
+**git checkout**
+```shell
+$ git checkout -- files    # workspace files replaced by staged files
+$ git checkout HEAD files  # workspace files replaced by repository files
+```
+
+**git reset**
+```shell
+# reset files
+$ git reset HEAD files     # staged files replaced by repository files, workspace remain unchanged
+$ git reset HEAD~1 files   # staged files replaced by previous repository files
+$ git reset HEAD -- files  # add `--` to avoid name conflict between commit/reference and file path
+$ git reset -- files       # same as `git reset HEAD -- files`
+
+# reset HEAD reference
+$ git reset HEAD           # same as `git reset` and `git reset --mixed HEAD`
+$ git reset HEAD~1         # same as `git reset --mixed HEAD~1`
+$ git reset --soft HEAD~1
+$ git reset --hard HEAD~1
+```
+
+**git rm**
+```shell
+$ git rm --cached files    # delete staged files
+```
+
+**git clean**
+```shell
+$ git clean -df            # remove untracked directories and files
+```
+
+**git stash**
+```shell
+$ git stash
+$ git checkout new_branch
+$ ...
+$ git checkout original_branch
+$ git stash pop
+```
+
+**git clone**
+```shell
+$ git clone remote_repo local_dir   # without local_dir will use current directory
+$ mkdir -p repo/.git                # bare clone only copy repo database not files
+$ git clone --bare remote repo/.git  
+$ mkdir -p mirror/.git              # clone a mirror database can be easily synced
+$ git clone --mirror remote mirror/.git
+```
+
+**git remote**
+```shell
+$ git remote update
+$ git remote -v
+$ git remote add https_remote https://example.com/user/demo.git
+$ git remote add ssh_remote git@example.com:user/demo.git
+
+$ git push remote_repo branch
+$ git pull remote_repo branch
+```
+
+**git branch**
+```shell
+$ git branch      # show current branch
+$ git branch -a
+```
+
+**git commit**
+```shell
+$ vim modify_files
+$ git status && git diff
+$ git add . && git status
+$ git commit
+    Submit for XXX issue:
+    PROJN-TASK-PHASE-23
+CTRL+O
+CTRL+X
+$ git branch -a        # show branch info -> remote/MM/name/public/develop
+$ git push remote HEAD:refs/for/MM/name/public/develop
+$ git log -2           # last two commits with: commit id, comment
+$ git show commit_id   # show commit detail info by commit id
+$ vim modify_files
+$ git status && git diff
+$ git add . && git status
+$ git commit --amend
+$ git push remote HEAD:refs/for/MM/name/public/develop
+
+# git add --all
+# git commit -m "Update files for some purpose"
+```
+
+**git log**
+```shell
+$ git log --stat -2             # show last 2-commit with: commit id, comment, changed files
+$ git log --pretty=oneline -2   # show last 2-commit with each one line
+$ git log --oneline -2          # similar to `--pretty=oneline`, but with shorten commit id
+$ git log --graph -2            # print out relationship graph for commits
+```
+
+**git reflog**
+```shell
+$ git reflog | head -5          # show local changes of HEAD pointer
+```
+
+**git blame**
+```shell
+$ git blame file  # display each line's latest modify info: commit_id, author, date, line_no, content
+^5738f83 (The Android Open Source Project 2012-12-12 16:00:35 -0800   31) #include <string.h>
+^5738f83 (The Android Open Source Project 2012-12-12 16:00:35 -0800   32) #include "bt_target.h"
+5cd8bff2 (Mike J. Chen                    2014-01-31 18:16:59 -0800   33) #include "bt_utils.h"
+^5738f83 (The Android Open Source Project 2012-12-12 16:00:35 -0800   34) #include "l2cdefs.h"
+^5738f83 (The Android Open Source Project 2012-12-12 16:00:35 -0800   35) #include "l2c_int.h"
+```
+
+**保留内容删除所有提交记录**
+
+```shell
+git checkout --orphan new_branch
+git add .
+git commit -m "your_comment"
+git branch -D master # 删除 master 分支
+git branch -m master # 将当前分支命名为 master 分支
+git push -f origin master # 推到远程代码库
+```
+
+**将sshkey添加到远端**
+
+```shell
+ssh-keygen -t rsa
+ssh-copy-id -i ~/.ssh/user_id_rsa.pub root@47.97.196.34
+```
+
+**安装JupyterLab**
+
+```shell
+localhome = /c/System/Package/ubuntulocal
+cd $localhome
+scp Miniconda3-latest-Linux-x86_64.sh root@47.97.196.34:~/alpha/
+---
+bash Miniconda3-latest-Linux-x86_64.sh
+conda config --set auto_activate_base true/false #conda是否开机自启动
+conda list 				#列出当前安装的所有python包
+conda update conda		#更新conda
+conda -h                #conda帮助
+conda list -h           #conda命令帮助
+conda info              #conda当前安装信息
+conda install <package> #安装对应包
+conda updata <package>  #更新对应包
+conda remove <package>  #卸载对应包
+conda install -c conda-forge jupyterlab 		#安装jupyterlab
+conda install -c conda-forge notebook			#安装notebook
+conda install -c conda-forge voila              #安装voila
+https://jupyterlab.readthedocs.io/en/latest/	#jupyterlab文档
+jupyter notebook --version						#jupyter notebook版本信息，必须大于等于4.3
+jupyter notebook list							#查看当前运行的notebook server
+jupyter labextension install jupyterlab-toc     #安装插件
+jupyter labextension list                       #查看所有安装的插件
+jupyter lab --generate-config				    #生成jupyter lab默认配置
+vi ~/.jupyter/jupyter_notebook_config.py        #编辑配置文件
+	c.NotebookApp.allow_remote_access = True    #允许远程访问
+	c.NotebookApp.allow_root = True				#允许以root权限访问
+	c.NotebookApp.ip = '0.0.0.0'				#运行任意ip访问
+	c.NotebookApp.open_browser = False			#启动jupyter server后不打开浏览器
+	c.NotebookApp.notebook_dir = 'rootdir'		#jupyter lab根目录
+	c.NotebookApp.password = 'sha1:...:...'	    #设置登录密码
+		python									#用下面的方式生成密码
+		from notebook.auth import passwd
+		passwd()
+	c.NotebookApp.password_required = True		#使用密码
+	c.NotebookApp.port = 8080					#访问端口，需要在ECS控制台添加端口的访问权限
+conda install -c conda-forge nodejs				#安装nodejs
+	node --version
+	npm --version
+jupyter lab --version
+jupyter lab build
+nohup jupyter lab &								#运行jupyter server，即使服务断关闭终端，jupter server也不会断掉
+---
+conda install -c conda-forge jupyterlab-git
+pip install jupyterlab_github
+jupyter labextension install @jupyterlab/github
+jupyter labextension uninstall @jupyterlab/github
+jupyter labextension update @jupyterlab/github
+gitbug|settings|deverloper settings|
+```
+
+git push origin HEAD:refs/for/master
+git clone git@github.com:user/repo.git
+
+git clone --progress --branch name -v "git.host.com:gitolite3/repo.git" "folder/path"
+git clone --progress --branch name -v "gitolite3@git.host.com:repo" "folder/path"
+
+提交代码之前 rebase
+
+```shell
+git fetch origin
+git rebase origin your_current_branch_name
+```
+
+新建远程分支
+
+```shell
+git checkout -b new_remote_branch
+git branch     # can see local branch *new_remote_branch
+modify your files
+git push origin new_remote_branch:new_remote_branch
+git branch -a  # can see remotes/origin/new_remote_branch
+
+1.将本地分支进行改名:
+git branch -m old_branch new_branch
+2.将本地分支的远程分支删除:
+git push origin :old_branch
+3.将改名后的分支push到远程，并让本地分支关联远程分支：
+git push --set-upstream origin new_branch
+```
+
+拉远程分支的一个子目录
+
+```shell
+rm -rf bt_if
+git init bt_if
+cd bt_if
+git remote add -f origin remote-git-repo
+git config core.sparseCheckout true
+echo "services/bt_if/" >> .git/info/sparse-checkout
+git pull origin master_new_profile
+mv services/bt_if/* .
+rm -rf services
+git add --all .
+git commit -m "adjust folder"
+cd ..
+```
+
+git push origin refs/heads/ibrt_rc_0.2
+如果要删除，git push origin :refs/tags/ibrt_rc_0.2
+
+|git tag
+
+    -- make a tag on latest commit
+    git tag ver_1031
+
+    -- delete the tag
+    git tag -d ver_1031
+
+    -- push local tags
+    git push origin <branch_name> --tags
+
+
+|将另一个分支的代码合到当前分支
+
+    git checkout master         # switch to master branch
+    git pull origin master      # get code
+    git checkout your_branch    # switch to your branch
+    git merge master            # merge master code to your branch
+    git push origin your_branch # submit
+
+
+|git revert
+
+    git revert commit_id
+
+**debug**
+```shell
+$ strace
+$ pstack
+```
+
+**make**
+- https://gcc.gnu.org/onlinedocs/gcc-5.3.0/gcc/
+- http://www.ruanyifeng.com/blog/2015/02/make.html
+- https://www.gnu.org/software/make/manual/make.html
+- https://gist.github.com/isaacs/62a2d1825d04437c6f08
+- http://www3.ntu.edu.sg/home/ehchua/programming/cpp/gcc_make.html
+
+Makefile文件由一系列规则（rules）构成，每条规则的格式是：
+```make
+<target>: <prerequisites>
+[tab]  <command-line>
+[tab]  <command-line>
+       ....
+```
+
+从第2行开始的命令行（command-line）都必须以tab开头，但可以通过.RECIPEPREFIX修改这个字符，例如：
+```make
+.RECIPEPREFIX= >
+clean:
+> rm -f target.so
+```
+
+目标可以包含多条命令，这些命令可以在同一行或不同行
+
+```make
+
+# target: dependencies
+#         script
+# - 如果target比dependencies都更新，则不会对这个target进行处理
+# - 否则会对target进行处理，所有dependencies中的项目都被运行或重新产生，script部分也会被执行
+
+# make                   ## 相当于执行makefile中的第一个target
+# make CFLAGS="-g -Wall" ## 预先指定makefile变量值
+
+# make内置变量：
+# - $@ 当前目标文件完整名称
+# - $* 如目标文件是prog.o，则$*为prog而$*.c为prog.c
+# - $< 如果正在制作prog.o，而prog.c刚被修改，则$<就是prog.c
+
+# POSIX标准make有特殊的从a.c源文件到a.o的编译方法:
+# $(CC) $(CFLAGS) $(LDFLAGS) -o $@ $*.c
+# - 例如make如果认为它必须产生demo.o，则它会执行: $(CC) $(CFLAGS) $(LDFLAGS) -o demo.o demo.c
+
+# 如果make觉得你需要从目标文件编译出一个可执行文件时，它会使用下面的方式：
+# $(CC) $(LDFLAGS) first.o second.o $(LDLIBS)
+# - 例如LDLIBS= -lbroad -lgeneral，它的依赖顺序为目标文件可能依赖于broad和general，broad可能依赖于general
+
+# make -p > default_rules ## 保存make默认的规则到文件中
+
+
+CC= gcc -std=c99
+CFLAGS= -I/usr/bin/lua/include -DLUA_RELEASE -g -O3 -Wall -Wextra
+CLIBS= -L/usr/bin/lua/lib -lweirdlib
+
+GCC预定义宏：gcc -E -dM - </dev/null
+
+MKDIR= mkdir -p
+RM= rm -f
+
+OBJS= lpvm.o lpcap.o lptree.o lpcode.o lpprint.o
+
+main: $(OBJS)
+
+lpeg.so: $(OBJS)
+	env $(CC) $(OBJS) -o lpeg.so
+
+lpcap.o: lpcap.c lpcap.h lptypes.h
+lpcode.o: lpcode.c lptypes.h lpcode.h lptree.h lpvm.h lpcap.h
+lpprint.o: lpprint.c lptypes.h lpprint.h lptree.h lpvm.h lpcap.h
+lptree.o: lptree.c lptypes.h lpcap.h lpcode.h lptree.h lpvm.h lpprint.h
+lpvm.o: lpvm.c lpcap.h lptypes.h lpvm.h lpprint.h lptree.h
+```
+
+```make
+# from .c to .o
+$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $*.c
+# from .o to execute
+$(CC) $(LDFLAGS) first.o second.o $(LDLIBS)
+
+make CFLAGS="-g -Wall"  # set a makefile variable
+CFLAGS="-g -Wall" make  # set a environment variable used only for make and its subprocess
+
+# @: run the command but don't dispaly any output to the screen
+# -: if the comand return zero then continue run, otherwise stop at the first non-zero return
+@echo "Please do 'make PLATFORM' where PLATFORM is one of these:"
+@echo "   $(PLATS)"
+
+VARIABLE = value
+# 在执行时扩展，允许递归扩展。
+VARIABLE := value
+# 在定义时扩展。
+VARIABLE ?= value
+# 只有在该变量为空时才设置值。
+VARIABLE += value
+# 将值追加到变量的尾端。
+
+P = program_name
+OBJECTS = 
+$(P): $(OBJECTS)
+
+CC = gcc -std=c99 
+CWARNS = -Wall -Wextra -Werror -pedantic-errors
+CFLAGS = $(CWRANS) -g -O2 -I/usr/bin/lua/include -DLUA_RELEASE -DMAX_SIZE=64 -UMAX_SIZE
+LDFLAGS = -L/usr/bin/lua/lib
+LDLIBS = -lpthread -lm -ldl -lbroad -lgeneral
+SHARED = -fPIC -shared -Wl,-E
+
+# linux:  -fPIC -shared -Wl,-E -ldl
+# macosx: -fPIC -dynamiclib -Wl,-undefined,dynamic_lookup -ldl
+# macosx: -fPIC -bundle -undefined dynamic_lookup
+
+# -Lpath -Wl,-Rpath  # -Wl,options: pass options to linker
+# -pg: gprof executable_file > profile.txt
+
+GCC的-static选项可以使链接器执行静态链接。但简单地使用-static显得有些’暴力’，
+因为他会把命令行中-static后面的所有-l指明的库都静态链接，更主要的是，有些库
+可能并没有提供静态库（.a），而只提供了动态库（.so）。这样的话，使用-static就
+会造成链接错误。
+之前的链接选项大致是这样的:
+CORE_LIBS="$CORE_LIBS -L/usr/lib64/mysql -lmysqlclient -lz -lcrypt -lnsl -lm -L/usr/lib64 -lssl -lcrypto"
+修改过是这样的:
+CORE_LIBS="$CORE_LIBS -L/usr/lib64/mysql -Wl,-Bstatic -lmysqlclient \
+-Wl,-Bdynamic -lz -lcrypt -lnsl -lm -L/usr/lib64 -lssl -lcrypto"
+其中用到的两个选项：-Wl,-Bstatic和-Wl,-Bdynamic。这两个选项是gcc的特殊选项，它会将选项的参数传递给链接器，
+作为链接器的选项。比如-Wl,-Bstatic告诉链接器使用-Bstatic选项，该选项是告诉链接器，对接下来的-l选项使用
+静态链接；-Wl,-Bdynamic就是告诉链接器对接下来的-l选项使用动态链接。
+　　
+# 输出预处理后/汇编后/编译后的结果，如果不使用这些选项则生成可执行文件 
+$ gcc -E/S/c source-file.c -o out-file-name
+$ gcc main.c @opt_file   # options can stored in a file
+$ man gcc   # see gcc options
+  -undefined
+    These options are passed to the Darwin linker. The Darwin linker man page describes them in detail.
+  -bundle
+    Produce a Mach-o bundle format file. See man ld(1) for more information.
+  -dynamiclib
+    When passed this option, GCC produces a dynamic library instead of an executable when linking, using
+    the Darwin libtool command
+  -g
+    Produce debugging information in the operating system's native format (stabs, COFF, XCOFF, or DWARF 2).
+    GDB can work with this debugging information.
+    GCC allows you to use -g with -O.  The shortcuts taken by optimized code may occasionally produce
+    surprising results: some variables you declared may not exist at all; flow of control may briefly
+    move where you did not expect it; some statements may not be executed because they compute constant
+    results or their values are already at hand; some statements may execute in different places because
+    they have been moved out of loops.
+    Nevertheless it proves possible to debug optimized output. This makes it reasonable to use the optimizer
+    for programs that might have bugs.
+  -pg
+    Generate extra code to write profile information suitable for the analysis program gprof. You must use
+    this option when compiling the source files you want data about, and you must also use it when linking.
+$ man ld    # see GNU linker options
+  -s
+  --strip-all
+    Omit all symbol information from the output file.
+  -S
+  --strip-debug
+    Omit debugger symbol information (but not all symbols) from the output file.
+  -O level
+    If level is a numeric values greater than zero ld optimizes the output. This might take significantly
+    longer and therefore probably should only be enabled for the final binary. At the moment this option only
+    affects ELF shared library generation.
+    Future releases of the linker may make more use of this option. Also currently there is no difference in
+    the linker's behaviour for different non-zero values of this option. Again this may change with future releases.
+  -E
+    When creating a dynamically linked executable, using the -E option or the --export-dynamic option causes
+    the linker to add all symbols to the dynamic symbol table. The dynamic symbol table is the set of symbols
+    which are visible from dynamic objects at run time.
+    If you do not use either of these options (or use the --no-export-dynamic option to restore the default behavior),
+    the dynamic symbol table will normally contain only those symbols which are referenced by some dynamic object
+    mentioned in the link.
+    If you use "dlopen" to load a dynamic object which needs to refer back to the symbols defined by the program,
+    rather than some other dynamic object, then you will probably need to use this option when linking the
+    program itself.
+    You can also use the dynamic list to control what symbols should be added to the dynamic symbol table
+    if the output format supports it.  See the description of --dynamic-list.
+    Note that this option is specific to ELF targeted ports. PE targets support a similar function to export
+    all symbols from a DLL or EXE; see the description of --export-all-symbols below.
+  -rpath=dir
+    Add a directory to the runtime library search path. This is used when linking an ELF executable with
+    shared objects. All -rpath arguments are concatenated and passed to the runtime linker, which uses them
+    to locate shared objects at runtime. The -rpath option is also used when locating shared objects which
+    are needed by shared objects explicitly included in the link; see the description of the -rpath-link option.
+    If -rpath is not used when linking an ELF executable, the contents of the environment variable "LD_RUN_PATH"
+    will be used if it is defined.
+    The -rpath option may also be used on SunOS. By default, on SunOS, the linker will form a runtime search
+    path out of all the -L options it is given. If a -rpath option is used, the runtime search path will be formed
+    exclusively using the -rpath options, ignoring the -L options. This can be useful when using gcc, which adds
+    many -L options which may be on NFS mounted file systems.
+    For compatibility with other ELF linkers, if the -R option is followed by a directory name, rather than a file
+    name, it is treated as the -rpath option.
+```
+
+
+**ipv6**
+```shell
+$ adb shell ifconfig
+bt-pan    Link encap:Ethernet  HWaddr 22:22:4d:06:45:8d
+          inet addr:192.168.44.141  Bcast:192.168.44.255  Mask:255.255.255.0 
+          inet6 addr: fe80::2022:4dff:fe06:458d/64 Scope: Link
+
+$ adb shell ip -4 route
+192.168.44.0/24 dev bt-pan  proto kernel  scope link  src 192.168.44.141
+
+$ adb shell ping -I 192.168.44.141 -c 10 baidu.com
+PING baidu.com (180.149.132.47) from 192.168.44.141 : 56(84) bytes of data.
+64 bytes from 180.149.132.47: icmp_seq=1 ttl=52 time=300 ms
+64 bytes from 180.149.132.47: icmp_seq=2 ttl=52 time=213 ms
+64 bytes from 180.149.132.47: icmp_seq=3 ttl=52 time=498 ms
+64 bytes from 180.149.132.47: icmp_seq=4 ttl=52 time=127 ms
+64 bytes from 180.149.132.47: icmp_seq=5 ttl=52 time=163 ms
+64 bytes from 180.149.132.47: icmp_seq=6 ttl=52 time=157 ms
+64 bytes from 180.149.132.47: icmp_seq=7 ttl=52 time=138 ms
+64 bytes from 180.149.132.47: icmp_seq=8 ttl=52 time=323 ms
+64 bytes from 180.149.132.47: icmp_seq=9 ttl=52 time=166 ms
+64 bytes from 180.149.132.47: icmp_seq=10 ttl=52 time=260 ms
+
+--- baidu.com ping statistics ---
+10 packets transmitted, 10 received, 0% packet loss, time 9033ms
+rtt min/avg/max/mdev = 127.877/235.019/498.876/109.345 ms
+
+$ adb shell route -n
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+192.168.44.0    0.0.0.0         255.255.255.0   U     0      0        0 bt-pan
+
+$ adb shell netstat -r
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
+192.168.44.0    *               255.255.255.0   U         0 0          0 bt-pan
+
+$ host -t AAAA www.qq.com
+www.qq.com has IPv6 address 240e:e1:8100:28::2:16
+
+$ adb shell [ -f /proc/net/if_inet6 ] && echo 'IPv6 ready system!' || echo 'No IPv6 support found! Compile the kernel!!'
+IPv6 ready system!
+
+$ adb shell lsmod | grep -qw ipv6 && echo "IPv6 kernel driver loaded and configured." || echo "IPv6 not configured and/or driver loaded on the system."
+IPv6 not configured and/or driver loaded on the system.
+
+$ ipv6 local address (fe80::), public address (2xxx:: or 3xxx::)
+```
+
+**ssh**
+```shell
+# ssh key generation (take github for example)
+$ ls -al ~/.ssh                                     # check ssh key exist or not
+$ ssh-keygen -t rsa -b 4096 -C "your_github_email"  # gen a new rsa key pair with the email as a label
+$ ls -al ~/.ssh                                     # list generated key files
+-rw-------  1 usrname ... id_rsa
+-rw-r--r--  1 usrname ... id_rsa.pub
+$ eval "$(ssh-agent -s)"                            # start ssh agent
+$ ssh-add ~/.ssh/id_rsa                             # add your private key to ssh agent
+$ cat ~/.ssh/id_rsa.pub                             # show and copy public key to github ssh key list
+$ ssh -T git@github.com                             # test the connection
+
+# ssh proxy (take firefox for example)
+$ ssh -fND 7070 user@example.com
+# configure firefox
+Preferences | Advanced | Network | Connection | Settings ...
+- Manual proxy configuration [check]
+- SOCKS Host: [127.0.0.1]  Port: [7070]
+- SOCKS v5 [check]
+```
+
+**shadowsocks, proxychains**
+```shell
+# install shadowsocks on both remote machine and local
+$ git clone https://github.com/shadowsocks/shadowsocks-libev.git
+$ cd shadowsocks-libev
+$ sudo apt-get install build-essential autoconf libtool libssl-dev asciidoc
+$ ./configure && make
+$ sudo make install
+
+# start server as a daemon on remote machine
+$ ss-server -p 4400 -k <password> -m aes-256-cfb -t 120 -f ~/ss-server.pid
+$ kill $(pgrep ss-server | tr "\n" " ")  # stop server if you dont use anymore
+
+# start a client as a daemon on local
+$ ss-local -s <server_host> -p 4400 -l 7070 -k <password> -m aes-256-cfb -f ~/ss-local.pid
+$ kill $(pgrep ss-local | tr "\n" " ")   # stop client if you dont use anymore
+
+# using proxychains on local
+$ sudo apt-get install proxychains
+$ sudo vi /etc/proxychains.conf
+socks5 127.0.0.1 7070
+$ curl ip.gs
+$ proxychains curl ip.gs
+
+# configure proxy for git
+# repository level: .git/config
+$ git config http.proxy 'socks5://127.0.0.1:7070' 
+$ git config https.proxy 'socks5://127.0.0.1:7070'
+# user level: ~/.gitconfig
+$ git config --global http.proxy 'socks5://127.0.0.1:7070' 
+$ git config --global https.proxy 'socks5://127.0.0.1:7070'
+```
+
+**scp**
+```shell
+$ scp -r user@example.com:~/docs/ .                  # copy remote docs to local current directory
+$ scp /home/a.mp3 user@example.com:~/music/          # copy to remote
+$ scp /home/a.mp3 user@example.com:~/music/001.mp3   # copy from remote
+```
+
+**curl**
+```shell
+# write output to a file with remote time and remote name
+$ curl -R -O http://www.inf.puc-rio.br/~roberto/lpeg/lpeg-1.0.0.tar.gz
+```
+
+**download**
+```shell
+$ axel url # http://www.vpser.net/manage/axel.html
+$ wget url
+$ wget ftp://"name:word"@domain/path/file
+```
+
+**w3m**
+```shell
+# command line text broswer: http://wiki.ubuntu.org.cn/W3m
+$ sudo apt-get install w3m w3m-img
+# usages:
+- Space/B: next/prev page
+- J/K: scroll one line forward/backward
+- w/W: next/prev word
+- g/G: go to first/last line
+- Tab/C-u: next/prev hyperlink
+- u/c: show current hyperlink url, show current page url
+- i/I: show image url, open image
+- Enter: open hyperlink
+```
+
+**linode**
+```shell
+# node speed test: https://www.linode.com/speedtest
+# https://manager.linode.com/linodes/weblish/linode1414078
+```
+
+**name.com**
+```
+Annual Renewal: $10.99 - Renew Domain   Auto Renew: Enabled
+年度费用：$10.99 - 续费                 自动续费：已开启
+Domain Expires: 00 Nov 20XX             Whois Privacy: Private
+域名到期时间：00 Nov 20XX               Whois隐私：私密的
+Domain name: example.com             (域名)  
+Domain lock: Transfer Lock           (转移已锁定)  
+Transfer Auth Code: [Show Code]      (用于域名转移的授权代码)  
+Nameservers: [Edit Nameservers]      (域名解析服务器 [编辑域名服务器])  
+DNS hosted: Yes [Update DNS records] (域名服务已开启 [更新域名服务记录])  
+  | Type | Host          | Answer            | TTL
+  |  A   | example.com   | your_ip_address   | 300
+  |  A   | *.example.com | your_ip_address   | 300
+```
+
+
+# vim
+
+http://vimdoc.sourceforge.net/
+https://www.fprintf.net/vimCheatSheet.html
+
+```shell
+INSERT - change to insert mode
+ESC - exit from editor mode to command mode
+
+:q   - quit without save
+:wq  - save and then quit
+:wq! - force overwrite and quit
+
+: LINE_NUMBER ENTER
+/ STRING_TO_SEARCH ENTER - first match after cursor
+? STRING_TO_SEARCH ENTER - first match before cursor
+n - next match
+N - prev match
+```
+
+comment/uncomment multiple lines
+```shell
+<c-v>   # enter visual block mode
+j       # select multiple lines
+I       # enter insert mode
+//      # input the comment characters
+ESC     # finish
+
+<c-v>   # enter visual block mode
+j and k # select multiple lines and columns
+d       # delete comments
+```
+
+```c
+x   删除光标下的字符
+.   重复上一次操作，这里再次删除光标下的字符
+u   撤销上一次操作
+u   撤销上上一次操作，这里文本将复原
+
+dd  删除光标所在行
+.   重复上一次操作，这里再次删除光标所在行
+uu  撤销上述操作
+
+>G  增加从当前行到文档末尾的缩进层次
+>gg 增加从文档开头到当前行的缩进层次
+
+$         光标移到行尾
+a;<ESC>   在当前光标之后添加一个分号，并退出插入模式
+j$.       光标下移一行，并移到到行尾，重复上一次操作
+
+[理想模式：用一键移动，另一键执行]
+A;<ESC>   其中A相当于$a，这里在当前行尾添加一个分号，并退出插入模式
+j.        光标下移一行，重复上一次操作，即在行尾添加一个分号并退出插入模式
+
+f+        在当前行查找下一个加号，并将光标移动到+字符上
+s + <ESC> 删除当前字符并进入插入模式，添加一个空格一个加号和一个空格，退出插入模式
+;.        正向继续上一次查找（使用,可以反向查找），并重复上一次操作
+
+:set hls       可以打开高亮显示
+*              查找当前光标所在位置的单词
+cw[word]<ESC>  删除当前单词光标位置到单词结尾间的字符，并输入替换的单词，然后退出插入模式
+n.             查找下一个单词，并执行上述替换操作
+
+o<ESC>    在当前行行尾添加一个换行，并退出插入模式
+h j k l   将光标向左、向下、向上、向右移动一位
+
+b         将光标移动到当前单词的第一个字符上
+dw        删除光标位置到下一个单词开头的内容
+daw       可以理解为delet a word
+
+yyp       复制当前行并将复制的内容插入当前行之下
+cw        删除单词当前光标位置到单词末尾的字符，并进入插入模式
+<c-a>     将当前行光标所在的数字或下一个数字加1
+<c-x>     将当前行光标所在的数字或下一个数字减1
+180<c-x>  将当前行光标所在的数字或下一个数字减180
+
+c3wsome more<ESC> 进入插入模式删除3个单词，并输入some more，然后退出插入模式
+d3w               删除3个单词（或者3dw）
+
+[操作符 + 动作命令 = 操作]
+:h operator 查看所有操作符
+c{motion}    cl 删除当前字符 cw 删除单词光标之后的字符 caw 删除整个单词 cap 删除段落 cc 删除当前行 => 并保留在插入模式
+d{motion}    dl 删除当前字符 dw 删除单词光标之后的字符 daw 删除整个单词 dap 删除段落 dd 重复作用于当前行
+gu{motion}   gul guaw guap 转换成小写 gugu guu 作用于当前行
+gU{motion}   gUl gUaw gUap 转换成大写 gUgU gUU 作用于当前行
+g~{motion}   g~l g~aw g~ap 大小变小大 g~g~ g~~ 作用于当前行
+>{motion}    >ap >> 增加缩进
+<{motion}    <ap << 减少缩进
+={motion}    =ap == 自动缩进
+
+:h :map-operator
+:h omap-info
+
+[插入模式]
+<c-h> 删除前一个字符
+<c-w> 删除前一个单词
+<c-u> 删除至行首
+
+<c-o>zz 插入模式下使用<c-o>可临时进入普通模式，然后执行一个普通模式命令后返回插入模式 
+
+```
+
+
+
+
+GCC Debugging
+-------------
+
+$ gdb -q program   # use gdb to start the program
+(gdb) li 1,n       # list source file lines
+(gdb) b 2          # set break point at line 2
+(gdb) b 10         # set break point at line 10
+(gdb) func         # set break at the the function
+(gdb) run          # run the code, it will be stop at break points
+(gdb) info locals  # check function local variables
+(gdb) bt           # check backtrack
+(gdb) x/s 0x423580 # check the string at 0x423580
+(gdb) quit         # quit gdb
+
+> cheat.sh/gdb
+
+Ubuntu 18.04 LTS
+----------------
+
+## ssh
+ps -ef | grep ssh
+/etc/init.d/ssh start
+
+mkdir folder
+cd folder
+mkdir repo
+curl https://storage.googleapis.com/git-repo-downloads/repo > repo/repo
+chmod a+x repo/repo
+add "export PATH=~/folder/repo/:$PATH" to the end of the file ~/.bashrc
+source ~/.bashrc
+apt-get update
+apt-get install python
+attach new volume
+mkfs.ext4 /dev/disk/by-id/new_volume_name
+mkdir /mnt/mount_name
+mount /dev/disk/by-id/new_volume_name /mnt/mount_name
+add "/dev/disk/by-id/new_volume_name /mnt/mount_name ext4 defaults 0 2" into the end of the file /etc/fstab
+cd path/to/your/working_directory
+mkdir code/nexusvx_oreo/android-8.1.0_r27
+cd code/nexusvx_oreo/android-8.1.0_r27
+git config --global user.name your-name
+git config --global user.email your-email
+repo init -u https://android.googlesource.com/platform/manifest -b android-8.1.0_r27
+repo sync
+wget https://dl.google.com/dl/android/aosp/lge-bullhead-opm4.171019.016.a1-6ca0caeb.tgz
+wget https://dl.google.com/dl/android/aosp/qcom-bullhead-opm4.171019.016.a1-adcef468.tgz
+tar -zxvf lge-bullhead-opm4.171019.016.a1-6ca0caeb.tgz
+tar -zxvf qcom-bullhead-opm4.171019.016.a1-adcef468.tgz
+./extract-lge-bullhead.sh
+./extract-qcom-bullhead.sh
+apt-get install make
+make clobber
+apt-get install openjdk-8-jdk
+update-alternatives --list java
+update-alternatives --config java
+update-alternatives --config javac
+java -version
+. build/envsetup.sh
+lunch
+Which would you like? [aosp_arm-eng] aosp_bullhead-userdebug
+make -j4
+
+
+Compress and extract
+--------------------
+
+=> tar
+   -c    create a new archive
+   -r    append new files to the end of an archive
+   -u    only append files newer than copy in archive
+   -x    extract files from an archive
+   -t    list the contents of an archive
+   -p    extract files with the same file permissions
+   -z    filter the archive through gzip
+   -j    filter the archive through bzip2
+   -v    verbosely list files processed
+   -f    specify the file name
+
+tar -czvf archive.tgz file1 file2   # create archive.tgz from files
+tar -czvf archive.tgz folder/       # create archive.tgz from folder
+tar -xzvf archive.tgz               # extract the archive.tgz to current folder
+tar -rzvf archive.tgz file3         # append new files
+tar -uzvf archive.tgz file2         # update exist files
+
+tar jxvf file.tar.bz2
+
+zip dest.zip file1 file2 file3  # compress specified files
+zip dest.zip -r folder/         # compress all files in folder
+unzip dest.zip                  # extract to current folder
+unzip dest.zip -d folder/       # extract to specified folder
+
+
+Networking
+----------
+
+apt-get install shadowsocks-libev
+kill `pgrep ss-server | tr "\n" " "`
+ss-server -p port -k password -m aes-256-cfb -t 120 -f ~/ss-server.pid
+pgrep ss-server
+
+
+Disk
+----
+
+df -hl  # show human (-h) readable info about the local (-l) file systems
+du -hd 1            # show files and folders size only under current folder
+du -h folder/file   # show the size of the file
+du -h folder/       # show the size of all files and all folders in the folder
+du -h folder/ -d 1  # only for first depth files and folders
+
+Java
+----
+
+Install Oracle Java 1.8
+
+$ sudo add-apt-repository ppa:webupd8team/java
+$ sudo apt-get update
+$ apt-cache pkgnames oracle-java
+oracle-java8-unlimited-jce-policy
+oracle-java8-set-default
+oracle-java8-installer
+$ sudo apt-get install oracle-java8-installer
+$ sudo apt-get install oracle-java8-set-default
+
+Check Java Information
+
+$ sudo update-alternatives --list java
+/usr/lib/jvm/java-8-oracle/jre/bin/java
+$ java -version
+java version "1.8.0_191"
+Java(TM) SE Runtime Environment (build 1.8.0_191-b12)
+Java HotSpot(TM) 64-Bit Server VM (build 25.191-b12, mixed mode)
+$ sudo update-alternatives --config java
+$ sudo update-alternatives --config javac
+
+Setup Java Environment
+
+$ vi ~/.bashrc
+JAVA_HOME=/usr/lib/jvm/java-8-oracle
+JRE_HOME=$JAVA_HOME/jre
+JAVA_BIN=$JAVA_HOME/bin
+CLASSPATH=$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib
+PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin
+export JAVA_HOME JRE_HOME PATH CLASSPATH
+
+Tomcat
+------
+
+$ mkdir tomcat8
+$ wget http://mirror.bit.edu.cn/apache/tomcat/tomcat-8/v8.5.35/bin/apache-tomcat-8.5.35.tar.gz
+$ tar -zxvf apache-tomcat-8.5.35.tar.gz
+$ mv apache-tomcat-8.5.35 apache-tomcat-home
+$ vi ~/.bashrc
+export CATALINA_HOME=path/to/tomcat8/apache-tomcat-home
+$ . ~/.bashrc
+$ ./apache-tomcat-home/bin/configtest.sh  # check configures
+Using CATALINA_BASE:   path/to/tomcat8/apache-tomcat-home
+Using CATALINA_HOME:   path/to/tomcat8/apache-tomcat-home
+Using CATALINA_TMPDIR: path/to/tomcat8/apache-tomcat-home/temp
+Using JRE_HOME:        /usr/lib/jvm/java-8-oracle/jre
+
+$ ./apache-tomcat-8.5.35/bin/configtest.sh  # check configures
+$ ./apache-tomcat-home/bin/startup.sh
+$ ./apache-tomcat-home/bin/shutdown.sh
+
+w3m - command line broswer
+--------------------------
+
+$ sudo apt-install w3m w3m-img
+$ sudo /etc/init.d/tomcat8 start
+$ w3m http://localhost:8080
+It works !
+
+OpenGrok
+--------
+
+* https://github.com/oracle/opengrok/wiki/How-to-setup-OpenGrok
+* https://github.com/oracle/opengrok/wiki/Webapp-configuration
+* https://github.com/oracle/opengrok/releases
+
+$ mkdir universal-ctags
+$ cd universal-ctags
+$ git clone https://github.com/universal-ctags/ctags.git
+$ cd ctags
+$ sudo apt-get install autoconf
+$ sudo apt-get install automake
+$ sudo apt-get install libtool
+$ sudo apt-get install pkg-config
+$ ./autogen.sh
+$ ./configure
+$ make
+$ make install
+$ which ctags
+/usr/local/bin/ctags
+
+$ mkdir opengrok
+$ cd opengrok
+$ wget https://github.com/oracle/opengrok/releases/download/1.1-rc75/opengrok-1.1-rc75.tar.gz
+$ tar -zxvf opengrok-1.1-rc75.tar.gz
+$ mv opengrok-1.1-rc75 opengrok-home
+$ mkdir -p opengrok-home/groksrc
+$ mkdir -p opengrok-home/grokdata
+$ vi ~/.bashrc
+export OPENGROK_SRC_ROOT=~/artwork/opengrok/opengrok-home/groksrc
+export OPENGROK_DATA_ROOT=~/artwork/opengrok/opengrok-home/grokdata
+export OPENGROK_TOMCAT_BASE=~/artwork/tomcat8/apache-tomcat-home
+
+$ sudo apt-get install python3 pyton3-pip
+$ python3 -m pip install opengrok-1.1-rc75/tools/opengrok-tools.tar.gz
+$ which opengrok
+/usr/local/bin/opengrok
+$ mkdir -p grokbase/src
+$ mkdir -p grokbase/data
+$ /usr/share/tomcat8/bin/catalina.sh configtest
+Using CATALINA_BASE:   /usr/share/tomcat8
+Using CATALINA_HOME:   /usr/share/tomcat8
+Using CATALINA_TMPDIR: /usr/share/tomcat8/temp
+Using JRE_HOME:        /usr/lib/jvm/java-8-oracle/jre
+Using CLASSPATH:       /usr/share/tomcat8/bin/bootstrap.jar:/usr/share/tomcat8/bin/tomcat-juli.jar
+$ vi ~/.bashrc
+export CATALINA_HOME=/usr/share/tomcat8
+export OPENGROK_TOMCAT_BASE=$CATALINA_HOME
+export OPENGROK_INSTANCE_BASE=path/to/opengrok/grokbase
+
+
+PS
+* 命令帮助 help command，help 会自动分页，可按 ctrl+c 返回
+* 更新帮助 update-help （需管理员权限）
+* get-help command [-online]，get-help 不会分页
+* 支持通配符查找命令 help *log*, help *event*
+* 详细帮助 help command -full
+* PS 将以逗号分隔的一组值读取为数组
+* 命令的单个参数值如果包含空格，需要用引号引起
+* 多个引号引起的参数也可用逗号分隔，形成参数数组
+* 命令的数组参数也可以单独放在文件里，每个参数占一行
+* 然后使用()指定命令的执行顺序，用 get-content file.txt 先将参数从文件中读出
+* 命令示例 help command -example
+* about 信息 help about*
+
+NMAKE
+* NMAKE : fatal error U1045: spawn failed : Permission denied
+* 可能是杀毒软件防护的原因，关闭杀毒软件或添加额外规则
+* 我遇到的另一个情况是，运行可执行程序时把 ./$@ 改成 $@ 就好的
+
+创建链接到目标文件夹的文件夹映射
+\> mklink /j link/folder path/to/dest/folder
+
+https://www.thewindowsclub.com/windows-10-network-reset
+cmd /c netsh winsock reset
+
+## 系统目录和磁盘映射目录
+
+C:\Users\<username>\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc\LocalState\rootfs
+Windows 下的磁盘映射在子系统 /mnt/c/ /mnt/d/ ... 等目录下
+
+## 安装 gcc arm 开发环境
+
+sudo apt-get install make
+make --version
+
+https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
+tar jxvf gcc-arm-none-eabi-4_9-2015q3-20150921-linux.tar.bz2
+
+## 命令行多屏幕
+
+sudo apt-get install screen
+sudo screen
+ctrl+a ?   -   get help
+ctrl+a c   -   create new window
+ctrl+a k   -   kill a window
+ctrl+a w   -   show current windows
+ctrl+a n   -   next window
+ctrl+a p   -   previous window
+ctrl+a 0   -   select the 0-window
+ctrl+a 1   -   select the 1-window
+
+Windows 10 更换硬盘后重新激活
+
+    1. Windows 激活报 0x8007232B 错误，DNS_ERROR_RCODE_NAME_ERROR
+    2. Means the PC isn't able to connect with activation servers
+    3. 用管理员身份运行 CMD
+    4. slmgr.vbs -skms zh.us.to 更换服务器
+    5. slmgr.vbs -ato 如果以前激活过，输入这个命令激活
+        ```shell
+        slmgr.vbs -skms zh.us.to
+        slmgr.vbs -ato
+        ```
+
+Windows 开发环境
+
+https://docs.microsoft.com/en-us/windows/desktop/apiindex/windows-api-list
+https://docs.microsoft.com/en-us/windows/desktop/api/
+https://docs.microsoft.com/en-us/windows-hardware/drivers/serports/serial-i-o-request-interface
+
+1. 安装 WindowsSDK（WindowsSDK_17763.132.181022-1834.rs5.iso）
+
+C:\Program Files (x86)\Windows Kits\10\
+C:\Users\localhost\Downloads\Windows Kits\10\WindowsSDK
+
+2. 安装 vs community 版本（vs_community__2096438226.1548924477.exe）
+
+C:\Program Files (x86)\Microsoft Visual Studio\2019\Community
+C:\ProgramData\Microsoft\VisualStudio\Packages
+C:\Program Files (x86)\Microsoft Visual Studio\Shared
+
+（1）Windows 10 更换硬盘后重新激活
+
+1. Windows 激活报 0x8007232B 错误，DNS_ERROR_RCODE_NAME_ERROR
+2. Means the PC isn't able to connect with activation servers
+3. 用管理员身份运行 CMD
+4. slmgr.vbs -skms zh.us.to 更换服务器
+5. slmgr.vbs -ato 如果以前激活过，输入这个命令激活
+
+```shell
+slmgr.vbs -skms zh.us.to
+slmgr.vbs -ato
+```
+
+（2）以管理员身份运行 CMD 命令行
+
+1. 点开进入开始菜单，输入“cmd"会自动搜到命令行工具
+2. 右键工具，选择使用管理管身份运行即可
+
+（3）Windows 编程单独关闭某一个警告
+
+```c
+warning C4127: 条件表达式是常量
+#pragma warning( push )
+#pragma warning( disable : 4127 )
+FAIL("invalid parameters");
+#pragma warning( pop )
+```
+
+（4）删除 inuse 但当前没使用的 COM 口
+
+```shell
+1. set devmgr_show_nonpresent_devices=1
+2. 打开设备管理器（或运行 devmgmt.msc），View > Show hidden devices
+3. 将灰色的 inuse 的 COM 口 Uninstall
+```
