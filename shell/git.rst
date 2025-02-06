@@ -29,6 +29,7 @@ git config ::
     git config --global a.b value    # set value of user level
     git config --system x.y.z        # show value of system level
     git config --system x.x.z value  # set value of system level
+    git config core.editor "vi"
 
     git rev-parse --git-dir   # show the path of current repository
 
