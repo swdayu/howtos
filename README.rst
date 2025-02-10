@@ -16,7 +16,7 @@
     https://github.com/golang/go
     https://github.com/golang/protobuf
     https://github.com/bkaradzic/bgfx
-    https://github.com/ruanyf/document-style-guide
+    http://the-witness.net/news/
 
 注音符号表 ::
 
