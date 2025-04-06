@@ -1,3 +1,8 @@
+https://www.gnu.org/software/emacs/manual/html_mono/emacs.html
+https://www.gnu.org/software/emacs/manual/html_mono/elisp.html
+https://pavinberg.github.io/emacs-book/zh/
+
+
 Emacs版本
 
 - Emacs-gtk 使用 GTK 图形库的版本
@@ -40,6 +45,7 @@ Emacs键位： ::
     M-e         一句的结尾
     M-Shift-<   文件开头
     M-Shift->   文件结尾
+    M-g M-g 8   跳转到第8行
 
     C-u 8       重复前缀，或者使用 M-8
     C-u 8 C-v   特殊的C-v，是整个屏幕向下移动8行，相当于屏幕滚动，等价于滚动条的操作
@@ -49,15 +55,22 @@ Emacs键位： ::
 
     <DEL>       删除光标左边的一个字符，即退格Backspace
     M-<DEL>     删除光标左边的一个词汇
+    C-d         删除（delete）光标右边的一个字符
+    M-d         删除（delete）光标右边的一个词汇
+    C-k         移除（kill）到行尾
+    M-k         移除（kill）到句尾
+    C-w         移除（kill）选中的内容，先用C-<SPC>并移动光标选中内容，然后按C-w移除
+                所选内容，由于中文输入法快捷键的冲突可以使用C-@代替
+    M-w         复制所选内容
+    C-y         召回（yanking）最近一次移除（kill）的内容，如果有多次C-k，按C-y
+                会一次性召回，如果重复按C-y相当于复制最近移除的内容
+    M-y         召回前一次移除的内容，再按召回前前次，最后是最近一次移除的内容
 
-    C-d         删除光标右边的一个字符
-    M-d         删除光标右边的一个词汇
+    C-/         撤销（undo）前一个命令造成的改变，只对改变文字的命令有效，如果是从键
+                盘输入文字会以组为单位，每组最多20个字符，这是为了减少撤销插入文字动
+                作时需要输入的C-/的次数。该命令还可以写作C-_（在某些终端上可以不按
+                shift键，即C--），或者C-x u。
+    C-g C-/     撤销之后，可以按C-g改变撤销的方向，相当于重做（redo），当所有的都重
+                做之后，它又会自动改变方向进行撤销（undo）
 
-    C-k         删除到行尾
-    M-k         删除到句尾
-
-    C-<SPC> 移动光标 C-w
-                删除所选内容，因为C-<SPC>在中文输入法中是快捷键，可以使用C-@代替
-
-    C-x 1       删除其他文档窗口，只保留光标所在的一个窗口
 
