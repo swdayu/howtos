@@ -136,6 +136,15 @@ git remote ::
 
     $ git remote update
     $ git remote -v
+    origin  git@github.com:<username>/<reponame>.git (fetch)
+    origin  git@github.com:<username>/<reponame>.git (push)
+    origin  https://github.com/<username>/<reponame>.git (fetch)
+    origin  https://github.com/<username>/<reponame>.git (push)
+    remote  https://github.com/<username>/<reponame>.git (fetch)
+    remote  https://github.com/<username>/<reponame>.git (push)
+
+    $ git remote remove <name>
+    $ git remote rename <oldname> <newname>
     $ git remote add https_remote https://example.com/user/demo.git
     $ git remote add ssh_remote git@example.com:user/demo.git
 
