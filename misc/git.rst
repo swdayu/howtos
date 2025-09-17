@@ -167,8 +167,9 @@ git commit ::
     $ git commit --amend
     $ git push remote HEAD:refs/for/MM/name/public/develop
 
-    # git add --all
-    # git commit -m "Update files for some purpose"
+    $ git commit --amend --date=now # 更新上次提交的提交时间
+    $ git add --all
+    $ git commit -m "Update files for some purpose"
 
     git push origin HEAD:refs/for/master
     git push origin refs/heads/ibrt_rc_0.2

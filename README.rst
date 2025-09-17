@@ -8,18 +8,20 @@
     https://github.com/MisterBooo/LeetCodeAnimation
     https://github.com/scutan90/DeepLearning-500-questions
     https://github.com/lettier/3d-game-shaders-for-beginners
-    https://github.com/cloudwu/skynet
-    https://github.com/cloudwu/sproto
-    https://github.com/cloudwu/ltask
-    https://github.com/ocornut/imgui
-    https://github.com/mikke89/RmlUi
     https://github.com/golang/go
     https://github.com/golang/protobuf
-    https://github.com/bkaradzic/bgfx
     http://the-witness.net/news/
     https://libmill.org/
     https://libdill.org/
-
+    https://manybutfinite.com/archives/
+    https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/
+    http://www.toodarkpark.org/computers/humor/shoot-self-in-foot.html
+    https://www.agner.org/optimize/
+    https://devblogs.microsoft.com/oldnewthing/author/oldnewthing
+    https://lexi-lambda.github.io/
+    https://godbolt.org/
+    https://matklad.github.io/
+    https://blog.netherlabs.nl/
 
 注音符号表 ::
 
