@@ -22,6 +22,8 @@
     https://godbolt.org/
     https://matklad.github.io/
     https://blog.netherlabs.nl/
+    https://www.pinvoke.net/index.aspx
+    https://learn.microsoft.com/en-us/sysinternals/
 
 注音符号表 ::
 
