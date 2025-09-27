@@ -1,0 +1,6 @@
+https://www.sco.com/developers/gabi/latest/contents.html
+https://www.sco.com/developers/gabi/
+https://refspecs.linuxbase.org/
+https://refspecs.linuxfoundation.org/elf/
+https://agner.org/optimize/
+https://github.com/ARM-software/abi-aa/releases
